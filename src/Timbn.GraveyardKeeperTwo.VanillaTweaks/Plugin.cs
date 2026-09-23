@@ -13,6 +13,7 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
     private StrayTechPoints? _strayTechPoints;
     private StuckCarriers? _stuckCarriers;
     private OvenIngredientSlots? _ovenSlots;
+    private BuiltEarlyQuests? _builtEarly;
 
     protected override void BindConfig(ConfigFile config) => PluginConfig.Bind(config);
 
@@ -48,6 +49,13 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
                 _techPointCap.Apply();
         }
 
+        if (PluginConfig.StudyTableNoStuckCrafts.Value)
+        {
+            Events.GameStarted(StudyTableStuckCraft.ClearStuckCrafts);
+            if (TimbnGame.IsInGame)
+                StudyTableStuckCraft.ClearStuckCrafts();
+        }
+
         if (PluginConfig.CrematoriumNoStuckBodies.Value)
         {
             Events.GameStarted(CrematoriumStuckBody.BurnStuckBodies);
@@ -66,6 +74,14 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         if (PluginConfig.CollectStrayTechPoints.Value)
             _strayTechPoints = new StrayTechPoints();
 
+        if (PluginConfig.BuiltEarlyQuests.Value)
+        {
+            _builtEarly = new BuiltEarlyQuests();
+            Events.GameStarted(_builtEarly.Queue);
+            Events.QuestStarted(_builtEarly.OnQuestStarted);
+            _builtEarly.Queue();
+        }
+
         if (PluginConfig.StuckCarriers.Value)
         {
             _stuckCarriers = new StuckCarriers();
@@ -81,6 +97,7 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         {
             _strayTechPoints?.Tick();
             _stuckCarriers?.Tick();
+            _builtEarly?.Tick();
         }
 
         if (TimbnGame.IsInGame

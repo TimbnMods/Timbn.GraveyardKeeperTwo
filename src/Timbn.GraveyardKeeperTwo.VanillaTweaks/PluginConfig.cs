@@ -4,6 +4,8 @@ internal static class PluginConfig
 {
     public static ConfigEntry<bool> StudyTableScienceOnly { get; private set; } = null!;
 
+    public static ConfigEntry<bool> StudyTableNoStuckCrafts { get; private set; } = null!;
+
     public static ConfigEntry<bool> GreenThumbTalentBonus { get; private set; } = null!;
 
     public static ConfigEntry<int> TechPointCap { get; private set; } = null!;
@@ -20,12 +22,21 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> StuckCarriers { get; private set; } = null!;
 
+    public static ConfigEntry<bool> BuiltEarlyQuests { get; private set; } = null!;
+
     public static ConfigEntry<KeyboardShortcut> UnstuckKey { get; private set; } = null!;
 
     public static ConfigEntry<float> UnstuckRange { get; private set; } = null!;
 
     public static void Bind(ConfigFile config)
     {
+        BuiltEarlyQuests = config.Bind(
+            "Quests",
+            "BuiltEarly",
+            true,
+            "Finishes Agatha's choir step and the woodcarver's organ step when you built the choir or organ "
+            + "before being asked. The game only checks the moment you build it, and it can be built once, so "
+            + "building it early locks the quest line for good. Checked when a save loads and when the step starts.");
 
         StuckCarriers = config.Bind(
             "Carriers",
@@ -53,7 +64,7 @@ internal static class PluginConfig
         TechPointCap = config.Bind(
             "TechPoints",
             "Cap",
-            9999,
+            999,
             new ConfigDescription(
                 "The most red, green, or blue tech points you can hold. The game caps each at 999 and throws away "
                 + "anything past it. Set to 999 to keep the game's cap.",
@@ -67,6 +78,14 @@ internal static class PluginConfig
             + "can fill the table's one slot, where the table window never shows them, and every science you make "
             + "afterwards is lost. Anything already stuck in the table is moved to your inventory when a save loads. Turning "
             + "this off takes the filter back off your tables when a save loads.");
+
+        StudyTableNoStuckCrafts = config.Bind(
+            "StudyTable",
+            "NoStuckCrafts",
+            true,
+            "Frees a study table the game left stuck partway through a decompose or study, showing Work with "
+            + "nothing to work on. Checked when a save loads. The item and science were already spent, so nothing "
+            + "is lost.");
 
         GreenThumbTalentBonus = config.Bind(
             "GreenThumb",

@@ -2,14 +2,13 @@ Timbn Vanilla Tweaks
 
 Timbn Vanilla Tweaks fixes bugs and adds light gameplay tweaks that are intended to enhance the vanilla experience without cheating. Almost every fix and tweak can be turned off on its own in the config.
 
-
 BUG FIXES
 
 Study Table eating your science
 If all storage in the tower is full and the study table has no science in it, a zombie can put its item in the table. The table is then unusable and every science you make afterwards is lost. This puts a science only filter on the table so that can't happen, and anything already stuck in the table is moved out when you load.
 
-Study button taking costs and doing nothing
-Sometimes pressing Study takes your faith and science and nothing starts. A broken popup on the workstation was stopping it partway through. The study now goes through.
+Study table stopping partway
+A broken popup on the workstation can stop the study table partway through. Pressing Study could take your faith and science and start nothing, and pressing Decompose could leave the table stuck. Both now are fixed and a table already stuck is freed when you load.
 
 Green Thumb perk
 The perk never worked and now adds +2 farming mastery when planting. The game does not use the player's mastery on harvest, so that part of the description still can't do anything.
@@ -29,6 +28,11 @@ The game can end up with 3.4999 faith when it should be 3.5, which rounds down i
 Stuck supply zombies
 Supply zombies could freeze holding an item when all storage was full. They now walk back to their station and show the game's storage full icon until there is room.
 
+SOFT LOCKS
+
+Quest building built too early
+
+Building the church choir before Agatha asks for it will lock the quest from completing. The game only noticed the build at the moment it happened, not if it has happened in the past. The quest now finishes when you load a save with the choir or organ already built.
 
 VANILLA TWEAKS
 
@@ -41,12 +45,10 @@ Using the bed saves the game even if you are not tired enough to sleep.
 Higher tech point cap
 Raises the red, green, and blue tech point cap from 999 to 9999. Set it to 999 in the config to keep the game's cap.
 
-
 REQUIREMENTS
 
 BepInEx 5 (x64, Mono)
 Timbn Core
-
 
 INSTALLATION
 
@@ -69,17 +71,14 @@ INSTALLATION
 4. Check it works
    Start the game, then open BepInEx/LogOutput.log. You should see "Core 1.0.0 started" and "Vanilla Tweaks started".
 
-
 SETTINGS
 
 After the first launch, every fix and tweak can be turned on or off in the config file. Restart the game after changing it.
 BepInEx/config/Timbn.GraveyardKeeperTwo.VanillaTweaks.cfg
 
-
 UNINSTALLING
 
 Delete the Timbn.GraveyardKeeperTwo.VanillaTweaks folder from BepInEx/plugins.
-
 
 LICENSE
 

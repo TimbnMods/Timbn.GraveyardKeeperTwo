@@ -8,9 +8,9 @@ Timbn Vanilla Tweaks fixes bugs and adds light gameplay tweaks that are intended
 
 If all storage in the tower is full and the study table has no science in it, a zombie can put its item in the table. The table is then unusable and every science you make afterwards is lost. This puts a science only filter on the table so that can't happen, and anything already stuck in the table is moved out when you load.
 
-### Study button taking costs and doing nothing
+### Study table stopping partway
 
-Sometimes pressing Study takes your faith and science and nothing starts. A broken popup on the workstation was stopping it partway through. The study now goes through.
+A broken popup on the workstation can stop the study table partway through. Pressing Study could take your faith and science and start nothing, and pressing Decompose could leave the table stuck. Both now are fixed and a table already stuck is freed when you load.
 
 ### Green Thumb perk
 
@@ -36,6 +36,12 @@ The game can end up with 3.4999 faith when it should be 3.5, which rounds down i
 
 Supply zombies could freeze holding an item when all storage was full. They now walk back to their station and show the game's storage full icon until there is room.
 
+## Soft Locks
+
+### Quest building built too early
+
+Building the church choir before Agatha asks for it will lock the quest from completing. The game only noticed the build at the moment it happened, not if it has happened in the past. The quest now finishes when you load a save with the choir or organ already built.
+
 ## Vanilla Tweaks
 
 ### Unstuck hotkey
@@ -56,6 +62,7 @@ Raises the red, green, and blue tech point cap from 999 to 9999. Set it to 999 i
 
 | Section | Entry | Default | What it does |
 | --- | --- | --- | --- |
+| Quests | BuiltEarly | true | Finishes quests that are stuck because you built an upgrade before a NPC asked for it. |
 | Carriers | ShowWhenStuck | true | When a carrier zombie has nothing in its room to put its item into, it shows the no storage icon the game already uses for gardeners and walks back to its supplier station instead of freezing where it " stands. It goes on with its work as soon as a slot frees up, as it would anyway. |
 | Unstuck | Key | CTRL + U | Moves you to the nearest open ground when you are boxed in, say between chests or inside a collider. Only works with no window open. Clear it to turn the key off. |
 | Unstuck | Range | 30 | How far Unstuck may move you, in world units |
