@@ -1,0 +1,36 @@
+<Project>
+
+  <!--
+    Shared by every plugin project. A csproj keeps only its identity, its version, its references, and its
+    content. Version here is the fallback for a project that does not set its own; each csproj overrides it,
+    and BepInEx.PluginInfoProps turns whichever wins into MyPluginInfo.PLUGIN_VERSION.
+  -->
+  <PropertyGroup>
+    <Version>1.0.0</Version>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <IsPackable>false</IsPackable>
+    <DebugType>embedded</DebugType>
+    <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=./</PathMap>
+    <GameDir>C:\Program Files (x86)\Steam\steamapps\common\Graveyard Keeper 2</GameDir>
+    <GameManagedDir>$(GameDir)\GraveyardKeeper2_Data\Managed</GameManagedDir>
+    <BepInExDir>$(GameDir)\BepInEx</BepInExDir>
+    <DeployTo Condition="'$(DeployTo)' == ''">plugins</DeployTo>
+    <ScriptReloadable Condition="'$(ScriptReloadable)' == ''">true</ScriptReloadable>
+    <RestoreAdditionalProjectSources>
+      https://api.nuget.org/v3/index.json;
+      https://nuget.bepinex.dev/v3/index.json
+    </RestoreAdditionalProjectSources>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.Core" Version="5.*" />
+    <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" PrivateAssets="all" />
+    <PackageReference Include="UnityEngine.Modules" Version="6000.3.9" IncludeAssets="compile" />
+  </ItemGroup>
+
+</Project>

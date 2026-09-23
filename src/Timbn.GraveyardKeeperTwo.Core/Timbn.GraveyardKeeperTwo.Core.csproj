@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Timbn.GraveyardKeeperTwo.Core</AssemblyName>
+    <Product>Timbn Core Mod</Product>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <!-- Core is what every other mod references, so it always deploys to plugins and is never hot reloaded. -->
+  <PropertyGroup>
+    <ScriptReloadable>false</ScriptReloadable>
+  </PropertyGroup>
+
+  <!-- Core is the only packable project, so another mod can reference it from NuGet rather than a local build. -->
+  <PropertyGroup>
+    <IsPackable>true</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+    <EmbedAllSources>true</EmbedAllSources>
+    <PackageId>Timbn.GraveyardKeeperTwo.Core</PackageId>
+    <Title>Timbn Graveyard Keeper 2 Core</Title>
+    <Authors>gavinsteinhoff</Authors>
+    <Description>Shared framework for Graveyard Keeper 2 (BepInEx 5) mods. A plugin base class with auto patching and config, plus the Core mod that hosts it.</Description>
+    <PackageTags>graveyardkeeper2;bepinex;modding;unity</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
+    <RepositoryType>git</RepositoryType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\lib\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>..\..\lib\Assembly-CSharp-firstpass.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="LazyBearTechnology">
+      <HintPath>$(GameManagedDir)\LazyBearTechnology.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(GameManagedDir)\Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(GameManagedDir)\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
+
+</Project>

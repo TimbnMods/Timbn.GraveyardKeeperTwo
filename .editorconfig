@@ -1,0 +1,19 @@
+﻿[*.cs]
+
+# IDE0290: Use primary constructor
+dotnet_diagnostic.IDE0290.severity = none
+
+# IDE0031: Use null propagation. Never suggest ?. here; on UnityEngine.Object it skips Unity's
+# overloaded null check, so a destroyed object slips through.
+dotnet_diagnostic.IDE0031.severity = none
+
+# Non-public fields (incl. const/static) are _camelCase
+dotnet_naming_rule.non_public_fields_underscore.symbols = non_public_fields
+dotnet_naming_rule.non_public_fields_underscore.style = underscore_camel_case
+dotnet_naming_rule.non_public_fields_underscore.severity = suggestion
+
+dotnet_naming_symbols.non_public_fields.applicable_kinds = field
+dotnet_naming_symbols.non_public_fields.applicable_accessibilities = private, internal, protected, protected_internal, private_protected
+
+dotnet_naming_style.underscore_camel_case.capitalization = camel_case
+dotnet_naming_style.underscore_camel_case.required_prefix = _

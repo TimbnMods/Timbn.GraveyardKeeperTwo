@@ -1,0 +1,79 @@
+<Project>
+
+  <!--
+    Where a build lands. DeployTo is plugins (loaded once by the chainloader) or scripts (hot reloaded by
+    ScriptEngine on F6), passed as -p:DeployTo=scripts. A project that must never be reloaded, such as Core,
+    sets ScriptReloadable false and always goes to plugins. A mod is removed from the other folder so it can
+    never be loaded twice. PluginDir is kept as the name the Exists gate and the docs use, so
+    -p:PluginDir=Z:/nope still compiles without deploying while the game runs.
+  -->
+  <PropertyGroup>
+    <_DeployFolder>$(DeployTo)</_DeployFolder>
+    <_DeployFolder Condition="'$(ScriptReloadable)' != 'true'">plugins</_DeployFolder>
+    <_OtherFolder Condition="'$(_DeployFolder)' == 'plugins'">scripts</_OtherFolder>
+    <_OtherFolder Condition="'$(_DeployFolder)' == 'scripts'">plugins</_OtherFolder>
+    <PluginDir Condition="'$(PluginDir)' == ''">$(BepInExDir)\$(_DeployFolder)</PluginDir>
+  </PropertyGroup>
+
+  <!--
+    Copies each plugin into BepInEx/<folder>/<ProjectName>: the DLL plus every content file the csproj
+    marks CopyToOutputDirectory, keeping each file's folder. Skipped when PluginDir does not exist.
+  -->
+  <Target Name="DeployToGame" AfterTargets="Build" Condition="Exists('$(PluginDir)')">
+    <ItemGroup>
+      <_DeployContent Include="@(None->WithMetadataValue('CopyToOutputDirectory', 'PreserveNewest'))" />
+    </ItemGroup>
+    <RemoveDir Directories="$(BepInExDir)\$(_OtherFolder)\$(MSBuildProjectName)" Condition="'$(_OtherFolder)' != ''" />
+    <RemoveDir Directories="$(PluginDir)\$(MSBuildProjectName)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginDir)\$(MSBuildProjectName)" />
+    <Copy
+      SourceFiles="@(_DeployContent)"
+      DestinationFiles="@(_DeployContent->'$(PluginDir)\$(MSBuildProjectName)\%(RelativeDir)%(Filename)%(Extension)')"
+      Condition="'@(_DeployContent)' != ''" />
+    <Message Importance="high" Text="Deployed $(MSBuildProjectName) to $(PluginDir)" />
+  </Target>
+
+  <!--
+    Builds a release zip for one plugin: artifacts/<ProjectName>-<Version>.zip, holding the plugin folder
+    exactly as it deploys, its XML doc file when the project generates one, the repo's LICENSE.txt,
+    the project's README.txt when it has one, plus the mod's docs/<ModName>/icon.png at the zip root
+    when it has one. Opt in
+    (dotnet build -t:Package -c Release), so a normal build stays as fast as it is.
+  -->
+  <Target Name="Package" DependsOnTargets="Build">
+    <PropertyGroup>
+      <_RepoRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))</_RepoRoot>
+      <_ModName>$(MSBuildProjectName.Replace('Timbn.GraveyardKeeperTwo.', ''))</_ModName>
+      <_PackageStage>$(IntermediateOutputPath)package\</_PackageStage>
+      <_PackageRoot>$(_PackageStage)$(MSBuildProjectName)\</_PackageRoot>
+      <_PackageFile>$(_RepoRoot)\artifacts\$(MSBuildProjectName)-$(Version).zip</_PackageFile>
+    </PropertyGroup>
+    <ItemGroup>
+      <_PackageContent Include="@(None->WithMetadataValue('CopyToOutputDirectory', 'PreserveNewest'))" />
+      <_PackageIcon Include="$(_RepoRoot)\docs\$(_ModName)\icon.png" />
+      <_PackageText Include="$(_RepoRoot)\LICENSE.txt;$(MSBuildProjectDirectory)\README.txt" />
+    </ItemGroup>
+    <RemoveDir Directories="$(_PackageStage)" />
+    <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(_PackageRoot)" />
+    <Copy
+      SourceFiles="$(TargetDir)$(TargetName).xml"
+      DestinationFolder="$(_PackageRoot)"
+      Condition="'$(GenerateDocumentationFile)' == 'true' And Exists('$(TargetDir)$(TargetName).xml')" />
+    <Copy
+      SourceFiles="@(_PackageContent)"
+      DestinationFiles="@(_PackageContent->'$(_PackageRoot)%(RelativeDir)%(Filename)%(Extension)')"
+      Condition="'@(_PackageContent)' != ''" />
+    <Copy
+      SourceFiles="@(_PackageText)"
+      DestinationFolder="$(_PackageRoot)"
+      Condition="Exists('%(_PackageText.FullPath)')" />
+    <Copy
+      SourceFiles="@(_PackageIcon)"
+      DestinationFolder="$(_PackageStage)"
+      Condition="Exists('%(_PackageIcon.FullPath)')" />
+    <MakeDir Directories="$(_RepoRoot)\artifacts" />
+    <ZipDirectory SourceDirectory="$(_PackageStage)" DestinationFile="$(_PackageFile)" Overwrite="true" />
+    <Message Importance="high" Text="Packaged $(_PackageFile)" />
+  </Target>
+
+</Project>

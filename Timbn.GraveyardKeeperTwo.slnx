@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Timbn.GraveyardKeeperTwo.Core/Timbn.GraveyardKeeperTwo.Core.csproj" />
+    <Project Path="src/Timbn.GraveyardKeeperTwo.VanillaTweaks/Timbn.GraveyardKeeperTwo.VanillaTweaks.csproj" />
+  </Folder>
+</Solution>
