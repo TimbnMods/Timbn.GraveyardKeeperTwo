@@ -44,6 +44,10 @@ Anything you built in the resurrection lab from the morgue build desk could neve
 
 A fishing spot will refill slower and slower as you progress through more days. This will fix it to refill at the normal rate.
 
+### Rebinding a key breaks Rotate
+
+Setting a control to R in the controls menu took R away from Rotate, and Rotate isn't in the menu, so only resetting every key got it back. The same happened to changing weapon (R), skipping dialog (Space), and moving sliders (arrow keys). Those keys now stay, and one already lost comes back the next time you open the controls menu.
+
 ## Soft Locks
 
 ### Quest building built too early
@@ -78,6 +82,7 @@ The game caps red, green, and blue tech points at 999 each and throws away anyth
 | Building | RemoveInWholeArea | true |
 | Building | DismantleUnreachable | true |
 | Carriers | ShowWhenStuck | true |
+| Controls | KeepHiddenKeys | true |
 | Unstuck | Key | CTRL + U |
 | Unstuck | Range | 30 |
 | TechPoints | Cap | 999 |

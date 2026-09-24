@@ -30,6 +30,8 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> DismantleUnreachable { get; private set; } = null!;
 
+    public static ConfigEntry<bool> KeepHiddenKeys { get; private set; } = null!;
+
     public static ConfigEntry<KeyboardShortcut> UnstuckKey { get; private set; } = null!;
 
     public static ConfigEntry<float> UnstuckRange { get; private set; } = null!;
@@ -65,6 +67,15 @@ internal static class PluginConfig
             true,
             "A station up against a fence or wall might be blocked from dismantling. This will allow you to still "
             + "work on it.");
+
+        KeepHiddenKeys = config.Bind(
+            "Controls",
+            "KeepHiddenKeys",
+            true,
+            "Setting a control to a key that one of the game's unlisted controls also uses (R to rotate while "
+            + "building, R to change weapon, Space to skip dialog, the arrow keys on sliders) no "
+            + "longer takes that key away from it, since the controls menu gives no way to set it again. A key "
+            + "already lost this way comes back the next time you open the controls menu.");
 
         UnstuckKey = config.Bind(
             "Unstuck",
