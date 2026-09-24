@@ -20,6 +20,8 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> CollectStrayTechPoints { get; private set; } = null!;
 
+    public static ConfigEntry<bool> InfiniteCrafts { get; private set; } = null!;
+
     public static ConfigEntry<bool> StuckCarriers { get; private set; } = null!;
 
     public static ConfigEntry<bool> BuiltEarlyQuests { get; private set; } = null!;
@@ -118,6 +120,14 @@ internal static class PluginConfig
             + "cook's second ingredient (the oil for onion rings, say) has nowhere to go and is destroyed on "
             + "delivery, over and over. Also refuses any delivery a station has no room for, instead of "
             + "destroying it.");
+
+        InfiniteCrafts = config.Bind(
+            "Crafting",
+            "InfiniteButton",
+            true,
+            "Shows the infinite button the game hides on each queued craft. Press it and the craft repeats for as "
+            + "long as the ingredients last, press it again to go back to 1. Crafts that can only be queued once "
+            + "never get it.");
 
         SermonFaithRounding = config.Bind(
             "Sermons",

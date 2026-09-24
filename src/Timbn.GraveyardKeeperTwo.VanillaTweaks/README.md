@@ -56,6 +56,10 @@ Using the bed saves the game even if you are not tired enough to sleep. This is 
 
 The game caps red, green, and blue tech points at 999 each and throws away anything past that. This is off by default. Raise TechPoints Cap in the config (up to 999999) to hold more.
 
+### Infinite crafts
+
+The craft queue has an infinite button that the game never shows. Hover a queued craft and it now sits next to plus and minus. Press it and the craft keeps repeating for as long as you have the ingredients. Press it again to go back to a count of 1.
+
 ## Configuration
 
 `BepInEx/config/Timbn.GraveyardKeeperTwo.VanillaTweaks.cfg`
@@ -71,6 +75,7 @@ The game caps red, green, and blue tech points at 999 each and throws away anyth
 | GreenThumb | TalentBonus | true | Makes the Green Thumb perk grant its +2 green talent when planting. The game puts the value in a field that planting crafts throw away, so the perk does nothing at all. Does nothing once the game fixes it. |
 | Crematorium | NoStuckBodies | true | The crematorium refuses a body until you have Anatomy 1, the level its burn needs. The game takes the body anyway, fails to start the burn, and leaves it stuck for good. A body already stuck when a save loads is burned. |
 | TechPoints | CollectStray | true | Pulls a tech point orb to you when it settles off the walkable ground, say through a wall, where the game's magnet can never reach it. The game only does this when you sleep. |
+| Crafting | InfiniteButton | true | Shows the infinite button the game hides on each queued craft. Press it and the craft repeats for as long as the ingredients last, press it again to go back to 1. Crafts that can only be queued once never get it. |
 | Oven | NoLostIngredients | true | Gives the oven room for every ingredient its recipes need. It has one ingredient slot, so a zombie cook's second ingredient (the oil for onion rings, say) has nowhere to go and is destroyed on delivery, over and over. Also refuses any delivery a station has no room for, instead of destroying it. |
 | Sermons | FaithRounding | true | Rounds ceremony faith the way the numbers say. Priest makes Basic Prayer pay 0.35 faith per parishioner, but 0.35 is stored as 0.3499999, so at 10, 30, 50 parishioners and so on 3.5 comes out as 3.4999999 and rounds down, and Priest adds nothing. |
 | Bed | SaveWhenRested | false | Saves the game when you use the bed with full energy and the Keeper refuses to sleep. The game only saves when you actually sleep. |

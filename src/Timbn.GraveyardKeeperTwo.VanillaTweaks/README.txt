@@ -45,6 +45,9 @@ Using the bed saves the game even if you are not tired enough to sleep. This is 
 Higher tech point cap
 The game caps red, green, and blue tech points at 999 each and throws away anything past that. This is off by default. Raise TechPoints Cap in the config (up to 999999) to hold more.
 
+Infinite crafts
+The craft queue has an infinite button that the game never shows. Hover a queued craft and it now sits next to plus and minus. Press it and the craft keeps repeating for as long as you have the ingredients. Press it again to go back to a count of 1.
+
 REQUIREMENTS
 
 BepInEx 5 (x64, Mono)
