@@ -16,6 +16,8 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> SermonFaithRounding { get; private set; } = null!;
 
+    public static ConfigEntry<bool> FishingRefill { get; private set; } = null!;
+
     public static ConfigEntry<bool> BedSaveWhenRested { get; private set; } = null!;
 
     public static ConfigEntry<bool> CollectStrayTechPoints { get; private set; } = null!;
@@ -136,6 +138,13 @@ internal static class PluginConfig
             "Rounds ceremony faith the way the numbers say. Priest makes Basic Prayer pay 0.35 faith per "
             + "parishioner, but 0.35 is stored as 0.3499999, so at 10, 30, 50 parishioners and so on 3.5 comes "
             + "out as 3.4999999 and rounds down, and Priest adds nothing.");
+
+        FishingRefill = config.Bind(
+            "Fishing",
+            "RefillOnTime",
+            true,
+            "A fishing spot will refill slower and slower as you progress through more days. This will fix it to "
+            + "refill at the normal rate.");
 
         BedSaveWhenRested = config.Bind(
             "Bed",

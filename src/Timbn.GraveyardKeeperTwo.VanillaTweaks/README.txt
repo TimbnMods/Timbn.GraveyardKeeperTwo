@@ -31,6 +31,9 @@ Supply zombies could freeze holding an item when all storage was full. They now 
 Chests in the resurrection lab can't be removed
 Anything you built in the resurrection lab from the morgue build desk could never be removed but this fixes it.
 
+Fishing spots refilling slower and slower
+A fishing spot will refill slower and slower as you progress through more days. This will fix it to refill at the normal rate.
+
 SOFT LOCKS
 
 Quest building built too early

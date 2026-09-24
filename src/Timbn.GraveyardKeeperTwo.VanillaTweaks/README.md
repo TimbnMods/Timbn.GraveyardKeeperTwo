@@ -40,6 +40,10 @@ Supply zombies could freeze holding an item when all storage was full. They now 
 
 Anything you built in the resurrection lab from the morgue build desk could never be removed. This fixes the issue.
 
+### Fishing spots refilling slower and slower
+
+A fishing spot will refill slower and slower as you progress through more days. This will fix it to refill at the normal rate.
+
 ## Soft Locks
 
 ### Quest building built too early
@@ -78,4 +82,5 @@ The game caps red, green, and blue tech points at 999 each and throws away anyth
 | TechPoints | CollectStray | true |
 | Oven | NoLostIngredients | true |
 | Sermons | FaithRounding | true |
+| Fishing | RefillOnTime | true |
 | Bed | SaveWhenRested | false |
