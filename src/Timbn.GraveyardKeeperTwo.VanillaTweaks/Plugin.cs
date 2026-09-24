@@ -1,10 +1,9 @@
-using LazyBearTechnology;
 using Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
 
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-[BepInDependency(TimbnCorePlugin.Guid, "1.0.0")]
+[BepInDependency(TimbnCorePlugin.Guid, "1.2.0")]
 public class Plugin : TimbnFrameworkPlugin<Plugin>
 {
     private StudyTableScienceOnly? _studyTable;
@@ -100,12 +99,8 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
             _builtEarly?.Tick();
         }
 
-        if (TimbnGame.IsInGame
-            && LazyWindowsStackController.ActiveWindow == null
-            && PluginConfig.UnstuckKey.Value.IsDown())
-        {
+        if (PluginConfig.UnstuckKey.Value.IsDownWithControl())
             Unstuck.Run(PluginConfig.UnstuckRange.Value);
-        }
     }
 
     protected override void OnDestroyed()

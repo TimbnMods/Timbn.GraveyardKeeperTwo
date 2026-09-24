@@ -64,7 +64,7 @@ The game caps red, green, and blue tech points at 999 each and throws away anyth
 | --- | --- | --- | --- |
 | Quests | BuiltEarly | true | Finishes quests that are stuck because you built an upgrade before a NPC asked for it. |
 | Carriers | ShowWhenStuck | true | When a carrier zombie has nothing in its room to put its item into, it shows the no storage icon the game already uses for gardeners and walks back to its supplier station instead of freezing where it stands. It goes on with its work as soon as a slot frees up, as it would anyway. |
-| Unstuck | Key | CTRL + U | Moves you to the nearest open ground when you are boxed in, say between chests or inside a collider. Only works with no window open. Clear it to turn the key off. |
+| Unstuck | Key | CTRL + U | Moves you to the nearest open ground when you are boxed in, say between chests or inside a collider. Only works while you can move, so not with a window open or during dialog or a cutscene. Clear it to turn the key off. |
 | Unstuck | Range | 30 | How far Unstuck may move you, in world units |
 | TechPoints | Cap | 999 | The most red, green, or blue tech points you can hold. The game caps each at 999 and throws away anything past it. Set to 999 to keep the game's cap. |
 | StudyTable | ScienceOnly | true | Lets the study table hold only science. Without it, a zombie putting items into the tower's storage can fill the table's one slot, where the table window never shows them, and every science you make afterwards is lost. Anything already stuck in the table is moved to your inventory when a save loads. Turning this off takes the filter back off your tables when a save loads. |

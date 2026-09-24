@@ -51,7 +51,8 @@ internal static class PluginConfig
             "Key",
             new KeyboardShortcut(KeyCode.U, KeyCode.LeftControl),
             "Moves you to the nearest open ground when you are boxed in, say between chests or inside a "
-            + "collider. Only works with no window open. Clear it to turn the key off.");
+            + "collider. Only works while you can move, so not with a window open or during dialog or a "
+            + "cutscene. Clear it to turn the key off.");
 
         UnstuckRange = config.Bind(
             "Unstuck",
