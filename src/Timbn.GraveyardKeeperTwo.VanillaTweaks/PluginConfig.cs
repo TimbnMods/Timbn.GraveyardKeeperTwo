@@ -28,6 +28,8 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> RemoveInWholeArea { get; private set; } = null!;
 
+    public static ConfigEntry<bool> DismantleUnreachable { get; private set; } = null!;
+
     public static ConfigEntry<KeyboardShortcut> UnstuckKey { get; private set; } = null!;
 
     public static ConfigEntry<float> UnstuckRange { get; private set; } = null!;
@@ -56,6 +58,13 @@ internal static class PluginConfig
             true,
             "Allows you to remove buildings you should be allowed to but the game blocks its. Chests built in the " +
             "resurrection lab from the morgue build desk are an example.");
+
+        DismantleUnreachable = config.Bind(
+            "Building",
+            "DismantleUnreachable",
+            true,
+            "A station up against a fence or wall might be blocked from dismantling. This will allow you to still "
+            + "work on it.");
 
         UnstuckKey = config.Bind(
             "Unstuck",

@@ -40,6 +40,10 @@ Quest building built too early
 
 Building the church choir before Agatha asks for it will lock the quest from completing. The game only noticed the build at the moment it happened, not if it has happened in the past. The quest now finishes when you load a save with the choir or organ already built.
 
+Stations you can't reach to dismantle
+
+A station up against a fence or wall might be blocked from dismantling. This will allow you to still work on it.
+
 VANILLA TWEAKS
 
 Unstuck hotkey

@@ -50,6 +50,10 @@ A fishing spot will refill slower and slower as you progress through more days. 
 
 Building the church choir before Agatha asks for it will lock the quest from completing. The game only noticed the build at the moment it happened, not if it has happened in the past. The quest now finishes when you load a save with the choir or organ already built.
 
+### Stations you can't reach to dismantle
+
+A station up against a fence or wall might be blocked from dismantling. This will allow you to still work on it.
+
 ## Vanilla Tweaks
 
 ### Unstuck hotkey
@@ -72,6 +76,7 @@ The game caps red, green, and blue tech points at 999 each and throws away anyth
 | --- | --- | --- |
 | Quests | BuiltEarly | true |
 | Building | RemoveInWholeArea | true |
+| Building | DismantleUnreachable | true |
 | Carriers | ShowWhenStuck | true |
 | Unstuck | Key | CTRL + U |
 | Unstuck | Range | 30 |

@@ -13,6 +13,7 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
     private StuckCarriers? _stuckCarriers;
     private OvenIngredientSlots? _ovenSlots;
     private BuiltEarlyQuests? _builtEarly;
+    private UnreachableDismantle? _unreachableDismantle;
 
     protected override void BindConfig(ConfigFile config) => PluginConfig.Bind(config);
 
@@ -87,6 +88,9 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
             Events.GoToMainMenu(_stuckCarriers.Reset);
         }
 
+        _unreachableDismantle = new UnreachableDismantle();
+        _unreachableDismantle.Apply();
+
         Logger.LogMessage($"Vanilla Tweaks started. Unstuck on {PluginConfig.UnstuckKey.Value}.");
     }
 
@@ -109,5 +113,6 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         _greenThumb?.Revert();
         _techPointCap?.Revert();
         _ovenSlots?.Revert();
+        _unreachableDismantle?.Revert();
     }
 }
