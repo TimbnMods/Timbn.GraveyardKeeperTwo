@@ -4,17 +4,11 @@ Timbn Vanilla Tweaks fixes bugs and adds light gameplay tweaks that are intended
 
 BUG FIXES
 
-Study Table eating your science
-If all storage in the tower is full and the study table has no science in it, a zombie can put its item in the table. The table is then unusable and every science you make afterwards is lost. This puts a science only filter on the table so that can't happen, and anything already stuck in the table is moved out when you load.
-
 Study table stopping partway
 A broken popup on the workstation can stop the study table partway through. Pressing Study could take your faith and science and start nothing, and pressing Decompose could leave the table stuck. Both now are fixed and a table already stuck is freed when you load.
 
 Green Thumb perk
 The perk never worked and now adds +2 farming mastery when planting. The game does not use the player's mastery on harvest, so that part of the description still can't do anything.
-
-Crematorium bodies no longer get stuck
-Putting a body in the crematorium with 0 Anatomy mastery made the crematorium unusable. It now refuses the body until you have Anatomy 1, and any body already stuck is burned when you load the game.
 
 Lost tech points
 Tech points can bounce through a wall and land where they can't reach you. Now any tech points stuck off walkable ground are pulled to you.
@@ -30,9 +24,6 @@ Supply zombies could freeze holding an item when all storage was full. They now 
 
 Chests in the resurrection lab can't be removed
 Anything you built in the resurrection lab from the morgue build desk could never be removed but this fixes it.
-
-Fishing spots refilling slower and slower
-A fishing spot will refill slower and slower as you progress through more days. This will fix it to refill at the normal rate.
 
 SOFT LOCKS
 
@@ -58,6 +49,12 @@ Using the bed saves the game even if you are not tired enough to sleep. This is 
 
 Higher tech point cap
 The game caps red, green, and blue tech points at 999 each and throws away anything past that. This is off by default. Raise TechPoints Cap in the config (up to 999999) to hold more.
+
+FIXED BY GAME UPDATES
+
+Study Table eating your science
+Crematorium bodies no longer get stuck
+Fishing spots refilling slower and slower
 
 REQUIREMENTS
 

@@ -4,10 +4,6 @@ Timbn Vanilla Tweaks fixes bugs and adds light gameplay tweaks that are intended
 
 ## Bug Fixes
 
-### Study Table eating your science
-
-If all storage in the tower is full and the study table has no science in it, a zombie can put its item in the table. The table is then unusable and every science you make afterwards is lost. This puts a science only filter on the table so that can't happen, and anything already stuck in the table is moved out when you load.
-
 ### Study table stopping partway
 
 A broken popup on the workstation can stop the study table partway through. Pressing Study could take your faith and science and start nothing, and pressing Decompose could leave the table stuck. Both now are fixed and a table already stuck is freed when you load.
@@ -15,10 +11,6 @@ A broken popup on the workstation can stop the study table partway through. Pres
 ### Green Thumb perk
 
 The perk never worked and now adds +2 farming mastery when planting. The game does not use the player's mastery on harvest, so that part of the description still can't do anything.
-
-### Crematorium bodies no longer get stuck
-
-Putting a body in the crematorium with 0 Anatomy mastery made the crematorium unusable. It now refuses the body until you have Anatomy 1, and any body already stuck is burned when you load the game.
 
 ### Lost tech points
 
@@ -40,9 +32,9 @@ Supply zombies could freeze holding an item when all storage was full. They now 
 
 Anything you built in the resurrection lab from the morgue build desk could never be removed. This fixes the issue.
 
-### Fishing spots refilling slower and slower
+### Fixed by the game
 
-A fishing spot will refill slower and slower as you progress through more days. This will fix it to refill at the normal rate.
+The study table eating your science, crematorium bodies getting stuck, and fishing spots refilling slower and slower are fixed in the game itself since version 1.005, so this mod no longer touches them.
 
 ## Soft Locks
 
@@ -72,6 +64,12 @@ Using the bed saves the game even if you are not tired enough to sleep. This is 
 
 The game caps red, green, and blue tech points at 999 each and throws away anything past that. This is off by default. Raise TechPoints Cap in the config (up to 999999) to hold more.
 
+## Fixed By Game Updates
+
+- Study Table eating your science
+- Crematorium bodies no longer get stuck
+- Fishing spots refilling slower and slower
+
 ## Configuration
 
 `BepInEx/config/Timbn.GraveyardKeeperTwo.VanillaTweaks.cfg`
@@ -86,11 +84,8 @@ The game caps red, green, and blue tech points at 999 each and throws away anyth
 | Unstuck | Key | CTRL + U |
 | Unstuck | Range | 30 |
 | TechPoints | Cap | 999 |
-| StudyTable | ScienceOnly | true |
 | GreenThumb | TalentBonus | true |
-| Crematorium | NoStuckBodies | true |
 | TechPoints | CollectStray | true |
 | Oven | NoLostIngredients | true |
 | Sermons | FaithRounding | true |
-| Fishing | RefillOnTime | true |
 | Bed | SaveWhenRested | false |

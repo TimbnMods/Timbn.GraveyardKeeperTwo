@@ -2,21 +2,15 @@ namespace Timbn.GraveyardKeeperTwo.VanillaTweaks;
 
 internal static class PluginConfig
 {
-    public static ConfigEntry<bool> StudyTableScienceOnly { get; private set; } = null!;
-
     public static ConfigEntry<bool> StudyTableNoStuckCrafts { get; private set; } = null!;
 
     public static ConfigEntry<bool> GreenThumbTalentBonus { get; private set; } = null!;
 
     public static ConfigEntry<int> TechPointCap { get; private set; } = null!;
 
-    public static ConfigEntry<bool> CrematoriumNoStuckBodies { get; private set; } = null!;
-
     public static ConfigEntry<bool> OvenNoLostIngredients { get; private set; } = null!;
 
     public static ConfigEntry<bool> SermonFaithRounding { get; private set; } = null!;
-
-    public static ConfigEntry<bool> FishingRefill { get; private set; } = null!;
 
     public static ConfigEntry<bool> BedSaveWhenRested { get; private set; } = null!;
 
@@ -100,15 +94,6 @@ internal static class PluginConfig
                 + "anything past it. Set to 999 to keep the game's cap.",
                 new AcceptableValueRange<int>(999, 999999)));
 
-        StudyTableScienceOnly = config.Bind(
-            "StudyTable",
-            "ScienceOnly",
-            true,
-            "Lets the study table hold only science. Without it, a zombie putting items into the tower's storage "
-            + "can fill the table's one slot, where the table window never shows them, and every science you make "
-            + "afterwards is lost. Anything already stuck in the table is moved to your inventory when a save loads. Turning "
-            + "this off takes the filter back off your tables when a save loads.");
-
         StudyTableNoStuckCrafts = config.Bind(
             "StudyTable",
             "NoStuckCrafts",
@@ -124,14 +109,6 @@ internal static class PluginConfig
             "Makes the Green Thumb perk grant its +2 green talent when planting. The game puts the value in a "
             + "field that planting crafts throw away, so the perk does nothing at all. Does nothing once the game "
             + "fixes it.");
-
-        CrematoriumNoStuckBodies = config.Bind(
-            "Crematorium",
-            "NoStuckBodies",
-            true,
-            "The crematorium refuses a body until you have Anatomy 1, the level its burn needs. The game takes "
-            + "the body anyway, fails to start the burn, and leaves it stuck for good. A body already stuck when a "
-            + "save loads is burned.");
 
         CollectStrayTechPoints = config.Bind(
             "TechPoints",
@@ -156,13 +133,6 @@ internal static class PluginConfig
             "Rounds ceremony faith the way the numbers say. Priest makes Basic Prayer pay 0.35 faith per "
             + "parishioner, but 0.35 is stored as 0.3499999, so at 10, 30, 50 parishioners and so on 3.5 comes "
             + "out as 3.4999999 and rounds down, and Priest adds nothing.");
-
-        FishingRefill = config.Bind(
-            "Fishing",
-            "RefillOnTime",
-            true,
-            "A fishing spot will refill slower and slower as you progress through more days. This will fix it to "
-            + "refill at the normal rate.");
 
         BedSaveWhenRested = config.Bind(
             "Bed",
