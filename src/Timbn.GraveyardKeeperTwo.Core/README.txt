@@ -13,7 +13,10 @@ INSTALLATION
 1. Install BepInEx 5 (skip this if you already have it)
    a. Download BepInEx 5.4.23.5 for Windows x64 (BepInEx_win_x64_5.4.23.5.zip) from https://github.com/BepInEx/BepInEx/releases
       Use BepInEx 5, not 6.
-   b. Open the game folder. In Steam, right click Graveyard Keeper 2, then Manage > Browse local files.
+   b. Open the game folder, the one with GraveyardKeeper2.exe in it.
+      In Steam, right click Graveyard Keeper 2, then Manage > Browse local files.
+      In GOG Galaxy, open Graveyard Keeper 2, click the settings icon next to Play, then Manage installation > Show folder.
+      In the Epic Games Launcher, open your Library, click the three dots on Graveyard Keeper 2, then Manage, then the folder icon next to Installation.
    c. Extract the zip into that folder, so BepInEx, winhttp.dll, and doorstop_config.ini sit next to GraveyardKeeper2.exe.
    d. Start the game once and quit at the main menu. This creates the BepInEx/plugins and BepInEx/config folders.
 

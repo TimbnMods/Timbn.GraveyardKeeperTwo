@@ -28,7 +28,7 @@ Every mod has a General / Enabled toggle (default true). Set it to false to turn
 
 ## Building from source
 
-Requires the .NET SDK. Game DLLs are referenced from lib and from your Graveyard Keeper 2 Managed folder (via the GameDir property in src/Directory.Build.props, adjust if Steam is installed elsewhere).
+Requires the .NET SDK. Game DLLs are referenced from lib and from your Graveyard Keeper 2 Managed folder (via the GameDir property in src/Directory.Build.props, adjust if the game is installed elsewhere).
 
 To deploy a mod to the plugins folder:
 

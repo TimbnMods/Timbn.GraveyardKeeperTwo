@@ -50,11 +50,11 @@ No more getting wedged into a tight spot. A configurable key (default Ctrl+U) mo
 
 ### Bed saving without being tired
 
-Using the bed saves the game even if you are not tired enough to sleep.
+Using the bed saves the game even if you are not tired enough to sleep. This is off by default. Turn on Bed SaveWhenRested in the config to use it.
 
 ### Higher tech point cap
 
-Raises the red, green, and blue tech point cap from 999 to 9999. Set it to 999 in the config to keep the game's cap.
+The game caps red, green, and blue tech points at 999 each and throws away anything past that. This is off by default. Raise TechPoints Cap in the config (up to 999999) to hold more.
 
 ## Configuration
 
@@ -63,14 +63,14 @@ Raises the red, green, and blue tech point cap from 999 to 9999. Set it to 999 i
 | Section | Entry | Default | What it does |
 | --- | --- | --- | --- |
 | Quests | BuiltEarly | true | Finishes quests that are stuck because you built an upgrade before a NPC asked for it. |
-| Carriers | ShowWhenStuck | true | When a carrier zombie has nothing in its room to put its item into, it shows the no storage icon the game already uses for gardeners and walks back to its supplier station instead of freezing where it " stands. It goes on with its work as soon as a slot frees up, as it would anyway. |
+| Carriers | ShowWhenStuck | true | When a carrier zombie has nothing in its room to put its item into, it shows the no storage icon the game already uses for gardeners and walks back to its supplier station instead of freezing where it stands. It goes on with its work as soon as a slot frees up, as it would anyway. |
 | Unstuck | Key | CTRL + U | Moves you to the nearest open ground when you are boxed in, say between chests or inside a collider. Only works with no window open. Clear it to turn the key off. |
 | Unstuck | Range | 30 | How far Unstuck may move you, in world units |
-| TechPoints | Cap | 9999 | The most red, green, or blue tech points you can hold. The game caps each at 999 and throws away " anything past it. Set to 999 to keep the game's cap. |
-| StudyTable | ScienceOnly | true | Lets the study table hold only science. Without it, a zombie putting items into the tower's storage can fill the table's one slot, where the table window never shows them, and every science you make " afterwards is lost. Anything already stuck in the table is moved to your inventory when a save loads. Turning " this off takes the filter back off your tables when a save loads. |
-| GreenThumb | TalentBonus | true | Makes the Green Thumb perk grant its +2 green talent when planting. The game puts the value in a field that planting crafts throw away, so the perk does nothing at all. Does nothing once the game " fixes it. |
-| Crematorium | NoStuckBodies | true | The crematorium refuses a body until you have Anatomy 1, the level its burn needs. The game takes the body anyway, fails to start the burn, and leaves it stuck for good. A body already stuck when a " save loads is burned. |
+| TechPoints | Cap | 999 | The most red, green, or blue tech points you can hold. The game caps each at 999 and throws away anything past it. Set to 999 to keep the game's cap. |
+| StudyTable | ScienceOnly | true | Lets the study table hold only science. Without it, a zombie putting items into the tower's storage can fill the table's one slot, where the table window never shows them, and every science you make afterwards is lost. Anything already stuck in the table is moved to your inventory when a save loads. Turning this off takes the filter back off your tables when a save loads. |
+| GreenThumb | TalentBonus | true | Makes the Green Thumb perk grant its +2 green talent when planting. The game puts the value in a field that planting crafts throw away, so the perk does nothing at all. Does nothing once the game fixes it. |
+| Crematorium | NoStuckBodies | true | The crematorium refuses a body until you have Anatomy 1, the level its burn needs. The game takes the body anyway, fails to start the burn, and leaves it stuck for good. A body already stuck when a save loads is burned. |
 | TechPoints | CollectStray | true | Pulls a tech point orb to you when it settles off the walkable ground, say through a wall, where the game's magnet can never reach it. The game only does this when you sleep. |
-| Oven | NoLostIngredients | true | Gives the oven room for every ingredient its recipes need. It has one ingredient slot, so a zombie cook's second ingredient (the oil for onion rings, say) has nowhere to go and is destroyed on " delivery, over and over. Also refuses any delivery a station has no room for, instead of " destroying it. |
-| Sermons | FaithRounding | true | Rounds ceremony faith the way the numbers say. Priest makes Basic Prayer pay 0.35 faith per parishioner, but 0.35 is stored as 0.3499999, so at 10, 30, 50 parishioners and so on 3.5 comes " out as 3.4999999 and rounds down, and Priest adds nothing. |
-| Bed | SaveWhenRested | true | Saves the game when you use the bed with full energy and the Keeper refuses to sleep. The game only saves when you actually sleep.
+| Oven | NoLostIngredients | true | Gives the oven room for every ingredient its recipes need. It has one ingredient slot, so a zombie cook's second ingredient (the oil for onion rings, say) has nowhere to go and is destroyed on delivery, over and over. Also refuses any delivery a station has no room for, instead of destroying it. |
+| Sermons | FaithRounding | true | Rounds ceremony faith the way the numbers say. Priest makes Basic Prayer pay 0.35 faith per parishioner, but 0.35 is stored as 0.3499999, so at 10, 30, 50 parishioners and so on 3.5 comes out as 3.4999999 and rounds down, and Priest adds nothing. |
+| Bed | SaveWhenRested | false | Saves the game when you use the bed with full energy and the Keeper refuses to sleep. The game only saves when you actually sleep. |

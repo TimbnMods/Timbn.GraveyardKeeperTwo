@@ -12,17 +12,23 @@
     <_DeployFolder Condition="'$(ScriptReloadable)' != 'true'">plugins</_DeployFolder>
     <_OtherFolder Condition="'$(_DeployFolder)' == 'plugins'">scripts</_OtherFolder>
     <_OtherFolder Condition="'$(_DeployFolder)' == 'scripts'">plugins</_OtherFolder>
-    <PluginDir Condition="'$(PluginDir)' == ''">$(BepInExDir)\$(_DeployFolder)</PluginDir>
+    <_DefaultPluginDir>$(BepInExDir)\$(_DeployFolder)</_DefaultPluginDir>
+    <PluginDir Condition="'$(PluginDir)' == ''">$(_DefaultPluginDir)</PluginDir>
   </PropertyGroup>
 
   <!--
     Copies each plugin into BepInEx/<folder>/<ProjectName>: the DLL plus every content file the csproj
-    marks CopyToOutputDirectory, keeping each file's folder. Skipped when PluginDir does not exist.
+    marks CopyToOutputDirectory, keeping each file's folder. The default folder is created when BepInEx is
+    installed. A PluginDir passed on the command line must already exist, else the deploy is skipped.
   -->
-  <Target Name="DeployToGame" AfterTargets="Build" Condition="Exists('$(PluginDir)')">
+  <Target
+    Name="DeployToGame"
+    AfterTargets="Build"
+    Condition="Exists('$(PluginDir)') Or ('$(PluginDir)' == '$(_DefaultPluginDir)' And Exists('$(BepInExDir)'))">
     <ItemGroup>
       <_DeployContent Include="@(None->WithMetadataValue('CopyToOutputDirectory', 'PreserveNewest'))" />
     </ItemGroup>
+    <MakeDir Directories="$(PluginDir)" />
     <RemoveDir Directories="$(BepInExDir)\$(_OtherFolder)\$(MSBuildProjectName)" Condition="'$(_OtherFolder)' != ''" />
     <RemoveDir Directories="$(PluginDir)\$(MSBuildProjectName)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginDir)\$(MSBuildProjectName)" />

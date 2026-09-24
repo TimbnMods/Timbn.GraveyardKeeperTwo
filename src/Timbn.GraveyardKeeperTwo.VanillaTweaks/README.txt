@@ -40,10 +40,10 @@ Unstuck hotkey
 No more getting wedged into a tight spot. A configurable key (default Ctrl+U) moves you to the nearest open ground.
 
 Bed saving without being tired
-Using the bed saves the game even if you are not tired enough to sleep.
+Using the bed saves the game even if you are not tired enough to sleep. This is off by default. Turn on Bed SaveWhenRested in the config to use it.
 
 Higher tech point cap
-Raises the red, green, and blue tech point cap from 999 to 9999. Set it to 999 in the config to keep the game's cap.
+The game caps red, green, and blue tech points at 999 each and throws away anything past that. This is off by default. Raise TechPoints Cap in the config (up to 999999) to hold more.
 
 REQUIREMENTS
 
@@ -55,7 +55,10 @@ INSTALLATION
 1. Install BepInEx 5 (skip this if you already have it)
    a. Download BepInEx 5.4.23.5 for Windows x64 (BepInEx_win_x64_5.4.23.5.zip) from https://github.com/BepInEx/BepInEx/releases
       Use BepInEx 5, not 6.
-   b. Open the game folder. In Steam, right click Graveyard Keeper 2, then Manage > Browse local files.
+   b. Open the game folder, the one with GraveyardKeeper2.exe in it.
+      In Steam, right click Graveyard Keeper 2, then Manage > Browse local files.
+      In GOG Galaxy, open Graveyard Keeper 2, click the settings icon next to Play, then Manage installation > Show folder.
+      In the Epic Games Launcher, open your Library, click the three dots on Graveyard Keeper 2, then Manage, then the folder icon next to Installation.
    c. Extract the zip into that folder, so BepInEx, winhttp.dll, and doorstop_config.ini sit next to GraveyardKeeper2.exe.
    d. Start the game once and quit at the main menu. This creates the BepInEx/plugins and BepInEx/config folders.
 
