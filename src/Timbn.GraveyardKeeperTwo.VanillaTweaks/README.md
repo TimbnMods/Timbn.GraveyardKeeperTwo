@@ -54,6 +54,10 @@ Building the church choir before Agatha asks for it will lock the quest from com
 
 A station up against a fence or wall might be blocked from dismantling. This will allow you to still work on it.
 
+### Locked out of boards
+
+If you are soft locked and run out of boards without a sawhorse or circular saw, Larry will help you out.
+
 ## Vanilla Tweaks
 
 ### Unstuck hotkey
@@ -75,6 +79,7 @@ The game caps red, green, and blue tech points at 999 each and throws away anyth
 | Section | Entry | Default |
 | --- | --- | --- |
 | Quests | BuiltEarly | true |
+| Boards | SoftLockedBoards | true |
 | Building | RemoveInWholeArea | true |
 | Building | DismantleUnreachable | true |
 | Carriers | ShowWhenStuck | true |

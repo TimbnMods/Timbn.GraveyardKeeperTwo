@@ -24,6 +24,8 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> StuckCarriers { get; private set; } = null!;
 
+    public static ConfigEntry<bool> SoftLockedBoards { get; private set; } = null!;
+
     public static ConfigEntry<bool> BuiltEarlyQuests { get; private set; } = null!;
 
     public static ConfigEntry<bool> RemoveInWholeArea { get; private set; } = null!;
@@ -43,6 +45,13 @@ internal static class PluginConfig
             "Finishes Agatha's choir step and the woodcarver's organ step when you built the choir or organ "
             + "before being asked. The game only checks the moment you build it, and it can be built once, so "
             + "building it early locks the quest line for good. Checked when a save loads and when the step starts.");
+
+        SoftLockedBoards = config.Bind(
+            "Boards",
+            "SoftLockedBoards",
+            true,
+            "If you are soft locked and run out of boards without a sawhorse or circular saw, Larry "
+            + "will help you out.");
 
         StuckCarriers = config.Bind(
             "Carriers",

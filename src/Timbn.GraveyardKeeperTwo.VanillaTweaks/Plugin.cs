@@ -74,6 +74,9 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         if (PluginConfig.CollectStrayTechPoints.Value)
             _strayTechPoints = new StrayTechPoints();
 
+        if (PluginConfig.SoftLockedBoards.Value)
+            SoftLockedBoards.Register(this);
+
         if (PluginConfig.BuiltEarlyQuests.Value)
         {
             _builtEarly = new BuiltEarlyQuests();

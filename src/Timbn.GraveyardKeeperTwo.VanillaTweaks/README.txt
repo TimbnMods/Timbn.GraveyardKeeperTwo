@@ -44,6 +44,10 @@ Stations you can't reach to dismantle
 
 A station up against a fence or wall might be blocked from dismantling. This will allow you to still work on it.
 
+Locked out of boards
+
+If you are soft locked and run out of boards without a sawhorse or circular saw, Larry will help you out.
+
 VANILLA TWEAKS
 
 Unstuck hotkey
