@@ -32,6 +32,10 @@ Supply zombies could freeze holding an item when all storage was full. They now 
 
 Anything you built in the resurrection lab from the morgue build desk could never be removed. This fixes the issue.
 
+### Getting stuck on the ground
+
+Fixes spots where you can get stuck, such as the stairs from the dock up to the stone pier on the far right of the Port Area. Each fix does nothing once the game fixes that spot.
+
 ## Soft Locks
 
 ### Quest building built too early
@@ -54,11 +58,11 @@ No more getting wedged into a tight spot. A configurable key (default Ctrl+U) mo
 
 ### Bed saving without being tired
 
-Using the bed saves the game even if you are not tired enough to sleep. This is off by default. Turn on Bed SaveWhenRested in the config to use it.
+Using the bed saves the game even if you are not tired enough to sleep. This is off by default. Turn on Tweaks BedSaveWhenRested in the config to use it.
 
 ### Higher tech point cap
 
-The game caps red, green, and blue tech points at 999 each and throws away anything past that. This is off by default. Raise TechPoints Cap in the config (up to 999999) to hold more.
+The game caps red, green, and blue tech points at 999 each and throws away anything past that. This is off by default. Raise Tweaks TechPointCap in the config (up to 999999) to hold more.
 
 ## Fixed By Game Updates
 
@@ -72,16 +76,18 @@ The game caps red, green, and blue tech points at 999 each and throws away anyth
 
 | Section | Entry | Default |
 | --- | --- | --- |
-| Quests | BuiltEarly | true |
-| Boards | SoftLockedBoards | true |
-| Building | RemoveInWholeArea | true |
-| Building | DismantleUnreachable | true |
-| Carriers | ShowWhenStuck | true |
-| Unstuck | Key | CTRL + U |
-| Unstuck | Range | 30 |
-| TechPoints | Cap | 999 |
-| GreenThumb | TalentBonus | true |
-| TechPoints | CollectStray | true |
-| Oven | NoLostIngredients | true |
-| Sermons | FaithRounding | true |
-| Bed | SaveWhenRested | false |
+| Bug Fixes | StudyTableNoStuckCrafts | true |
+| Bug Fixes | GreenThumbTalentBonus | true |
+| Bug Fixes | CollectStrayTechPoints | true |
+| Bug Fixes | OvenNoLostIngredients | true |
+| Bug Fixes | SermonFaithRounding | true |
+| Bug Fixes | StuckCarriers | true |
+| Bug Fixes | RemoveInWholeArea | true |
+| Bug Fixes | CollisionFixes | true |
+| Soft Locks | BuiltEarlyQuests | true |
+| Soft Locks | DismantleUnreachable | true |
+| Soft Locks | SoftLockedBoards | true |
+| Tweaks | UnstuckKey | CTRL + U |
+| Tweaks | UnstuckRange | 30 |
+| Tweaks | BedSaveWhenRested | false |
+| Tweaks | TechPointCap | 999 |
