@@ -32,6 +32,10 @@ Supply zombies could freeze holding an item when all storage was full. They now 
 
 Anything you built in the resurrection lab from the morgue build desk could never be removed. This fixes the issue.
 
+### Getting stuck on the ground
+
+Fixes spots where you can get stuck, such as the stairs from the dock up to the stone pier on the far right of the Port Area. Each fix does nothing once the game fixes that spot.
+
 ## Soft Locks
 
 ### Quest building built too early
@@ -79,6 +83,7 @@ The game caps red, green, and blue tech points at 999 each and throws away anyth
 | Bug Fixes | SermonFaithRounding | true |
 | Bug Fixes | StuckCarriers | true |
 | Bug Fixes | RemoveInWholeArea | true |
+| Bug Fixes | CollisionFixes | true |
 | Soft Locks | BuiltEarlyQuests | true |
 | Soft Locks | DismantleUnreachable | true |
 | Soft Locks | SoftLockedBoards | true |

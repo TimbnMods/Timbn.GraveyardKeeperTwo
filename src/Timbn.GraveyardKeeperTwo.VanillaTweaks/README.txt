@@ -25,6 +25,9 @@ Supply zombies could freeze holding an item when all storage was full. They now 
 Chests in the resurrection lab can't be removed
 Anything you built in the resurrection lab from the morgue build desk could never be removed but this fixes it.
 
+Getting stuck on the ground
+Fixes spots where you can get stuck, such as the stairs from the dock up to the stone pier on the far right of the Port Area. Each fix does nothing once the game fixes that spot.
+
 SOFT LOCKS
 
 Quest building built too early
