@@ -12,17 +12,23 @@
     <_DeployFolder Condition="'$(ScriptReloadable)' != 'true'">plugins</_DeployFolder>
     <_OtherFolder Condition="'$(_DeployFolder)' == 'plugins'">scripts</_OtherFolder>
     <_OtherFolder Condition="'$(_DeployFolder)' == 'scripts'">plugins</_OtherFolder>
-    <PluginDir Condition="'$(PluginDir)' == ''">$(BepInExDir)\$(_DeployFolder)</PluginDir>
+    <_DefaultPluginDir>$(BepInExDir)\$(_DeployFolder)</_DefaultPluginDir>
+    <PluginDir Condition="'$(PluginDir)' == ''">$(_DefaultPluginDir)</PluginDir>
   </PropertyGroup>
 
   <!--
     Copies each plugin into BepInEx/<folder>/<ProjectName>: the DLL plus every content file the csproj
-    marks CopyToOutputDirectory, keeping each file's folder. Skipped when PluginDir does not exist.
+    marks CopyToOutputDirectory, keeping each file's folder. The default folder is created when BepInEx is
+    installed. A PluginDir passed on the command line must already exist, else the deploy is skipped.
   -->
-  <Target Name="DeployToGame" AfterTargets="Build" Condition="Exists('$(PluginDir)')">
+  <Target
+    Name="DeployToGame"
+    AfterTargets="Build"
+    Condition="Exists('$(PluginDir)') Or ('$(PluginDir)' == '$(_DefaultPluginDir)' And Exists('$(BepInExDir)'))">
     <ItemGroup>
       <_DeployContent Include="@(None->WithMetadataValue('CopyToOutputDirectory', 'PreserveNewest'))" />
     </ItemGroup>
+    <MakeDir Directories="$(PluginDir)" />
     <RemoveDir Directories="$(BepInExDir)\$(_OtherFolder)\$(MSBuildProjectName)" Condition="'$(_OtherFolder)' != ''" />
     <RemoveDir Directories="$(PluginDir)\$(MSBuildProjectName)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginDir)\$(MSBuildProjectName)" />
@@ -35,7 +41,7 @@
 
   <!--
     Builds a release zip for one plugin: artifacts/<ProjectName>-<Version>.zip, holding the plugin folder
-    exactly as it deploys, its XML doc file when the project generates one, the repo's LICENSE.txt,
+    exactly as it deploys, its XML doc file when the project generates one, the repo's LICENSE renamed to LICENSE.txt,
     the project's README.txt when it has one, plus the mod's docs/<ModName>/icon.png at the zip root
     when it has one. Opt in
     (dotnet build -t:Package -c Release), so a normal build stays as fast as it is.
@@ -51,7 +57,7 @@
     <ItemGroup>
       <_PackageContent Include="@(None->WithMetadataValue('CopyToOutputDirectory', 'PreserveNewest'))" />
       <_PackageIcon Include="$(_RepoRoot)\docs\$(_ModName)\icon.png" />
-      <_PackageText Include="$(_RepoRoot)\LICENSE.txt;$(MSBuildProjectDirectory)\README.txt" />
+      <_PackageText Include="$(MSBuildProjectDirectory)\README.txt" />
     </ItemGroup>
     <RemoveDir Directories="$(_PackageStage)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(_PackageRoot)" />
@@ -67,6 +73,10 @@
       SourceFiles="@(_PackageText)"
       DestinationFolder="$(_PackageRoot)"
       Condition="Exists('%(_PackageText.FullPath)')" />
+    <Copy
+      SourceFiles="$(_RepoRoot)\LICENSE"
+      DestinationFiles="$(_PackageRoot)LICENSE.txt"
+      Condition="Exists('$(_RepoRoot)\LICENSE')" />
     <Copy
       SourceFiles="@(_PackageIcon)"
       DestinationFolder="$(_PackageStage)"

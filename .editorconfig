@@ -3,6 +3,10 @@
 # IDE0290: Use primary constructor
 dotnet_diagnostic.IDE0290.severity = none
 
+# IDE0130: Namespace does not match folder structure. Core's public API stays in one namespace,
+# Timbn.GraveyardKeeperTwo.Core.Framework, whatever its folder, so a mod needs a single using.
+dotnet_diagnostic.IDE0130.severity = none
+
 # IDE0031: Use null propagation. Never suggest ?. here; on UnityEngine.Object it skips Unity's
 # overloaded null check, so a destroyed object slips through.
 dotnet_diagnostic.IDE0031.severity = none

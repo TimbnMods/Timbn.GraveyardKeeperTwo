@@ -40,41 +40,45 @@ Unstuck hotkey
 No more getting wedged into a tight spot. A configurable key (default Ctrl+U) moves you to the nearest open ground.
 
 Bed saving without being tired
-Using the bed saves the game even if you are not tired enough to sleep.
+Using the bed saves the game even if you are not tired enough to sleep. This is off by default. Turn on Bed SaveWhenRested in the config to use it.
 
 Higher tech point cap
-Raises the red, green, and blue tech point cap from 999 to 9999. Set it to 999 in the config to keep the game's cap.
+The game caps red, green, and blue tech points at 999 each and throws away anything past that. This is off by default. Raise TechPoints Cap in the config (up to 999999) to hold more.
 
 REQUIREMENTS
 
-BepInEx 5 (x64, Mono)
-Timbn Core
+BepInEx for Graveyard Keeper 2 (https://www.nexusmods.com/graveyardkeeper2/mods/48)
+Timbn Core (https://www.nexusmods.com/graveyardkeeper2/mods/84)
 
 INSTALLATION
 
-1. Install BepInEx 5 (skip this if you already have it)
-   a. Download BepInEx 5.4.23.5 for Windows x64 (BepInEx_win_x64_5.4.23.5.zip) from https://github.com/BepInEx/BepInEx/releases
-      Use BepInEx 5, not 6.
-   b. Open the game folder. In Steam, right click Graveyard Keeper 2, then Manage > Browse local files.
-   c. Extract the zip into that folder, so BepInEx, winhttp.dll, and doorstop_config.ini sit next to GraveyardKeeper2.exe.
-   d. Start the game once and quit at the main menu. This creates the BepInEx/plugins and BepInEx/config folders.
+With Vortex
 
+1. Install BepInEx for Graveyard Keeper 2
 2. Install Timbn Core
-   Extract the Timbn Core zip into Graveyard Keeper 2/BepInEx/plugins/
+3. Download With "Mod Manager Download" from the files tab or Vortex download button.
 
-3. Install Vanilla Tweaks
-   Extract this zip into Graveyard Keeper 2/BepInEx/plugins/
-   You should end up with:
-   Graveyard Keeper 2/BepInEx/plugins/Timbn.GraveyardKeeperTwo.Core/
-   Graveyard Keeper 2/BepInEx/plugins/Timbn.GraveyardKeeperTwo.VanillaTweaks/
+Without Vortex
 
-4. Check it works
-   Start the game, then open BepInEx/LogOutput.log. You should see "Core 1.0.0 started" and "Vanilla Tweaks started".
+1. Install BepInEx for Graveyard Keeper 2 and start the game once and quit at the main menu. This creates the BepInEx/plugins and BepInEx/config folders.
+2. Install Timbn Core
+3. Install Vanilla Tweaks, download the Timbn.GraveyardKeeperTwo.VanillaTweaks zip file.
+4. Extract this zip into the BepInEx plugin folder. You should end up with:
+  /Graveyard Keeper 2/BepInEx/plugins/Timbn.GraveyardKeeperTwo.Core/
+  /Graveyard Keeper 2/BepInEx/plugins/Timbn.GraveyardKeeperTwo.VanillaTweaks/
+
+Check It Works
+
+The bottom right of the main menu will list Timbn Core and Timbn Vanilla Tweaks along with any other Timbn mods.
+
+TROUBLESHOOTING
+
+If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and BepInEx/LogOutput.log says which part failed. If Core itself fails, every Timbn mod stays off. The startup line and a popup on the main menu also warn when the game version differs from the one these mods were tested on. Include that line when reporting a problem.
 
 SETTINGS
 
 After the first launch, every fix and tweak can be turned on or off in the config file. Restart the game after changing it.
-BepInEx/config/Timbn.GraveyardKeeperTwo.VanillaTweaks.cfg
+  /BepInEx/config/Timbn.GraveyardKeeperTwo.VanillaTweaks.cfg
 
 UNINSTALLING
 

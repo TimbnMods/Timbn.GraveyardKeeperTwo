@@ -130,7 +130,7 @@ internal static class PluginConfig
         BedSaveWhenRested = config.Bind(
             "Bed",
             "SaveWhenRested",
-            true,
+            false,
             "Saves the game when you use the bed with full energy and the Keeper refuses to sleep. "
             + "The game only saves when you actually sleep.");
     }
