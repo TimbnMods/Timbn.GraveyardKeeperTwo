@@ -28,6 +28,9 @@ The game can end up with 3.4999 faith when it should be 3.5, which rounds down i
 Stuck supply zombies
 Supply zombies could freeze holding an item when all storage was full. They now walk back to their station and show the game's storage full icon until there is room.
 
+Chests in the resurrection lab can't be removed
+Anything you built in the resurrection lab from the morgue build desk could never be removed but this fixes it.
+
 SOFT LOCKS
 
 Quest building built too early

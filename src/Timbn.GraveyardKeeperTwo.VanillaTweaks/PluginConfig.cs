@@ -24,6 +24,8 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> BuiltEarlyQuests { get; private set; } = null!;
 
+    public static ConfigEntry<bool> RemoveInWholeArea { get; private set; } = null!;
+
     public static ConfigEntry<KeyboardShortcut> UnstuckKey { get; private set; } = null!;
 
     public static ConfigEntry<float> UnstuckRange { get; private set; } = null!;
@@ -45,6 +47,13 @@ internal static class PluginConfig
             "When a carrier zombie has nothing in its room to put its item into, it shows the no storage icon "
             + "the game already uses for gardeners and walks back to its supplier station instead of freezing where it "
             + "stands. It goes on with its work as soon as a slot frees up, as it would anyway.");
+
+        RemoveInWholeArea = config.Bind(
+            "Building",
+            "RemoveInWholeArea",
+            true,
+            "Allows you to remove buildings you should be allowed to but the game blocks its. Chests built in the " +
+            "resurrection lab from the morgue build desk are an example.");
 
         UnstuckKey = config.Bind(
             "Unstuck",
