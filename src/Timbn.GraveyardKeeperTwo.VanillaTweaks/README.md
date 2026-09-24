@@ -32,10 +32,6 @@ Supply zombies could freeze holding an item when all storage was full. They now 
 
 Anything you built in the resurrection lab from the morgue build desk could never be removed. This fixes the issue.
 
-### Fixed by the game
-
-The study table eating your science, crematorium bodies getting stuck, and fishing spots refilling slower and slower are fixed in the game itself since version 1.005, so this mod no longer touches them.
-
 ## Soft Locks
 
 ### Quest building built too early

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Timbn.GraveyardKeeperTwo.Core</AssemblyName>
     <Product>Timbn Core</Product>
-    <Version>1.2.1</Version>
+    <Version>1.2.2</Version>
   </PropertyGroup>
 
   <!-- Core is what every other mod references, so it always deploys to plugins and is never hot reloaded. -->
