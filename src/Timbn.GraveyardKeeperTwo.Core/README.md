@@ -58,6 +58,17 @@ protected override void OnAwake()
 }
 ```
 
+## Main menu
+
+Every Timbn plugin that starts is listed on the main menu with its version, above the game's own credits, so players can see at a glance what is loaded. `MainMenu.AddLine` adds another line to that list, and `MainMenu.Popup` shows a message in the game's own dialog window the next time the main menu is on screen. Core uses the popup to warn when the game version differs from the one these mods were tested on.
+
+```csharp
+protected override void OnAwake()
+{
+    MainMenu.Popup("Vanilla Tweaks", "The tech point cap is now 9999.");
+}
+```
+
 ## Quests, dialog, and text
 
 Core can add quests, conversations, and localized text from code.

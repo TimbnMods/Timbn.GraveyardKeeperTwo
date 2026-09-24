@@ -29,6 +29,7 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
         Text = new(this);
         Sprites = new(this);
         Balance = new(this);
+        MainMenu = new(this);
     }
 
     /// <summary>The plugin's own BepInPlugin attribute. Use this instead of Info.</summary>
@@ -75,6 +76,9 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
     /// <summary>Adds definitions to the game's balance tables that are removed when this plugin unloads.</summary>
     public TimbnPluginBalance Balance { get; }
 
+    /// <summary>Shows lines of text and popups on the main menu, removed again when this plugin unloads.</summary>
+    public TimbnPluginMainMenu MainMenu { get; }
+
     internal TimbnSubscriptions Subscriptions { get; }
 
     internal TimbnSubscriptions SessionSubscriptions { get; }
@@ -104,6 +108,7 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
         gameObject.hideFlags = HideFlags.HideAndDontSave;
         Subscriptions.Add(TimbnGameEvents.GameStarted(Events.AttachToSave));
         Subscriptions.Add(TimbnGameEvents.GoToMainMenu(SessionSubscriptions.Dispose));
+        Subscriptions.Add(TimbnMainMenu.AddLine($"{Metadata.Name}: ", Metadata.Version.ToString()));
         Logger.LogMessage($"Plugin {Metadata.GUID} v{Metadata.Version} loaded, patches under '{harmonyId}'.");
         OnAwake();
     }
@@ -176,8 +181,8 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
     /// <summary>
     /// Runs when the plugin unloads, before Core removes everything the plugin registered and its Harmony
     /// patches. Put back anything the plugin changed in the game directly, such as a value it set or a
-    /// GameObject it created. Registrations made through Events, Potions, Quests, Dialog, Text, Sprites, and
-    /// Balance are cleaned up for you.
+    /// GameObject it created. Registrations made through Events, Potions, Quests, Dialog, Text, Sprites,
+    /// Balance, and MainMenu are cleaned up for you.
     /// </summary>
     protected virtual void OnDestroyed() { }
 }

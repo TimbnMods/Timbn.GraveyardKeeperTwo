@@ -23,7 +23,8 @@ INSTALLATION
    Graveyard Keeper 2/BepInEx/plugins/Timbn.GraveyardKeeperTwo.Core/
 
 3. Check it works
-   Start the game, then open BepInEx/LogOutput.log. You should see "Core 1.0.0 started".
+   Start the game. The bottom right of the main menu lists Timbn Core and every other Timbn mod that started,
+   above the game's credits. BepInEx/LogOutput.log also shows a "Core ... started" line.
 
 
 SETTINGS
@@ -33,7 +34,7 @@ BepInEx/config/Timbn.GraveyardKeeperTwo.Core.cfg has one setting, Enabled. Turni
 
 TROUBLESHOOTING
 
-If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and BepInEx/LogOutput.log says which part failed. If Core itself fails, every Timbn mod stays off. The startup line also warns when the game version differs from the one these mods were tested on. Include that line when reporting a problem.
+If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and BepInEx/LogOutput.log says which part failed. If Core itself fails, every Timbn mod stays off. The startup line and a popup on the main menu also warn when the game version differs from the one these mods were tested on. Include that line when reporting a problem.
 
 
 UNINSTALLING
