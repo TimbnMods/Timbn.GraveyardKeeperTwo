@@ -1,10 +1,9 @@
-using LazyBearTechnology;
 using Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
 
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-[BepInDependency(TimbnCorePlugin.Guid, "1.0.0")]
+[BepInDependency(TimbnCorePlugin.Guid, "1.2.0")]
 public class Plugin : TimbnFrameworkPlugin<Plugin>
 {
     private StudyTableScienceOnly? _studyTable;
@@ -14,6 +13,7 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
     private StuckCarriers? _stuckCarriers;
     private OvenIngredientSlots? _ovenSlots;
     private BuiltEarlyQuests? _builtEarly;
+    private UnreachableDismantle? _unreachableDismantle;
 
     protected override void BindConfig(ConfigFile config) => PluginConfig.Bind(config);
 
@@ -74,6 +74,9 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         if (PluginConfig.CollectStrayTechPoints.Value)
             _strayTechPoints = new StrayTechPoints();
 
+        if (PluginConfig.SoftLockedBoards.Value)
+            SoftLockedBoards.Register(this);
+
         if (PluginConfig.BuiltEarlyQuests.Value)
         {
             _builtEarly = new BuiltEarlyQuests();
@@ -88,6 +91,9 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
             Events.GoToMainMenu(_stuckCarriers.Reset);
         }
 
+        _unreachableDismantle = new UnreachableDismantle();
+        _unreachableDismantle.Apply();
+
         Logger.LogMessage($"Vanilla Tweaks started. Unstuck on {PluginConfig.UnstuckKey.Value}.");
     }
 
@@ -100,12 +106,8 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
             _builtEarly?.Tick();
         }
 
-        if (TimbnGame.IsInGame
-            && LazyWindowsStackController.ActiveWindow == null
-            && PluginConfig.UnstuckKey.Value.IsDown())
-        {
+        if (PluginConfig.UnstuckKey.Value.IsDownWithControl())
             Unstuck.Run(PluginConfig.UnstuckRange.Value);
-        }
     }
 
     protected override void OnDestroyed()
@@ -114,5 +116,6 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         _greenThumb?.Revert();
         _techPointCap?.Revert();
         _ovenSlots?.Revert();
+        _unreachableDismantle?.Revert();
     }
 }

@@ -16,7 +16,7 @@ A suite of [BepInEx](https://github.com/BepInEx/BepInEx) mods for Graveyard Keep
 
 ## Installation
 
-1. Install BepInEx 5 (x64, Mono) into your Graveyard Keeper 2 folder (next to GraveyardKeeper2.exe), then run the game once so it generates the BepInEx plugins and config folders.
+1. Install [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) into your Graveyard Keeper 2 folder (next to GraveyardKeeper2.exe), then run the game once so it generates the BepInEx plugins and config folders.
 2. Copy the plugin folders you want into BepInEx/plugins. Core is required by all the others.
 3. Launch the game. Each configurable mod writes a file to BepInEx/config on first run.
 
@@ -28,7 +28,7 @@ Every mod has a General / Enabled toggle (default true). Set it to false to turn
 
 ## Building from source
 
-Requires the .NET SDK. Game DLLs are referenced from lib and from your Graveyard Keeper 2 Managed folder (via the GameDir property in src/Directory.Build.props, adjust if Steam is installed elsewhere).
+Requires the .NET SDK. Game DLLs are referenced from lib and from your Graveyard Keeper 2 Managed folder (via the GameDir property in src/Directory.Build.props, adjust if the game is installed elsewhere).
 
 To deploy a mod to the plugins folder:
 

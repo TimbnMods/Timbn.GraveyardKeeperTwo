@@ -16,13 +16,21 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> SermonFaithRounding { get; private set; } = null!;
 
+    public static ConfigEntry<bool> FishingRefill { get; private set; } = null!;
+
     public static ConfigEntry<bool> BedSaveWhenRested { get; private set; } = null!;
 
     public static ConfigEntry<bool> CollectStrayTechPoints { get; private set; } = null!;
 
     public static ConfigEntry<bool> StuckCarriers { get; private set; } = null!;
 
+    public static ConfigEntry<bool> SoftLockedBoards { get; private set; } = null!;
+
     public static ConfigEntry<bool> BuiltEarlyQuests { get; private set; } = null!;
+
+    public static ConfigEntry<bool> RemoveInWholeArea { get; private set; } = null!;
+
+    public static ConfigEntry<bool> DismantleUnreachable { get; private set; } = null!;
 
     public static ConfigEntry<KeyboardShortcut> UnstuckKey { get; private set; } = null!;
 
@@ -38,6 +46,13 @@ internal static class PluginConfig
             + "before being asked. The game only checks the moment you build it, and it can be built once, so "
             + "building it early locks the quest line for good. Checked when a save loads and when the step starts.");
 
+        SoftLockedBoards = config.Bind(
+            "Boards",
+            "SoftLockedBoards",
+            true,
+            "If you are soft locked and run out of boards without a sawhorse or circular saw, Larry "
+            + "will help you out.");
+
         StuckCarriers = config.Bind(
             "Carriers",
             "ShowWhenStuck",
@@ -46,12 +61,27 @@ internal static class PluginConfig
             + "the game already uses for gardeners and walks back to its supplier station instead of freezing where it "
             + "stands. It goes on with its work as soon as a slot frees up, as it would anyway.");
 
+        RemoveInWholeArea = config.Bind(
+            "Building",
+            "RemoveInWholeArea",
+            true,
+            "Allows you to remove buildings you should be allowed to but the game blocks its. Chests built in the " +
+            "resurrection lab from the morgue build desk are an example.");
+
+        DismantleUnreachable = config.Bind(
+            "Building",
+            "DismantleUnreachable",
+            true,
+            "A station up against a fence or wall might be blocked from dismantling. This will allow you to still "
+            + "work on it.");
+
         UnstuckKey = config.Bind(
             "Unstuck",
             "Key",
             new KeyboardShortcut(KeyCode.U, KeyCode.LeftControl),
             "Moves you to the nearest open ground when you are boxed in, say between chests or inside a "
-            + "collider. Only works with no window open. Clear it to turn the key off.");
+            + "collider. Only works while you can move, so not with a window open or during dialog or a "
+            + "cutscene. Clear it to turn the key off.");
 
         UnstuckRange = config.Bind(
             "Unstuck",
@@ -127,10 +157,17 @@ internal static class PluginConfig
             + "parishioner, but 0.35 is stored as 0.3499999, so at 10, 30, 50 parishioners and so on 3.5 comes "
             + "out as 3.4999999 and rounds down, and Priest adds nothing.");
 
+        FishingRefill = config.Bind(
+            "Fishing",
+            "RefillOnTime",
+            true,
+            "A fishing spot will refill slower and slower as you progress through more days. This will fix it to "
+            + "refill at the normal rate.");
+
         BedSaveWhenRested = config.Bind(
             "Bed",
             "SaveWhenRested",
-            true,
+            false,
             "Saves the game when you use the bed with full energy and the Keeper refuses to sleep. "
             + "The game only saves when you actually sleep.");
     }
