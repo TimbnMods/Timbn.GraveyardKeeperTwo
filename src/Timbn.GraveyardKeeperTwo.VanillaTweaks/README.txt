@@ -45,10 +45,10 @@ Unstuck hotkey
 No more getting wedged into a tight spot. A configurable key (default Ctrl+U) moves you to the nearest open ground.
 
 Bed saving without being tired
-Using the bed saves the game even if you are not tired enough to sleep. This is off by default. Turn on Bed SaveWhenRested in the config to use it.
+Using the bed saves the game even if you are not tired enough to sleep. This is off by default. Turn on Tweaks BedSaveWhenRested in the config to use it.
 
 Higher tech point cap
-The game caps red, green, and blue tech points at 999 each and throws away anything past that. This is off by default. Raise TechPoints Cap in the config (up to 999999) to hold more.
+The game caps red, green, and blue tech points at 999 each and throws away anything past that. This is off by default. Raise Tweaks TechPointCap in the config (up to 999999) to hold more.
 
 FIXED BY GAME UPDATES
 
