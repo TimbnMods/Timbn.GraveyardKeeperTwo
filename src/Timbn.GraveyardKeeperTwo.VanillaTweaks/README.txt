@@ -4,6 +4,9 @@ Timbn Vanilla Tweaks fixes bugs and adds light gameplay tweaks that are intended
 
 BUG FIXES
 
+Study table eating your science
+When all storage in the tower is full, a zombie can put its item in the study table. The table is then unusable and every science you make afterwards is lost. Version 1.005 fixed this for newly built tables only, so this makes older tables take only science too, and anything already stuck in one is dropped beside it when you load.
+
 Study table stopping partway
 A broken popup on the workstation can stop the study table partway through. Pressing Study could take your faith and science and start nothing, and pressing Decompose could leave the table stuck. Both now are fixed and a table already stuck is freed when you load.
 
@@ -55,7 +58,6 @@ The game caps red, green, and blue tech points at 999 each and throws away anyth
 
 FIXED BY GAME UPDATES
 
-Study Table eating your science
 Crematorium bodies no longer get stuck
 Fishing spots refilling slower and slower
 

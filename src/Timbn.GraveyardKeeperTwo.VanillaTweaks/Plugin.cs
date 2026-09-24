@@ -6,6 +6,7 @@ namespace Timbn.GraveyardKeeperTwo.VanillaTweaks;
 [BepInDependency(TimbnCorePlugin.Guid, "1.2.0")]
 public class Plugin : TimbnFrameworkPlugin<Plugin>
 {
+    private StudyTableScienceOnly? _studyTable;
     private GreenThumbTalentBonus? _greenThumb;
     private TechPointCap? _techPointCap;
     private StrayTechPoints? _strayTechPoints;
@@ -19,6 +20,14 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
 
     protected override void OnAwake()
     {
+        if (PluginConfig.StudyTableScienceOnly.Value)
+        {
+            _studyTable = new StudyTableScienceOnly();
+            Events.GameStarted(_studyTable.Apply);
+            if (TimbnGame.IsInGame)
+                _studyTable.Apply();
+        }
+
         if (PluginConfig.GreenThumbTalentBonus.Value)
         {
             _greenThumb = new GreenThumbTalentBonus();
@@ -98,6 +107,7 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
 
     protected override void OnDestroyed()
     {
+        _studyTable?.Revert();
         _greenThumb?.Revert();
         _techPointCap?.Revert();
         _ovenSlots?.Revert();

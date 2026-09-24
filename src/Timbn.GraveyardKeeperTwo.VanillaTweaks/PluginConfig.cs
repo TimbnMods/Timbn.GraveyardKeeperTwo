@@ -6,6 +6,8 @@ internal static class PluginConfig
     private const string _softLocks = "Soft Locks";
     private const string _tweaks = "Tweaks";
 
+    public static ConfigEntry<bool> StudyTableScienceOnly { get; private set; } = null!;
+
     public static ConfigEntry<bool> StudyTableNoStuckCrafts { get; private set; } = null!;
 
     public static ConfigEntry<bool> GreenThumbTalentBonus { get; private set; } = null!;
@@ -38,6 +40,15 @@ internal static class PluginConfig
 
     public static void Bind(ConfigFile config)
     {
+        StudyTableScienceOnly = config.Bind(
+            _bugFixes,
+            nameof(StudyTableScienceOnly),
+            true,
+            "Stops zombies from putting anything but science in a study table built before version 1.005, "
+            + "which they do when the rest of the tower's storage is full. The table is then unusable and every "
+            + "science made afterwards is lost. Anything already in the table is dropped beside it when a save "
+            + "loads. Tables built since 1.005 already only take science.");
+
         StudyTableNoStuckCrafts = config.Bind(
             _bugFixes,
             nameof(StudyTableNoStuckCrafts),
@@ -156,6 +167,7 @@ internal static class PluginConfig
 
         CarryOver(
             config,
+            (StudyTableScienceOnly, "StudyTable", "ScienceOnly"),
             (StudyTableNoStuckCrafts, "StudyTable", "NoStuckCrafts"),
             (GreenThumbTalentBonus, "GreenThumb", "TalentBonus"),
             (CollectStrayTechPoints, "TechPoints", "CollectStray"),
