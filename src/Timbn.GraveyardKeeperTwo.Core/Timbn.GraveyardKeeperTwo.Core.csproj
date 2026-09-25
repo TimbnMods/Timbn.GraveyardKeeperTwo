@@ -4,6 +4,8 @@
     <AssemblyName>Timbn.GraveyardKeeperTwo.Core</AssemblyName>
     <Product>Timbn Core</Product>
     <Version>1.3.0</Version>
+    <ThunderstoreName>TimbnCore</ThunderstoreName>
+    <ThunderstoreDescription>The shared framework every Timbn mod for Graveyard Keeper 2 is built on. It does nothing on its own, so install it when a Timbn mod needs it.</ThunderstoreDescription>
   </PropertyGroup>
 
   <!-- Core is what every other mod references, so it always deploys to plugins and is never hot reloaded. -->

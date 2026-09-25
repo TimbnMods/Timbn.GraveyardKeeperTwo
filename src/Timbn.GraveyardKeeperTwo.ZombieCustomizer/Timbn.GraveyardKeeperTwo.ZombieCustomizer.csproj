@@ -1,0 +1,39 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Timbn.GraveyardKeeperTwo.ZombieCustomizer</AssemblyName>
+    <Product>Timbn Zombie Customizer</Product>
+    <Version>1.0.0</Version>
+    <ThunderstoreName>TimbnZombieCustomizer</ThunderstoreName>
+    <ThunderstoreDescription>Restyle your zombies in the game's own customization window. Click the portrait in a zombie's inspect window to pick its hairstyle, hair color and clothes color.</ThunderstoreDescription>
+  </PropertyGroup>
+
+  <!-- Lands in BepInEx/scripts by default so F6 reloads it. Pass -p:DeployTo=plugins to load it at startup instead. -->
+  <PropertyGroup>
+    <DeployTo>scripts</DeployTo>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Timbn.GraveyardKeeperTwo.Core\Timbn.GraveyardKeeperTwo.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\lib\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="LazyBearTechnology">
+      <HintPath>$(GameManagedDir)\LazyBearTechnology.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(GameManagedDir)\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sirenix.Serialization">
+      <HintPath>$(GameManagedDir)\Sirenix.Serialization.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

@@ -42,8 +42,7 @@
   <!--
     Builds a release zip for one plugin: artifacts/<ProjectName>-<Version>.zip, holding the plugin folder
     exactly as it deploys, its XML doc file when the project generates one, the repo's LICENSE renamed to LICENSE.txt,
-    the project's README.txt when it has one, plus the mod's docs/<ModName>/icon.png at the zip root
-    when it has one. Opt in
+    and the project's README.txt when it has one, or its README.md when it does not. Opt in
     (dotnet build -t:Package -c Release), so a normal build stays as fast as it is.
   -->
   <Target Name="Package" DependsOnTargets="Build">
@@ -56,8 +55,8 @@
     </PropertyGroup>
     <ItemGroup>
       <_PackageContent Include="@(None->WithMetadataValue('CopyToOutputDirectory', 'PreserveNewest'))" />
-      <_PackageIcon Include="$(_RepoRoot)\docs\$(_ModName)\icon.png" />
       <_PackageText Include="$(MSBuildProjectDirectory)\README.txt" />
+      <_PackageText Include="$(MSBuildProjectDirectory)\README.md" Condition="!Exists('$(MSBuildProjectDirectory)\README.txt')" />
     </ItemGroup>
     <RemoveDir Directories="$(_PackageStage)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(_PackageRoot)" />
@@ -77,13 +76,163 @@
       SourceFiles="$(_RepoRoot)\LICENSE"
       DestinationFiles="$(_PackageRoot)LICENSE.txt"
       Condition="Exists('$(_RepoRoot)\LICENSE')" />
-    <Copy
-      SourceFiles="@(_PackageIcon)"
-      DestinationFolder="$(_PackageStage)"
-      Condition="Exists('%(_PackageIcon.FullPath)')" />
     <MakeDir Directories="$(_RepoRoot)\artifacts" />
     <ZipDirectory SourceDirectory="$(_PackageStage)" DestinationFile="$(_PackageFile)" Overwrite="true" />
     <Message Importance="high" Text="Packaged $(_PackageFile)" />
   </Target>
+
+  <!--
+    Runs after Package for a project that sets ThunderstoreDescription and writes
+    artifacts/thunderstore/<Namespace>-<Name>-<Version>.zip. The zip root holds manifest.json, the project's README.md,
+    and docs/<ModName>/icon.png (256x256), next to the same plugin folder the release zip has. The Thunderstore name
+    defaults to Product with underscores for spaces. A mod that declares a Core dependency depends on Core at that
+    floor, raised to ThunderstoreCoreFirstVersion when it is older.
+  -->
+  <Target Name="PackageThunderstore" AfterTargets="Package" Condition="'$(ThunderstoreDescription)' != ''">
+    <PropertyGroup>
+      <ThunderstoreName Condition="'$(ThunderstoreName)' == ''">$(Product.Replace(' ', '_'))</ThunderstoreName>
+      <_ThunderstoreStage>$(IntermediateOutputPath)thunderstore\</_ThunderstoreStage>
+      <_ThunderstoreIcon>$(_RepoRoot)\docs\$(_ModName)\icon.png</_ThunderstoreIcon>
+      <_ThunderstoreReadme>$(MSBuildProjectDirectory)\README.md</_ThunderstoreReadme>
+      <_ThunderstoreFile>$(_RepoRoot)\artifacts\thunderstore\$(ThunderstoreNamespace)-$(ThunderstoreName)-$(Version).zip</_ThunderstoreFile>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(_ThunderstoreIcon)')" Text="Thunderstore needs a 256x256 icon at $(_ThunderstoreIcon)" />
+    <Error Condition="!Exists('$(_ThunderstoreReadme)')" Text="Thunderstore needs a README.md at $(_ThunderstoreReadme)" />
+    <Warning
+      Condition="'$(ThunderstoreBepInExPack)' == ''"
+      Text="ThunderstoreBepInExPack is empty, so $(ThunderstoreName) does not depend on BepInEx. Set it in Directory.Build.props before uploading." />
+    <TimbnFindCoreFloor Sources="@(Compile)" Condition="'$(MSBuildProjectName)' != 'Timbn.GraveyardKeeperTwo.Core'">
+      <Output TaskParameter="Floor" PropertyName="_ThunderstoreCoreFloor" />
+    </TimbnFindCoreFloor>
+    <PropertyGroup Condition="'$(_ThunderstoreCoreFloor)' != ''">
+      <_ThunderstoreCoreVersion>$(_ThunderstoreCoreFloor)</_ThunderstoreCoreVersion>
+      <_ThunderstoreCoreVersion Condition="$([MSBuild]::VersionLessThan('$(_ThunderstoreCoreFloor)', '$(ThunderstoreCoreFirstVersion)'))">$(ThunderstoreCoreFirstVersion)</_ThunderstoreCoreVersion>
+    </PropertyGroup>
+    <ItemGroup>
+      <_ThunderstoreDependency Include="$(ThunderstoreBepInExPack)" Condition="'$(ThunderstoreBepInExPack)' != ''" />
+      <_ThunderstoreDependency Include="$(ThunderstoreCorePackage)-$(_ThunderstoreCoreVersion)" Condition="'$(_ThunderstoreCoreVersion)' != ''" />
+    </ItemGroup>
+    <RemoveDir Directories="$(_ThunderstoreStage)" />
+    <ItemGroup>
+      <_ThunderstorePlugin Include="$(_PackageRoot)**\*" />
+    </ItemGroup>
+    <Copy
+      SourceFiles="@(_ThunderstorePlugin)"
+      DestinationFiles="@(_ThunderstorePlugin->'$(_ThunderstoreStage)$(MSBuildProjectName)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="$(_ThunderstoreIcon);$(_ThunderstoreReadme)" DestinationFolder="$(_ThunderstoreStage)" />
+    <TimbnWriteThunderstoreManifest
+      Path="$(_ThunderstoreStage)manifest.json"
+      Name="$(ThunderstoreName)"
+      Version="$(Version)"
+      WebsiteUrl="$(ThunderstoreWebsiteUrl)"
+      Description="$(ThunderstoreDescription)"
+      Dependencies="@(_ThunderstoreDependency)" />
+    <MakeDir Directories="$(_RepoRoot)\artifacts\thunderstore" />
+    <ZipDirectory SourceDirectory="$(_ThunderstoreStage)" DestinationFile="$(_ThunderstoreFile)" Overwrite="true" />
+    <Message Importance="high" Text="Packaged $(_ThunderstoreFile)" />
+  </Target>
+
+  <UsingTask
+    TaskName="TimbnFindCoreFloor"
+    TaskFactory="RoslynCodeTaskFactory"
+    AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Sources ParameterType="Microsoft.Build.Framework.ITaskItem[]" Required="true" />
+      <Floor Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+foreach (var source in Sources)
+{
+    var match = Regex.Match(File.ReadAllText(source.GetMetadata("FullPath")), @"BepInDependency\(\s*TimbnCorePlugin\.Guid\s*,\s*""([^""]+)""");
+    if (match.Success)
+    {
+        Floor = match.Groups[1].Value;
+        break;
+    }
+}
+]]></Code>
+    </Task>
+  </UsingTask>
+
+  <UsingTask
+    TaskName="TimbnWriteThunderstoreManifest"
+    TaskFactory="RoslynCodeTaskFactory"
+    AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Path Required="true" />
+      <Name Required="true" />
+      <Version Required="true" />
+      <WebsiteUrl Required="true" />
+      <Description Required="true" />
+      <Dependencies ParameterType="System.String[]" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Linq" />
+      <Using Namespace="System.Text" />
+      <Using Namespace="System.Text.RegularExpressions" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+if (!Regex.IsMatch(Name, "^[A-Za-z0-9_]+$"))
+{
+    Log.LogError("Thunderstore name '{0}' may only hold letters, digits, and underscores.", Name);
+}
+if (!Regex.IsMatch(Version, @"^\d+\.\d+\.\d+$"))
+{
+    Log.LogError("Thunderstore version '{0}' must be Major.Minor.Patch.", Version);
+}
+if (Description.Length > 250)
+{
+    Log.LogError("Thunderstore description is {0} characters, the limit is 250.", Description.Length);
+}
+if (Log.HasLoggedErrors)
+{
+    return false;
+}
+
+Func<string, string> quote = value =>
+{
+    var builder = new StringBuilder("\"");
+    foreach (var c in value)
+    {
+        switch (c)
+        {
+            case '"':
+                builder.Append("\\\"");
+                break;
+            case '\\':
+                builder.Append("\\\\");
+                break;
+            default:
+                if (c < ' ')
+                {
+                    builder.AppendFormat("\\u{0:x4}", (int)c);
+                }
+                else
+                {
+                    builder.Append(c);
+                }
+                break;
+        }
+    }
+    return builder.Append('"').ToString();
+};
+
+var dependencies = string.Join(", ", (Dependencies ?? new string[0]).Select(quote));
+var json = new StringBuilder()
+    .Append("{\r\n")
+    .Append("  \"name\": ").Append(quote(Name)).Append(",\r\n")
+    .Append("  \"version_number\": ").Append(quote(Version)).Append(",\r\n")
+    .Append("  \"website_url\": ").Append(quote(WebsiteUrl)).Append(",\r\n")
+    .Append("  \"description\": ").Append(quote(Description)).Append(",\r\n")
+    .Append("  \"dependencies\": [").Append(dependencies).Append("]\r\n")
+    .Append("}\r\n");
+Directory.CreateDirectory(System.IO.Path.GetDirectoryName(Path));
+File.WriteAllText(Path, json.ToString(), new UTF8Encoding(false));
+]]></Code>
+    </Task>
+  </UsingTask>
 
 </Project>
