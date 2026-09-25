@@ -29,6 +29,8 @@ public class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
 
     public static TimbnCorePlugin? Instance { get; private set; }
 
+    private bool _loadErrorsChecked;
+
     protected override void OnAwake()
     {
         Instance = this;
@@ -63,6 +65,13 @@ public class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
 
     protected override void OnUpdate()
     {
+        if (!_loadErrorsChecked)
+        {
+            _loadErrorsChecked = true;
+            if (TimbnLoadErrors.Describe() is { } loadErrors)
+                MainMenu.Popup("Some mods did not load", loadErrors);
+        }
+
         TimbnDialog.OnUpdate();
         TimbnPotions.OnUpdate();
         TimbnMainMenu.OnUpdate();

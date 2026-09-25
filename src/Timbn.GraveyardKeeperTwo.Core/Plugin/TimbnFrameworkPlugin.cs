@@ -136,6 +136,8 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
             $"Plugin {Metadata.GUID} v{Metadata.Version} not started. {failures.Count} patch class(es) failed on game build {Application.version}, " +
             $"most likely a renamed or removed target. Nothing was left patched.{Environment.NewLine}  " +
             string.Join($"{Environment.NewLine}  ", failures));
+
+        TimbnLoadErrors.AddStartFailure($"{Metadata.Name} {Metadata.Version}");
         return false;
     }
 

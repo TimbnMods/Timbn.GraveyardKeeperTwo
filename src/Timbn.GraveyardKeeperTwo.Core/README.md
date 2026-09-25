@@ -60,7 +60,7 @@ protected override void OnAwake()
 
 ## Main menu
 
-Every Timbn plugin that starts is listed on the main menu with its version, above the game's own credits, so players can see at a glance what is loaded. `MainMenu.AddLine` adds another line to that list, and `MainMenu.Popup` shows a message in the game's own dialog window the next time the main menu is on screen. Core uses the popup to warn when the game version differs from the one these mods were tested on.
+Every Timbn plugin that starts is listed on the main menu with its version, above the game's own credits, so players can see at a glance what is loaded. `MainMenu.AddLine` adds another line to that list, and `MainMenu.Popup` shows a message in the game's own dialog window the next time the main menu is on screen. Core uses the popup to warn when the game version differs from the one these mods were tested on, and to list any mod that did not load. That covers every plugin BepInEx skipped over a missing, too old, or incompatible dependency, plus Timbn plugins that stayed off because a patch failed.
 
 ```csharp
 protected override void OnAwake()
