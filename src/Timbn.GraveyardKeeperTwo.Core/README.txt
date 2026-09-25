@@ -33,6 +33,8 @@ TROUBLESHOOTING
 
 If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and BepInEx/LogOutput.log says which part failed. If Core itself fails, every Timbn mod stays off. The startup line and a popup on the main menu also warn when the game version differs from the one these mods were tested on. Include that line when reporting a problem.
 
+If a mod does not load, a popup on the main menu names it and says why, for example when it needs a newer Timbn Core. Update the mod it names and restart the game.
+
 UNINSTALLING
 
 Delete the Timbn.GraveyardKeeperTwo.Core folder from BepInEx/plugins. Every Timbn mod needs Core, so remove those too.
