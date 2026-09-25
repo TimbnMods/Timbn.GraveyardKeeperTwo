@@ -26,6 +26,20 @@
     </RestoreAdditionalProjectSources>
   </PropertyGroup>
 
+  <!--
+    Thunderstore package settings for the Package target. A project opts in by setting ThunderstoreDescription.
+    ThunderstoreBepInExPack is the full Namespace-Name-Version of the BepInExPack the Graveyard Keeper 2 community
+    lists. ThunderstoreCoreFirstVersion is the first Core uploaded there,
+    since a dependency must name a version Thunderstore has.
+  -->
+  <PropertyGroup>
+    <ThunderstoreNamespace>Timbn</ThunderstoreNamespace>
+    <ThunderstoreWebsiteUrl>https://github.com/TimbnMods/Timbn.GraveyardKeeperTwo</ThunderstoreWebsiteUrl>
+    <ThunderstoreBepInExPack>BepInEx-BepInExPack-5.4.2305</ThunderstoreBepInExPack>
+    <ThunderstoreCorePackage>Timbn-TimbnCore</ThunderstoreCorePackage>
+    <ThunderstoreCoreFirstVersion>1.3.0</ThunderstoreCoreFirstVersion>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
     <PackageReference Include="BepInEx.Core" Version="5.*" />

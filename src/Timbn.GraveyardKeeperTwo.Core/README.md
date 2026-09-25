@@ -1,5 +1,7 @@
 # Timbn.GraveyardKeeperTwo.Core
 
+Timbn Core is the shared framework every Timbn mod for Graveyard Keeper 2 is built on. It does nothing on its own. Install it when a Timbn mod lists it as a requirement. The rest of this page is for modders.
+
 Core is two things at once.
 
 - A loaded plugin (`TimbnCorePlugin`) that other Timbn mods hard depend on.
