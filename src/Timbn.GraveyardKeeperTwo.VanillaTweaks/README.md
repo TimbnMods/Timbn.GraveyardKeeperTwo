@@ -4,9 +4,9 @@ Timbn Vanilla Tweaks fixes bugs and adds light gameplay tweaks that are intended
 
 ## Bug Fixes
 
-### Study table eating your science
+### Zombies filling the well and study table
 
-When all storage in the tower is full, a zombie can put its item in the study table. The table is then unusable and every science you make afterwards is lost. Version 1.005 fixed this for newly built tables only, so this makes older tables take only science too, and anything already stuck in one is dropped beside it when you load.
+When the storage nearby is full, a zombie can put its item somewhere that is meant to hold only one thing. Flax in the garden well stops it giving water, and junk in the study table makes it unusable and every science you make afterwards is lost. Version 1.005 fixed the study table for newly built tables only. This makes the garden wells take only water, and any storage built before the game limited what it takes follows that limit too. Anything already in the wrong place is dropped beside it when you load.
 
 ### Study table stopping partway
 
@@ -79,7 +79,7 @@ The game caps red, green, and blue tech points at 999 each and throws away anyth
 
 | Section | Entry | Default |
 | --- | --- | --- |
-| Bug Fixes | StudyTableScienceOnly | true |
+| Bug Fixes | SpecialStorageFilters | true |
 | Bug Fixes | StudyTableNoStuckCrafts | true |
 | Bug Fixes | GreenThumbTalentBonus | true |
 | Bug Fixes | CollectStrayTechPoints | true |

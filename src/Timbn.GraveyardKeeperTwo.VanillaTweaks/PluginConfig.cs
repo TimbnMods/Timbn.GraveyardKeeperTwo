@@ -6,7 +6,7 @@ internal static class PluginConfig
     private const string _softLocks = "Soft Locks";
     private const string _tweaks = "Tweaks";
 
-    public static ConfigEntry<bool> StudyTableScienceOnly { get; private set; } = null!;
+    public static ConfigEntry<bool> SpecialStorageFilters { get; private set; } = null!;
 
     public static ConfigEntry<bool> StudyTableNoStuckCrafts { get; private set; } = null!;
 
@@ -40,14 +40,15 @@ internal static class PluginConfig
 
     public static void Bind(ConfigFile config)
     {
-        StudyTableScienceOnly = config.Bind(
+        SpecialStorageFilters = config.Bind(
             _bugFixes,
-            nameof(StudyTableScienceOnly),
+            nameof(SpecialStorageFilters),
             true,
-            "Stops zombies from putting anything but science in a study table built before version 1.005, "
-            + "which they do when the rest of the tower's storage is full. The table is then unusable and every "
-            + "science made afterwards is lost. Anything already in the table is dropped beside it when a save "
-            + "loads. Tables built since 1.005 already only take science.");
+            "Stops zombies from putting the wrong item in storage meant for one thing, which they do when the "
+            + "rest of the storage nearby is full. Flax in the garden well stops it giving water, and anything "
+            + "but science in a study table built before version 1.005 makes every science afterwards lost. "
+            + "Covers the garden wells and any storage built before the game limited what it takes. Anything "
+            + "already in the wrong place is dropped beside it when a save loads.");
 
         StudyTableNoStuckCrafts = config.Bind(
             _bugFixes,
@@ -167,7 +168,8 @@ internal static class PluginConfig
 
         CarryOver(
             config,
-            (StudyTableScienceOnly, "StudyTable", "ScienceOnly"),
+            (SpecialStorageFilters, _bugFixes, "StudyTableScienceOnly"),
+            (SpecialStorageFilters, "StudyTable", "ScienceOnly"),
             (StudyTableNoStuckCrafts, "StudyTable", "NoStuckCrafts"),
             (GreenThumbTalentBonus, "GreenThumb", "TalentBonus"),
             (CollectStrayTechPoints, "TechPoints", "CollectStray"),

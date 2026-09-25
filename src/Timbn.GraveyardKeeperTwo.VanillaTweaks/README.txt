@@ -4,8 +4,8 @@ Timbn Vanilla Tweaks fixes bugs and adds light gameplay tweaks that are intended
 
 BUG FIXES
 
-Study table eating your science
-When all storage in the tower is full, a zombie can put its item in the study table. The table is then unusable and every science you make afterwards is lost. Version 1.005 fixed this for newly built tables only, so this makes older tables take only science too, and anything already stuck in one is dropped beside it when you load.
+Zombies filling the well and study table
+When the storage nearby is full, a zombie can put its item somewhere that is meant to hold only one thing. Flax in the garden well stops it giving water, and junk in the study table makes it unusable and every science you make afterwards is lost. Version 1.005 fixed the study table for newly built tables only. This makes the garden wells take only water, and any storage built before the game limited what it takes follows that limit too. Anything already in the wrong place is dropped beside it when you load.
 
 Study table stopping partway
 A broken popup on the workstation can stop the study table partway through. Pressing Study could take your faith and science and start nothing, and pressing Decompose could leave the table stuck. Both now are fixed and a table already stuck is freed when you load.
