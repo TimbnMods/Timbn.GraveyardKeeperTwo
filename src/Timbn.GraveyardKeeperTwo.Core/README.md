@@ -1,6 +1,49 @@
 # Timbn.GraveyardKeeperTwo.Core
 
-Timbn Core is the shared framework every Timbn mod for Graveyard Keeper 2 is built on. It does nothing on its own. Install it when a Timbn mod lists it as a requirement. The rest of this page is for modders.
+Timbn Core is the shared framework every Timbn mod for Graveyard Keeper 2 is built on. It does nothing on its own. Install it when a Timbn mod lists it as a requirement. Everything after For Modders is for modders.
+
+## Requirements
+
+- [BepInEx for Graveyard Keeper 2](https://www.nexusmods.com/graveyardkeeper2/mods/48)
+
+## Installation
+
+### With Vortex
+
+1. Install BepInEx for Graveyard Keeper 2
+2. Download with "Mod Manager Download" from the Files tab or the Vortex download button
+
+### Without Vortex
+
+1. Install BepInEx for Graveyard Keeper 2, start the game once, and quit at the main menu. This creates the `BepInEx/plugins` and `BepInEx/config` folders.
+2. Download the Timbn.GraveyardKeeperTwo.Core zip file.
+3. Extract the zip into `BepInEx/plugins`. You should end up with `Graveyard Keeper 2/BepInEx/plugins/Timbn.GraveyardKeeperTwo.Core/`.
+
+### Check it works
+
+The bottom right of the main menu lists Timbn Core along with any other Timbn mods.
+
+## Settings
+
+There is one setting, Enabled, in `BepInEx/config/Timbn.GraveyardKeeperTwo.Core.cfg`. Turning it off turns off every Timbn mod at once. Restart the game after changing it.
+
+## Troubleshooting
+
+If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and `BepInEx/LogOutput.log` says which part failed. If Core itself fails, every Timbn mod stays off. The startup line and a popup on the main menu also warn when the game version differs from the one these mods were tested on. Include that line when reporting a problem.
+
+If a mod does not load, a popup on the main menu names it and says why, for example when it needs a newer Timbn Core. Update the mod it names and restart the game.
+
+## Uninstalling
+
+Delete the `Timbn.GraveyardKeeperTwo.Core` folder from `BepInEx/plugins`. Every Timbn mod needs Core, so remove those too.
+
+## License
+
+Mozilla Public License 2.0, see `LICENSE.txt`.
+
+## For Modders
+
+`Timbn.GraveyardKeeperTwo.Core.xml` next to the DLL holds the API documentation for your IDE.
 
 Core is two things at once.
 

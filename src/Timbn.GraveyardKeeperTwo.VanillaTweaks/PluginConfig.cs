@@ -8,13 +8,9 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> SpecialStorageFilters { get; private set; } = null!;
 
-    public static ConfigEntry<bool> StudyTableNoStuckCrafts { get; private set; } = null!;
-
     public static ConfigEntry<bool> GreenThumbTalentBonus { get; private set; } = null!;
 
     public static ConfigEntry<bool> CollectStrayTechPoints { get; private set; } = null!;
-
-    public static ConfigEntry<bool> OvenNoLostIngredients { get; private set; } = null!;
 
     public static ConfigEntry<bool> SermonFaithRounding { get; private set; } = null!;
 
@@ -45,18 +41,11 @@ internal static class PluginConfig
             nameof(SpecialStorageFilters),
             true,
             "Stops zombies from putting the wrong item in storage meant for one thing, which they do when the "
-            + "rest of the storage nearby is full. Flax in the garden well stops it giving water, and anything "
-            + "but science in a study table built before version 1.005 makes every science afterwards lost. "
-            + "Covers the garden wells and any storage built before the game limited what it takes. Anything "
+            + "rest of the storage nearby is full. Flax in a garden well stops it giving water, and anything "
+            + "but science in the study table makes every science afterwards lost. The game only limits the study "
+            + "table in saves started on version 1.005 or later and garden wells built on 1.006 or later, so this "
+            + "covers older ones and any other storage built before the game limited what it takes. Anything "
             + "already in the wrong place is dropped beside it when a save loads.");
-
-        StudyTableNoStuckCrafts = config.Bind(
-            _bugFixes,
-            nameof(StudyTableNoStuckCrafts),
-            true,
-            "Frees a study table the game left stuck partway through a decompose or study, showing Work with "
-            + "nothing to work on. Checked when a save loads. The item and science were already spent, so nothing "
-            + "is lost.");
 
         GreenThumbTalentBonus = config.Bind(
             _bugFixes,
@@ -72,15 +61,6 @@ internal static class PluginConfig
             true,
             "Pulls a tech point orb to you when it settles off the walkable ground, say through a wall, where "
             + "the game's magnet can never reach it. The game only does this when you sleep.");
-
-        OvenNoLostIngredients = config.Bind(
-            _bugFixes,
-            nameof(OvenNoLostIngredients),
-            true,
-            "Gives the oven room for every ingredient its recipes need. It has one ingredient slot, so a zombie "
-            + "cook's second ingredient (the oil for onion rings, say) has nowhere to go and is destroyed on "
-            + "delivery, over and over. Also refuses any delivery a station has no room for, instead of "
-            + "destroying it.");
 
         SermonFaithRounding = config.Bind(
             _bugFixes,
@@ -170,10 +150,8 @@ internal static class PluginConfig
             config,
             (SpecialStorageFilters, _bugFixes, "StudyTableScienceOnly"),
             (SpecialStorageFilters, "StudyTable", "ScienceOnly"),
-            (StudyTableNoStuckCrafts, "StudyTable", "NoStuckCrafts"),
             (GreenThumbTalentBonus, "GreenThumb", "TalentBonus"),
             (CollectStrayTechPoints, "TechPoints", "CollectStray"),
-            (OvenNoLostIngredients, "Oven", "NoLostIngredients"),
             (SermonFaithRounding, "Sermons", "FaithRounding"),
             (StuckCarriers, "Carriers", "ShowWhenStuck"),
             (RemoveInWholeArea, "Building", "RemoveInWholeArea"),

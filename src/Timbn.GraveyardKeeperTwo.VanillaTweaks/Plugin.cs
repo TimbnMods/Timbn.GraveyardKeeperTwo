@@ -11,7 +11,6 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
     private TechPointCap? _techPointCap;
     private StrayTechPoints? _strayTechPoints;
     private StuckCarriers? _stuckCarriers;
-    private OvenIngredientSlots? _ovenSlots;
     private BuiltEarlyQuests? _builtEarly;
     private UnreachableDismantle? _unreachableDismantle;
     private CollisionFixes? _collisionFixes;
@@ -42,21 +41,6 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
             Events.GameStarted(_techPointCap.Apply);
             if (TimbnGame.IsInGame)
                 _techPointCap.Apply();
-        }
-
-        if (PluginConfig.StudyTableNoStuckCrafts.Value)
-        {
-            Events.GameStarted(StudyTableStuckCraft.ClearStuckCrafts);
-            if (TimbnGame.IsInGame)
-                StudyTableStuckCraft.ClearStuckCrafts();
-        }
-
-        if (PluginConfig.OvenNoLostIngredients.Value)
-        {
-            _ovenSlots = new OvenIngredientSlots();
-            Events.GameStarted(_ovenSlots.Apply);
-            if (TimbnGame.IsInGame)
-                _ovenSlots.Apply();
         }
 
         if (PluginConfig.CollectStrayTechPoints.Value)
@@ -110,7 +94,6 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         _storageFilters?.Revert();
         _greenThumb?.Revert();
         _techPointCap?.Revert();
-        _ovenSlots?.Revert();
         _unreachableDismantle?.Revert();
         _collisionFixes?.Revert();
     }
