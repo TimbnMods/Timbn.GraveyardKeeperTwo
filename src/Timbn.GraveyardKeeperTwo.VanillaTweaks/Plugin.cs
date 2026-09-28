@@ -11,6 +11,7 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
     private TechPointCap? _techPointCap;
     private StrayTechPoints? _strayTechPoints;
     private StuckCarriers? _stuckCarriers;
+    private StuckResourceWorkers? _stuckResourceWorkers;
     private BuiltEarlyQuests? _builtEarly;
     private UnreachableDismantle? _unreachableDismantle;
     private CollisionFixes? _collisionFixes;
@@ -63,6 +64,12 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
             Events.GoToMainMenu(_stuckCarriers.Reset);
         }
 
+        _stuckResourceWorkers = new StuckResourceWorkers();
+        _stuckResourceWorkers.Apply();
+        Events.GameStarted(_stuckResourceWorkers.Repair);
+        if (TimbnGame.IsInGame)
+            _stuckResourceWorkers.Repair();
+
         _unreachableDismantle = new UnreachableDismantle();
         _unreachableDismantle.Apply();
 
@@ -95,6 +102,7 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         _greenThumb?.Revert();
         _techPointCap?.Revert();
         _unreachableDismantle?.Revert();
+        _stuckResourceWorkers?.Revert();
         _collisionFixes?.Revert();
     }
 }

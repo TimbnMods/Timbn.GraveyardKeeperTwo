@@ -16,6 +16,8 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> StuckCarriers { get; private set; } = null!;
 
+    public static ConfigEntry<bool> StuckResourceWorkers { get; private set; } = null!;
+
     public static ConfigEntry<bool> RemoveInWholeArea { get; private set; } = null!;
 
     public static ConfigEntry<bool> CollisionFixes { get; private set; } = null!;
@@ -79,6 +81,16 @@ internal static class PluginConfig
             "When a carrier zombie has nothing in its room to put its item into, it shows the no storage icon "
             + "the game already uses for gardeners and walks back to its supplier station instead of freezing where it "
             + "stands. It goes on with its work as soon as a slot frees up, as it would anyway.");
+
+        StuckResourceWorkers = config.Bind(
+            _bugFixes,
+            nameof(StuckResourceWorkers),
+            true,
+            "Keeps lumberjack, miner, clay and sand zombies working. Each of them walks out to one of a few "
+            + "work spots, and dismantling a stand while its zombie was out left that spot taken for good. Once "
+            + "every spot was taken, a zombie stood at the stockpile or its stand swinging its tool forever. Spots "
+            + "are now freed when a zombie leaves its stand, spots already lost in a save are freed when it loads, "
+            + "and a stranded zombie goes back to work as soon as a spot is free.");
 
         RemoveInWholeArea = config.Bind(
             _bugFixes,

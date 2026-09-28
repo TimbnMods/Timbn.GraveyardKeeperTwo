@@ -20,6 +20,10 @@ The game can end up with 3.4999 faith when it should be 3.5, which rounds down i
 
 Supply zombies could freeze holding an item when all storage was full. They now walk back to their station and show the game's storage full icon until there is room.
 
+### Lumberjack, miner, clay and sand zombies stuck swinging
+
+Workstations can act weird when destroying them while a zombie is working or remvoing zombies from working. This fixes stuck zombies.
+
 ### Getting stuck on the ground
 
 Fixes spots where you can get stuck, such as the stairs from the dock up to the stone pier on the far right of the Port Area. Each fix does nothing once the game fixes that spot.
