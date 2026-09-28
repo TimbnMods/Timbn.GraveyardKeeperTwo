@@ -18,8 +18,6 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> RemoveInWholeArea { get; private set; } = null!;
 
-    public static ConfigEntry<bool> CollisionFixes { get; private set; } = null!;
-
     public static ConfigEntry<bool> BuiltEarlyQuests { get; private set; } = null!;
 
     public static ConfigEntry<bool> DismantleUnreachable { get; private set; } = null!;
@@ -89,13 +87,6 @@ internal static class PluginConfig
             true,
             "Allows you to remove buildings you should be allowed to but the game blocks its. Chests built in the " +
             "resurrection lab from the morgue build desk are an example.");
-
-        CollisionFixes = config.Bind(
-            _bugFixes,
-            nameof(CollisionFixes),
-            true,
-            "Fixes spots where you can get stuck, such as the stairs from the dock up to the stone pier on the far "
-            + "right of the Port Area. Each fix does nothing once the game fixes that spot.");
 
         RecoverBattleRewards = config.Bind(
             _bugFixes,

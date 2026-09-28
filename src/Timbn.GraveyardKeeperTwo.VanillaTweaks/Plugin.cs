@@ -12,7 +12,6 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
     private StuckCarriers? _stuckCarriers;
     private BuiltEarlyQuests? _builtEarly;
     private UnreachableDismantle? _unreachableDismantle;
-    private CollisionFixes? _collisionFixes;
 
     protected override void BindConfig(ConfigFile config) => PluginConfig.Bind(config);
 
@@ -61,13 +60,6 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         _unreachableDismantle = new UnreachableDismantle();
         _unreachableDismantle.Apply();
 
-        if (PluginConfig.CollisionFixes.Value)
-        {
-            _collisionFixes = new CollisionFixes();
-            _collisionFixes.Subscribe(Events);
-            _collisionFixes.ApplyToLoadedScenes();
-        }
-
         Logger.LogMessage($"Vanilla Tweaks started. Unstuck on {PluginConfig.UnstuckKey.Value}.");
     }
 
@@ -89,6 +81,5 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         _greenThumb?.Revert();
         _techPointCap?.Revert();
         _unreachableDismantle?.Revert();
-        _collisionFixes?.Revert();
     }
 }
