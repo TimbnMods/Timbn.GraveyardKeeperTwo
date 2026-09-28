@@ -32,10 +32,6 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> RecoverBattleRewards { get; private set; } = null!;
 
-    public static ConfigEntry<bool> BagFilters { get; private set; } = null!;
-
-    public static ConfigEntry<BagDestroyBlocking> BagDestroy { get; private set; } = null!;
-
     public static ConfigEntry<bool> MoveIdenticalFromBags { get; private set; } = null!;
 
     public static ConfigEntry<KeyboardShortcut> UnstuckKey { get; private set; } = null!;
@@ -122,24 +118,6 @@ internal static class PluginConfig
             + "for Looters, Town Gratitude, and Zombie Goo) lying anywhere in the world back to your feet. Battle "
             + "rewards are dropped at your feet after a win, and with full bags walking into one knocks it away "
             + "until it lands somewhere you can't reach.");
-
-        BagFilters = config.Bind(
-            _bugFixes,
-            nameof(BagFilters),
-            true,
-            "Stops the chest window from putting items into a bag that doesn't take them, like fish in the "
-            + "alchemy bag. Crafting counted an item in the wrong bag but never used it up, so it could be used "
-            + "forever. Anything already in the wrong bag is moved out when a save loads, into the chest holding "
-            + "the bag or your inventory, and dropped at your feet if there is no room.");
-
-        BagDestroy = config.Bind(
-            _bugFixes,
-            nameof(BagDestroy),
-            BagDestroyBlocking.BlockIfNotEmpty,
-            "How to determine when Destroy is grayed out on a bag. The game only checks the bag itself, so destroying a bag deletes "
-            + "everything inside, even items that can't be destroyed like the Inquisitor's medallion. "
-            + "BlockIfNotEmpty grays it out while anything is inside. BlockIfImportant only while something inside "
-            + "can't be destroyed on its own. NoBlocking leaves it as the game has it.");
 
         BuiltEarlyQuests = config.Bind(
             _softLocks,

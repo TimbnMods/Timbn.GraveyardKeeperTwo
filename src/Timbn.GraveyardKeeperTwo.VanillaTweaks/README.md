@@ -32,19 +32,11 @@ Fixes spots where you can get stuck, such as the stairs from the dock up to the 
 
 Battle rewards are dropped at your feet after a win. With full bags the game knocks an item away every time you walk into it, so following it pushes it further until it lands somewhere you can't reach, and rewards like the Defender's Emblem were lost for good. Going to sleep brings every item battles give as a reward (Defender's Emblem, Victory Banner, Keys for Looters, Town Gratitude, and Zombie Goo) lying anywhere in the world back to your feet, including ones lost before you installed this.
 
-### Items in the wrong bag used forever
-
-The chest window let you put anything into any of your bags, like fish in the alchemy bag. Crafting counted an item in the wrong bag but never used it up, so one item could be used forever. Bags now only take what they are meant to. Anything already in the wrong bag is moved out when you load, into the chest holding the bag or your inventory, or dropped at your feet if there is no room.
-
 ### Zombies filling the well and study table
 
 Partly fixed by the game developers, only for wells built on 1.006 or later and study tables in saves started on 1.005 or later.
 
 When the storage nearby is full, a zombie can put its item somewhere that is meant to hold only one thing. Flax in the garden well stops it giving water, and junk in the study table makes it unusable and every science you make afterwards is lost. This makes older wells and study tables, and any other storage built before the game limited what it takes, follow that limit too. Anything already in the wrong place is dropped beside it when you load.
-
-### Destroying a bag deletes what's inside
-
-Destroying a bag also destroyed everything in it, even items that can't be destroyed on their own like the Inquisitor's medallion or the King's signet. Destroy is now grayed out on a bag that still has something in it. Set Bug Fixes BagDestroy to BlockIfImportant to only block it while the bag holds something that can't be destroyed, or NoBlocking for the game's behavior.
 
 ## Soft Locks
 
@@ -95,6 +87,8 @@ Every line this mod adds is in `lang/en.txt` inside its folder. Copy it to your 
 - The study table getting stuck partway through a study or decompose
 - Zombie cooks throwing away the second ingredient of oven recipes
 - Buildings in the resurrection lab that could never be removed
+- Destroying a bag deleting everything inside it
+- Items in the wrong bag being used forever
 
 ## Requirements
 
