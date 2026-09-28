@@ -5,20 +5,11 @@ namespace Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
 
 internal sealed class SpecialStorageFilters
 {
-    private static readonly Dictionary<string, string[]> _missingWhiteLists = new()
-    {
-        ["well_garden_1"] = ["water"],
-        ["well_garden_2"] = ["water"],
-    };
-
-    private readonly Dictionary<WGODef, WhiteListItemFilter> _originalWhiteLists = [];
     private readonly List<Item> _addedWhiteLists = [];
     private readonly List<Item> _addedBlackLists = [];
 
     public void Apply()
     {
-        AddMissingWhiteLists();
-
         var filtered = 0;
         foreach (var definition in GameBalance.Me.wgoDefs)
         {
@@ -54,27 +45,6 @@ internal sealed class SpecialStorageFilters
         foreach (var data in _addedBlackLists)
             data.RemoveProperty<BlackListFilterSerializedItemProperty>();
         _addedBlackLists.Clear();
-
-        foreach (var (definition, original) in _originalWhiteLists)
-            definition.inventoryWhiteList = original;
-        _originalWhiteLists.Clear();
-    }
-
-    private void AddMissingWhiteLists()
-    {
-        foreach (var (id, itemIds) in _missingWhiteLists)
-        {
-            var definition = GameBalance.Me.GetData<WGODef>(id);
-            if (definition == null || _originalWhiteLists.ContainsKey(definition) || !IsEmpty(definition.inventoryWhiteList))
-                continue;
-
-            var whiteList = new WhiteListItemFilter();
-            foreach (var itemId in itemIds)
-                whiteList.AddElement(itemId, ItemFilter.ItemFilterElementType.Item);
-
-            _originalWhiteLists[definition] = definition.inventoryWhiteList;
-            definition.inventoryWhiteList = whiteList;
-        }
     }
 
     private bool FilterInventory(WGODef definition, Item data)

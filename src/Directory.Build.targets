@@ -42,7 +42,7 @@
   <!--
     Builds a release zip for one plugin: artifacts/<ProjectName>-<Version>.zip, holding the plugin folder
     exactly as it deploys, its XML doc file when the project generates one, the repo's LICENSE renamed to LICENSE.txt,
-    and the project's README.txt when it has one, or its README.md when it does not. Opt in
+    and the project's README.md. Opt in
     (dotnet build -t:Package -c Release), so a normal build stays as fast as it is.
   -->
   <Target Name="Package" DependsOnTargets="Build">
@@ -55,8 +55,7 @@
     </PropertyGroup>
     <ItemGroup>
       <_PackageContent Include="@(None->WithMetadataValue('CopyToOutputDirectory', 'PreserveNewest'))" />
-      <_PackageText Include="$(MSBuildProjectDirectory)\README.txt" />
-      <_PackageText Include="$(MSBuildProjectDirectory)\README.md" Condition="!Exists('$(MSBuildProjectDirectory)\README.txt')" />
+      <_PackageText Include="$(MSBuildProjectDirectory)\README.md" />
     </ItemGroup>
     <RemoveDir Directories="$(_PackageStage)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(_PackageRoot)" />

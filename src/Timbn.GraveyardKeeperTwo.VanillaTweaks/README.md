@@ -4,14 +4,6 @@ Timbn Vanilla Tweaks fixes bugs and adds light gameplay tweaks that are intended
 
 ## Bug Fixes
 
-### Zombies filling the well and study table
-
-When the storage nearby is full, a zombie can put its item somewhere that is meant to hold only one thing. Flax in the garden well stops it giving water, and junk in the study table makes it unusable and every science you make afterwards is lost. Version 1.005 fixed the study table for newly built tables only. This makes the garden wells take only water, and any storage built before the game limited what it takes follows that limit too. Anything already in the wrong place is dropped beside it when you load.
-
-### Study table stopping partway
-
-A broken popup on the workstation can stop the study table partway through. Pressing Study could take your faith and science and start nothing, and pressing Decompose could leave the table stuck. Both now are fixed and a table already stuck is freed when you load.
-
 ### Green Thumb perk
 
 The perk never worked and now adds +2 farming mastery when planting. The game does not use the player's mastery on harvest, so that part of the description still can't do anything.
@@ -19,10 +11,6 @@ The perk never worked and now adds +2 farming mastery when planting. The game do
 ### Lost tech points
 
 Tech points can bounce through a wall and land where they can't reach you. Now any tech points stuck off walkable ground are pulled to you.
-
-### Zombie cooks losing ingredients
-
-Ovens only had room for one ingredient, so zombies threw away the second ingredient of any two ingredient recipe and tried to deliver again. Ovens now have room for every ingredient, and a delivery with no room is refused instead of destroyed.
 
 ### Priest perk rounding down
 
@@ -32,19 +20,23 @@ The game can end up with 3.4999 faith when it should be 3.5, which rounds down i
 
 Supply zombies could freeze holding an item when all storage was full. They now walk back to their station and show the game's storage full icon until there is room.
 
-### Buildings in the resurrection lab can't be removed
-
-Anything you built in the resurrection lab from the morgue build desk could never be removed. This fixes the issue.
-
 ### Getting stuck on the ground
 
 Fixes spots where you can get stuck, such as the stairs from the dock up to the stone pier on the far right of the Port Area. Each fix does nothing once the game fixes that spot.
+
+### Zombies filling the well and study table
+
+Partly fixed by the game developers, only for wells built on 1.006 or later and study tables in saves started on 1.005 or later.
+
+When the storage nearby is full, a zombie can put its item somewhere that is meant to hold only one thing. Flax in the garden well stops it giving water, and junk in the study table makes it unusable and every science you make afterwards is lost. This makes older wells and study tables, and any other storage built before the game limited what it takes, follow that limit too. Anything already in the wrong place is dropped beside it when you load.
 
 ## Soft Locks
 
 ### Quest building built too early
 
-Building the church choir before Agatha asks for it will lock the quest from completing. The game only noticed the build at the moment it happened, not if it has happened in the past. The quest now finishes when you load a save with the choir or organ already built.
+Partly fixed by the game developers, still needed for saves where it was already built early.
+
+Building the church choir or organ before being asked will lock the quest from completing. The game only noticed the build at the moment it happened, not if it has happened in the past. The quest now finishes when you load a save with the choir or organ already built.
 
 ### Stations you can't reach to dismantle
 
@@ -58,7 +50,7 @@ If you are soft locked and run out of boards without a sawhorse or circular saw,
 
 ### Unstuck hotkey
 
-No more getting wedged into a tight spot. A configurable key (default Ctrl+U) moves you to the nearest open ground.
+No more getting wedged into a tight spot. A configurable key (default Ctrl+U) moves you to the nearest open ground. Clear Tweaks UnstuckKey to turn the key off, and set Tweaks UnstuckRange (1 to 100, default 30) for how far it may move you.
 
 ### Bed saving without being tired
 
@@ -70,24 +62,55 @@ The game caps red, green, and blue tech points at 999 each and throws away anyth
 
 ## Fixed By Game Updates
 
-- Crematorium bodies no longer get stuck
+- Crematorium bodies getting stuck
 - Fishing spots refilling slower and slower
+- The study table getting stuck partway through a study or decompose
+- Zombie cooks throwing away the second ingredient of oven recipes
+- Buildings in the resurrection lab that could never be removed
+
+## Requirements
+
+- [BepInEx for Graveyard Keeper 2](https://www.nexusmods.com/graveyardkeeper2/mods/48)
+- [Timbn Core](https://www.nexusmods.com/graveyardkeeper2/mods/84)
+
+## Installation
+
+### With Vortex
+
+1. Install BepInEx for Graveyard Keeper 2
+2. Install Timbn Core
+3. Download with "Mod Manager Download" from the Files tab or the Vortex download button
+
+### Without Vortex
+
+1. Install BepInEx for Graveyard Keeper 2, start the game once, and quit at the main menu. This creates the `BepInEx/plugins` and `BepInEx/config` folders.
+2. Install Timbn Core
+3. Download the Timbn.GraveyardKeeperTwo.VanillaTweaks zip file.
+4. Extract the zip into `BepInEx/plugins`. You should end up with `Graveyard Keeper 2/BepInEx/plugins/Timbn.GraveyardKeeperTwo.Core/` and `Graveyard Keeper 2/BepInEx/plugins/Timbn.GraveyardKeeperTwo.VanillaTweaks/`.
+
+### Check it works
+
+The bottom right of the main menu lists Timbn Core and Timbn Vanilla Tweaks along with any other Timbn mods.
+
+## Troubleshooting
+
+If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and `BepInEx/LogOutput.log` says which part failed. If Core itself fails, every Timbn mod stays off. The startup line and a popup on the main menu also warn when the game version differs from the one these mods were tested on. Include that line when reporting a problem.
 
 ## Configuration
 
 `BepInEx/config/Timbn.GraveyardKeeperTwo.VanillaTweaks.cfg`
 
+After the first launch, every fix and tweak can be turned on or off in the config file. Restart the game after changing it.
+
 | Section | Entry | Default |
 | --- | --- | --- |
-| Bug Fixes | SpecialStorageFilters | true |
-| Bug Fixes | StudyTableNoStuckCrafts | true |
 | Bug Fixes | GreenThumbTalentBonus | true |
 | Bug Fixes | CollectStrayTechPoints | true |
-| Bug Fixes | OvenNoLostIngredients | true |
 | Bug Fixes | SermonFaithRounding | true |
 | Bug Fixes | StuckCarriers | true |
-| Bug Fixes | RemoveInWholeArea | true |
 | Bug Fixes | CollisionFixes | true |
+| Bug Fixes | SpecialStorageFilters | true |
+| Bug Fixes | RemoveInWholeArea | true |
 | Soft Locks | BuiltEarlyQuests | true |
 | Soft Locks | DismantleUnreachable | true |
 | Soft Locks | SoftLockedBoards | true |
@@ -95,3 +118,11 @@ The game caps red, green, and blue tech points at 999 each and throws away anyth
 | Tweaks | UnstuckRange | 30 |
 | Tweaks | BedSaveWhenRested | false |
 | Tweaks | TechPointCap | 999 |
+
+## Uninstalling
+
+Delete the `Timbn.GraveyardKeeperTwo.VanillaTweaks` folder from `BepInEx/plugins`.
+
+## License
+
+Mozilla Public License 2.0, see `LICENSE.txt`.
