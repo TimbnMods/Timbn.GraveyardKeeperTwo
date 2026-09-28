@@ -26,7 +26,6 @@ internal static class LostItems
 
     public static void Register(TimbnFrameworkPlugin plugin)
     {
-        plugin.Text.AddLanguageFiles();
         foreach (var item in _items)
         {
             plugin.Dialog.AddTalk(_npcId, item.Name + "_talk", item.IsLost, talk => talk

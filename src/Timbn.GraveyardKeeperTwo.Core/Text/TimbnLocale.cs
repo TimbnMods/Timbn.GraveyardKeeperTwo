@@ -20,7 +20,7 @@ internal static class TimbnLocale
     internal static IDisposable Add(string key, string text) => Add(new Dictionary<string, string> { [key] = text });
 
     internal static IDisposable Add(IReadOnlyDictionary<string, string> texts) =>
-        Add(texts.Select(pair => new Entry(pair.Key, new Dictionary<string, string> { [DefaultLanguage] = pair.Value })));
+        Add(texts.Select(pair => new Entry(pair.Key, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { [DefaultLanguage] = pair.Value })));
 
     internal static IDisposable Add(IReadOnlyDictionary<string, Dictionary<string, string>> textsByKey) =>
         Add(textsByKey.Select(pair => new Entry(pair.Key, pair.Value)));

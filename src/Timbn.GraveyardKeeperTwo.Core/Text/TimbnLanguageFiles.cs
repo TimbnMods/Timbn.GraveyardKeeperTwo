@@ -2,7 +2,7 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 internal static class TimbnLanguageFiles
 {
-    internal const string _folderName = "lang";
+    private const string _folderName = "lang";
 
     internal static Dictionary<string, Dictionary<string, string>> Read(string folder, ManualLogSource logger)
     {
@@ -16,11 +16,11 @@ internal static class TimbnLanguageFiles
 
         foreach (var file in Directory.GetFiles(langFolder, "*.txt"))
         {
-            var language = Path.GetFileNameWithoutExtension(file).ToLowerInvariant();
+            var language = Path.GetFileNameWithoutExtension(file);
             foreach (var (key, text) in ReadFile(file, logger))
             {
                 if (!textsByKey.TryGetValue(key, out var texts))
-                    textsByKey[key] = texts = [];
+                    textsByKey[key] = texts = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 
                 texts[language] = text;
             }
@@ -40,7 +40,7 @@ internal static class TimbnLanguageFiles
         for (var i = 0; i < lines.Length; i++)
         {
             var line = lines[i].Trim();
-            if (line.Length == 0 || line.StartsWith("#"))
+            if (line.Length == 0 || line.StartsWith("#", StringComparison.Ordinal))
                 continue;
 
             var split = line.IndexOf('=');

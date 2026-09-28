@@ -22,7 +22,7 @@ Supply zombies could freeze holding an item when all storage was full. They now 
 
 ### Lumberjack, miner, clay and sand zombies stuck swinging
 
-Workstations can act weird when destroying them while a zombie is working or remvoing zombies from working. This fixes stuck zombies.
+Workstations can act weird when destroying them while a zombie is working or removing zombies from working. This fixes stuck zombies.
 
 ### Getting stuck on the ground
 
@@ -44,7 +44,7 @@ When the storage nearby is full, a zombie can put its item somewhere that is mea
 
 ### Destroying a bag deletes what's inside
 
-Destroying a bag also destroyed everything in it, even items that can't be destroyed on their own like the Inquisitor's medallion or the King's signet. Destroy is now greyed out on a bag that still has something in it. Set Bug Fixes BagDestroy to BlockIfImportant to only block it while the bag holds something that can't be destroyed, or NoBlocking for the game's behavior.
+Destroying a bag also destroyed everything in it, even items that can't be destroyed on their own like the Inquisitor's medallion or the King's signet. Destroy is now grayed out on a bag that still has something in it. Set Bug Fixes BagDestroy to BlockIfImportant to only block it while the bag holds something that can't be destroyed, or NoBlocking for the game's behavior.
 
 ## Soft Locks
 

@@ -11,7 +11,7 @@ timbn_larry_boards_declined = Suit yourself... I'll be right here.
 timbn_larry_boards_accepted = Thank you, I will be more careful next time.
 
 # Larry, when the Inquisitor's medallion is lost before the Plague Doctor's tower door is open
-timbn_larry_medallion_offer_1 = Have you seen a Inquisitor's medallion anywhere?
+timbn_larry_medallion_offer_1 = Have you seen an Inquisitor's medallion anywhere?
 timbn_larry_medallion_offer_2 = Funny thing, one rolled up against my box this morning.
 timbn_larry_medallion_accept = That's the one! Can I have it back?
 timbn_larry_medallion_decline = No, that can't be mine.

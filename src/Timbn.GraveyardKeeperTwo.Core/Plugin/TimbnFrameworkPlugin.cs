@@ -93,8 +93,18 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
             if (!string.IsNullOrEmpty(location))
                 return Path.GetDirectoryName(location)!;
 
-            var scripts = Path.Combine(Path.Combine(Paths.BepInExRootPath, "scripts"), Metadata.GUID);
-            return Directory.Exists(scripts) ? scripts : Path.Combine(Paths.PluginPath, Metadata.GUID);
+            var dll = GetType().Assembly.GetName().Name + ".dll";
+            foreach (var root in new[] { Path.Combine(Paths.BepInExRootPath, "scripts"), Paths.PluginPath })
+            {
+                if (!Directory.Exists(root))
+                    continue;
+
+                var match = Directory.GetFiles(root, dll, SearchOption.AllDirectories).FirstOrDefault();
+                if (match != null)
+                    return Path.GetDirectoryName(match)!;
+            }
+
+            return Path.Combine(Paths.PluginPath, Metadata.GUID);
         }
     }
 

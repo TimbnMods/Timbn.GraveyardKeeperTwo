@@ -136,9 +136,9 @@ internal static class PluginConfig
             _bugFixes,
             nameof(BagDestroy),
             BagDestroyBlocking.BlockIfNotEmpty,
-            "How to determine when Destroy is greyed out on a bag. The game only checks the bag itself, so destroying a bag deletes "
+            "How to determine when Destroy is grayed out on a bag. The game only checks the bag itself, so destroying a bag deletes "
             + "everything inside, even items that can't be destroyed like the Inquisitor's medallion. "
-            + "BlockIfNotEmpty greys it out while anything is inside. BlockIfImportant only while something inside "
+            + "BlockIfNotEmpty grays it out while anything is inside. BlockIfImportant only while something inside "
             + "can't be destroyed on its own. NoBlocking leaves it as the game has it.");
 
         BuiltEarlyQuests = config.Bind(

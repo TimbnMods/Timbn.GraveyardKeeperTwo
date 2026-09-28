@@ -16,5 +16,5 @@ internal static class ZombieWgoDataPatch
     [HarmonyPatch(nameof(ZombieWgoData.UnAttachFromWgoData))]
     [HarmonyPrefix]
     private static void UnAttachFromWgoDataPreFix(ZombieWgoData __instance) =>
-        StuckResourceWorkers.Active?.OnDetaching(__instance);
+        StuckResourceWorkers.OnDetaching(__instance);
 }

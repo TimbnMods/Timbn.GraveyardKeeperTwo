@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
 
-internal sealed class StuckResourceWorkers
+internal static class StuckResourceWorkers
 {
     private const string _craftStartEvent = "craft_start";
 
@@ -15,13 +15,7 @@ internal sealed class StuckResourceWorkers
         new("sand", "sand_zombie_crafter", "builder_clay_sand"),
     ];
 
-    public static StuckResourceWorkers? Active { get; private set; }
-
-    public void Apply() => Active = this;
-
-    public void Revert() => Active = null;
-
-    public void Repair()
+    public static void Repair()
     {
         if (!PluginConfig.StuckResourceWorkers.Value)
             return;
@@ -37,10 +31,10 @@ internal sealed class StuckResourceWorkers
             HashSet<string> held = [];
             foreach (var zombie in workers.Where(z => z.GameResStr.Has(station.PointKey)))
             {
-                if (IsHolding(zombie, station))
-                    held.Add(zombie.GameResStr.Get(station.PointKey));
-                else
+                if (HasLeftSpot(zombie, station))
                     zombie.GameResStr.Remove(station.PointKey);
+                else
+                    held.Add(zombie.GameResStr.Get(station.PointKey));
             }
 
             List<string> points = [];
@@ -62,7 +56,7 @@ internal sealed class StuckResourceWorkers
         }
     }
 
-    public void OnDetaching(ZombieWgoData zombie)
+    public static void OnDetaching(ZombieWgoData zombie)
     {
         if (!PluginConfig.StuckResourceWorkers.Value
             || Find(zombie.AttachedWgoData) is not { } station
@@ -81,15 +75,18 @@ internal sealed class StuckResourceWorkers
         zombie.GameResStr.Remove(station.PointKey);
     }
 
-    private static bool IsHolding(ZombieWgoData zombie, Station station)
+    private static bool IsHolding(ZombieWgoData zombie, Station station) =>
+        zombie.AttachedWgoData?.CraftComponent?.CurrentCraftElement != null && !HasLeftSpot(zombie, station);
+
+    private static bool HasLeftSpot(ZombieWgoData zombie, Station station)
     {
         var element = zombie.AttachedWgoData?.CraftComponent?.CurrentCraftElement;
         if (element == null)
             return false;
 
         var movement = zombie.MovementComponent;
-        return element.ParamsData.customRes.GetInt(station.WaitFlag) == 0
-            || movement.IsMoving && movement.OnPathCompleteEvent == station.WorkEvent;
+        return element.ParamsData.customRes.GetInt(station.WaitFlag) == 1
+            && !(movement.IsMoving && movement.OnPathCompleteEvent == station.WorkEvent);
     }
 
     private static bool IsStranded(ZombieWgoData zombie, Station station)

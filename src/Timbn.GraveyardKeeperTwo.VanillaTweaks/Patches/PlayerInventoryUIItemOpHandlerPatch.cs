@@ -44,7 +44,7 @@ internal static class PlayerInventoryUIItemOpHandlerPatch
         return PluginConfig.BagDestroy.Value switch
         {
             BagDestroyBlocking.BlockIfNotEmpty => bag.Inventory.Any(item => !item.IsEmpty),
-            BagDestroyBlocking.BlockIfImportant => bag.Inventory.Any(item => !item.IsEmpty && item.Definition.CanNotBeDestroyed),
+            BagDestroyBlocking.BlockIfImportant => bag.Inventory.Any(item => !item.IsEmpty && item.Definition?.CanNotBeDestroyed == true),
             _ => false,
         };
     }
