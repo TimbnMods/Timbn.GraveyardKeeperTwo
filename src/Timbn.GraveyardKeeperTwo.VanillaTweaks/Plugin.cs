@@ -3,7 +3,7 @@ using Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-[BepInDependency(TimbnCorePlugin.Guid, "1.2.0")]
+[BepInDependency(TimbnCorePlugin.Guid, "1.4.0")]
 public class Plugin : TimbnFrameworkPlugin<Plugin>
 {
     private SpecialStorageFilters? _storageFilters;
@@ -47,8 +47,7 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         if (PluginConfig.CollectStrayTechPoints.Value)
             _strayTechPoints = new StrayTechPoints();
 
-        if (PluginConfig.SoftLockedBoards.Value)
-            SoftLockedBoards.Register(this);
+        LostItems.Register(this);
 
         if (PluginConfig.BuiltEarlyQuests.Value)
         {

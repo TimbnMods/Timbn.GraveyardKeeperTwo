@@ -42,6 +42,10 @@ Partly fixed by the game developers, only for wells built on 1.006 or later and 
 
 When the storage nearby is full, a zombie can put its item somewhere that is meant to hold only one thing. Flax in the garden well stops it giving water, and junk in the study table makes it unusable and every science you make afterwards is lost. This makes older wells and study tables, and any other storage built before the game limited what it takes, follow that limit too. Anything already in the wrong place is dropped beside it when you load.
 
+### Destroying a bag deletes what's inside
+
+Destroying a bag also destroyed everything in it, even items that can't be destroyed on their own like the Inquisitor's medallion or the King's signet. Destroy is now greyed out on a bag that still has something in it. Set Bug Fixes BagDestroy to BlockIfImportant to only block it while the bag holds something that can't be destroyed, or NoBlocking for the game's behavior.
+
 ## Soft Locks
 
 ### Quest building built too early
@@ -57,6 +61,10 @@ A station up against a fence or wall might be blocked from dismantling. This wil
 ### Locked out of boards
 
 If you are soft locked and run out of boards without a sawhorse or circular saw, Larry will help you out.
+
+### Lost story items
+
+Losing story items before you use them can soft lock the game. Larry will have found it and gives it back.
 
 ## Vanilla Tweaks
 
@@ -75,6 +83,10 @@ Using the bed saves the game even if you are not tired enough to sleep. This is 
 ### Higher tech point cap
 
 The game caps red, green, and blue tech points at 999 each and throws away anything past that. This is off by default. Raise Tweaks TechPointCap in the config (up to 999999) to hold more.
+
+## Translating
+
+Every line this mod adds is in `lang/en.txt` inside its folder. Copy it to your game's language id, such as `lang/de.txt`, `lang/fr.txt`, or `lang/pt-br.txt`, and translate the text after each `=`. The game shows your translation when it runs in that language, and English for any line you leave out.
 
 ## Fixed By Game Updates
 
@@ -117,26 +129,6 @@ If a game update changes something a Timbn mod relies on, that mod stays off ins
 `BepInEx/config/Timbn.GraveyardKeeperTwo.VanillaTweaks.cfg`
 
 After the first launch, every fix and tweak can be turned on or off in the config file. Restart the game after changing it.
-
-| Section | Entry | Default |
-| --- | --- | --- |
-| Bug Fixes | GreenThumbTalentBonus | true |
-| Bug Fixes | CollectStrayTechPoints | true |
-| Bug Fixes | SermonFaithRounding | true |
-| Bug Fixes | StuckCarriers | true |
-| Bug Fixes | CollisionFixes | true |
-| Bug Fixes | SpecialStorageFilters | true |
-| Bug Fixes | RemoveInWholeArea | true |
-| Bug Fixes | RecoverBattleRewards | true |
-| Bug Fixes | BagFilters | true |
-| Soft Locks | BuiltEarlyQuests | true |
-| Soft Locks | DismantleUnreachable | true |
-| Soft Locks | SoftLockedBoards | true |
-| Tweaks | MoveIdenticalFromBags | true |
-| Tweaks | UnstuckKey | CTRL + U |
-| Tweaks | UnstuckRange | 30 |
-| Tweaks | BedSaveWhenRested | false |
-| Tweaks | TechPointCap | 999 |
 
 ## Uninstalling
 

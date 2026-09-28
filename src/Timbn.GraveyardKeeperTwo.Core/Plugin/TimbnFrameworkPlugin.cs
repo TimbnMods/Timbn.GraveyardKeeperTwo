@@ -83,6 +83,21 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
 
     internal TimbnSubscriptions SessionSubscriptions { get; }
 
+    internal ManualLogSource PluginLogger => Logger;
+
+    internal string Folder
+    {
+        get
+        {
+            var location = GetType().Assembly.Location;
+            if (!string.IsNullOrEmpty(location))
+                return Path.GetDirectoryName(location)!;
+
+            var scripts = Path.Combine(Path.Combine(Paths.BepInExRootPath, "scripts"), Metadata.GUID);
+            return Directory.Exists(scripts) ? scripts : Path.Combine(Paths.PluginPath, Metadata.GUID);
+        }
+    }
+
     private void Awake()
     {
         InitConfig();

@@ -1,0 +1,20 @@
+# Timbn Vanilla Tweaks text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
+# and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
+
+# Larry, when you run out of boards with no way to make more
+timbn_larry_boards_offer_1 = I may have run out of boards with no way to get more.
+timbn_larry_boards_offer_2 = No sawhorse, no boards. No boards, no sawhorse...
+timbn_larry_boards_accept = Got any boards lying around?
+timbn_larry_boards_decline = I'll figure something out.
+timbn_larry_boards_given = Lucky for you, there are a few spare boards in my box. Here you go.
+timbn_larry_boards_declined = Suit yourself... I'll be right here.
+timbn_larry_boards_accepted = Thank you, I will be more careful next time.
+
+# Larry, when the Inquisitor's medallion is lost before the Plague Doctor's tower door is open
+timbn_larry_medallion_offer_1 = Have you seen a Inquisitor's medallion anywhere?
+timbn_larry_medallion_offer_2 = Funny thing, one rolled up against my box this morning.
+timbn_larry_medallion_accept = That's the one! Can I have it back?
+timbn_larry_medallion_decline = No, that can't be mine.
+timbn_larry_medallion_given = Here you go.
+timbn_larry_medallion_declined = Suit yourself...
+timbn_larry_medallion_accepted = Thank you, Larry. I'll hold on to it this time.

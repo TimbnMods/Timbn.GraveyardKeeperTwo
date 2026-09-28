@@ -28,9 +28,13 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> SoftLockedBoards { get; private set; } = null!;
 
+    public static ConfigEntry<bool> LostQuestItems { get; private set; } = null!;
+
     public static ConfigEntry<bool> RecoverBattleRewards { get; private set; } = null!;
 
     public static ConfigEntry<bool> BagFilters { get; private set; } = null!;
+
+    public static ConfigEntry<BagDestroyBlocking> BagDestroy { get; private set; } = null!;
 
     public static ConfigEntry<bool> MoveIdenticalFromBags { get; private set; } = null!;
 
@@ -128,6 +132,15 @@ internal static class PluginConfig
             + "forever. Anything already in the wrong bag is moved out when a save loads, into the chest holding "
             + "the bag or your inventory, and dropped at your feet if there is no room.");
 
+        BagDestroy = config.Bind(
+            _bugFixes,
+            nameof(BagDestroy),
+            BagDestroyBlocking.BlockIfNotEmpty,
+            "How to determine when Destroy is greyed out on a bag. The game only checks the bag itself, so destroying a bag deletes "
+            + "everything inside, even items that can't be destroyed like the Inquisitor's medallion. "
+            + "BlockIfNotEmpty greys it out while anything is inside. BlockIfImportant only while something inside "
+            + "can't be destroyed on its own. NoBlocking leaves it as the game has it.");
+
         BuiltEarlyQuests = config.Bind(
             _softLocks,
             nameof(BuiltEarlyQuests),
@@ -149,6 +162,12 @@ internal static class PluginConfig
             true,
             "If you are soft locked and run out of boards without a sawhorse or circular saw, Larry "
             + "will help you out.");
+
+        LostQuestItems = config.Bind(
+            _softLocks,
+            nameof(LostQuestItems),
+            true,
+            "If you lose an item the story still needs, Larry will have found it.");
 
         MoveIdenticalFromBags = config.Bind(
             _tweaks,

@@ -4,6 +4,8 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 internal static class TimbnLocale
 {
+    internal const string DefaultLanguage = LLBase.DEFAULT_LANGUAGE;
+
     private static readonly AccessTools.FieldRef<LL?> _currentLang =
         AccessTools.StaticFieldRefAccess<LL?>(AccessTools.Field(typeof(LLBase), "currentLang"));
 
@@ -17,15 +19,17 @@ internal static class TimbnLocale
 
     internal static IDisposable Add(string key, string text) => Add(new Dictionary<string, string> { [key] = text });
 
-    internal static IDisposable Add(IReadOnlyDictionary<string, string> texts)
+    internal static IDisposable Add(IReadOnlyDictionary<string, string> texts) =>
+        Add(texts.Select(pair => new Entry(pair.Key, new Dictionary<string, string> { [DefaultLanguage] = pair.Value })));
+
+    internal static IDisposable Add(IReadOnlyDictionary<string, Dictionary<string, string>> textsByKey) =>
+        Add(textsByKey.Select(pair => new Entry(pair.Key, pair.Value)));
+
+    private static IDisposable Add(IEnumerable<Entry> entries)
     {
-        List<Entry> added = [];
-        foreach (var pair in texts)
-        {
-            var entry = new Entry(pair.Key, pair.Value);
-            _entries[pair.Key] = entry;
-            added.Add(entry);
-        }
+        var added = entries.ToList();
+        foreach (var entry in added)
+            _entries[entry.Key] = entry;
 
         if (_currentLang() is { } lang)
         {
@@ -48,7 +52,7 @@ internal static class TimbnLocale
 
     private static void Write(LLBase lang, Entry entry)
     {
-        lang.dictionary[entry.Key] = entry.Text;
+        lang.dictionary[entry.Key] = entry.TextFor(lang.id);
         lang.idsToMetaInfo[entry.Key] = new NestedLocalesMetaInfo();
         lang.replacementIdMetaInfo.Remove(entry.Key);
     }
@@ -79,14 +83,22 @@ internal static class TimbnLocale
 
     private sealed class Entry
     {
-        public Entry(string key, string text)
+        private readonly IReadOnlyDictionary<string, string> _texts;
+
+        public Entry(string key, IReadOnlyDictionary<string, string> texts)
         {
             Key = key;
-            Text = text;
+            _texts = texts;
         }
 
         public string Key { get; }
 
-        public string Text { get; }
+        public string TextFor(string language)
+        {
+            if (_texts.TryGetValue(language, out var text) || _texts.TryGetValue(DefaultLanguage, out text))
+                return text;
+
+            return _texts.Values.FirstOrDefault() ?? Key;
+        }
     }
 }
