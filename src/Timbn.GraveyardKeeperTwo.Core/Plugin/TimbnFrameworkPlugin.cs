@@ -1,5 +1,6 @@
 using BepInEx.Bootstrap;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.RegularExpressions;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
@@ -82,6 +83,31 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
     internal TimbnSubscriptions Subscriptions { get; }
 
     internal TimbnSubscriptions SessionSubscriptions { get; }
+
+    internal ManualLogSource PluginLogger => Logger;
+
+    internal string Folder
+    {
+        get
+        {
+            var location = GetType().Assembly.Location;
+            if (!string.IsNullOrEmpty(location))
+                return Path.GetDirectoryName(location)!;
+
+            var dll = Regex.Replace(GetType().Assembly.GetName().Name, @"-\d+$", "") + ".dll";
+            foreach (var root in new[] { Path.Combine(Paths.BepInExRootPath, "scripts"), Paths.PluginPath })
+            {
+                if (!Directory.Exists(root))
+                    continue;
+
+                var match = Directory.GetFiles(root, dll, SearchOption.AllDirectories).FirstOrDefault();
+                if (match != null)
+                    return Path.GetDirectoryName(match)!;
+            }
+
+            return Path.Combine(Paths.PluginPath, Metadata.GUID);
+        }
+    }
 
     private void Awake()
     {

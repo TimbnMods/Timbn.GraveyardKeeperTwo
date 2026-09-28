@@ -20,19 +20,13 @@ The game can end up with 3.4999 faith when it should be 3.5, which rounds down i
 
 Supply zombies could freeze holding an item when all storage was full. They now walk back to their station and show the game's storage full icon until there is room.
 
-### Getting stuck on the ground
+### Lumberjack, miner, clay and sand zombies stuck swinging
 
-Fixes spots where you can get stuck, such as the stairs from the dock up to the stone pier on the far right of the Port Area. Each fix does nothing once the game fixes that spot.
+Workstations can act weird when destroying them while a zombie is working or removing zombies from working. This fixes stuck zombies.
 
 ### Lost battle rewards
 
 Battle rewards are dropped at your feet after a win. With full bags the game knocks an item away every time you walk into it, so following it pushes it further until it lands somewhere you can't reach, and rewards like the Defender's Emblem were lost for good. Going to sleep brings every item battles give as a reward (Defender's Emblem, Victory Banner, Keys for Looters, Town Gratitude, and Zombie Goo) lying anywhere in the world back to your feet, including ones lost before you installed this.
-
-### Zombies filling the well and study table
-
-Partly fixed by the game developers, only for wells built on 1.006 or later and study tables in saves started on 1.005 or later.
-
-When the storage nearby is full, a zombie can put its item somewhere that is meant to hold only one thing. Flax in the garden well stops it giving water, and junk in the study table makes it unusable and every science you make afterwards is lost. This makes older wells and study tables, and any other storage built before the game limited what it takes, follow that limit too. Anything already in the wrong place is dropped beside it when you load.
 
 ## Soft Locks
 
@@ -50,11 +44,19 @@ A station up against a fence or wall might be blocked from dismantling. This wil
 
 If you are soft locked and run out of boards without a sawhorse or circular saw, Larry will help you out.
 
+### Lost story items
+
+Losing story items before you use them can soft lock the game. Larry will have found it and gives it back.
+
 ## Vanilla Tweaks
 
 ### Unstuck hotkey
 
 No more getting wedged into a tight spot. A configurable key (default Ctrl+U) moves you to the nearest open ground. Clear Tweaks UnstuckKey to turn the key off, and set Tweaks UnstuckRange (1 to 100, default 30) for how far it may move you.
+
+### Move identical items from bags
+
+The chest window's move all identical items button only took items from your main inventory. It now also takes matching items out of your bags. Turn off Tweaks MoveIdenticalFromBags in the config to go back to the game's behavior.
 
 ### Bed saving without being tired
 
@@ -64,6 +66,10 @@ Using the bed saves the game even if you are not tired enough to sleep. This is 
 
 The game caps red, green, and blue tech points at 999 each and throws away anything past that. This is off by default. Raise Tweaks TechPointCap in the config (up to 999999) to hold more.
 
+## Translating
+
+Every line this mod adds is in `lang/en.txt` inside its folder. Copy it to your game's language id, such as `lang/de.txt`, `lang/fr.txt`, or `lang/pt-br.txt`, and translate the text after each `=`. The game shows your translation when it runs in that language, and English for any line you leave out.
+
 ## Fixed By Game Updates
 
 - Crematorium bodies getting stuck
@@ -71,6 +77,10 @@ The game caps red, green, and blue tech points at 999 each and throws away anyth
 - The study table getting stuck partway through a study or decompose
 - Zombie cooks throwing away the second ingredient of oven recipes
 - Buildings in the resurrection lab that could never be removed
+- Zombies filling the well and study table
+- Destroying a bag deleting everything inside it
+- Items in the wrong bag being used forever
+- Getting stuck on the stairs from the dock up to the stone pier in the Port Area
 
 ## Requirements
 
@@ -105,24 +115,6 @@ If a game update changes something a Timbn mod relies on, that mod stays off ins
 `BepInEx/config/Timbn.GraveyardKeeperTwo.VanillaTweaks.cfg`
 
 After the first launch, every fix and tweak can be turned on or off in the config file. Restart the game after changing it.
-
-| Section | Entry | Default |
-| --- | --- | --- |
-| Bug Fixes | GreenThumbTalentBonus | true |
-| Bug Fixes | CollectStrayTechPoints | true |
-| Bug Fixes | SermonFaithRounding | true |
-| Bug Fixes | StuckCarriers | true |
-| Bug Fixes | CollisionFixes | true |
-| Bug Fixes | SpecialStorageFilters | true |
-| Bug Fixes | RemoveInWholeArea | true |
-| Bug Fixes | RecoverBattleRewards | true |
-| Soft Locks | BuiltEarlyQuests | true |
-| Soft Locks | DismantleUnreachable | true |
-| Soft Locks | SoftLockedBoards | true |
-| Tweaks | UnstuckKey | CTRL + U |
-| Tweaks | UnstuckRange | 30 |
-| Tweaks | BedSaveWhenRested | false |
-| Tweaks | TechPointCap | 999 |
 
 ## Uninstalling
 

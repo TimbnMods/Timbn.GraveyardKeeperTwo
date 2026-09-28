@@ -3,30 +3,20 @@ using Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-[BepInDependency(TimbnCorePlugin.Guid, "1.2.0")]
+[BepInDependency(TimbnCorePlugin.Guid, "1.4.0")]
 public class Plugin : TimbnFrameworkPlugin<Plugin>
 {
-    private SpecialStorageFilters? _storageFilters;
     private GreenThumbTalentBonus? _greenThumb;
     private TechPointCap? _techPointCap;
     private StrayTechPoints? _strayTechPoints;
     private StuckCarriers? _stuckCarriers;
     private BuiltEarlyQuests? _builtEarly;
     private UnreachableDismantle? _unreachableDismantle;
-    private CollisionFixes? _collisionFixes;
 
     protected override void BindConfig(ConfigFile config) => PluginConfig.Bind(config);
 
     protected override void OnAwake()
     {
-        if (PluginConfig.SpecialStorageFilters.Value)
-        {
-            _storageFilters = new SpecialStorageFilters();
-            Events.GameStarted(_storageFilters.Apply);
-            if (TimbnGame.IsInGame)
-                _storageFilters.Apply();
-        }
-
         if (PluginConfig.GreenThumbTalentBonus.Value)
         {
             _greenThumb = new GreenThumbTalentBonus();
@@ -46,8 +36,8 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         if (PluginConfig.CollectStrayTechPoints.Value)
             _strayTechPoints = new StrayTechPoints();
 
-        if (PluginConfig.SoftLockedBoards.Value)
-            SoftLockedBoards.Register(this);
+        Text.AddLanguageFiles();
+        LostItems.Register(this);
 
         if (PluginConfig.BuiltEarlyQuests.Value)
         {
@@ -63,15 +53,12 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
             Events.GoToMainMenu(_stuckCarriers.Reset);
         }
 
+        Events.GameStarted(StuckResourceWorkers.Repair);
+        if (TimbnGame.IsInGame)
+            StuckResourceWorkers.Repair();
+
         _unreachableDismantle = new UnreachableDismantle();
         _unreachableDismantle.Apply();
-
-        if (PluginConfig.CollisionFixes.Value)
-        {
-            _collisionFixes = new CollisionFixes();
-            _collisionFixes.Subscribe(Events);
-            _collisionFixes.ApplyToLoadedScenes();
-        }
 
         Logger.LogMessage($"Vanilla Tweaks started. Unstuck on {PluginConfig.UnstuckKey.Value}.");
     }
@@ -91,10 +78,8 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
 
     protected override void OnDestroyed()
     {
-        _storageFilters?.Revert();
         _greenThumb?.Revert();
         _techPointCap?.Revert();
         _unreachableDismantle?.Revert();
-        _collisionFixes?.Revert();
     }
 }

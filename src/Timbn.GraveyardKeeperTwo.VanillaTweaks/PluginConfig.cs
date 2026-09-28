@@ -6,8 +6,6 @@ internal static class PluginConfig
     private const string _softLocks = "Soft Locks";
     private const string _tweaks = "Tweaks";
 
-    public static ConfigEntry<bool> SpecialStorageFilters { get; private set; } = null!;
-
     public static ConfigEntry<bool> GreenThumbTalentBonus { get; private set; } = null!;
 
     public static ConfigEntry<bool> CollectStrayTechPoints { get; private set; } = null!;
@@ -16,9 +14,9 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> StuckCarriers { get; private set; } = null!;
 
-    public static ConfigEntry<bool> RemoveInWholeArea { get; private set; } = null!;
+    public static ConfigEntry<bool> StuckResourceWorkers { get; private set; } = null!;
 
-    public static ConfigEntry<bool> CollisionFixes { get; private set; } = null!;
+    public static ConfigEntry<bool> RemoveInWholeArea { get; private set; } = null!;
 
     public static ConfigEntry<bool> BuiltEarlyQuests { get; private set; } = null!;
 
@@ -26,7 +24,11 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> SoftLockedBoards { get; private set; } = null!;
 
+    public static ConfigEntry<bool> LostQuestItems { get; private set; } = null!;
+
     public static ConfigEntry<bool> RecoverBattleRewards { get; private set; } = null!;
+
+    public static ConfigEntry<bool> MoveIdenticalFromBags { get; private set; } = null!;
 
     public static ConfigEntry<KeyboardShortcut> UnstuckKey { get; private set; } = null!;
 
@@ -38,17 +40,6 @@ internal static class PluginConfig
 
     public static void Bind(ConfigFile config)
     {
-        SpecialStorageFilters = config.Bind(
-            _bugFixes,
-            nameof(SpecialStorageFilters),
-            true,
-            "Stops zombies from putting the wrong item in storage meant for one thing, which they do when the "
-            + "rest of the storage nearby is full. Flax in a garden well stops it giving water, and anything "
-            + "but science in the study table makes every science afterwards lost. The game only limits the study "
-            + "table in saves started on version 1.005 or later and garden wells built on 1.006 or later, so this "
-            + "covers older ones and any other storage built before the game limited what it takes. Anything "
-            + "already in the wrong place is dropped beside it when a save loads.");
-
         GreenThumbTalentBonus = config.Bind(
             _bugFixes,
             nameof(GreenThumbTalentBonus),
@@ -80,19 +71,22 @@ internal static class PluginConfig
             + "the game already uses for gardeners and walks back to its supplier station instead of freezing where it "
             + "stands. It goes on with its work as soon as a slot frees up, as it would anyway.");
 
+        StuckResourceWorkers = config.Bind(
+            _bugFixes,
+            nameof(StuckResourceWorkers),
+            true,
+            "Keeps lumberjack, miner, clay and sand zombies working. Each of them walks out to one of a few "
+            + "work spots, and dismantling a stand while its zombie was out left that spot taken for good. Once "
+            + "every spot was taken, a zombie stood at the stockpile or its stand swinging its tool forever. Spots "
+            + "are now freed when a zombie leaves its stand, spots already lost in a save are freed when it loads, "
+            + "and a stranded zombie goes back to work as soon as a spot is free.");
+
         RemoveInWholeArea = config.Bind(
             _bugFixes,
             nameof(RemoveInWholeArea),
             true,
             "Allows you to remove buildings you should be allowed to but the game blocks its. Chests built in the " +
             "resurrection lab from the morgue build desk are an example.");
-
-        CollisionFixes = config.Bind(
-            _bugFixes,
-            nameof(CollisionFixes),
-            true,
-            "Fixes spots where you can get stuck, such as the stairs from the dock up to the stone pier on the far "
-            + "right of the Port Area. Each fix does nothing once the game fixes that spot.");
 
         RecoverBattleRewards = config.Bind(
             _bugFixes,
@@ -124,6 +118,19 @@ internal static class PluginConfig
             true,
             "If you are soft locked and run out of boards without a sawhorse or circular saw, Larry "
             + "will help you out.");
+
+        LostQuestItems = config.Bind(
+            _softLocks,
+            nameof(LostQuestItems),
+            true,
+            "If you lose an item the story still needs, Larry will have found it.");
+
+        MoveIdenticalFromBags = config.Bind(
+            _tweaks,
+            nameof(MoveIdenticalFromBags),
+            true,
+            "The chest window's move all identical items button also takes matching items out of your bags, "
+            + "not just your main inventory.");
 
         UnstuckKey = config.Bind(
             _tweaks,
@@ -159,8 +166,6 @@ internal static class PluginConfig
 
         CarryOver(
             config,
-            (SpecialStorageFilters, _bugFixes, "StudyTableScienceOnly"),
-            (SpecialStorageFilters, "StudyTable", "ScienceOnly"),
             (GreenThumbTalentBonus, "GreenThumb", "TalentBonus"),
             (CollectStrayTechPoints, "TechPoints", "CollectStray"),
             (SermonFaithRounding, "Sermons", "FaithRounding"),

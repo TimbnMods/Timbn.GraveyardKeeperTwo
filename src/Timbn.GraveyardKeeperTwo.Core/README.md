@@ -193,6 +193,24 @@ Dialog.AddTalk("npc_larry", "my_quest_talk", () => TimbnQuests.CanFinish("my_que
     .If("my_quest_give", then => then.Say("my_quest_thanks")));
 ```
 
+### Translations
+
+`Text.Add` text shows in every language. To let players translate a mod, put its text in files instead and call `Text.AddLanguageFiles()` in `OnAwake`. Core reads every `lang/<language id>.txt` next to the mod's DLL (`en`, `de`, `fr`, `pt-br`, `es`, `ru`, `pl`, `ja`, `zh_cn`, `ko`, or `tr`), one `key = text` per line.
+
+```text
+# lang/en.txt
+timbn_larry_boards_accept = Got any boards lying around?
+timbn_larry_boards_given = Lucky for you, the Inquisitors left a couple behind my box.\nTry not to lose these too.
+```
+
+Lines starting with `#` are comments and `\n` is a line break. The game shows the file for its current language and falls back to `en.txt` for any key a translation lacks, so keep every key in `en.txt`. A translator copies it to `de.txt` and translates it, no rebuild needed. Ship the files with the mod from its csproj.
+
+```xml
+<ItemGroup>
+  <None Include="lang\*.txt" CopyToOutputDirectory="PreserveNewest" />
+</ItemGroup>
+```
+
 ### Notes
 
 Each text field becomes a localization key named after the quest id (`<id>_offer_1`, `<id>_accept`, `<id>_give`, `quest_open_<id>_d`, and so on), so a translation can override any line.
