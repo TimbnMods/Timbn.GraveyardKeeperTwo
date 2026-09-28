@@ -32,6 +32,10 @@ Fixes spots where you can get stuck, such as the stairs from the dock up to the 
 
 Battle rewards are dropped at your feet after a win. With full bags the game knocks an item away every time you walk into it, so following it pushes it further until it lands somewhere you can't reach, and rewards like the Defender's Emblem were lost for good. Going to sleep brings every item battles give as a reward (Defender's Emblem, Victory Banner, Keys for Looters, Town Gratitude, and Zombie Goo) lying anywhere in the world back to your feet, including ones lost before you installed this.
 
+### Items in the wrong bag used forever
+
+The chest window let you put anything into any of your bags, like fish in the alchemy bag. Crafting counted an item in the wrong bag but never used it up, so one item could be used forever. Bags now only take what they are meant to. Anything already in the wrong bag is moved out when you load, into the chest holding the bag or your inventory, or dropped at your feet if there is no room.
+
 ### Zombies filling the well and study table
 
 Partly fixed by the game developers, only for wells built on 1.006 or later and study tables in saves started on 1.005 or later.
@@ -59,6 +63,10 @@ If you are soft locked and run out of boards without a sawhorse or circular saw,
 ### Unstuck hotkey
 
 No more getting wedged into a tight spot. A configurable key (default Ctrl+U) moves you to the nearest open ground. Clear Tweaks UnstuckKey to turn the key off, and set Tweaks UnstuckRange (1 to 100, default 30) for how far it may move you.
+
+### Move identical items from bags
+
+The chest window's move all identical items button only took items from your main inventory. It now also takes matching items out of your bags. Turn off Tweaks MoveIdenticalFromBags in the config to go back to the game's behavior.
 
 ### Bed saving without being tired
 
@@ -120,9 +128,11 @@ After the first launch, every fix and tweak can be turned on or off in the confi
 | Bug Fixes | SpecialStorageFilters | true |
 | Bug Fixes | RemoveInWholeArea | true |
 | Bug Fixes | RecoverBattleRewards | true |
+| Bug Fixes | BagFilters | true |
 | Soft Locks | BuiltEarlyQuests | true |
 | Soft Locks | DismantleUnreachable | true |
 | Soft Locks | SoftLockedBoards | true |
+| Tweaks | MoveIdenticalFromBags | true |
 | Tweaks | UnstuckKey | CTRL + U |
 | Tweaks | UnstuckRange | 30 |
 | Tweaks | BedSaveWhenRested | false |

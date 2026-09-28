@@ -30,6 +30,10 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> RecoverBattleRewards { get; private set; } = null!;
 
+    public static ConfigEntry<bool> BagFilters { get; private set; } = null!;
+
+    public static ConfigEntry<bool> MoveIdenticalFromBags { get; private set; } = null!;
+
     public static ConfigEntry<KeyboardShortcut> UnstuckKey { get; private set; } = null!;
 
     public static ConfigEntry<float> UnstuckRange { get; private set; } = null!;
@@ -115,6 +119,15 @@ internal static class PluginConfig
             + "rewards are dropped at your feet after a win, and with full bags walking into one knocks it away "
             + "until it lands somewhere you can't reach.");
 
+        BagFilters = config.Bind(
+            _bugFixes,
+            nameof(BagFilters),
+            true,
+            "Stops the chest window from putting items into a bag that doesn't take them, like fish in the "
+            + "alchemy bag. Crafting counted an item in the wrong bag but never used it up, so it could be used "
+            + "forever. Anything already in the wrong bag is moved out when a save loads, into the chest holding "
+            + "the bag or your inventory, and dropped at your feet if there is no room.");
+
         BuiltEarlyQuests = config.Bind(
             _softLocks,
             nameof(BuiltEarlyQuests),
@@ -136,6 +149,13 @@ internal static class PluginConfig
             true,
             "If you are soft locked and run out of boards without a sawhorse or circular saw, Larry "
             + "will help you out.");
+
+        MoveIdenticalFromBags = config.Bind(
+            _tweaks,
+            nameof(MoveIdenticalFromBags),
+            true,
+            "The chest window's move all identical items button also takes matching items out of your bags, "
+            + "not just your main inventory.");
 
         UnstuckKey = config.Bind(
             _tweaks,

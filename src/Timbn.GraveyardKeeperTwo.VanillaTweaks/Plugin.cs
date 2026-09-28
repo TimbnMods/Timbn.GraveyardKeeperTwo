@@ -58,6 +58,10 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
             _builtEarly.Queue();
         }
 
+        Events.GameStarted(BagFilters.EjectStrays);
+        if (TimbnGame.IsInGame)
+            BagFilters.EjectStrays();
+
         if (PluginConfig.StuckCarriers.Value)
         {
             _stuckCarriers = new StuckCarriers();
