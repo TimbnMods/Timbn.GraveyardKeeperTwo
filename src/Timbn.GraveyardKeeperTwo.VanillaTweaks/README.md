@@ -28,6 +28,10 @@ Workstations can act weird when destroying them while a zombie is working or rem
 
 Battle rewards are dropped at your feet after a win. With full bags the game knocks an item away every time you walk into it, so following it pushes it further until it lands somewhere you can't reach, and rewards like the Defender's Emblem were lost for good. Going to sleep brings every item battles give as a reward (Defender's Emblem, Victory Banner, Keys for Looters, Town Gratitude, and Zombie Goo) lying anywhere in the world back to your feet, including ones lost before you installed this.
 
+### Bait in bags
+
+Fishing ignored bait kept in a bag, so with all of it in a fishing bag the Keeper said there was no bait and never cast. Bait in any of your bags now counts, and it is used from the bag like the game already does once fishing starts.
+
 ## Soft Locks
 
 ### Quest building built too early
@@ -57,6 +61,10 @@ No more getting wedged into a tight spot. A configurable key (default Ctrl+U) mo
 ### Move identical items from bags
 
 The chest window's move all identical items button only took items from your main inventory. It now also takes matching items out of your bags. Turn off Tweaks MoveIdenticalFromBags in the config to go back to the game's behavior.
+
+### Items sort into their bags
+
+The game only put an item into a bag that already held some of it, and otherwise filled your main inventory first. Now anything you pick up, craft, buy, or take from a chest goes straight into the bag made for it, such as fish and bait into a fishing bag or seeds into a farming bag, while that bag has room. Universal bags work as before, since they take almost anything. Moving an item out of a bag yourself leaves it where you put it. Turn off Tweaks SortIntoBags in the config to go back to the game's behavior.
 
 ### Bed saving without being tired
 
