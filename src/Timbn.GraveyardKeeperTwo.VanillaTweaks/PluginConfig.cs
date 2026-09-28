@@ -6,8 +6,6 @@ internal static class PluginConfig
     private const string _softLocks = "Soft Locks";
     private const string _tweaks = "Tweaks";
 
-    public static ConfigEntry<bool> SpecialStorageFilters { get; private set; } = null!;
-
     public static ConfigEntry<bool> GreenThumbTalentBonus { get; private set; } = null!;
 
     public static ConfigEntry<bool> CollectStrayTechPoints { get; private set; } = null!;
@@ -44,17 +42,6 @@ internal static class PluginConfig
 
     public static void Bind(ConfigFile config)
     {
-        SpecialStorageFilters = config.Bind(
-            _bugFixes,
-            nameof(SpecialStorageFilters),
-            true,
-            "Stops zombies from putting the wrong item in storage meant for one thing, which they do when the "
-            + "rest of the storage nearby is full. Flax in a garden well stops it giving water, and anything "
-            + "but science in the study table makes every science afterwards lost. The game only limits the study "
-            + "table in saves started on version 1.005 or later and garden wells built on 1.006 or later, so this "
-            + "covers older ones and any other storage built before the game limited what it takes. Anything "
-            + "already in the wrong place is dropped beside it when a save loads.");
-
         GreenThumbTalentBonus = config.Bind(
             _bugFixes,
             nameof(GreenThumbTalentBonus),
@@ -188,8 +175,6 @@ internal static class PluginConfig
 
         CarryOver(
             config,
-            (SpecialStorageFilters, _bugFixes, "StudyTableScienceOnly"),
-            (SpecialStorageFilters, "StudyTable", "ScienceOnly"),
             (GreenThumbTalentBonus, "GreenThumb", "TalentBonus"),
             (CollectStrayTechPoints, "TechPoints", "CollectStray"),
             (SermonFaithRounding, "Sermons", "FaithRounding"),

@@ -6,7 +6,6 @@ namespace Timbn.GraveyardKeeperTwo.VanillaTweaks;
 [BepInDependency(TimbnCorePlugin.Guid, "1.4.0")]
 public class Plugin : TimbnFrameworkPlugin<Plugin>
 {
-    private SpecialStorageFilters? _storageFilters;
     private GreenThumbTalentBonus? _greenThumb;
     private TechPointCap? _techPointCap;
     private StrayTechPoints? _strayTechPoints;
@@ -19,14 +18,6 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
 
     protected override void OnAwake()
     {
-        if (PluginConfig.SpecialStorageFilters.Value)
-        {
-            _storageFilters = new SpecialStorageFilters();
-            Events.GameStarted(_storageFilters.Apply);
-            if (TimbnGame.IsInGame)
-                _storageFilters.Apply();
-        }
-
         if (PluginConfig.GreenThumbTalentBonus.Value)
         {
             _greenThumb = new GreenThumbTalentBonus();
@@ -95,7 +86,6 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
 
     protected override void OnDestroyed()
     {
-        _storageFilters?.Revert();
         _greenThumb?.Revert();
         _techPointCap?.Revert();
         _unreachableDismantle?.Revert();
