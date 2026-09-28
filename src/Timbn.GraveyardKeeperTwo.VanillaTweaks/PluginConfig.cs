@@ -26,6 +26,8 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> SoftLockedBoards { get; private set; } = null!;
 
+    public static ConfigEntry<bool> RecoverBattleRewards { get; private set; } = null!;
+
     public static ConfigEntry<KeyboardShortcut> UnstuckKey { get; private set; } = null!;
 
     public static ConfigEntry<float> UnstuckRange { get; private set; } = null!;
@@ -91,6 +93,15 @@ internal static class PluginConfig
             true,
             "Fixes spots where you can get stuck, such as the stairs from the dock up to the stone pier on the far "
             + "right of the Port Area. Each fix does nothing once the game fixes that spot.");
+
+        RecoverBattleRewards = config.Bind(
+            _bugFixes,
+            nameof(RecoverBattleRewards),
+            true,
+            "Going to sleep brings every item battles give as a reward (Defender's Emblem, Victory Banner, Keys "
+            + "for Looters, Town Gratitude, and Zombie Goo) lying anywhere in the world back to your feet. Battle "
+            + "rewards are dropped at your feet after a win, and with full bags walking into one knocks it away "
+            + "until it lands somewhere you can't reach.");
 
         BuiltEarlyQuests = config.Bind(
             _softLocks,

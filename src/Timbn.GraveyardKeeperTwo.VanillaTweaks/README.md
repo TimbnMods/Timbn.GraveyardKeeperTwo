@@ -24,6 +24,10 @@ Supply zombies could freeze holding an item when all storage was full. They now 
 
 Fixes spots where you can get stuck, such as the stairs from the dock up to the stone pier on the far right of the Port Area. Each fix does nothing once the game fixes that spot.
 
+### Lost battle rewards
+
+Battle rewards are dropped at your feet after a win. With full bags the game knocks an item away every time you walk into it, so following it pushes it further until it lands somewhere you can't reach, and rewards like the Defender's Emblem were lost for good. Going to sleep brings every item battles give as a reward (Defender's Emblem, Victory Banner, Keys for Looters, Town Gratitude, and Zombie Goo) lying anywhere in the world back to your feet, including ones lost before you installed this.
+
 ### Zombies filling the well and study table
 
 Partly fixed by the game developers, only for wells built on 1.006 or later and study tables in saves started on 1.005 or later.
@@ -111,6 +115,7 @@ After the first launch, every fix and tweak can be turned on or off in the confi
 | Bug Fixes | CollisionFixes | true |
 | Bug Fixes | SpecialStorageFilters | true |
 | Bug Fixes | RemoveInWholeArea | true |
+| Bug Fixes | RecoverBattleRewards | true |
 | Soft Locks | BuiltEarlyQuests | true |
 | Soft Locks | DismantleUnreachable | true |
 | Soft Locks | SoftLockedBoards | true |
