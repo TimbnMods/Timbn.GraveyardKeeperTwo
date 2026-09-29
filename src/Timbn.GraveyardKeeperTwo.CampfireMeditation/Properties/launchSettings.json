@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "Graveyard Keeper 2": {
+      "commandName": "Executable",
+      "executablePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Graveyard Keeper 2\\GraveyardKeeper2.exe",
+      "workingDirectory": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Graveyard Keeper 2"
+    }
+  }
+}
