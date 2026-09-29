@@ -6,6 +6,7 @@ internal sealed class Meditation
 {
     private const string _meditateKey = "timbn_campfire_meditate";
     private const string _getUpKey = "timbn_campfire_get_up";
+    private const string _insanity = "insanity";
 
     private readonly Campfires _campfires = new();
     private readonly CampfireHint _hint = new();
@@ -14,12 +15,15 @@ internal sealed class Meditation
     private bool _applied;
     private int _version;
     private float _lastTimeOfDay;
+    private float _insanityRemoved;
+
+    private static PlayerController? Player => MainGame.Instance != null ? MainGame.PlayerController : null;
 
     public void Tick()
     {
-        var player = MainGame.PlayerController;
-        var engine = EnvironmentEngine.Instance;
-        if (!TimbnGame.IsInGame || player == null || engine == null)
+        var player = TimbnGame.IsInGame ? Player : null;
+        var engine = player != null ? EnvironmentEngine.Instance : null;
+        if (player == null || engine == null)
         {
             Stop();
             _hint.Hide();
@@ -27,7 +31,7 @@ internal sealed class Meditation
         }
 
         if (_meditating)
-            KeepMeditating(player, engine);
+            KeepMeditating(engine);
 
         if (IsFading() || (!_meditating && (GameHasInteraction(player) || !FindFire())) || LazyWindowsStackController.ActiveWindow != null)
         {
@@ -42,7 +46,7 @@ internal sealed class Meditation
         if (_meditating)
             GetUp();
         else
-            SitDown(engine);
+            SitDown(player, engine);
     }
 
     public void Stop()
@@ -74,10 +78,12 @@ internal sealed class Meditation
 
     private bool FindFire() => _campfires.TryFindNear(MainGame.PlayerData.position.Value, out _fire);
 
-    private void SitDown(EnvironmentEngine engine)
+    private void SitDown(PlayerController player, EnvironmentEngine engine)
     {
         _meditating = true;
+        MovementLock.Hold(player.PhysicalBody);
         _lastTimeOfDay = engine.timeOfDay;
+        _insanityRemoved = 0f;
         var version = ++_version;
         FadeThrough(() =>
         {
@@ -99,7 +105,7 @@ internal sealed class Meditation
 
     private void Begin()
     {
-        var player = MainGame.PlayerController;
+        var player = Player;
         if (player == null)
             return;
 
@@ -117,33 +123,51 @@ internal sealed class Meditation
 
     private void Restore()
     {
-        var player = MainGame.PlayerController;
+        var player = Player;
         if (player != null)
-        {
             player.PhysicalBody.SetDirectionLock(true);
-            player.PhysicalBody.LockMovement(false);
-        }
 
+        MovementLock.Release();
         if (!_applied)
             return;
 
         _applied = false;
-        MainGame.UpdateManager?.SetTimeSpeedMultiplier(1f);
+        if (MainGame.Instance != null)
+            MainGame.UpdateManager?.SetTimeSpeedMultiplier(1f);
         MeditationLighting.End();
         Plugin.Logger.LogInfo("Stopped meditating.");
     }
 
-    private void KeepMeditating(PlayerController player, EnvironmentEngine engine)
+    private void KeepMeditating(EnvironmentEngine engine)
     {
-        player.PhysicalBody.LockMovement(true);
         var passed = engine.timeOfDay - _lastTimeOfDay;
         if (passed < 0f)
             passed += 1f;
 
         _lastTimeOfDay = engine.timeOfDay;
+        if (!_applied || passed <= 0f)
+            return;
+
         var energy = PlayerEnergyGameResSystem.GetSystem();
-        if (_applied && passed > 0f && energy != null && !energy.HasMax())
+        if (energy != null && !energy.HasMax())
             energy.Add(passed * PluginConfig.EnergyPerDay.Value);
+
+        CalmDown(passed);
+    }
+
+    private void CalmDown(float passed)
+    {
+        var insanity = PlayerInsanityGameResSystem.GetSystem();
+        var left = PluginConfig.MaxInsanity.Value - _insanityRemoved;
+        if (insanity == null || left <= 0f)
+            return;
+
+        var amount = Mathf.Min(passed * PluginConfig.InsanityPerDay.Value, left, MainGame.PlayerData.GetRes(_insanity));
+        if (amount <= 0f)
+            return;
+
+        insanity.Add(-amount);
+        _insanityRemoved += amount;
     }
 
     private static void FadeThrough(Action whileBlack)
