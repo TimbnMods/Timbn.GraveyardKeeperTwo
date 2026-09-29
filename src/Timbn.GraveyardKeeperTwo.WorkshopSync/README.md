@@ -24,7 +24,7 @@ Every time the game starts, before any mod loads, it looks through your subscrib
 BepInEx has to be installed by hand once, since the Workshop can't install it.
 
 1. Install [BepInEx 5](https://www.nexusmods.com/graveyardkeeper2/mods/48) into your Graveyard Keeper 2 folder.
-2. Copy the `Timbn.GraveyardKeeperTwo.WorkshopSync` folder into `BepInEx/patchers` (not `plugins`).
+2. Extract the zip into your Graveyard Keeper 2 folder, so the mod ends up in `BepInEx/patchers/Timbn.GraveyardKeeperTwo.WorkshopSync` (not `plugins`). Vortex does this for you.
 3. Launch the game.
 
 ## Configuration

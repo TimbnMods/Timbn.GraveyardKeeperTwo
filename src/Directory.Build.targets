@@ -44,7 +44,8 @@
   <!--
     Builds a release zip for one plugin: artifacts/<ProjectName>-<Version>.zip, holding the plugin folder
     exactly as it deploys, its XML doc file when the project generates one, the repo's LICENSE renamed to LICENSE.txt,
-    and the project's README.md. Opt in
+    and the project's README.md. A patcher's folder sits under BepInEx/patchers in the zip, so it is extracted
+    into the game folder and mod managers deploy it as a patcher instead of dropping it into plugins. Opt in
     (dotnet build -t:Package -c Release), so a normal build stays as fast as it is.
   -->
   <Target Name="Package" DependsOnTargets="Build">
@@ -53,6 +54,7 @@
       <_ModName>$(MSBuildProjectName.Replace('Timbn.GraveyardKeeperTwo.', ''))</_ModName>
       <_PackageStage>$(IntermediateOutputPath)package\</_PackageStage>
       <_PackageRoot>$(_PackageStage)$(MSBuildProjectName)\</_PackageRoot>
+      <_PackageRoot Condition="'$(BepInExPatcher)' == 'true'">$(_PackageStage)BepInEx\patchers\$(MSBuildProjectName)\</_PackageRoot>
       <_PackageFile>$(_RepoRoot)\artifacts\$(MSBuildProjectName)-$(Version).zip</_PackageFile>
     </PropertyGroup>
     <ItemGroup>
