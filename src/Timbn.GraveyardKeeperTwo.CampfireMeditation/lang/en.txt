@@ -1,0 +1,6 @@
+# Timbn Campfire Meditation text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
+# and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
+
+# The hint over a campfire, to start meditating and to stop
+timbn_campfire_meditate = Meditate
+timbn_campfire_get_up = Wake Up
