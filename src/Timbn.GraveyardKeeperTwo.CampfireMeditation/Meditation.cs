@@ -7,6 +7,7 @@ internal sealed class Meditation
     private const string _meditateKey = "timbn_campfire_meditate";
     private const string _getUpKey = "timbn_campfire_get_up";
     private const string _insanity = "insanity";
+    private static readonly TakenControlType[] _windows = [TakenControlType.ByUI];
 
     private readonly Campfires _campfires = new();
     private readonly CampfireHint _hint = new();
@@ -30,10 +31,13 @@ internal sealed class Meditation
             return;
         }
 
+        if (!player.IsControlsEnabledExcept(_windows))
+            Stop();
+
         if (_meditating)
             KeepMeditating(engine);
 
-        if (IsFading() || (!_meditating && (GameHasInteraction(player) || !FindFire())) || LazyWindowsStackController.ActiveWindow != null)
+        if (IsFading() || !player.IsControlsEnabled || (!_meditating && (GameHasInteraction(player) || !FindFire())) || LazyWindowsStackController.ActiveWindow != null)
         {
             _hint.Hide();
             return;
