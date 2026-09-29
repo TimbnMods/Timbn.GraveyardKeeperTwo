@@ -52,7 +52,8 @@ internal sealed class WorkshopMirror
             }
             catch (Exception exception)
             {
-                _logger.LogError($"Could not install Workshop item {id}: {exception.Message}");
+                _logger.LogError($"Could not install Workshop item {id}, so it is left out: {exception.Message}");
+                RemovePartialInstall(id);
             }
         }
 
@@ -83,6 +84,22 @@ internal sealed class WorkshopMirror
 
         _logger.LogWarning($"No Steam library found around {Paths.GameRootPath}, so Workshop mods are left as they are. Set SteamFolder in the config to the Steam folder that holds your Workshop downloads.");
         return null;
+    }
+
+    private void RemovePartialInstall(string id)
+    {
+        var target = Path.Combine(_pluginsTarget, id);
+        try
+        {
+            if (Directory.Exists(target))
+            {
+                Directory.Delete(target, true);
+            }
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError($"Could not remove the partly installed Workshop item {id} from {target}: {exception.Message}");
+        }
     }
 
     private bool CopyFolders(string id, string folder)
