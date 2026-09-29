@@ -28,7 +28,11 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> RecoverBattleRewards { get; private set; } = null!;
 
+    public static ConfigEntry<bool> BaitInBags { get; private set; } = null!;
+
     public static ConfigEntry<bool> MoveIdenticalFromBags { get; private set; } = null!;
+
+    public static ConfigEntry<bool> SortIntoBags { get; private set; } = null!;
 
     public static ConfigEntry<KeyboardShortcut> UnstuckKey { get; private set; } = null!;
 
@@ -97,6 +101,13 @@ internal static class PluginConfig
             + "rewards are dropped at your feet after a win, and with full bags walking into one knocks it away "
             + "until it lands somewhere you can't reach.");
 
+        BaitInBags = config.Bind(
+            _bugFixes,
+            nameof(BaitInBags),
+            true,
+            "Bait kept in a bag counts when you start fishing. The game only looked for bait loose in your "
+            + "inventory, so with all of it in a fishing bag you were told you had none.");
+
         BuiltEarlyQuests = config.Bind(
             _softLocks,
             nameof(BuiltEarlyQuests),
@@ -131,6 +142,14 @@ internal static class PluginConfig
             true,
             "The chest window's move all identical items button also takes matching items out of your bags, "
             + "not just your main inventory.");
+
+        SortIntoBags = config.Bind(
+            _tweaks,
+            nameof(SortIntoBags),
+            true,
+            "Items you pick up, craft, buy, or take from a chest go straight into the bag made for them, such as "
+            + "fish and bait into a fishing bag or seeds into a farming bag, while it has room. Universal bags work "
+            + "as before and only take what they already hold or what no longer fits in your inventory.");
 
         UnstuckKey = config.Bind(
             _tweaks,

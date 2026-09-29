@@ -23,7 +23,7 @@ public static class TimbnQuests
     private static int _registrations;
     private static readonly Dictionary<string, IDisposable> _stubs = [];
     private static readonly Dictionary<QuestDef, int> _gameY = [];
-    private static readonly ConditionalWeakTable<QuestDef, StrongBox<int>> _moneyRewards = new();
+    private static readonly ConditionalWeakTable<QuestDef, StrongBox<int>> _moneyRewards = [];
 
     /// <summary>
     /// Creates a blank quest with empty start and finish checks. It stays out of the quest tree until it

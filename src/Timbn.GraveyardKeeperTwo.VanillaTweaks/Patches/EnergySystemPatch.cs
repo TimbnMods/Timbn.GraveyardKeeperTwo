@@ -1,5 +1,3 @@
-using System;
-
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks.Patches;
 
 [HarmonyPatch(typeof(EnergySystem), nameof(EnergySystem.StartSleeping))]

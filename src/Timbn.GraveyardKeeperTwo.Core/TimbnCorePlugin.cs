@@ -25,7 +25,7 @@ public class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
     /// A short id for the running game's code, the first twelve hex digits of Assembly-CSharp's module version id.
     /// It changes whenever the game's scripts are rebuilt, for example "51009c7eaefd" on 1.007 (Steam build 25589899).
     /// </summary>
-    public static string GameBuild { get; } = typeof(MainGame).Assembly.ManifestModule.ModuleVersionId.ToString("N").Substring(0, 12);
+    public static string GameBuild { get; } = typeof(MainGame).Assembly.ManifestModule.ModuleVersionId.ToString("N")[..12];
 
     public static TimbnCorePlugin? Instance { get; private set; }
 

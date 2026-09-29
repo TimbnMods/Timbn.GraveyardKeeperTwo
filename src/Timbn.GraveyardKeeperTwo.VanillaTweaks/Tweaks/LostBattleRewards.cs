@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
 
 internal static class LostBattleRewards
