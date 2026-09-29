@@ -4,9 +4,9 @@ Timbn Vanilla Tweaks fixes bugs and adds light gameplay tweaks that are intended
 
 ## Bug Fixes
 
-### Green Thumb perk
+### Green Thumb, Master Brewer and Sommelier perks
 
-The perk never worked and now adds +2 farming mastery when planting. The game does not use the player's mastery on harvest, so that part of the description still can't do anything.
+These perks never worked. Green Thumb now adds +2 farming mastery when planting, Master Brewer +2 when brewing beer and mead, and Sommelier +3 when making wine, so you can brew and make the better wines sooner. The game does not use the player's mastery on harvest, so that part of Green Thumb's description still can't do anything.
 
 ### Lost tech points
 
