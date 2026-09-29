@@ -6,6 +6,10 @@
     <Version>1.4.1</Version>
     <ThunderstoreName>TimbnCore</ThunderstoreName>
     <ThunderstoreDescription>The shared framework every Timbn mod for Graveyard Keeper 2 is built on. It does nothing on its own, so install it when a Timbn mod needs it.</ThunderstoreDescription>
+    <WorkshopItemId>3810064587</WorkshopItemId>
+    <WorkshopDescription>The shared framework every Timbn mod for Graveyard Keeper 2 is built on. It does nothing on its own, so subscribe to it when a Timbn mod needs it.
+
+Needs [url=https://www.nexusmods.com/graveyardkeeper2/mods/48]BepInEx 5[/url] and Timbn Workshop Sync, both installed by hand once.</WorkshopDescription>
   </PropertyGroup>
 
   <!-- Core is what every other mod references, so it always deploys to plugins and is never hot reloaded. -->
