@@ -6,7 +6,7 @@ internal static class PluginConfig
     private const string _softLocks = "Soft Locks";
     private const string _tweaks = "Tweaks";
 
-    public static ConfigEntry<bool> GreenThumbTalentBonus { get; private set; } = null!;
+    public static ConfigEntry<bool> PerkTalentBonus { get; private set; } = null!;
 
     public static ConfigEntry<bool> CollectStrayTechPoints { get; private set; } = null!;
 
@@ -44,13 +44,14 @@ internal static class PluginConfig
 
     public static void Bind(ConfigFile config)
     {
-        GreenThumbTalentBonus = config.Bind(
+        PerkTalentBonus = config.Bind(
             _bugFixes,
-            nameof(GreenThumbTalentBonus),
+            nameof(PerkTalentBonus),
             true,
-            "Makes the Green Thumb perk grant its +2 green talent when planting. The game puts the value in a "
-            + "field that planting crafts throw away, so the perk does nothing at all. Does nothing once the game "
-            + "fixes it.");
+            "Makes the Green Thumb, Master Brewer and Sommelier perks grant the green talent their descriptions "
+            + "promise (+2 when planting, +2 when brewing beer and mead, +3 when making wine). The game gives them "
+            + "a head start on the craft instead, which those crafts throw away, so the perks do nothing at all. "
+            + "Leaves a perk alone once the game fixes it.");
 
         CollectStrayTechPoints = config.Bind(
             _bugFixes,
@@ -185,7 +186,8 @@ internal static class PluginConfig
 
         CarryOver(
             config,
-            (GreenThumbTalentBonus, "GreenThumb", "TalentBonus"),
+            (PerkTalentBonus, _bugFixes, "GreenThumbTalentBonus"),
+            (PerkTalentBonus, "GreenThumb", "TalentBonus"),
             (CollectStrayTechPoints, "TechPoints", "CollectStray"),
             (SermonFaithRounding, "Sermons", "FaithRounding"),
             (StuckCarriers, "Carriers", "ShowWhenStuck"),

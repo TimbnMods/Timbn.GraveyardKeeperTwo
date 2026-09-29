@@ -6,7 +6,7 @@ namespace Timbn.GraveyardKeeperTwo.VanillaTweaks;
 [BepInDependency(TimbnCorePlugin.Guid, "1.4.0")]
 public class Plugin : TimbnFrameworkPlugin<Plugin>
 {
-    private GreenThumbTalentBonus? _greenThumb;
+    private PerkTalentBonus? _perkTalentBonus;
     private TechPointCap? _techPointCap;
     private StrayTechPoints? _strayTechPoints;
     private StuckCarriers? _stuckCarriers;
@@ -17,12 +17,12 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
 
     protected override void OnAwake()
     {
-        if (PluginConfig.GreenThumbTalentBonus.Value)
+        if (PluginConfig.PerkTalentBonus.Value)
         {
-            _greenThumb = new GreenThumbTalentBonus();
-            Events.GameStarted(_greenThumb.Apply);
+            _perkTalentBonus = new PerkTalentBonus();
+            Events.GameStarted(_perkTalentBonus.Apply);
             if (TimbnGame.IsInGame)
-                _greenThumb.Apply();
+                _perkTalentBonus.Apply();
         }
 
         if (PluginConfig.TechPointCap.Value > 999)
@@ -78,7 +78,7 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
 
     protected override void OnDestroyed()
     {
-        _greenThumb?.Revert();
+        _perkTalentBonus?.Revert();
         _techPointCap?.Revert();
         _unreachableDismantle?.Revert();
     }
