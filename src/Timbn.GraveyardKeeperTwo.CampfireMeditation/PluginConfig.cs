@@ -4,6 +4,8 @@ internal static class PluginConfig
 {
     public static ConfigEntry<float> TimeSpeed { get; private set; } = null!;
     public static ConfigEntry<float> EnergyPerDay { get; private set; } = null!;
+    public static ConfigEntry<float> InsanityPerDay { get; private set; } = null!;
+    public static ConfigEntry<float> MaxInsanity { get; private set; } = null!;
     public static ConfigEntry<float> Radius { get; private set; } = null!;
 
     public static void Bind(ConfigFile config)
@@ -23,6 +25,22 @@ internal static class PluginConfig
             new ConfigDescription(
                 "Energy regained per in game day of meditating. Sleep gives 400.",
                 new AcceptableValueRange<float>(0f, 400f)));
+
+        InsanityPerDay = config.Bind(
+            "Meditation",
+            "InsanityPerDay",
+            40f,
+            new ConfigDescription(
+                "Insanity removed per in game day of meditating, until MaxInsanity is reached.",
+                new AcceptableValueRange<float>(0f, 400f)));
+
+        MaxInsanity = config.Bind(
+            "Meditation",
+            "MaxInsanity",
+            20f,
+            new ConfigDescription(
+                "The most insanity one meditation can remove. Sleep removes 20.",
+                new AcceptableValueRange<float>(0f, 100f)));
 
         Radius = config.Bind(
             "Meditation",
