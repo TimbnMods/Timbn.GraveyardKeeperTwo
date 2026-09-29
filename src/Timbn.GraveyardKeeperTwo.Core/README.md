@@ -29,13 +29,13 @@ There is one setting, Enabled, in `BepInEx/config/Timbn.GraveyardKeeperTwo.Core.
 
 ## Troubleshooting
 
-If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and `BepInEx/LogOutput.log` says which part failed. If Core itself fails, every Timbn mod stays off. The startup line and a popup on the main menu also warn when the game version differs from the one these mods were tested on. Include that line when reporting a problem.
+If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and `BepInEx/LogOutput.log` says which part failed. If Core itself fails, every Timbn mod stays off. The startup line also warns when the game version differs from the one these mods were tested on, and a popup on the main menu says so once for each such game build. Include that line when reporting a problem.
 
 If a mod does not load, a popup on the main menu names it and says why, for example when it needs a newer Timbn Core. Update the mod it names and restart the game.
 
 ## Uninstalling
 
-Delete the `Timbn.GraveyardKeeperTwo.Core` folder from `BepInEx/plugins`. Every Timbn mod needs Core, so remove those too.
+Delete the `Timbn.GraveyardKeeperTwo.Core` folder from `BepInEx/plugins`. Every Timbn mod needs Core, so remove those too. Mods that keep their own data per save put it in a `<save>.TimbnSaveData.dat` file next to each of your saves, and data that belongs to no save goes in `TimbnGlobalData.dat` in the same folder. The game never reads them, so they are safe to leave or delete.
 
 ## License
 
@@ -176,6 +176,55 @@ protected override void OnAwake()
     MainMenu.Popup("Vanilla Tweaks", "The tech point cap is now 9999.");
 }
 ```
+
+## Save data
+
+`Saves.Register<T>()` gives a plugin a data object that belongs to the loaded save. Register once in `OnAwake` and change `Current` whenever you like. Core reads it when a save loads, writes it each time the game saves, gives a new game a fresh `T`, and deletes it along with the save. Nothing goes inside the game's own save file, so removing a mod never breaks a save, and Steam Cloud syncs it along with the save.
+
+```csharp
+public sealed class GhostData
+{
+    public int DaysPassed { get; set; }
+    public List<string> VisitedGraves { get; set; } = [];
+}
+
+private TimbnSaveData<GhostData> _saveData = null!;
+
+protected override void OnAwake()
+{
+    _saveData = Saves.Register<GhostData>(data => Logger.LogInfo($"{data.DaysPassed} days so far"));
+    Events.NewDayStarted(_ => _saveData.Current.DaysPassed++);
+}
+```
+
+Every Timbn mod shares one file per save, `<slot>.TimbnSaveData.dat` next to the save itself in `AppData/LocalLow/Lazy Bear Games/Graveyard Keeper 2`. It holds JSON with a section per plugin GUID, each written with Newtonsoft.Json from the public properties and fields of `T`. The name has to end in `.dat` and sit next to the save, since Steam Cloud only syncs `*.dat` and `*.info` in that folder. Keep `T` to numbers, strings, lists, dictionaries, and plain classes of your own. Adding a member later is safe because an older file leaves it at its default, but renaming one loses what was saved under the old name.
+
+- The game only saves when the player sleeps, so changes made after that are dropped if the player quits, the same as the game's own progress.
+- The optional callback runs each time a save starts, before the plugin's `GameStarted` handlers.
+- `Current` is a fresh `T` at the main menu. Anything written there is never saved.
+- Each save keeps the previous file as `<slot>.TimbnSaveData.backup.dat`, and the new file is written as `.dat.new` first and then moved into place, so a crash while saving never leaves only half a file.
+- A file that cannot be read is renamed to `.dat.bad` and Core loads the backup instead. A single section that cannot be read is kept as `.dat.<plugin GUID>.bad`, and only that plugin starts from a fresh `T`.
+- A section whose plugin is not loaded, because it is turned off or removed, is kept as it is and comes back when the plugin does.
+- On a hot reload the new copy of the plugin gets the old copy's data, unsaved changes included.
+
+### Global data
+
+`Saves.RegisterGlobal<T>()` is the same idea for data that belongs to no save, such as a tip the player already dismissed or a count over all their games. It works like `Saves.Register<T>()`, with `Current` the same in every save and at the main menu. Every Timbn mod shares one `TimbnGlobalData.dat` in the same folder as the saves, with the same JSON layout, backup, and `.bad` handling.
+
+```csharp
+var welcome = Saves.RegisterGlobal<WelcomeData>();
+Events.GameStarted(() =>
+{
+    if (welcome.Current.Seen)
+        return;
+
+    welcome.Current.Seen = true;
+    welcome.Save();
+});
+```
+
+- Core writes it when the game saves, on the way to the main menu, when the game quits, and when the plugin unloads, and only when something changed. Call `Save()` right after a change that must survive a crash.
+- Global data is not deleted with a save, and it is read once when the plugin starts, so the optional callback runs before `RegisterGlobal` returns.
 
 ## Quests, dialog, and text
 

@@ -36,24 +36,41 @@ public class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
         Instance = this;
         Subscriptions.Add(TimbnGameEvents.GameStarted(TimbnGame.OnGameStarted));
         Subscriptions.Add(TimbnGameEvents.GoToMainMenu(TimbnGame.OnLeftGame));
+        Subscriptions.Add(TimbnGameEvents.GameStarted(TimbnSaves.OnGameStarted));
+        Subscriptions.Add(TimbnGameEvents.GoToMainMenu(TimbnSaves.OnLeftGame));
+        Subscriptions.Add(TimbnGameEvents.GoToMainMenu(TimbnGlobalSaves.Flush));
+        Subscriptions.Add(TimbnGameEvents.SaveWriteEnded(TimbnGlobalSaves.Flush));
+        Subscriptions.Add(TimbnGameEvents.On(TimbnGlobalSaves.Flush, h => Application.quitting += h, h => Application.quitting -= h));
         Subscriptions.Add(TimbnGameEvents.GameStarted(TimbnDialog.OnGameStarted));
         Subscriptions.Add(TimbnGameEvents.GameStarted(OnGameStarted));
         Subscriptions.Add(TimbnGameEvents.GoToMainMenu(TimbnDialog.OnLeftGame));
+        var timbnCoreGlobalData = Saves.RegisterGlobal<TimbnCoreData>();
+        var game = $"{Application.version} {GameBuild}";
         var started = $"Core {Version} started on Graveyard Keeper 2 {Application.version} (build {GameBuild})";
         if (Application.version != TestedGameVersion)
         {
             Logger.LogWarning($"{started}, but these mods were tested on {TestedGameVersion}. Include this line when reporting a problem.");
-            MainMenu.Popup("Untested game version", $"Timbn mods were tested on version {TestedGameVersion} and this is {Application.version}. Some mods may misbehave until they are updated.");
+            WarnOnce(timbnCoreGlobalData, game, "Untested game version", $"Timbn mods were tested on version {TestedGameVersion} and this is {Application.version}. Some mods may misbehave until they are updated.");
         }
         else if (GameBuild != TestedGameBuild)
         {
             Logger.LogWarning($"{started}, but these mods were tested on build {TestedGameBuild} of that version, so this is likely a hotfix. Include this line when reporting a problem.");
-            MainMenu.Popup("Untested game build", $"Timbn mods were tested on an earlier build of {Application.version}, so this is likely a hotfix. Some mods may misbehave until they are updated.");
+            WarnOnce(timbnCoreGlobalData, game, "Untested game build", $"Timbn mods were tested on an earlier build of {Application.version}, so this is likely a hotfix. Some mods may misbehave until they are updated.");
         }
         else
         {
             Logger.LogInfo($"{started}.");
         }
+    }
+
+    private void WarnOnce(TimbnGlobalData<TimbnCoreData> timbnCoreGlobalData, string game, string title, string message)
+    {
+        if (timbnCoreGlobalData.Current.WarnedGameVersion == game)
+            return;
+
+        MainMenu.Popup(title, message);
+        timbnCoreGlobalData.Current.WarnedGameVersion = game;
+        timbnCoreGlobalData.Save();
     }
 
     private void OnGameStarted()

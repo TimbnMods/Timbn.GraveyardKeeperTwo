@@ -32,6 +32,7 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
         Balance = new(this);
         MainMenu = new(this);
         Settings = new(this, Logger);
+        Saves = new(this);
     }
 
     /// <summary>The plugin's own BepInPlugin attribute. Use this instead of Info.</summary>
@@ -83,6 +84,9 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
 
     /// <summary>Keeps the plugin's changes to the game in step with its config as settings change.</summary>
     public TimbnPluginSettings Settings { get; }
+
+    /// <summary>Keeps the plugin's own data with each save, in a file next to the game's save.</summary>
+    public TimbnPluginSaves Saves { get; }
 
     internal TimbnSubscriptions Subscriptions { get; }
 
