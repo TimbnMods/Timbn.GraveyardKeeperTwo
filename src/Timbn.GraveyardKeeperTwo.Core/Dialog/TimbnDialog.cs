@@ -1,18 +1,28 @@
 using LazyBearTechnology;
+using System.Globalization;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 internal static class TimbnDialog
 {
-    private const string LeaveKey = "common_leave";
-
+    private const string _iconId = "timbn_speech_bubble";
+    private const string _leaveKey = "common_leave";
+    private const int _maxRememberedLines = 256;
+    private const string _gameIconId = "icon_speech_bubble";
     private static readonly List<Talk> _talks = [];
+    private static readonly HashSet<string> _warnedKeys = [];
+    private static readonly HashSet<string> _modLines = [];
+    private static Func<HashSet<string>>? _seenTalks;
     private static float _nextRefresh;
-    private static bool _holdsControl;
+    private static IDisposable? _control;
+    private static bool _iconFailed;
 
-    internal static IDisposable AddTalk(string npcId, string eventId, Func<bool> isOffered, Action<TimbnConversation> onTalk)
+    internal static IDisposable AddTalk(string npcId, string eventId, Func<bool> isOffered, Action<TimbnConversation> onTalk, Func<Color>? bubbleColor = null, string? onceKey = null)
     {
-        var talk = new Talk(npcId, eventId, isOffered, onTalk);
+        if (_talks.Find(t => t.EventId == eventId && t.NpcId != npcId) is { } other)
+            throw new InvalidOperationException($"The talk id '{eventId}' is already used on {other.NpcId}. A talk id has to be unique, since it is also the NPC's interaction event and picks the bubble color.");
+
+        var talk = new Talk(npcId, eventId, isOffered, onTalk, bubbleColor ?? (() => TimbnPluginDialog.DefaultBubbleColor), onceKey);
         _talks.RemoveAll(t => t.NpcId == npcId && t.EventId == eventId);
         _talks.Add(talk);
         Refresh();
@@ -26,16 +36,68 @@ internal static class TimbnDialog
         });
     }
 
-    internal static bool Say(WgoData npc, string key, Action then) =>
-        Show(key, () => Bubble.Talk(new PhraseData(isPlayer: false, npc, key, then, null)));
+    internal static string IconFor(string eventId, string gameIcon)
+    {
+        if (gameIcon != _gameIconId || _talks.Find(t => t.EventId == eventId) is not { } talk)
+            return gameIcon;
 
-    internal static bool PlayerSay(string key, Action then) =>
-        Show(key, () => Bubble.Talk(new PhraseData(isPlayer: true, null, key, then, null)));
+        return EnsureIcon(talk.BubbleColor()) ?? gameIcon;
+    }
 
-    internal static AnswerVisualData Answer(string key)
+    internal static void OnEventAdded(WgoData npc, string eventId)
+    {
+        if (IsTalkOf(npc, eventId))
+            return;
+
+        var queued = npc.Events.Where(e => IsTalkOf(npc, e.str)).Select(e => e.str).ToList();
+        foreach (var id in queued)
+        {
+            npc.RemoveInteractionEvent(id);
+            npc.AddInteractionEvent(id);
+        }
+    }
+
+    internal static bool Say(WgoData npc, string key, object[] values, Action then)
+    {
+        WarnIfMissing(key);
+        return TryFormat(key, values, out var text)
+            && Show(key, () => Bubble.Talk(new PhraseData(isPlayer: false, npc, text, then, null)));
+    }
+
+    internal static bool PlayerSay(string key, object[] values, Action then)
+    {
+        WarnIfMissing(key);
+        return TryFormat(key, values, out var text)
+            && Show(key, () => Bubble.Talk(new PhraseData(isPlayer: true, null, text, then, null)));
+    }
+
+    internal static bool AllowVoice(VoiceOverPlayer player, string id)
+    {
+        if (!_modLines.Contains(id))
+            return true;
+
+        player.Stop();
+        return false;
+    }
+
+    internal static void UseSeenTalks(Func<HashSet<string>> seenTalks) => _seenTalks = seenTalks;
+
+    internal static bool HasSeen(string onceKey) => _seenTalks?.Invoke().Contains(onceKey) == true;
+
+    internal static void ResetSeen(string onceKey)
+    {
+        if (_seenTalks?.Invoke().Remove(onceKey) == true)
+            Refresh();
+    }
+
+    internal static AnswerVisualData Answer(string key, IReadOnlyDictionary<string, AnswerData>? prices = null)
     {
         AnswerData? data = null;
-        if (GameBalance.Me.questDefByReqPhrase.TryGetValue(key, out var quest))
+        if (prices is not null && prices.TryGetValue(key, out var price))
+        {
+            data = price;
+        }
+        else if (GameBalance.Me.questDefByReqPhrase.TryGetValue(key, out var quest))
         {
             data = quest.finishCheck.GetAnswerDataByReqs();
             var money = TimbnQuests.MoneyRewardOf(quest);
@@ -46,12 +108,15 @@ internal static class TimbnDialog
         return new AnswerVisualData { id = key, answerData = data };
     }
 
-    internal static bool Ask(WgoData npc, string[] answers, Action<string> chosen, Action dismissed)
+    internal static bool Ask(WgoData npc, string[] answers, Action<string> chosen, Action dismissed, IReadOnlyDictionary<string, AnswerData>? prices = null)
     {
-        var visuals = answers.Select(Answer).ToList();
+        foreach (var answer in answers)
+            WarnIfMissing(answer);
+
+        var visuals = answers.Select(answer => Answer(answer, prices)).ToList();
         var addedLeave = visuals.All(v => v.answerData is not null);
         if (addedLeave)
-            visuals.Add(new AnswerVisualData { id = LeaveKey });
+            visuals.Add(new AnswerVisualData { id = _leaveKey });
 
         var picked = false;
         return Show(
@@ -63,7 +128,7 @@ internal static class TimbnDialog
                 id =>
                 {
                     picked = true;
-                    if (addedLeave && id == LeaveKey)
+                    if (addedLeave && id == _leaveKey)
                     {
                         dismissed();
                         return;
@@ -77,6 +142,58 @@ internal static class TimbnDialog
                     if (!picked)
                         dismissed();
                 }));
+    }
+
+    private static bool TryFormat(string key, object[] values, out string text)
+    {
+        text = key;
+        if (values.Length == 0)
+        {
+            RememberLine(text);
+            return true;
+        }
+
+        try
+        {
+            text = LLBase.L(key);
+            for (var i = values.Length - 1; i >= 0; i--)
+            {
+                var value = values[i] is Func<object> compute ? compute() : values[i];
+                text = text.Replace($"%{i + 1}", string.Format(CultureInfo.CurrentCulture, "{0}", value));
+            }
+
+            RememberLine(text);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            TimbnCorePlugin.Logger.LogError($"{nameof(TimbnDialog)}|Filling in the line '{key}' threw: {ex}");
+            return false;
+        }
+    }
+
+    private static void RememberLine(string text)
+    {
+        if (_modLines.Count >= _maxRememberedLines)
+            _modLines.Clear();
+
+        _modLines.Add(text);
+    }
+
+    private static bool IsSeen(Talk talk) => talk.OnceKey is not null && HasSeen(talk.OnceKey);
+
+    private static void MarkSeen(Talk talk)
+    {
+        if (talk.OnceKey is not null)
+            _seenTalks?.Invoke().Add(talk.OnceKey);
+    }
+
+    private static void WarnIfMissing(string key)
+    {
+        if (!LLBase.IsCurrentLangLoaded || LLBase.HasL(key) || !_warnedKeys.Add(key))
+            return;
+
+        TimbnCorePlugin.Logger.LogWarning($"{nameof(TimbnDialog)}|The line '{key}' has no text in the current language, so the game shows the key itself. Add it with Text.Add or a lang file.");
     }
 
     private static bool Show(string what, Action show)
@@ -95,13 +212,13 @@ internal static class TimbnDialog
 
     internal static void OnGameStarted()
     {
-        _holdsControl = false;
+        ReleaseControl();
         Refresh();
     }
 
     internal static void OnLeftGame()
     {
-        _holdsControl = false;
+        ReleaseControl();
         foreach (var talk in _talks)
             talk.Busy = false;
     }
@@ -126,13 +243,19 @@ internal static class TimbnDialog
             return false;
 
         npc.RemoveInteractionEvent(talk.EventId);
+        if (HasQuestToTurnIn(npc))
+            return false;
+
         talk.Busy = true;
+        MarkSeen(talk);
+        TimbnCorePlugin.Logger.LogInfo($"{nameof(TimbnDialog)}|Talk '{talk.EventId}' started with {npc.id}.");
         TakeControl();
         void done()
         {
             if (!talk.Busy)
                 return;
 
+            TimbnCorePlugin.Logger.LogInfo($"{nameof(TimbnDialog)}|Talk '{talk.EventId}' ended.");
             talk.Busy = false;
             ReleaseControl();
             Refresh();
@@ -168,21 +291,15 @@ internal static class TimbnDialog
 
     private static void TakeControl()
     {
-        if (_holdsControl || !TimbnGame.IsInGame || MainGame.PlayerController == null)
-            return;
-
-        _holdsControl = true;
-        MainGame.PlayerController.SetControlTakenType(TakenControlType.ByFlow, isEnabled: false);
+        if (_control is null && TimbnGame.IsInGame)
+            _control = TimbnControl.Take();
     }
 
     private static void ReleaseControl()
     {
-        if (!_holdsControl)
-            return;
-
-        _holdsControl = false;
-        if (TimbnGame.IsInGame && MainGame.PlayerController != null)
-            MainGame.PlayerController.SetControlTakenType(TakenControlType.ByFlow, isEnabled: true);
+        var control = _control;
+        _control = null;
+        control?.Dispose();
     }
 
     private static void Refresh()
@@ -196,13 +313,45 @@ internal static class TimbnDialog
                 continue;
 
             var shown = npc.Events.Any(e => e.str == talk.EventId);
-            var wanted = !talk.Busy && IsOffered(talk);
+            var wanted = !talk.Busy && !HasQuestToTurnIn(npc) && !IsSeen(talk) && IsOffered(talk);
             if (wanted && !shown)
                 npc.AddInteractionEvent(talk.EventId);
             else if (!wanted && shown)
                 npc.RemoveInteractionEvent(talk.EventId);
         }
     }
+
+    private static string? EnsureIcon(Color tint)
+    {
+        var name = $"{_iconId}_{ColorUtility.ToHtmlStringRGB(tint)}";
+        if (TimbnSprites.TryGet(name, out _))
+            return name;
+
+        if (_iconFailed)
+            return null;
+
+        try
+        {
+            var source = LazySingletonSO<EasySpritesCollection>.Instance.GetSprite(_gameIconId);
+            if (source == null)
+                throw new InvalidOperationException($"The game has no {_gameIconId} sprite.");
+
+            TimbnSprites.AddTinted(name, source, tint);
+            return name;
+        }
+        catch (Exception ex)
+        {
+            _iconFailed = true;
+            TimbnCorePlugin.Logger.LogWarning($"{nameof(TimbnDialog)}|Could not tint the {_gameIconId} icon, so mod talks show the game's bubble. {ex.Message}");
+            return null;
+        }
+    }
+
+    private static bool IsTalkOf(WgoData npc, string eventId) =>
+        _talks.Any(t => t.NpcId == npc.id && t.EventId == eventId);
+
+    private static bool HasQuestToTurnIn(WgoData npc) =>
+        MainGame.Instance?.GameSave?.questSystemData?.WgoHasReadyToFinishQuest(npc.id) == true;
 
     private static bool IsOffered(Talk talk)
     {
@@ -219,12 +368,14 @@ internal static class TimbnDialog
 
     private sealed class Talk
     {
-        public Talk(string npcId, string eventId, Func<bool> isOffered, Action<TimbnConversation> onTalk)
+        public Talk(string npcId, string eventId, Func<bool> isOffered, Action<TimbnConversation> onTalk, Func<Color> bubbleColor, string? onceKey)
         {
             NpcId = npcId;
             EventId = eventId;
             IsOffered = isOffered;
             OnTalk = onTalk;
+            BubbleColor = bubbleColor;
+            OnceKey = onceKey;
         }
 
         public string NpcId { get; }
@@ -234,6 +385,10 @@ internal static class TimbnDialog
         public Func<bool> IsOffered { get; }
 
         public Action<TimbnConversation> OnTalk { get; }
+
+        public Func<Color> BubbleColor { get; }
+
+        public string? OnceKey { get; }
 
         public bool Busy { get; set; }
     }

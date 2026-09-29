@@ -327,6 +327,17 @@ Dialog.AddTalk("npc_larry", "my_quest_talk", () => TimbnQuests.CanFinish("my_que
     .If("my_quest_give", then => then.Say("my_quest_thanks")));
 ```
 
+A conversation is a list of steps that each wait for the one before.
+
+- `Say` and `PlayerSay` show a line in the NPC's or the player's bubble.
+- `Ask` offers choices and `If` branches on the answer. A `TimbnAnswer` adds the game's own answer extras, so `Ask(new TimbnAnswer("key").Costs("flitch", 5))` shows an item price with a `0/5` style count. `Costs` and `CostsResource` take a price, `Requires` and `RequiresResource` show a lock for something the player must have (`RequiresHappiness` is the smiley a town vendor asks for, and `RequiresDay(TimbnWeekday.Pride)` limits an answer to one day of the week, and `RequiresOrder("quest_order_iron")` waits for a vendor order to be finished), and `Rewards` and `RewardsResource` show a reward on the right, with resources such as `money`. `ShowsReward` and `ShowsRewardResource` draw the same reward without giving it, for one your own step hands out. Each of these can be repeated on one answer, so an answer can cost or need several items. The answer is greyed out until the player can pay, and the game takes the price and gives the reward when it is picked. A plain string is an answer with no extras.
+- `Do` runs your code, and `When(condition, then, otherwise)` branches on the game's state when the conversation reaches it.
+- `Give("flitch", 2)` hands the player items (what does not fit drops at their feet), and `Take("flitch", 2)` removes items from the player without asking.
+
+A line can carry values. `Say("larry_price", 5, "friend")` fills the game's `%1` and `%2` placeholders in the text, and a `Func<object>` value is worked out when the line is shown. A talk can be a one-shot. `AddTalk(..., new TimbnTalkOptions { Once = true })` stops the NPC offering it once the player has started it in that save, kept with the save's data like the rest of Core's per save state, and `Dialog.ResetOnceTalk("id")` offers it again. `TimbnTalkOptions` also takes a `BubbleColor` for one talk.
+
+A line whose key has no text in the current language is logged once as a warning, since the game would show the raw key. A talk id has to be unique across NPCs.
+
 ### Translations
 
 `Text.Add` text shows in every language. To let players translate a mod, put its text in files instead. Core adds them when the plugin starts, so there is no call to make. It reads every `lang/<language id>.txt` next to the mod's DLL (`en`, `de`, `fr`, `pt-br`, `es`, `ru`, `pl`, `ja`, `zh_cn`, `ko`, or `tr`), one `key = text` per line.
@@ -348,6 +359,8 @@ Lines starting with `#` are comments and `\n` is a line break. The game shows th
 ### Notes
 
 Each text field becomes a localization key named after the quest id (`<id>_offer_1`, `<id>_accept`, `<id>_give`, `quest_open_<id>_d`, and so on), so a translation can override any line.
+
+**Game talks come first.** An NPC holds one talk per interaction, oldest first. Mod talks always wait behind the game's own, including ones the game adds later, and step aside while the NPC has a game quest ready to hand in, so they never delay the story. A mod talk shows a tinted copy of the game's speech bubble over the NPC, so players can tell it apart. It is gold by default, and each plugin can pick its own color with `Dialog.BubbleColor = new Color(0.6f, 0.8f, 1f);`.
 
 **Placement is automatic.** Groups of quests that start fresh are packed into a band of rows at the top of the tree, and every game quest moves down by the band's height plus one spacer row. A group that hangs off a game quest instead goes in the nearest free spot below it, linked to every quest in that parent's cell (the game stacks several quests in one cell and shows only the latest). Positions are never saved, so the layout is simply redone whenever a quest registers or unregisters.
 

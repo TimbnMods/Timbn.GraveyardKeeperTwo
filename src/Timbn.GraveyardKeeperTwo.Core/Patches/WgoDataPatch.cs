@@ -1,9 +1,11 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
-[HarmonyPatch(typeof(WgoData), nameof(WgoData.FireInteractionEvent))]
+[HarmonyPatch(typeof(WgoData))]
 internal static class WgoDataPatch
 {
-    private static bool Prefix(WgoData __instance, ref bool __result)
+    [HarmonyPrefix]
+    [HarmonyPatch(nameof(WgoData.FireInteractionEvent))]
+    private static bool FireInteractionEventPreFix(WgoData __instance, ref bool __result)
     {
         if (!TimbnDialog.TryHandleInteraction(__instance))
             return true;
@@ -11,4 +13,9 @@ internal static class WgoDataPatch
         __result = true;
         return false;
     }
+
+    [HarmonyPostfix]
+    [HarmonyPatch(nameof(WgoData.AddInteractionEvent))]
+    private static void AddInteractionEventPostFix(WgoData __instance, string id) =>
+        TimbnDialog.OnEventAdded(__instance, id);
 }

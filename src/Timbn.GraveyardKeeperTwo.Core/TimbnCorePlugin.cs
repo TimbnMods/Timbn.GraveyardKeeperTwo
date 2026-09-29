@@ -41,6 +41,8 @@ public class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
         Subscriptions.Add(TimbnGameEvents.GoToMainMenu(TimbnGlobalSaves.Flush));
         Subscriptions.Add(TimbnGameEvents.SaveWriteEnded(TimbnGlobalSaves.Flush));
         Subscriptions.Add(TimbnGameEvents.On(TimbnGlobalSaves.Flush, h => Application.quitting += h, h => Application.quitting -= h));
+        var saved = Saves.Register<TimbnCoreSaveData>();
+        TimbnDialog.UseSeenTalks(() => saved.Current.SeenTalks);
         Subscriptions.Add(TimbnGameEvents.GameStarted(TimbnDialog.OnGameStarted));
         Subscriptions.Add(TimbnGameEvents.GameStarted(OnGameStarted));
         Subscriptions.Add(TimbnGameEvents.GoToMainMenu(TimbnDialog.OnLeftGame));
