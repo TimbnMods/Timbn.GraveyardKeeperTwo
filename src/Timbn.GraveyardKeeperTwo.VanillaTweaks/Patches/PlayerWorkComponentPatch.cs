@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
 
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks.Patches;

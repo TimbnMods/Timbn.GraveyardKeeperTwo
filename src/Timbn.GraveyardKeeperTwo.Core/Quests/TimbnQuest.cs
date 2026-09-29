@@ -1,5 +1,3 @@
-using LazyBearTechnology;
-
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>How a <see cref="TimbnQuest"/> is completed.</summary>

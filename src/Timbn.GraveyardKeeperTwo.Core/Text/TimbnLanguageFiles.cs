@@ -44,14 +44,14 @@ internal static class TimbnLanguageFiles
                 continue;
 
             var split = line.IndexOf('=');
-            var key = split > 0 ? line.Substring(0, split).Trim() : "";
+            var key = split > 0 ? line[..split].Trim() : "";
             if (key.Length == 0)
             {
                 logger.LogWarning($"{Path.GetFileName(file)} line {i + 1} is not 'key = text', skipped.");
                 continue;
             }
 
-            yield return (key, line.Substring(split + 1).Trim().Replace("\\n", "\n"));
+            yield return (key, line[(split + 1)..].Trim().Replace("\\n", "\n"));
         }
     }
 }

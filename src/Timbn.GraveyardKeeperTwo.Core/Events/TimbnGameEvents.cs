@@ -140,7 +140,9 @@ internal static class TimbnGameEvents
             {
                 LogHandlerError(handler, ex);
             }
-        };
+        }
+
+        ;
 
         add(safe);
         return new TimbnUndo(() => remove(safe));
