@@ -32,6 +32,8 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
         Balance = new(this);
         MainMenu = new(this);
         Settings = new(this, Logger);
+        Player = new(this);
+        Clock = new(this);
         UI = new(this);
         Saves = new(this);
     }
@@ -85,6 +87,12 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
 
     /// <summary>Keeps the plugin's changes to the game in step with its config as settings change.</summary>
     public TimbnPluginSettings Settings { get; }
+
+    /// <summary>Acts on the player character, such as holding them still, undone when this plugin unloads.</summary>
+    public TimbnPluginPlayer Player { get; }
+
+    /// <summary>Changes how fast the game's time runs, undone when this plugin unloads.</summary>
+    public TimbnPluginClock Clock { get; }
 
     /// <summary>Puts the plugin's own hints and IMGUI on screen, taken down when this plugin unloads.</summary>
     public TimbnPluginUI UI { get; }

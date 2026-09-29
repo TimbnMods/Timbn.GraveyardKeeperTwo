@@ -162,6 +162,20 @@ Settings.While(PluginConfig.TechPointCap, cap => cap > 999, () => Balance.Edit<G
 
 BepInEx only reads a config file at startup, so a setting edited by hand is not seen until something reloads it. `TimbnConfig.ReloadAll()` re-reads the file of every loaded plugin, Timbn or not, and `TimbnConfig.Reload(plugin)` does one. Each changed value raises its `SettingChanged` event, so settings tied with `Settings.Toggle` apply straight away. Call it on the main thread. A key deleted from a file keeps its current value instead of going back to its default.
 
+## Holds
+
+A hold changes something the game or another mod may also change, and gives it back when its handle is disposed, the plugin unloads, or the player returns to the main menu. Several mods can hold the same thing at once, and the value from before the first hold comes back when the last one goes, unless the game changed it meanwhile.
+
+- `Player.HoldStill()` holds the player in place. The game's own lock requests are kept and applied on release.
+- `Player.TakeControl()` takes the player's control away the way the game's cutscenes do, under Core's own flag, so the game handing control back never frees the player early. Core's conversations use it too.
+- `Player.SetSpeed(multiplier)` changes how fast the player walks, and `Clock.SetSpeed(multiplier)` how fast the game's time runs. The newest hold's speed wins.
+
+```csharp
+_fastTime = Clock.SetSpeed(7f);
+// later
+_fastTime?.Dispose();
+```
+
 ## Helpers
 
 - `TimbnConfig.CarryOver(config, (entry, oldSection, oldKey), ...)` moves the value of a renamed config entry into the new one. Call it at the end of `BindConfig`.
@@ -171,6 +185,7 @@ BepInEx only reads a config file at startup, so a setting edited by hand is not 
 - `TimbnItems.CountAnywhere(id)` counts an item across the whole world and `CountOnPlayer(id)` only what the player carries, `GiveToPlayer` gives items and drops what does not fit in front of the player, `TakeFromPlayer` removes them, and `DropAt` and `PlayerDropPosition` drop items where the game would. `FindDrops(match)` finds items lying on the ground in every scene, and `RemoveDrops` clears them.
 - `TimbnPlayer.Position`, `SceneId` and `Scene` say where the player is, and `MoveTo` moves them.
 - `TimbnWorld.TryFindWalkable(point, range, out ground)` finds open ground near a spot, `TryGetNavGraph` gets a scene's navigation graph, `Near(position, radius)` lists the world objects around a spot, nearest first, and `ViewOf(data)` gets the view that draws one.
+- `TimbnClock.Day`, `Weekday`, `TimeOfDay` and `Time` read the calendar and clock, and `Between(from, to)` measures time passed across midnight.
 - `TimbnZombies.OnScene()` lists the zombies in the world, and `Skins()` the bodies, heads, and skin colors the game rolls for them.
 
 ## Main menu
@@ -355,8 +370,8 @@ Potions.Register(new TimbnPotion
         GlowColor = () => "yellow",
         Seconds = () => 120f,
         OnAddExpressions = ["DropItem(\"stick\", 5)"],
-        OnStart = () => SetPlayerSpeed(1.5f),
-        OnEnd = () => SetPlayerSpeed(1f),
+        OnStart = () => _swift = Player.SetSpeed(1.5f),
+        OnEnd = () => _swift?.Dispose(),
     },
 });
 ```

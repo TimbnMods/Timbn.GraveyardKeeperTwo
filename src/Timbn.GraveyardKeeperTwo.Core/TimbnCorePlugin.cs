@@ -44,6 +44,7 @@ public class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
         Subscriptions.Add(TimbnGameEvents.GameStarted(TimbnDialog.OnGameStarted));
         Subscriptions.Add(TimbnGameEvents.GameStarted(OnGameStarted));
         Subscriptions.Add(TimbnGameEvents.GoToMainMenu(TimbnDialog.OnLeftGame));
+        Subscriptions.Add(TimbnGameEvents.GoToMainMenu(ReleaseHolds));
         var timbnCoreGlobalData = Saves.RegisterGlobal<TimbnCoreData>();
         var game = $"{Application.version} {GameBuild}";
         var started = $"Core {Version} started on Graveyard Keeper 2 {Application.version} (build {GameBuild})";
@@ -96,5 +97,16 @@ public class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
 
     private void OnGUI() => TimbnGui.Draw();
 
-    protected override void OnDestroyed() => Instance = null;
+    private static void ReleaseHolds()
+    {
+        TimbnMovement.ReleaseAll();
+        TimbnControl.ReleaseAll();
+        TimbnGameSpeed.ReleaseAll();
+    }
+
+    protected override void OnDestroyed()
+    {
+        ReleaseHolds();
+        Instance = null;
+    }
 }
