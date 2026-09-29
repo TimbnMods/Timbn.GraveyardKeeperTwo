@@ -26,7 +26,7 @@ Every line this mod adds is in `lang/en.txt` inside its folder. Copy it to your 
 
 ## Requirements
 
-- Timbn Core 1.4.1 or newer
+- Timbn Core 1.5.0 or newer
 
 ## Configuration
 

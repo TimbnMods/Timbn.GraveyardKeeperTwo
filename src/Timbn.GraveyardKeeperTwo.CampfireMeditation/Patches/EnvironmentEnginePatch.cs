@@ -5,5 +5,6 @@ internal static class EnvironmentEnginePatch
 {
     [HarmonyPatch("ApplyPreset")]
     [HarmonyPostfix]
-    private static void ApplyPresetPostFix() => MeditationLighting.Darken();
+    private static void ApplyPresetPostFix() =>
+        MeditationLighting.Darken();
 }
