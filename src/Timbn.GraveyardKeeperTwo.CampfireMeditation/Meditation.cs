@@ -15,9 +15,11 @@ internal sealed class Meditation
     private int _version;
     private float _lastTimeOfDay;
 
+    private static PlayerController? Player => MainGame.Instance != null ? MainGame.PlayerController : null;
+
     public void Tick()
     {
-        var player = MainGame.PlayerController;
+        var player = Player;
         var engine = EnvironmentEngine.Instance;
         if (!TimbnGame.IsInGame || player == null || engine == null)
         {
@@ -99,7 +101,7 @@ internal sealed class Meditation
 
     private void Begin()
     {
-        var player = MainGame.PlayerController;
+        var player = Player;
         if (player == null)
             return;
 
@@ -117,7 +119,7 @@ internal sealed class Meditation
 
     private void Restore()
     {
-        var player = MainGame.PlayerController;
+        var player = Player;
         if (player != null)
         {
             player.PhysicalBody.SetDirectionLock(true);
@@ -128,7 +130,8 @@ internal sealed class Meditation
             return;
 
         _applied = false;
-        MainGame.UpdateManager?.SetTimeSpeedMultiplier(1f);
+        if (MainGame.Instance != null)
+            MainGame.UpdateManager?.SetTimeSpeedMultiplier(1f);
         MeditationLighting.End();
         Plugin.Logger.LogInfo("Stopped meditating.");
     }
