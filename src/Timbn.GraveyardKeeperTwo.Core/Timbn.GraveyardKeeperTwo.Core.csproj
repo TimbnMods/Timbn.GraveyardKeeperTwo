@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Timbn.GraveyardKeeperTwo.Core</AssemblyName>
     <Product>Timbn Core</Product>
-    <Version>1.4.0</Version>
+    <Version>1.4.1</Version>
     <ThunderstoreName>TimbnCore</ThunderstoreName>
     <ThunderstoreDescription>The shared framework every Timbn mod for Graveyard Keeper 2 is built on. It does nothing on its own, so install it when a Timbn mod needs it.</ThunderstoreDescription>
   </PropertyGroup>
