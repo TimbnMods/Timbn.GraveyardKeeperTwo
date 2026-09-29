@@ -30,7 +30,7 @@ internal static class ZombieCustomization
 
     public static void Open(ZombieWgoData zombie, UIZombieWorkerWindowData returnTo)
     {
-        var pool = ZombieSkinPool.Worker;
+        var pool = TimbnZombies.Skins();
         if (pool == null || pool.Bodies.Count == 0 || pool.Heads.Count == 0)
         {
             Plugin.Logger.LogWarning("No zombie skin pool found, nothing to choose from.");
@@ -275,11 +275,11 @@ internal static class ZombieCustomization
     private static AccessTools.FieldRef<UICustomizationWindow, UICharacterOptionSwitcher> Switcher(string field) =>
         AccessTools.FieldRefAccess<UICustomizationWindow, UICharacterOptionSwitcher>(field);
 
-    private sealed class Session(ZombieWgoData zombie, ZombieSkinPool pool)
+    private sealed class Session(ZombieWgoData zombie, TimbnZombieSkins pool)
     {
         public ZombieWgoData Zombie { get; } = zombie;
 
-        public ZombieSkinPool Pool { get; } = pool;
+        public TimbnZombieSkins Pool { get; } = pool;
 
         public int Body { get; set; } = zombie.GetGameResInt("zombie_body_id");
 
