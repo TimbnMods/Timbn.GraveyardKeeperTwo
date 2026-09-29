@@ -5,7 +5,7 @@ internal static class TimbnSprites
     private const float _pixelsPerUnit = 50f;
     private const int _canvasSize = 48;
 
-    private static readonly Dictionary<string, Sprite> _sprites = [];
+    private static readonly Dictionary<string, List<Sprite>> _sprites = [];
 
     internal static IDisposable AddPng(string name, byte[] png)
     {
@@ -23,15 +23,53 @@ internal static class TimbnSprites
         }
 
         texture = PadToCanvas(texture);
-        var sprite = Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), _pixelsPerUnit);
-        sprite.name = name;
-        if (_sprites.TryGetValue(name, out var previous))
-            Destroy(previous);
+        return Register(name, Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), _pixelsPerUnit));
+    }
 
-        _sprites[name] = sprite;
+    internal static void AddTinted(string name, Sprite source, Color tint)
+    {
+        var rect = source.textureRect;
+        var width = (int)rect.width;
+        var height = (int)rect.height;
+        var target = RenderTexture.GetTemporary(source.texture.width, source.texture.height, 0, RenderTextureFormat.ARGB32);
+        var previous = RenderTexture.active;
+        var texture = new Texture2D(width, height, TextureFormat.RGBA32, false)
+        {
+            name = name,
+            filterMode = source.texture.filterMode,
+            wrapMode = TextureWrapMode.Clamp,
+        };
+        try
+        {
+            Graphics.Blit(source.texture, target);
+            RenderTexture.active = target;
+            texture.ReadPixels(new Rect(rect.x, rect.y, width, height), 0, 0);
+        }
+        finally
+        {
+            RenderTexture.active = previous;
+            RenderTexture.ReleaseTemporary(target);
+        }
+
+        var pixels = texture.GetPixels();
+        for (var i = 0; i < pixels.Length; i++)
+            pixels[i] = new Color(pixels[i].r * tint.r, pixels[i].g * tint.g, pixels[i].b * tint.b, pixels[i].a);
+
+        texture.SetPixels(pixels);
+        texture.Apply(false, true);
+        Register(name, Sprite.Create(texture, new Rect(0, 0, width, height), new Vector2(source.pivot.x / width, source.pivot.y / height), source.pixelsPerUnit));
+    }
+
+    private static IDisposable Register(string name, Sprite sprite)
+    {
+        sprite.name = name;
+        if (!_sprites.TryGetValue(name, out var stack))
+            _sprites[name] = stack = [];
+
+        stack.Add(sprite);
         return new TimbnUndo(() =>
         {
-            if (_sprites.TryGetValue(name, out var current) && current == sprite)
+            if (_sprites.TryGetValue(name, out var current) && current.Remove(sprite) && current.Count == 0)
                 _sprites.Remove(name);
 
             Destroy(sprite);
@@ -41,7 +79,11 @@ internal static class TimbnSprites
     internal static bool TryGet(string? name, out Sprite sprite)
     {
         sprite = null!;
-        return name != null && _sprites.TryGetValue(name, out sprite!) && sprite != null;
+        if (name == null || !_sprites.TryGetValue(name, out var stack) || stack.Count == 0)
+            return false;
+
+        sprite = stack[stack.Count - 1];
+        return sprite != null;
     }
 
     private static Texture2D PadToCanvas(Texture2D source)

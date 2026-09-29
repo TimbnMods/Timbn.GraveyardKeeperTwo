@@ -15,7 +15,7 @@ internal static class TimbnLocale
     private static readonly AccessTools.FieldRef<LLBase, List<string>> _txts =
         AccessTools.FieldRefAccess<LLBase, List<string>>("txts");
 
-    private static readonly Dictionary<string, Entry> _entries = [];
+    private static readonly Dictionary<string, List<Entry>> _entries = [];
 
     internal static IDisposable Add(string key, string text) => Add(new Dictionary<string, string> { [key] = text });
 
@@ -29,7 +29,12 @@ internal static class TimbnLocale
     {
         var added = entries.ToList();
         foreach (var entry in added)
-            _entries[entry.Key] = entry;
+        {
+            if (!_entries.TryGetValue(entry.Key, out var stack))
+                _entries[entry.Key] = stack = [];
+
+            stack.Add(entry);
+        }
 
         if (_currentLang() is { } lang)
         {
@@ -46,8 +51,8 @@ internal static class TimbnLocale
 
     internal static void ApplyTo(LLBase lang)
     {
-        foreach (var entry in _entries.Values)
-            Write(lang, entry);
+        foreach (var stack in _entries.Values)
+            Write(lang, stack[stack.Count - 1]);
     }
 
     private static void Write(LLBase lang, Entry entry)
@@ -59,11 +64,24 @@ internal static class TimbnLocale
 
     private static void Remove(Entry entry)
     {
-        if (!_entries.TryGetValue(entry.Key, out var current) || current != entry)
+        if (!_entries.TryGetValue(entry.Key, out var stack))
             return;
 
+        var wasCurrent = stack[stack.Count - 1] == entry;
+        if (!stack.Remove(entry) || !wasCurrent)
+            return;
+
+        var lang = _currentLang();
+        if (stack.Count > 0)
+        {
+            if (lang != null)
+                Write(lang, stack[stack.Count - 1]);
+
+            return;
+        }
+
         _entries.Remove(entry.Key);
-        if (_currentLang() is not { } lang)
+        if (lang == null)
             return;
 
         var index = _txtIds(lang).IndexOf(entry.Key);

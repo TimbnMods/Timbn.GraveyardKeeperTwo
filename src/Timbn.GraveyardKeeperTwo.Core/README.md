@@ -307,7 +307,7 @@ Dialog.AddTalk("npc_larry", "my_quest_talk", () => TimbnQuests.CanFinish("my_que
 
 ### Translations
 
-`Text.Add` text shows in every language. To let players translate a mod, put its text in files instead and call `Text.AddLanguageFiles()` in `OnAwake`. Core reads every `lang/<language id>.txt` next to the mod's DLL (`en`, `de`, `fr`, `pt-br`, `es`, `ru`, `pl`, `ja`, `zh_cn`, `ko`, or `tr`), one `key = text` per line.
+`Text.Add` text shows in every language. To let players translate a mod, put its text in files instead. Core adds them when the plugin starts, so there is no call to make. It reads every `lang/<language id>.txt` next to the mod's DLL (`en`, `de`, `fr`, `pt-br`, `es`, `ru`, `pl`, `ja`, `zh_cn`, `ko`, or `tr`), one `key = text` per line.
 
 ```text
 # lang/en.txt

@@ -9,6 +9,7 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 public sealed class TimbnPluginText
 {
     private readonly TimbnFrameworkPlugin _owner;
+    private IDisposable? _languageFiles;
 
     internal TimbnPluginText(TimbnFrameworkPlugin owner)
     {
@@ -33,9 +34,21 @@ public sealed class TimbnPluginText
     /// with # are comments, and \n in a text is a line break. The game shows the line for its current language
     /// and falls back to en.txt for any key a translation lacks, so en.txt should hold every key. Switching
     /// language in the game's options picks up the new text. Ship the files by marking them
-    /// CopyToOutputDirectory in the csproj.
+    /// CopyToOutputDirectory in the csproj. Core already does this for every plugin that has a lang folder when
+    /// the plugin starts, so calling it yourself is not needed and a second call does nothing.
     /// </summary>
     /// <returns>A handle that removes the keys early when disposed. You don't need to keep it.</returns>
-    public IDisposable AddLanguageFiles() =>
-        _owner.Subscriptions.Add(TimbnLocale.Add(TimbnLanguageFiles.Read(_owner.Folder, _owner.PluginLogger)));
+    public IDisposable AddLanguageFiles()
+    {
+        if (_languageFiles != null)
+            return _languageFiles;
+
+        return _languageFiles = _owner.Subscriptions.Add(TimbnLocale.Add(TimbnLanguageFiles.Read(_owner.Folder, _owner.PluginLogger)));
+    }
+
+    internal void AddLanguageFilesIfPresent()
+    {
+        if (TimbnLanguageFiles.Exists(_owner.Folder))
+            AddLanguageFiles();
+    }
 }

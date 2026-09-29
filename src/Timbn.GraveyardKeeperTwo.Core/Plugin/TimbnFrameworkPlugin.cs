@@ -144,6 +144,7 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
         Subscriptions.Add(TimbnGameEvents.GoToMainMenu(SessionSubscriptions.Dispose));
         Subscriptions.Add(TimbnMainMenu.AddLine($"{Metadata.Name}: ", Metadata.Version.ToString()));
         Logger.LogMessage($"Plugin {Metadata.GUID} v{Metadata.Version} loaded, patches under '{harmonyId}'.");
+        Text.AddLanguageFilesIfPresent();
         OnAwake();
     }
 

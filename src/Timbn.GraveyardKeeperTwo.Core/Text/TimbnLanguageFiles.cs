@@ -4,6 +4,8 @@ internal static class TimbnLanguageFiles
 {
     private const string _folderName = "lang";
 
+    internal static bool Exists(string folder) => Directory.Exists(Path.Combine(folder, _folderName));
+
     internal static Dictionary<string, Dictionary<string, string>> Read(string folder, ManualLogSource logger)
     {
         Dictionary<string, Dictionary<string, string>> textsByKey = [];
