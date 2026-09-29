@@ -7,6 +7,7 @@ internal static class PluginConfig
     public static ConfigEntry<float> InsanityPerDay { get; private set; } = null!;
     public static ConfigEntry<float> MaxInsanity { get; private set; } = null!;
     public static ConfigEntry<float> Radius { get; private set; } = null!;
+    public static ConfigEntry<bool> HomeOnly { get; private set; } = null!;
 
     public static void Bind(ConfigFile config)
     {
@@ -47,5 +48,11 @@ internal static class PluginConfig
             "Radius",
             2f,
             "How close to a campfire you must stand to meditate.");
+
+        HomeOnly = config.Bind(
+            "Meditation",
+            "HomeOnly",
+            true,
+            "Only the campfire at home, above your garden, can be used to meditate. Turn it off to meditate at any campfire.");
     }
 }
