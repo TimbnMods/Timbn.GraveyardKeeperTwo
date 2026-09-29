@@ -164,9 +164,9 @@ internal static class PluginConfig
             _tweaks,
             nameof(UnstuckRange),
             30f,
-            new ConfigDescription(
-                "How far Unstuck may move you, in world units.",
-                new AcceptableValueRange<float>(1f, 100f)));
+            "How far Unstuck may move you, in world units.",
+            1f,
+            100f);
 
         BedSaveWhenRested = config.Bind(
             _tweaks,
@@ -179,12 +179,12 @@ internal static class PluginConfig
             _tweaks,
             nameof(TechPointCap),
             999,
-            new ConfigDescription(
-                "The most red, green, or blue tech points you can hold. The game caps each at 999 and throws away "
-                + "anything past it. Set to 999 to keep the game's cap.",
-                new AcceptableValueRange<int>(999, 999999)));
+            "The most red, green, or blue tech points you can hold. The game caps each at 999 and throws away "
+            + "anything past it. Set to 999 to keep the game's cap.",
+            999,
+            999999);
 
-        CarryOver(
+        TimbnConfig.CarryOver(
             config,
             (PerkTalentBonus, _bugFixes, "GreenThumbTalentBonus"),
             (PerkTalentBonus, "GreenThumb", "TalentBonus"),
@@ -199,26 +199,5 @@ internal static class PluginConfig
             (UnstuckRange, "Unstuck", "Range"),
             (BedSaveWhenRested, "Bed", "SaveWhenRested"),
             (TechPointCap, "TechPoints", "Cap"));
-    }
-
-    private static void CarryOver(ConfigFile config, params (ConfigEntryBase Entry, string Section, string Key)[] moves)
-    {
-        if (AccessTools.Property(typeof(ConfigFile), "OrphanedEntries")?.GetValue(config) is not Dictionary<ConfigDefinition, string> orphaned)
-            return;
-
-        var carried = 0;
-        foreach (var (entry, section, key) in moves)
-        {
-            var old = new ConfigDefinition(section, key);
-            if (!orphaned.TryGetValue(old, out var value))
-                continue;
-
-            entry.SetSerializedValue(value);
-            orphaned.Remove(old);
-            carried++;
-        }
-
-        if (carried > 0)
-            config.Save();
     }
 }

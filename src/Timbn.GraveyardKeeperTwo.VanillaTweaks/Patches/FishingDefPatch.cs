@@ -7,5 +7,6 @@ internal static class FishingDefPatch
 {
     [HarmonyPatch(nameof(FishingDef.GetAvailableBaits))]
     [HarmonyPrefix]
-    private static void GetAvailableBaitsPreFix(List<Item> baits) => BaitInBags.AddBaggedBait(baits);
+    private static void GetAvailableBaitsPreFix(List<Item> baits) =>
+        BaitInBags.AddBaggedBait(baits);
 }

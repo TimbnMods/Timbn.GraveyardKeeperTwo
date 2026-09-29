@@ -7,6 +7,12 @@ internal sealed class UnreachableDismantle
 
     public static UnreachableDismantle? Active { get; private set; }
 
+    public static void Register(TimbnFrameworkPlugin plugin)
+    {
+        var unreachableDismantle = new UnreachableDismantle();
+        plugin.Settings.Toggle(PluginConfig.DismantleUnreachable, unreachableDismantle.Apply, unreachableDismantle.Revert);
+    }
+
     public void Apply() => Active = this;
 
     public void Revert()
