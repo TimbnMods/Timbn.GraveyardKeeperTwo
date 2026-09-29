@@ -2,5 +2,5 @@
 # and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
 
 # The hint over a campfire, to start meditating and to stop
-timbn_campfire_meditate = Relax
-timbn_campfire_get_up = Get Up
+timbn_campfire_meditate = Meditate
+timbn_campfire_get_up = Wake Up

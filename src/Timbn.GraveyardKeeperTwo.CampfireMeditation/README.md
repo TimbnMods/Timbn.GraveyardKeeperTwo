@@ -4,7 +4,7 @@ Timbn Campfire Meditation lets you pass time by a campfire, like the stone garde
 
 ## How to use
 
-Stand by a campfire, like the one at the Inquisition Base, and a "Relax" hint appears above it. Press interact to start meditating, and press interact again ("Get Up") to stop.
+Stand by a campfire, like the one at the Inquisition Base, and a "Meditate" hint appears above it. Press interact to start meditating, and press interact again ("Wake Up") to stop.
 
 ## What happens
 
