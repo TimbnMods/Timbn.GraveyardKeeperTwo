@@ -2,7 +2,7 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 internal sealed class TimbnSubscriptions : IDisposable
 {
-    private readonly List<IDisposable> _items = [];
+    private readonly List<Owned> _items = [];
     private readonly ManualLogSource _logger;
 
     internal TimbnSubscriptions(ManualLogSource logger)
@@ -12,29 +12,58 @@ internal sealed class TimbnSubscriptions : IDisposable
 
     public int Count => _items.Count;
 
-    public T Add<T>(T subscription) where T : IDisposable
+    public IDisposable Add(IDisposable subscription)
     {
-        _items.Add(subscription);
-        return subscription;
+        var owned = new Owned(this, subscription);
+        _items.Add(owned);
+        return owned;
     }
 
     public IDisposable Add(Action undo) => Add(new TimbnUndo(undo));
 
     public void Dispose()
     {
-        for (var i = _items.Count - 1; i >= 0; i--)
+        while (_items.Count > 0)
         {
+            var last = _items[_items.Count - 1];
+            _items.RemoveAt(_items.Count - 1);
             try
             {
-                _items[i].Dispose();
+                last.DisposeInner();
             }
             catch (Exception ex)
             {
                 _logger.LogError($"{nameof(TimbnSubscriptions)}|An undo threw: {ex}");
             }
         }
+    }
 
-        _items.Clear();
+    private sealed class Owned : IDisposable
+    {
+        private readonly TimbnSubscriptions _owner;
+        private IDisposable? _inner;
+
+        public Owned(TimbnSubscriptions owner, IDisposable inner)
+        {
+            _owner = owner;
+            _inner = inner;
+        }
+
+        public void Dispose()
+        {
+            if (_inner is null)
+                return;
+
+            _owner._items.Remove(this);
+            DisposeInner();
+        }
+
+        public void DisposeInner()
+        {
+            var inner = _inner;
+            _inner = null;
+            inner?.Dispose();
+        }
     }
 }
 

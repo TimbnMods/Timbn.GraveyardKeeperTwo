@@ -142,8 +142,6 @@ internal static class TimbnGameEvents
             }
         }
 
-        ;
-
         add(safe);
         return new TimbnUndo(() => remove(safe));
     }

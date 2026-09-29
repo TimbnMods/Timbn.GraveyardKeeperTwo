@@ -52,7 +52,7 @@ Core is two things at once.
 
 ## Getting started
 
-To make a Timbn plugin, just inherent `TimbnFrameworkPlugin<T>` on your BepInPlugin class where T is your mod class.
+To make a Timbn plugin, just inherit `TimbnFrameworkPlugin<T>` on your BepInPlugin class where T is your mod class.
 
 ```csharp
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
@@ -101,6 +101,32 @@ protected override void OnAwake()
     Events.NewDayStarted(day => Logger.LogInfo($"day {day}"));
     Events.QuestCompleted(quest => Logger.LogInfo(quest.id));
 }
+```
+
+Two events cover the whole life of a save, so there is no need to handle a hot reload by hand.
+
+- `Events.SaveReady(handler)` runs for every save the player plays. It runs straight away when a save is already loaded, as it is when a plugin is hot reloaded mid game, and then on every `GameStarted`.
+- `Events.SaveClosed(handler)` runs when the player stops playing a save, on the way to the main menu or when the plugin unloads mid game. It is the one place to put back what the plugin changed in the world, in place of the same cleanup in a `GoToMainMenu` handler and in `OnDestroyed`.
+
+```csharp
+protected override void OnAwake()
+{
+    var meditation = new Meditation(this);
+    Events.Update(meditation.Tick);
+    Events.SaveClosed(meditation.Stop);
+}
+```
+
+A few events come from Core rather than the game.
+
+- `Events.SleepStarted` and `Events.SleepEnded` run as the player falls asleep and wakes up.
+- `Events.Trigger(type, handler)` runs when the game fires one of the story triggers its quests wait on, such as `GlobalEventsSystem.Event.Type.BuildBuilding`, with the trigger's id.
+- `Events.BalanceLoaded(handler)` runs with the game's balance straight away if it has loaded, and after every later load.
+
+Work that has to keep running can register for it too, so a tweak needs no `OnUpdate` of its own. `Events.Update(handler)` runs every frame, paused or not, and `Events.Every(seconds, handler)` runs at most that often and stops while the game is paused. Both run only while a save is loaded, and a handler that throws is logged once and stopped instead of failing every frame.
+
+```csharp
+Events.Every(0.5f, () => stuckCarriers.Tick());
 ```
 
 ## Main menu

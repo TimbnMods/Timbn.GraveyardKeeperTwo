@@ -5,9 +5,11 @@ internal static class GameBalancePatch
 {
     private static void Postfix()
     {
-        if (TimbnBalance.Loaded is { } balance)
-            TimbnBalance.OnBalanceLoaded(balance);
+        if (TimbnBalance.Loaded is not { } balance)
+            return;
 
+        TimbnBalance.OnBalanceLoaded(balance);
         TimbnPotions.OnBalanceLoaded();
+        TimbnPatchedEvents.RaiseBalanceLoaded(balance);
     }
 }

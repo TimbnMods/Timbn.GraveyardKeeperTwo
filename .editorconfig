@@ -11,6 +11,8 @@ dotnet_diagnostic.IDE0130.severity = none
 # overloaded null check, so a destroyed object slips through.
 dotnet_diagnostic.IDE0031.severity = none
 
+dotnet_diagnostic.IDE0270.severity = none
+
 # Non-public fields (incl. const/static) are _camelCase
 dotnet_naming_rule.non_public_fields_underscore.symbols = non_public_fields
 dotnet_naming_rule.non_public_fields_underscore.style = underscore_camel_case
@@ -21,3 +23,5 @@ dotnet_naming_symbols.non_public_fields.applicable_accessibilities = private, in
 
 dotnet_naming_style.underscore_camel_case.capitalization = camel_case
 dotnet_naming_style.underscore_camel_case.required_prefix = _
+
+

@@ -34,7 +34,7 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
     }
 
     /// <summary>The plugin's own BepInPlugin attribute. Use this instead of Info.</summary>
-    protected BepInPlugin Metadata { get; }
+    protected internal BepInPlugin Metadata { get; }
 
     private void RepairPluginInfo()
     {
@@ -172,6 +172,7 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
         if (_harmony is null || !IsEnabled)
             return;
 
+        Events.RunFrameHandlers();
         OnUpdate();
     }
 
@@ -189,6 +190,7 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
             Logger.LogError($"{nameof(OnDestroyed)} threw: {ex}");
         }
 
+        Events.CloseSave();
         SessionSubscriptions.Dispose();
         Subscriptions.Dispose();
         _harmony.UnpatchSelf();
@@ -224,6 +226,12 @@ public abstract class TimbnFrameworkPlugin<T> : TimbnFrameworkPlugin where T : T
     public static new ManualLogSource Logger { get; private set; } = null!;
     public static ConfigEntry<bool> Enabled { get; private set; } = null!;
 
+    /// <summary>
+    /// Whether the plugin's own Enabled toggle and Core's are both on. Check it in a patch or a static helper that
+    /// has to stand down the moment a player turns the plugin off in a config manager.
+    /// </summary>
+    public static bool IsActive => Enabled?.Value == true && TimbnCorePlugin.Enabled?.Value == true;
+
     protected TimbnFrameworkPlugin()
     {
         Logger = base.Logger;
@@ -240,7 +248,7 @@ public abstract class TimbnFrameworkPlugin<T> : TimbnFrameworkPlugin where T : T
         BindConfig(Config);
     }
 
-    private protected sealed override bool IsEnabled => Enabled.Value && TimbnCorePlugin.Enabled.Value;
+    private protected sealed override bool IsEnabled => IsActive;
 
     /// <summary>Binds the plugin's own settings. Runs before OnAwake.</summary>
     protected virtual void BindConfig(ConfigFile config) { }
