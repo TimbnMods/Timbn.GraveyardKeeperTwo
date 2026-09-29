@@ -165,6 +165,13 @@ BepInEx only reads a config file at startup, so a setting edited by hand is not 
 ## Helpers
 
 - `TimbnConfig.CarryOver(config, (entry, oldSection, oldKey), ...)` moves the value of a renamed config entry into the new one. Call it at the end of `BindConfig`.
+- `TimbnInput.CanUseHotkeys`, `PlayerHasControl`, `PlayerHasControlExcept(reasons)` and `GameHasInteraction` say when a mod's key should stay out of the way. `IsDownInGame`, `IsDownWithControl` and `IsDownInWindow<TWindow>` read a `KeyboardShortcut` with those checks built in.
+- `TimbnUI.ActiveWindow`, `IsWindowOpen<TWindow>()` and `IsScreenFading` read the game's screens, and `TimbnUI.FadeThrough(action)` runs code while the screen is faded to black.
+- `UI.CreateHint()` makes the game's "press a key to do something" hint for any spot in the world, and `UI.Gui(draw)` draws IMGUI in place of an `OnGUI` method. Both are taken down when the plugin unloads.
+- `TimbnItems.CountAnywhere(id)` counts an item across the whole world and `CountOnPlayer(id)` only what the player carries, `GiveToPlayer` gives items and drops what does not fit in front of the player, `TakeFromPlayer` removes them, and `DropAt` and `PlayerDropPosition` drop items where the game would. `FindDrops(match)` finds items lying on the ground in every scene, and `RemoveDrops` clears them.
+- `TimbnPlayer.Position`, `SceneId` and `Scene` say where the player is, and `MoveTo` moves them.
+- `TimbnWorld.TryFindWalkable(point, range, out ground)` finds open ground near a spot, `TryGetNavGraph` gets a scene's navigation graph, `Near(position, radius)` lists the world objects around a spot, nearest first, and `ViewOf(data)` gets the view that draws one.
+- `TimbnZombies.OnScene()` lists the zombies in the world, and `Skins()` the bodies, heads, and skin colors the game rolls for them.
 
 ## Main menu
 

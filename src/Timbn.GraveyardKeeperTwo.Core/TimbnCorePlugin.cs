@@ -94,5 +94,7 @@ public class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
         TimbnMainMenu.OnUpdate();
     }
 
+    private void OnGUI() => TimbnGui.Draw();
+
     protected override void OnDestroyed() => Instance = null;
 }

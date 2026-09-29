@@ -40,8 +40,16 @@
       <HintPath>..\..\lib\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="AstarPathfindingProject">
+      <HintPath>$(GameManagedDir)\AstarPathfindingProject.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="LazyBearTechnology">
       <HintPath>$(GameManagedDir)\LazyBearTechnology.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sirenix.Serialization">
+      <HintPath>$(GameManagedDir)\Sirenix.Serialization.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json">

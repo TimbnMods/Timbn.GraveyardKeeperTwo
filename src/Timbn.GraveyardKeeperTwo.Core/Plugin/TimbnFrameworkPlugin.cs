@@ -32,6 +32,7 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
         Balance = new(this);
         MainMenu = new(this);
         Settings = new(this, Logger);
+        UI = new(this);
         Saves = new(this);
     }
 
@@ -85,6 +86,9 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
     /// <summary>Keeps the plugin's changes to the game in step with its config as settings change.</summary>
     public TimbnPluginSettings Settings { get; }
 
+    /// <summary>Puts the plugin's own hints and IMGUI on screen, taken down when this plugin unloads.</summary>
+    public TimbnPluginUI UI { get; }
+
     /// <summary>Keeps the plugin's own data with each save, in a file next to the game's save.</summary>
     public TimbnPluginSaves Saves { get; }
 
@@ -93,6 +97,8 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
     internal TimbnSubscriptions SessionSubscriptions { get; }
 
     internal ManualLogSource PluginLogger => Logger;
+
+    internal bool IsRunning => _harmony is not null && IsEnabled;
 
     internal string Folder
     {
