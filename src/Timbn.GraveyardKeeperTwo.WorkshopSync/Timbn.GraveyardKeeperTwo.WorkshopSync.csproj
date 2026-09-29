@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>Timbn.GraveyardKeeperTwo.WorkshopSync</AssemblyName>
+    <Product>Timbn Workshop Sync</Product>
+    <Version>1.0.0</Version>
+  </PropertyGroup>
+
+  <!-- A preloader patcher, so it deploys to BepInEx/patchers and runs before the chainloader scans plugins. -->
+  <PropertyGroup>
+    <BepInExPatcher>true</BepInExPatcher>
+  </PropertyGroup>
+
+</Project>

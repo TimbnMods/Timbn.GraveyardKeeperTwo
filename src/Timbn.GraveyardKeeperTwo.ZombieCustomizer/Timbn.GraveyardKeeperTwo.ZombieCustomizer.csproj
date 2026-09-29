@@ -6,6 +6,8 @@
     <Version>1.0.0</Version>
     <ThunderstoreName>TimbnZombieCustomizer</ThunderstoreName>
     <ThunderstoreDescription>Restyle your zombies in the game's own customization window. Click the portrait in a zombie's inspect window to pick its hairstyle, hair color and clothes color.</ThunderstoreDescription>
+    <SteamWorkshop>true</SteamWorkshop>
+    <WorkshopItemId>3810071742</WorkshopItemId>
   </PropertyGroup>
 
   <!-- Lands in BepInEx/scripts by default so F6 reloads it. Pass -p:DeployTo=plugins to load it at startup instead. -->

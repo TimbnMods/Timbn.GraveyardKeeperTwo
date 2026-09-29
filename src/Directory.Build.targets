@@ -3,13 +3,15 @@
   <!--
     Where a build lands. DeployTo is plugins (loaded once by the chainloader) or scripts (hot reloaded by
     ScriptEngine on F6), passed as -p:DeployTo=scripts. A project that must never be reloaded, such as Core,
-    sets ScriptReloadable false and always goes to plugins. A mod is removed from the other folder so it can
-    never be loaded twice. PluginDir is kept as the name the Exists gate and the docs use, so
-    -p:PluginDir=Z:/nope still compiles without deploying while the game runs.
+    sets ScriptReloadable false and always goes to plugins. A preloader patcher sets BepInExPatcher true and
+    always goes to patchers. A mod is removed from the other folder so it can never be loaded twice. PluginDir
+    is kept as the name the Exists gate and the docs use, so -p:PluginDir=Z:/nope still compiles without
+    deploying while the game runs.
   -->
   <PropertyGroup>
     <_DeployFolder>$(DeployTo)</_DeployFolder>
     <_DeployFolder Condition="'$(ScriptReloadable)' != 'true'">plugins</_DeployFolder>
+    <_DeployFolder Condition="'$(BepInExPatcher)' == 'true'">patchers</_DeployFolder>
     <_OtherFolder Condition="'$(_DeployFolder)' == 'plugins'">scripts</_OtherFolder>
     <_OtherFolder Condition="'$(_DeployFolder)' == 'scripts'">plugins</_OtherFolder>
     <_DefaultPluginDir>$(BepInExDir)\$(_DeployFolder)</_DefaultPluginDir>
@@ -130,6 +132,78 @@
     <ZipDirectory SourceDirectory="$(_ThunderstoreStage)" DestinationFile="$(_ThunderstoreFile)" Overwrite="true" />
     <Message Importance="high" Text="Packaged $(_ThunderstoreFile)" />
   </Target>
+
+  <!--
+    Runs after Package for a project that sets SteamWorkshop true and writes artifacts/workshop/<ProjectName>/, holding
+    content/BepInEx/plugins/<ProjectName> (the same plugin folder the release zip has, in the game folder layout) and
+    item.vdf for steamcmd +workshop_build_item. WorkshopItemId is 0 until the first upload, which creates the item
+    private and writes its id into item.vdf. Copy that id into the csproj. Uploads only send the files, preview, title,
+    and change note, so the description and visibility are set on the Steam page and stay.
+  -->
+  <Target Name="PackageWorkshop" AfterTargets="Package" Condition="'$(SteamWorkshop)' == 'true'">
+    <PropertyGroup>
+      <WorkshopItemId Condition="'$(WorkshopItemId)' == ''">0</WorkshopItemId>
+      <_WorkshopStage>$(_RepoRoot)\artifacts\workshop\$(MSBuildProjectName)\</_WorkshopStage>
+      <_WorkshopPreview>$(_RepoRoot)\docs\$(_ModName)\icon.png</_WorkshopPreview>
+    </PropertyGroup>
+    <Warning Condition="!Exists('$(_WorkshopPreview)')" Text="No Workshop preview image at $(_WorkshopPreview), so item.vdf leaves the preview as it is on Steam." />
+    <PropertyGroup Condition="!Exists('$(_WorkshopPreview)')">
+      <_WorkshopPreview></_WorkshopPreview>
+    </PropertyGroup>
+    <ItemGroup>
+      <_WorkshopPlugin Include="$(_PackageRoot)**\*" />
+    </ItemGroup>
+    <RemoveDir Directories="$(_WorkshopStage)" />
+    <Copy
+      SourceFiles="@(_WorkshopPlugin)"
+      DestinationFiles="@(_WorkshopPlugin->'$(_WorkshopStage)content\BepInEx\plugins\$(MSBuildProjectName)\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <TimbnWriteWorkshopItem
+      Path="$(_WorkshopStage)item.vdf"
+      ItemId="$(WorkshopItemId)"
+      ContentFolder="$(_WorkshopStage)content"
+      PreviewFile="$(_WorkshopPreview)"
+      Title="$(Product)"
+      ChangeNote="$(Product) $(Version)" />
+    <Message Importance="high" Text="Staged the Workshop item in $(_WorkshopStage)" />
+  </Target>
+
+  <UsingTask
+    TaskName="TimbnWriteWorkshopItem"
+    TaskFactory="RoslynCodeTaskFactory"
+    AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Path Required="true" />
+      <ItemId Required="true" />
+      <ContentFolder Required="true" />
+      <PreviewFile />
+      <Title Required="true" />
+      <ChangeNote Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System.IO" />
+      <Using Namespace="System.Text" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+Func<string, string> quote = value => "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
+var vdf = new StringBuilder()
+    .Append("\"workshopitem\"\r\n{\r\n")
+    .Append("\t\"appid\"\t\t\"4358690\"\r\n")
+    .Append("\t\"publishedfileid\"\t\t").Append(quote(ItemId)).Append("\r\n")
+    .Append("\t\"contentfolder\"\t\t").Append(quote(System.IO.Path.GetFullPath(ContentFolder))).Append("\r\n");
+if (!string.IsNullOrEmpty(PreviewFile))
+{
+    vdf.Append("\t\"previewfile\"\t\t").Append(quote(System.IO.Path.GetFullPath(PreviewFile))).Append("\r\n");
+}
+vdf.Append("\t\"title\"\t\t").Append(quote(Title)).Append("\r\n");
+if (ItemId == "0")
+{
+    vdf.Append("\t\"visibility\"\t\t\"2\"\r\n");
+}
+vdf.Append("\t\"changenote\"\t\t").Append(quote(ChangeNote)).Append("\r\n")
+    .Append("}\r\n");
+File.WriteAllText(Path, vdf.ToString(), new UTF8Encoding(false));
+]]></Code>
+    </Task>
+  </UsingTask>
 
   <UsingTask
     TaskName="TimbnFindCoreFloor"
