@@ -9,7 +9,6 @@ internal static class TimbnPotionBalance
     private static readonly Action<GameBalanceBase> _createIdsCache =
         AccessTools.MethodDelegate<Action<GameBalanceBase>>(AccessTools.Method(typeof(GameBalanceBase), "CreateIDsCache"));
 
-    private static readonly AccessTools.FieldRef<ItemDef, string> _itemCustomIcon = AccessTools.FieldRefAccess<ItemDef, string>("customIcon");
     private static readonly AccessTools.FieldRef<PerkDef, string> _perkCustomIcon = AccessTools.FieldRefAccess<PerkDef, string>("customIcon");
 
     private static readonly string[] _alchemyStations = ["alchemy_mix", "alchemy_mix_2"];
@@ -131,8 +130,7 @@ internal static class TimbnPotionBalance
         item.id = potion.Id;
         if (!string.IsNullOrEmpty(potion.IconId))
         {
-            item.iconId = potion.IconId;
-            _itemCustomIcon(item) = potion.IconId;
+            TimbnBalance.SetIcon(item, potion.IconId);
         }
 
         item.basePrice = potion.Price;

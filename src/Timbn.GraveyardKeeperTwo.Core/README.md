@@ -162,6 +162,20 @@ Settings.While(PluginConfig.TechPointCap, cap => cap > 999, () => Balance.Edit<G
 
 BepInEx only reads a config file at startup, so a setting edited by hand is not seen until something reloads it. `TimbnConfig.ReloadAll()` re-reads the file of every loaded plugin, Timbn or not, and `TimbnConfig.Reload(plugin)` does one. Each changed value raises its `SettingChanged` event, so settings tied with `Settings.Toggle` apply straight away. Call it on the main thread. A key deleted from a file keeps its current value instead of going back to its default.
 
+## Changing the game's definitions
+
+`Balance.Edit<T>(id, apply, revert)` changes one of the game's own definitions, such as a perk, an item, or a craft, and puts it back when the plugin unloads. Apply runs straight away if the balance has loaded, and again on the fresh copy each time it loads, so the change survives a reload. Keep what revert needs from inside apply, and pair it with `Settings.While` to follow a toggle.
+
+```csharp
+var ticks = 0;
+Settings.While(PluginConfig.PerkTalentBonus, () => Balance.Edit<PerkDef>(
+    "perk_green_thumb",
+    perk => { ticks = perk.craftStartTicks; perk.craftMasteryBonus = ticks; perk.craftStartTicks = 0; },
+    perk => { perk.craftStartTicks = ticks; perk.craftMasteryBonus = 0; }));
+```
+
+`Balance.Add` puts in a definition of your own. Adding a `CraftDef` or `ItemDef` also rebuilds the game's craft lookups, and `TimbnBalance.RefreshCraftCaches()` does the same after a mod changed crafts or item groups in place. `TimbnBalance.SetIcon(item, iconId)` changes an item's icon in both places the game keeps it.
+
 ## Holds
 
 A hold changes something the game or another mod may also change, and gives it back when its handle is disposed, the plugin unloads, or the player returns to the main menu. Several mods can hold the same thing at once, and the value from before the first hold comes back when the last one goes, unless the game changed it meanwhile.

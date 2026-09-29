@@ -21,10 +21,16 @@ public static class TimbnBalance
     private static readonly AccessTools.FieldRef<GameBalanceBase, List<Dictionary<string, int>>> _cache =
         AccessTools.FieldRefAccess<GameBalanceBase, List<Dictionary<string, int>>>("cache");
 
-    private static readonly Action<GameBalance> _createQuestsCache =
-        AccessTools.MethodDelegate<Action<GameBalance>>(AccessTools.Method(typeof(GameBalance), "CreateQuestsCache"));
+    private static readonly Action<GameBalance> _createQuestsCache = CacheBuilder("CreateQuestsCache");
+    private static readonly Action<GameBalance> _createCraftCache = CacheBuilder("CreateCraftCache");
+    private static readonly Action<GameBalance> _createAutopsyCraftsCache = CacheBuilder("CreateAutopsyCraftsCache");
+    private static readonly Action<GameBalance> _createCraftGroupsCache = CacheBuilder("CreateCraftGroupsCache");
+    private static readonly Action<GameBalance> _createCraftInItemsCache = CacheBuilder("CreateCraftInItemsCache");
+
+    private static readonly AccessTools.FieldRef<ItemDef, string> _itemCustomIcon = AccessTools.FieldRefAccess<ItemDef, string>("customIcon");
 
     private static readonly List<Entry> _entries = [];
+    private static readonly List<IEdit> _edits = [];
 
     /// <summary>The balance if the game has loaded it, or null. Unlike GameBalance.Me it never forces a load.</summary>
     public static GameBalance? Loaded => _instance();
@@ -44,6 +50,20 @@ public static class TimbnBalance
         return new TimbnUndo(() => Remove(entry));
     }
 
+    internal static IDisposable Edit<T>(string id, Action<T> apply, Action<T> revert, ManualLogSource logger) where T : BalanceBaseObject
+    {
+        var edit = new DefinitionEdit<T>(id, apply, revert, logger);
+        _edits.Add(edit);
+        if (Loaded is { } balance)
+            edit.Apply(balance);
+
+        return new TimbnUndo(() =>
+        {
+            _edits.Remove(edit);
+            edit.Revert();
+        });
+    }
+
     internal static void OnBalanceLoaded(GameBalance balance)
     {
         var touched = new HashSet<Type>();
@@ -55,9 +75,67 @@ public static class TimbnBalance
 
         foreach (var type in touched)
             RefreshDerivedCaches(balance, type);
+
+        foreach (var edit in _edits.ToList())
+            edit.Apply(balance);
     }
 
     internal static void RefreshQuestCaches(GameBalance balance) => _createQuestsCache(balance);
+
+    /// <summary>
+    /// Rebuilds the game's lookups of which station makes what and which items belong to which group, after a mod
+    /// changed crafts or item groups in place, and has every station in the loaded save pick up the new crafts.
+    /// Adding a CraftDef or ItemDef with the plugin's Balance.Add already does this.
+    /// </summary>
+    public static void RefreshCraftCaches()
+    {
+        if (Loaded is not { } balance)
+            return;
+
+        _createCraftGroupsCache(balance);
+        _createCraftCache(balance);
+        _createAutopsyCraftsCache(balance);
+        balance.craftInItemsCache.Clear();
+        balance.craftInItemsCacheShownInTooltips.Clear();
+        _createCraftInItemsCache(balance);
+
+        if (!TimbnGame.IsInGame)
+            return;
+
+        foreach (var scene in MainGame.WorldData.gameSceneDataList)
+        {
+            foreach (var wgo in scene.wgoDataList)
+                wgo.CraftComponent?.ResetCraftsFromBalanceCache();
+        }
+    }
+
+    /// <summary>
+    /// Changes an item's icon to any sprite the game has, or one added with the plugin's Sprites.AddPng. The game
+    /// keeps the icon id in two places, so setting iconId alone leaves the old icon in some windows.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// Balance.Edit&lt;ItemDef&gt;("cooked_fish", fish => TimbnBalance.SetIcon(fish, "timbn_grilled_fish"), fish => TimbnBalance.SetIcon(fish, "i_cooked_fish"));
+    /// </code>
+    /// </example>
+    /// <param name="item">The item to change.</param>
+    /// <param name="iconId">The sprite name.</param>
+    public static void SetIcon(ItemDef item, string iconId)
+    {
+        item.iconId = iconId;
+        _itemCustomIcon(item) = iconId;
+    }
+
+    /// <summary>
+    /// Reads the id an item's icon is drawn from, the one <see cref="SetIcon"/> writes, which can differ from its
+    /// iconId. Save it before changing the icon to put it back later.
+    /// </summary>
+    /// <param name="item">The item.</param>
+    /// <returns>The sprite name the item is drawn with.</returns>
+    public static string GetIcon(ItemDef item) => _itemCustomIcon(item) is { Length: > 0 } icon ? icon : item.iconId;
+
+    private static Action<GameBalance> CacheBuilder(string name) =>
+        AccessTools.MethodDelegate<Action<GameBalance>>(AccessTools.Method(typeof(GameBalance), name));
 
     private static bool Insert(GameBalance balance, Entry entry)
     {
@@ -132,6 +210,57 @@ public static class TimbnBalance
     {
         if (type == typeof(QuestDef))
             _createQuestsCache(balance);
+        else if (type == typeof(CraftDef) || type == typeof(ItemDef))
+            RefreshCraftCaches();
+    }
+
+    private interface IEdit
+    {
+        void Apply(GameBalance balance);
+
+        void Revert();
+    }
+
+    private sealed class DefinitionEdit<T>(string id, Action<T> apply, Action<T> revert, ManualLogSource logger) : IEdit
+        where T : BalanceBaseObject
+    {
+        private T? _applied;
+
+        public void Apply(GameBalance balance)
+        {
+            var definition = balance.GetDataOrNull<T>(id);
+            if (definition == null)
+            {
+                logger.LogWarning($"{nameof(TimbnBalance)}|The balance has no {typeof(T).Name} '{id}' to change.");
+                return;
+            }
+
+            if (ReferenceEquals(definition, _applied))
+                return;
+
+            _applied = definition;
+            Run(apply, definition, "changing");
+        }
+
+        public void Revert()
+        {
+            var applied = _applied;
+            _applied = null;
+            if (applied != null && Loaded?.GetDataOrNull<T>(id) == applied)
+                Run(revert, applied, "restoring");
+        }
+
+        private void Run(Action<T> action, T definition, string doing)
+        {
+            try
+            {
+                action(definition);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError($"{nameof(TimbnBalance)}|{doing} {typeof(T).Name} '{id}' threw: {ex}");
+            }
+        }
     }
 
     private sealed class Entry

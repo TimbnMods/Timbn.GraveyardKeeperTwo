@@ -234,8 +234,9 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
     /// <summary>
     /// Runs when the plugin unloads, before Core removes everything the plugin registered and its Harmony
     /// patches. Put back anything the plugin changed in the game directly, such as a value it set or a
-    /// GameObject it created. Registrations made through Events, Potions, Quests, Dialog, Text, Sprites,
-    /// Balance, and MainMenu are cleaned up for you.
+    /// GameObject it created. Registrations made through Events, Settings, Potions, Quests, Dialog, Text,
+    /// Sprites, Balance, MainMenu, Player, Clock, UI, and Saves are cleaned up for you, and cleanup that belongs
+    /// to a save is better placed in Events.SaveClosed, which also runs on the way to the main menu.
     /// </summary>
     protected virtual void OnDestroyed() { }
 }

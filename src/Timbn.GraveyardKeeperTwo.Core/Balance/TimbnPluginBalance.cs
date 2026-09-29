@@ -36,4 +36,29 @@ public sealed class TimbnPluginBalance
     /// <returns>A handle that removes the definition early when disposed. You don't need to keep it.</returns>
     public IDisposable Add(BalanceBaseObject definition, Action<GameBalance>? prepare) =>
         _owner.Subscriptions.Add(TimbnBalance.Add(definition, prepare));
+
+    /// <summary>
+    /// Changes one of the game's own definitions, such as a perk, an item, or a craft, and puts it back when the
+    /// plugin unloads or the returned handle is disposed. Apply runs straight away if the balance has loaded, and
+    /// again on the fresh copy each time the balance loads after that, so the change is never lost to a reload.
+    /// Revert only runs on the copy apply changed, and only while that copy is still the loaded one. Keep what
+    /// revert needs, such as the old value, from inside apply. Pair it with Settings.While to follow a toggle.
+    /// </summary>
+    /// <example>
+    /// Give Green Thumb the talent bonus its description promises, while the setting is on.
+    /// <code><![CDATA[
+    /// var ticks = 0;
+    /// Settings.While(PluginConfig.PerkTalentBonus, () => Balance.Edit<PerkDef>(
+    ///     "perk_green_thumb",
+    ///     perk => { ticks = perk.craftStartTicks; perk.craftMasteryBonus = ticks; perk.craftStartTicks = 0; },
+    ///     perk => { perk.craftStartTicks = ticks; perk.craftMasteryBonus = 0; }));
+    /// ]]></code>
+    /// </example>
+    /// <typeparam name="T">The definition's type, such as PerkDef, ItemDef, or CraftDef.</typeparam>
+    /// <param name="id">The definition's id.</param>
+    /// <param name="apply">Makes the change. A throw is logged.</param>
+    /// <param name="revert">Puts the definition back the way apply found it. A throw is logged.</param>
+    /// <returns>A handle that reverts the change early when disposed. You don't need to keep it.</returns>
+    public IDisposable Edit<T>(string id, Action<T> apply, Action<T> revert) where T : BalanceBaseObject =>
+        _owner.Subscriptions.Add(TimbnBalance.Edit(id, apply, revert, _owner.PluginLogger));
 }
