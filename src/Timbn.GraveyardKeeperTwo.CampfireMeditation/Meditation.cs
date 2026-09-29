@@ -122,7 +122,7 @@ internal sealed class Meditation
 
         player.PhysicalBody.SetDirectionLock(false);
         MainGame.UpdateManager.SetTimeSpeedMultiplier(PluginConfig.TimeSpeed.Value);
-        Plugin.Logger.LogInfo($"Meditating by the fire, time at x{PluginConfig.TimeSpeed.Value:0.#}.");
+        Plugin.Logger.LogInfo($"Meditating by the fire at {_fire} in {Campfires.CurrentZone ?? "no zone"}, time at x{PluginConfig.TimeSpeed.Value:0.#}.");
     }
 
     private void Restore()

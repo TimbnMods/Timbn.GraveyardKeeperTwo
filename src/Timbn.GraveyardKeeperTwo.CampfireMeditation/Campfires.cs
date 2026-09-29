@@ -5,13 +5,21 @@ internal sealed class Campfires
 {
     private const string _fireName = "light_source_bonfire_w_logs_m";
     private const string _obstacleLayer = "Obstacle";
+    private static readonly HashSet<string> _homeZones = ["garden", "inquisitions_base"];
 
     private readonly Collider[] _hits = new Collider[32];
     private int _mask;
 
+    public static string? CurrentZone => MainGame.PlayerData.CurrentWorldZoneData?.id;
+
+    public static bool IsAtHome => CurrentZone is { } zone && _homeZones.Contains(zone);
+
     public bool TryFindNear(Vector3 player, out Vector3 fire)
     {
         fire = default;
+        if (PluginConfig.HomeOnly.Value && !IsAtHome)
+            return false;
+
         if (_mask == 0)
         {
             var layer = LayerMask.NameToLayer(_obstacleLayer);

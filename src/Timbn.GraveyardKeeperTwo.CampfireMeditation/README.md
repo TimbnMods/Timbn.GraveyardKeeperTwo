@@ -4,7 +4,7 @@ Timbn Campfire Meditation lets you pass time by a campfire, like the stone garde
 
 ## How to use
 
-Stand by a campfire, like the one at the Inquisition Base, and a "Meditate" hint appears above it. Press interact to start meditating, and press interact again ("Wake Up") to stop.
+Stand by the campfire at home, above your garden, and a "Meditate" hint appears above it. Turn off `HomeOnly` to meditate at any campfire in the world. Press interact to start meditating, and press interact again ("Wake Up") to stop.
 
 ## What happens
 
@@ -31,12 +31,3 @@ Every line this mod adds is in `lang/en.txt` inside its folder. Copy it to your 
 ## Configuration
 
 `BepInEx/config/Timbn.GraveyardKeeperTwo.CampfireMeditation.cfg`
-
-| Section | Entry | Default | What it does |
-| --- | --- | --- | --- |
-| General | Enabled | true | Turns the mod on or off. |
-| Meditation | TimeSpeed | 7 | How many times faster time runs while you meditate (1 to 50, sleep runs at 50). |
-| Meditation | EnergyPerDay | 100 | Energy regained per in game day of meditating (0 to 400, sleep gives 400). |
-| Meditation | InsanityPerDay | 40 | Insanity removed per in game day of meditating (0 to 400). |
-| Meditation | MaxInsanity | 20 | The most insanity one meditation can remove (0 to 100, sleep removes 20). |
-| Meditation | Radius | 2 | How close to a campfire you have to stand. |

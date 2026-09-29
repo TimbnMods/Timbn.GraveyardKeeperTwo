@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Timbn.GraveyardKeeperTwo.CampfireMeditation</AssemblyName>
     <Product>Timbn Campfire Meditation</Product>
-    <Version>1.1.1</Version>
+    <Version>1.2.0</Version>
     <SteamWorkshop>true</SteamWorkshop>
     <WorkshopItemId>3810071804</WorkshopItemId>
   </PropertyGroup>
