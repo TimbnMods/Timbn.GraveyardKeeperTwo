@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Timbn.GraveyardKeeperTwo.WorkshopSync</AssemblyName>
     <Product>Timbn Workshop Sync</Product>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <!-- A preloader patcher, so it deploys to BepInEx/patchers and runs before the chainloader scans plugins. -->
