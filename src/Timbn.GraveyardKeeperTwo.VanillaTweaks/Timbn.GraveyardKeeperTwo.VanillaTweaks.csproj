@@ -6,6 +6,8 @@
     <Version>1.7.0</Version>
     <ThunderstoreName>TimbnVanillaTweaks</ThunderstoreName>
     <ThunderstoreDescription>Fixes bugs and soft locks and adds light tweaks that keep the vanilla experience without cheating. Almost every fix and tweak can be turned off on its own.</ThunderstoreDescription>
+    <SteamWorkshop>true</SteamWorkshop>
+    <WorkshopItemId>3810071056</WorkshopItemId>
   </PropertyGroup>
 
   <!-- Lands in BepInEx/scripts by default so F6 reloads it. Pass -p:DeployTo=plugins to load it at startup instead. -->

@@ -134,19 +134,22 @@
   </Target>
 
   <!--
-    Runs after Package for a project that sets WorkshopDescription and writes artifacts/workshop/<ProjectName>/, holding
+    Runs after Package for a project that sets SteamWorkshop true and writes artifacts/workshop/<ProjectName>/, holding
     content/BepInEx/plugins/<ProjectName> (the same plugin folder the release zip has, in the game folder layout) and
     item.vdf for steamcmd +workshop_build_item. WorkshopItemId is 0 until the first upload, which creates the item
-    private with WorkshopDescription and writes its id into item.vdf. Copy that id into the csproj, and later uploads
-    only update the files, title, and change note, so edits made on the Steam page stay.
+    private and writes its id into item.vdf. Copy that id into the csproj. Uploads only send the files, preview, title,
+    and change note, so the description and visibility are set on the Steam page and stay.
   -->
-  <Target Name="PackageWorkshop" AfterTargets="Package" Condition="'$(WorkshopDescription)' != ''">
+  <Target Name="PackageWorkshop" AfterTargets="Package" Condition="'$(SteamWorkshop)' == 'true'">
     <PropertyGroup>
       <WorkshopItemId Condition="'$(WorkshopItemId)' == ''">0</WorkshopItemId>
       <_WorkshopStage>$(_RepoRoot)\artifacts\workshop\$(MSBuildProjectName)\</_WorkshopStage>
       <_WorkshopPreview>$(_RepoRoot)\docs\$(_ModName)\icon.png</_WorkshopPreview>
     </PropertyGroup>
-    <Error Condition="!Exists('$(_WorkshopPreview)')" Text="The Workshop needs a preview image at $(_WorkshopPreview)" />
+    <Warning Condition="!Exists('$(_WorkshopPreview)')" Text="No Workshop preview image at $(_WorkshopPreview), so item.vdf leaves the preview as it is on Steam." />
+    <PropertyGroup Condition="!Exists('$(_WorkshopPreview)')">
+      <_WorkshopPreview></_WorkshopPreview>
+    </PropertyGroup>
     <ItemGroup>
       <_WorkshopPlugin Include="$(_PackageRoot)**\*" />
     </ItemGroup>
@@ -160,7 +163,6 @@
       ContentFolder="$(_WorkshopStage)content"
       PreviewFile="$(_WorkshopPreview)"
       Title="$(Product)"
-      Description="$(WorkshopDescription)"
       ChangeNote="$(Product) $(Version)" />
     <Message Importance="high" Text="Staged the Workshop item in $(_WorkshopStage)" />
   </Target>
@@ -173,9 +175,8 @@
       <Path Required="true" />
       <ItemId Required="true" />
       <ContentFolder Required="true" />
-      <PreviewFile Required="true" />
+      <PreviewFile />
       <Title Required="true" />
-      <Description Required="true" />
       <ChangeNote Required="true" />
     </ParameterGroup>
     <Task>
@@ -183,18 +184,19 @@
       <Using Namespace="System.Text" />
       <Code Type="Fragment" Language="cs"><![CDATA[
 Func<string, string> quote = value => "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
-var isNew = ItemId == "0";
 var vdf = new StringBuilder()
     .Append("\"workshopitem\"\r\n{\r\n")
     .Append("\t\"appid\"\t\t\"4358690\"\r\n")
     .Append("\t\"publishedfileid\"\t\t").Append(quote(ItemId)).Append("\r\n")
-    .Append("\t\"contentfolder\"\t\t").Append(quote(System.IO.Path.GetFullPath(ContentFolder))).Append("\r\n")
-    .Append("\t\"previewfile\"\t\t").Append(quote(System.IO.Path.GetFullPath(PreviewFile))).Append("\r\n")
-    .Append("\t\"title\"\t\t").Append(quote(Title)).Append("\r\n");
-if (isNew)
+    .Append("\t\"contentfolder\"\t\t").Append(quote(System.IO.Path.GetFullPath(ContentFolder))).Append("\r\n");
+if (!string.IsNullOrEmpty(PreviewFile))
 {
-    vdf.Append("\t\"visibility\"\t\t\"2\"\r\n")
-        .Append("\t\"description\"\t\t").Append(quote(Description)).Append("\r\n");
+    vdf.Append("\t\"previewfile\"\t\t").Append(quote(System.IO.Path.GetFullPath(PreviewFile))).Append("\r\n");
+}
+vdf.Append("\t\"title\"\t\t").Append(quote(Title)).Append("\r\n");
+if (ItemId == "0")
+{
+    vdf.Append("\t\"visibility\"\t\t\"2\"\r\n");
 }
 vdf.Append("\t\"changenote\"\t\t").Append(quote(ChangeNote)).Append("\r\n")
     .Append("}\r\n");

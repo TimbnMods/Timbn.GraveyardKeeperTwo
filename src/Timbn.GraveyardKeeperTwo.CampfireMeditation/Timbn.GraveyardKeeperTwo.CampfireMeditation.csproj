@@ -4,6 +4,8 @@
     <AssemblyName>Timbn.GraveyardKeeperTwo.CampfireMeditation</AssemblyName>
     <Product>Timbn Campfire Meditation</Product>
     <Version>1.0.0</Version>
+    <SteamWorkshop>true</SteamWorkshop>
+    <WorkshopItemId>3810071804</WorkshopItemId>
   </PropertyGroup>
 
   <!-- Lands in BepInEx/scripts by default so F6 reloads it. Pass -p:DeployTo=plugins to load it at startup instead. -->
