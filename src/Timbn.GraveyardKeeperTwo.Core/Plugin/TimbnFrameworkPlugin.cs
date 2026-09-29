@@ -31,6 +31,7 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
         Sprites = new(this);
         Balance = new(this);
         MainMenu = new(this);
+        Settings = new(this, Logger);
     }
 
     /// <summary>The plugin's own BepInPlugin attribute. Use this instead of Info.</summary>
@@ -79,6 +80,9 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
 
     /// <summary>Shows lines of text and popups on the main menu, removed again when this plugin unloads.</summary>
     public TimbnPluginMainMenu MainMenu { get; }
+
+    /// <summary>Keeps the plugin's changes to the game in step with its config as settings change.</summary>
+    public TimbnPluginSettings Settings { get; }
 
     internal TimbnSubscriptions Subscriptions { get; }
 

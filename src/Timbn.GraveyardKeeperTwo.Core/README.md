@@ -82,13 +82,15 @@ internal static class PluginConfig
             "TechPoints",
             "Cap",
             9999,
-            new ConfigDescription(
-                "The most red, green, or blue tech points you can hold. The game caps each at 999 and throws away "
-                + "anything past it. Set to 999 to keep the game's cap.",
-                new AcceptableValueRange<int>(999, 999999)));
+            "The most red, green, or blue tech points you can hold. The game caps each at 999 and throws away "
+            + "anything past it. Set to 999 to keep the game's cap.",
+            999,
+            999999);
     }
 }
 ```
+
+The last two values of that `Bind` are the lowest and highest allowed, which a config manager shows as a slider. It is Core's shortcut for BepInEx's `Bind` with an `AcceptableValueRange`. `Plugin.IsActive` says whether the plugin's own `Enabled` and Core's are both on, for a patch that has to stand down the moment a player turns the plugin off.
 
 ## Game Events
 
@@ -128,6 +130,41 @@ Work that has to keep running can register for it too, so a tweak needs no `OnUp
 ```csharp
 Events.Every(0.5f, () => stuckCarriers.Tick());
 ```
+
+## Settings that apply live
+
+`Settings.Toggle` ties a config entry to the change it makes, so a setting switched in a config manager applies straight away instead of on the next start. While the setting is on, apply runs on every save load and as soon as it turns on. While it is off, revert runs on every save load and as soon as it turns off, and revert also runs when the plugin unloads. Apply can run more than once and revert can run when nothing was applied, so both must cope with that. At the main menu revert only runs for a change that was applied, so it can safely touch the loaded save. Leave revert out for a fix that runs once per save.
+
+```csharp
+protected override void OnAwake()
+{
+    var greenThumb = new GreenThumbTalentBonus();
+    Settings.Toggle(PluginConfig.GreenThumbTalentBonus, greenThumb.Apply, greenThumb.Revert);
+
+    Settings.Toggle(PluginConfig.StudyTableNoStuckCrafts, StudyTableStuckCraft.ClearStuckCrafts);
+
+    var techPointCap = new TechPointCap();
+    Settings.Toggle(PluginConfig.TechPointCap, cap => cap > 999, techPointCap.Apply, techPointCap.Revert);
+}
+```
+
+The last form works for any setting type. Any change to the value reverts and then applies again, so apply can read the new value. A setting only read where it is used, such as a check inside a patch, is live already and needs none of this.
+
+`Settings.While` keeps any Core registration alive only while a setting is on, and disposes it as soon as the setting turns off. A tweak that is switched off then costs nothing, and its handlers need no check of the setting.
+
+```csharp
+Settings.While(PluginConfig.StuckCarriers, () => Events.Every(0.5f, stuckCarriers.Tick));
+Settings.While(PluginConfig.RecoverBattleRewards, () => Events.SleepStarted(LostBattleRewards.Recover));
+Settings.While(PluginConfig.TechPointCap, cap => cap > 999, () => Balance.Edit<GameResSystemDef>("tech_red", Raise, Lower));
+```
+
+`Settings.Changed(entry, handler)` runs your code with the new value whenever a setting changes, for anything Toggle and While do not fit.
+
+BepInEx only reads a config file at startup, so a setting edited by hand is not seen until something reloads it. `TimbnConfig.ReloadAll()` re-reads the file of every loaded plugin, Timbn or not, and `TimbnConfig.Reload(plugin)` does one. Each changed value raises its `SettingChanged` event, so settings tied with `Settings.Toggle` apply straight away. Call it on the main thread. A key deleted from a file keeps its current value instead of going back to its default.
+
+## Helpers
+
+- `TimbnConfig.CarryOver(config, (entry, oldSection, oldKey), ...)` moves the value of a renamed config entry into the new one. Call it at the end of `BindConfig`.
 
 ## Main menu
 
