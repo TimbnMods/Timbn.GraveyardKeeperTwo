@@ -22,6 +22,7 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         LostItems.Register(this);
         LostBattleRewards.Register(this);
         BedSaveWhenRested.Register(this);
+        ConveyorLoopCrash.Register(this);
 
         Logger.LogMessage($"Vanilla Tweaks started. Unstuck on {PluginConfig.UnstuckKey.Value}.");
     }
