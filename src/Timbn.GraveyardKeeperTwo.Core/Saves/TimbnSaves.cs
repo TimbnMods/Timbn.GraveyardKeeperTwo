@@ -54,14 +54,14 @@ internal static class TimbnSaves
         _slotName = slot?.slotName;
         _freshSave = _newGameStarting || slot is null || slot.isDemoSave || string.IsNullOrEmpty(_slotName);
         _newGameStarting = false;
-        _sections = _freshSave || _slotName is null ? new JObject() : TimbnSectionFile.Read(MainPath(_slotName), BackupPath(_slotName));
+        _sections = _freshSave || _slotName is null ? [] : TimbnSectionFile.Read(MainPath(_slotName), BackupPath(_slotName));
         foreach (var entry in _entries.Values.ToList())
             Load(entry);
     }
 
     internal static void OnLeftGame()
     {
-        _sections = new JObject();
+        _sections = [];
         foreach (var entry in _entries.Values)
             entry.Reset();
     }

@@ -16,7 +16,7 @@ internal sealed class TimbnHolds<T>
 
     internal IDisposable Take(T value)
     {
-        var changed = _holds.Count == 0 || !EqualityComparer<T>.Default.Equals(_holds[_holds.Count - 1].Value, value);
+        var changed = _holds.Count == 0 || !EqualityComparer<T>.Default.Equals(_holds[^1].Value, value);
         var hold = new Hold(this, value);
         _holds.Add(hold);
         if (changed)
@@ -39,7 +39,7 @@ internal sealed class TimbnHolds<T>
 
     private void Release(Hold hold)
     {
-        var wasNewest = _holds.Count > 0 && _holds[_holds.Count - 1] == hold;
+        var wasNewest = _holds.Count > 0 && _holds[^1] == hold;
         if (!_holds.Remove(hold))
             return;
 
@@ -49,7 +49,7 @@ internal sealed class TimbnHolds<T>
             return;
         }
 
-        var newest = _holds[_holds.Count - 1].Value;
+        var newest = _holds[^1].Value;
         if (wasNewest && !EqualityComparer<T>.Default.Equals(newest, hold.Value))
             _apply(newest);
     }

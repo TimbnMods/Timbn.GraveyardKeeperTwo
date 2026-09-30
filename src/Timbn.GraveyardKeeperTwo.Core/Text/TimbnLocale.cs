@@ -52,7 +52,7 @@ internal static class TimbnLocale
     internal static void ApplyTo(LLBase lang)
     {
         foreach (var stack in _entries.Values)
-            Write(lang, stack[stack.Count - 1]);
+            Write(lang, stack[^1]);
     }
 
     private static void Write(LLBase lang, Entry entry)
@@ -67,7 +67,7 @@ internal static class TimbnLocale
         if (!_entries.TryGetValue(entry.Key, out var stack))
             return;
 
-        var wasCurrent = stack[stack.Count - 1] == entry;
+        var wasCurrent = stack[^1] == entry;
         if (!stack.Remove(entry) || !wasCurrent)
             return;
 
@@ -75,7 +75,7 @@ internal static class TimbnLocale
         if (stack.Count > 0)
         {
             if (lang != null)
-                Write(lang, stack[stack.Count - 1]);
+                Write(lang, stack[^1]);
 
             return;
         }

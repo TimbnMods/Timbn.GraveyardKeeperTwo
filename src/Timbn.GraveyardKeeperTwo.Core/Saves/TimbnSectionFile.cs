@@ -33,7 +33,7 @@ internal static class TimbnSectionFile
             TimbnCorePlugin.Logger.LogError($"{nameof(TimbnSectionFile)}|Could not read the backup {backupPath} either, so mod data starts empty. {ex.Message}");
         }
 
-        return new JObject();
+        return [];
     }
 
     internal static void Write(string path, string backupPath, JObject sections)
@@ -71,7 +71,7 @@ internal static class TimbnSectionFile
             return null;
 
         var root = JObject.Parse(File.ReadAllText(path));
-        return root["mods"] as JObject ?? new JObject();
+        return root["mods"] as JObject ?? [];
     }
 
     private static void MoveAside(string path, string badPath)

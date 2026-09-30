@@ -25,7 +25,7 @@ internal sealed class TimbnSubscriptions : IDisposable
     {
         while (_items.Count > 0)
         {
-            var last = _items[_items.Count - 1];
+            var last = _items[^1];
             _items.RemoveAt(_items.Count - 1);
             try
             {
