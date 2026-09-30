@@ -18,6 +18,10 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> RemoveInWholeArea { get; private set; } = null!;
 
+    public static ConfigEntry<bool> ConveyorLoopCrash { get; private set; } = null!;
+
+    public static ConfigEntry<bool> HighlightConveyorLoops { get; private set; } = null!;
+
     public static ConfigEntry<bool> BuiltEarlyQuests { get; private set; } = null!;
 
     public static ConfigEntry<bool> DismantleUnreachable { get; private set; } = null!;
@@ -108,6 +112,21 @@ internal static class PluginConfig
             true,
             "Bait kept in a bag counts when you start fishing. The game only looked for bait loose in your "
             + "inventory, so with all of it in a fishing bag you were told you had none.");
+
+        ConveyorLoopCrash = config.Bind(
+            _bugFixes,
+            nameof(ConveyorLoopCrash),
+            true,
+            "Stops the game from closing on its own a few seconds after a save loads when a loop of conveyors "
+            + "feeds another loop and the first one runs empty or jams, for example a splitter that sends part of "
+            + "its coal back into the chest before it. Your conveyors keep moving items as before.");
+
+        HighlightConveyorLoops = config.Bind(
+            _bugFixes,
+            nameof(HighlightConveyorLoops),
+            true,
+            "When a conveyor loop like that is found, traces it with arrows and draws a red square on the belt to remove to break it. "
+            + "A notice shows either way. Needs ConveyorLoopCrash.");
 
         BuiltEarlyQuests = config.Bind(
             _softLocks,

@@ -53,6 +53,7 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
             Events.GoToMainMenu(_stuckCarriers.Reset);
         }
 
+        Events.GoToMainMenu(ConveyorLoopCrash.Restore);
         Events.GameStarted(StuckResourceWorkers.Repair);
         if (TimbnGame.IsInGame)
             StuckResourceWorkers.Repair();
@@ -70,6 +71,7 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
             _strayTechPoints?.Tick();
             _stuckCarriers?.Tick();
             _builtEarly?.Tick();
+            ConveyorLoopCrash.Tick();
         }
 
         if (PluginConfig.UnstuckKey.Value.IsDownWithControl())
@@ -78,6 +80,7 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
 
     protected override void OnDestroyed()
     {
+        ConveyorLoopCrash.Restore();
         _perkTalentBonus?.Revert();
         _techPointCap?.Revert();
         _unreachableDismantle?.Revert();

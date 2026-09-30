@@ -1,6 +1,9 @@
 # Timbn Vanilla Tweaks text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
 # and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
 
+# Notice when a stuck conveyor loop is found
+timbn_conveyor_loop_stuck = A conveyor belt loop was detected that would crash the base game
+
 # Larry, when you run out of boards with no way to make more
 timbn_larry_boards_offer_1 = I may have run out of boards with no way to get more.
 timbn_larry_boards_offer_2 = No sawhorse, no boards. No boards, no sawhorse...
