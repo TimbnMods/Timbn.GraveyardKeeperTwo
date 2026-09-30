@@ -5,24 +5,21 @@ internal sealed class StuckCarriers
     private const float _interval = 0.5f;
 
     private HashSet<ZombieWgoData> _stuck = [];
-    private float _nextCheck;
 
     public static bool IsStuck(ZombieWgoData zombie) =>
         zombie.ZombieType == ZombieType.Caretaker
         && zombie.CaretakerState == ZombieWgoData.ZombieCaretakerState.CanNotPutItemToInventory;
 
-    public void Tick()
+    public static void Register(TimbnFrameworkPlugin plugin)
     {
-        if (Time.time < _nextCheck)
-            return;
+        var stuckCarriers = new StuckCarriers();
+        plugin.Settings.Toggle(PluginConfig.StuckCarriers, stuckCarriers.Reset, stuckCarriers.Revert);
+        plugin.Settings.While(PluginConfig.StuckCarriers, () => plugin.Events.Every(_interval, stuckCarriers.Tick));
+    }
 
-        _nextCheck = Time.time + _interval;
-        HashSet<ZombieWgoData> stuck = [];
-        foreach (var id in MainGame.ZombieSystemData.zombieOnSceneWgoIds)
-        {
-            if (MainGame.WorldData.GetWgoData(id) is ZombieWgoData zombie && IsStuck(zombie))
-                stuck.Add(zombie);
-        }
+    private void Tick()
+    {
+        var stuck = TimbnZombies.OnScene().Where(IsStuck).ToHashSet();
 
         foreach (var zombie in stuck.Where(z => !_stuck.Contains(z)))
         {
@@ -40,7 +37,18 @@ internal sealed class StuckCarriers
 
     public void Reset() => _stuck.Clear();
 
-    private static void Redraw(ZombieWgoData zombie) => GameScene.GetWgoViewGlobal(zombie.UniqueId)?.DrawWidgets();
+    public void Revert()
+    {
+        if (TimbnGame.IsInGame)
+        {
+            foreach (var zombie in _stuck)
+                Redraw(zombie);
+        }
+
+        _stuck.Clear();
+    }
+
+    private static void Redraw(ZombieWgoData zombie) => TimbnWorld.ViewOf(zombie)?.DrawWidgets();
 
     private static void WalkToStation(ZombieWgoData zombie)
     {

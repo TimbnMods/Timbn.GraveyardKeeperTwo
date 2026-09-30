@@ -21,15 +21,18 @@ internal sealed class StrayTechPoints
         AccessTools.FieldRefAccess<TechPointDrop, float>("magnetRadius");
 
     private readonly HashSet<TechPointDrop> _offMeshLastCheck = [];
-    private float _nextCheck;
 
-    public void Tick()
+    public static void Register(TimbnFrameworkPlugin plugin)
     {
-        if (Time.time < _nextCheck)
-            return;
+        var strayTechPoints = new StrayTechPoints();
+        plugin.Settings.Toggle(PluginConfig.CollectStrayTechPoints, strayTechPoints.Reset, strayTechPoints.Reset);
+        plugin.Settings.While(PluginConfig.CollectStrayTechPoints, () => plugin.Events.Every(_interval, strayTechPoints.Tick));
+    }
 
-        _nextCheck = Time.time + _interval;
+    private void Reset() => _offMeshLastCheck.Clear();
 
+    private void Tick()
+    {
         var player = MainGame.PlayerController;
         var graph = player != null ? player.SceneRecastGraph : null;
         if (graph == null)

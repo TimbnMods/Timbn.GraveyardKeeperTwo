@@ -1,3 +1,5 @@
+using LazyBearTechnology;
+
 namespace Timbn.GraveyardKeeperTwo.Core;
 
 /// <summary>
@@ -27,28 +29,35 @@ public class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
     /// </summary>
     public static string GameBuild { get; } = typeof(MainGame).Assembly.ManifestModule.ModuleVersionId.ToString("N")[..12];
 
-    public static TimbnCorePlugin? Instance { get; private set; }
-
     private bool _loadErrorsChecked;
 
     protected override void OnAwake()
     {
-        Instance = this;
-        Subscriptions.Add(TimbnGameEvents.GameStarted(TimbnGame.OnGameStarted));
-        Subscriptions.Add(TimbnGameEvents.GoToMainMenu(TimbnGame.OnLeftGame));
-        Subscriptions.Add(TimbnGameEvents.GameStarted(TimbnDialog.OnGameStarted));
-        Subscriptions.Add(TimbnGameEvents.GameStarted(OnGameStarted));
-        Subscriptions.Add(TimbnGameEvents.GoToMainMenu(TimbnDialog.OnLeftGame));
+        Subscriptions.Add(TimbnGameEvents.GameStarted(() => TimbnSession.Open(SessionSubscriptions)));
+        Subscriptions.Add(TimbnGameEvents.GoToMainMenu(TimbnSession.Close));
+        Subscriptions.Add(TimbnGameEvents.SaveWriteEnded(TimbnGlobalSaves.Flush));
+        Subscriptions.Add(TimbnGameEvents.On(TimbnSaves.OnLoadingExistingSave, h => SaveSystem.OnSaveLoadingStarted += h, h => SaveSystem.OnSaveLoadingStarted -= h));
+        Subscriptions.Add(TimbnGameEvents.On(TimbnGlobalSaves.Flush, h => Application.quitting += h, h => Application.quitting -= h));
+        Subscriptions.Add(TimbnGameEvents.On<LazyWidgetBase>(
+            TimbnMainMenu.OnWindowOpened,
+            h => LazyWindowsStackController.OnWindowOpened += h,
+            h => LazyWindowsStackController.OnWindowOpened -= h));
+        Events.Every(1f, TimbnDialog.Refresh);
+        Events.Update(TimbnPotions.Tick);
+        var saved = Saves.Register<TimbnCoreSaveData>();
+        TimbnDialog.UseSeenTalks(() => saved.Current.SeenTalks);
+        var timbnCoreGlobalData = Saves.RegisterGlobal<TimbnCoreData>();
+        var game = $"{Application.version} {GameBuild}";
         var started = $"Core {Version} started on Graveyard Keeper 2 {Application.version} (build {GameBuild})";
         if (Application.version != TestedGameVersion)
         {
             Logger.LogWarning($"{started}, but these mods were tested on {TestedGameVersion}. Include this line when reporting a problem.");
-            MainMenu.Popup("Untested game version", $"Timbn mods were tested on version {TestedGameVersion} and this is {Application.version}. Some mods may misbehave until they are updated.");
+            WarnOnce(timbnCoreGlobalData, game, "Untested game version", $"Timbn mods were tested on version {TestedGameVersion} and this is {Application.version}. Some mods may misbehave until they are updated.");
         }
         else if (GameBuild != TestedGameBuild)
         {
             Logger.LogWarning($"{started}, but these mods were tested on build {TestedGameBuild} of that version, so this is likely a hotfix. Include this line when reporting a problem.");
-            MainMenu.Popup("Untested game build", $"Timbn mods were tested on an earlier build of {Application.version}, so this is likely a hotfix. Some mods may misbehave until they are updated.");
+            WarnOnce(timbnCoreGlobalData, game, "Untested game build", $"Timbn mods were tested on an earlier build of {Application.version}, so this is likely a hotfix. Some mods may misbehave until they are updated.");
         }
         else
         {
@@ -56,11 +65,14 @@ public class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
         }
     }
 
-    private void OnGameStarted()
+    private void WarnOnce(TimbnGlobalData<TimbnCoreData> timbnCoreGlobalData, string game, string title, string message)
     {
-        TimbnQuests.OnGameStarted();
-        SessionSubscriptions.Add(TimbnGameEvents.QuestStarted(TimbnQuests.OnQuestStarted));
-        TimbnPotions.OnGameStarted(SessionSubscriptions);
+        if (timbnCoreGlobalData.Current.WarnedGameVersion == game)
+            return;
+
+        MainMenu.Popup(title, message);
+        timbnCoreGlobalData.Current.WarnedGameVersion = game;
+        timbnCoreGlobalData.Save();
     }
 
     protected override void OnUpdate()
@@ -72,10 +84,10 @@ public class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
                 MainMenu.Popup("Some mods did not load", loadErrors);
         }
 
-        TimbnDialog.OnUpdate();
-        TimbnPotions.OnUpdate();
         TimbnMainMenu.OnUpdate();
     }
 
-    protected override void OnDestroyed() => Instance = null;
+    private void OnGUI() => TimbnGui.Draw();
+
+    protected override void OnDestroyed() => TimbnSession.ReleaseHolds();
 }

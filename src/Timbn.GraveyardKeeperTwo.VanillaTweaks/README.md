@@ -126,7 +126,7 @@ If a game update changes something a Timbn mod relies on, that mod stays off ins
 
 `BepInEx/config/Timbn.GraveyardKeeperTwo.VanillaTweaks.cfg`
 
-After the first launch, every fix and tweak can be turned on or off in the config file. Restart the game after changing it.
+After the first launch, every fix and tweak can be turned on or off in the config file. A config manager applies changes straight away, even in the middle of a game. Only General Enabled needs a restart, and so does editing the file by hand.
 
 ## Uninstalling
 

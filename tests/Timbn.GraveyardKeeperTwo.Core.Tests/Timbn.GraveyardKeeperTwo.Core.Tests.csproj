@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    Tests for the parts of Core that run without the game: holds, the subscriptions bag, the load error text,
+    the language files, the save section file, and the locale markup parser. They run locally with dotnet test.
+    No CI runs them, since the game DLLs Core compiles against cannot be redistributed. The BepInEx NuGet
+    package holds reference assemblies only, so the runtime copies come from the game's BepInEx install.
+  -->
+  <Import Project="..\..\src\Directory.Build.props" />
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Remove="BepInEx.Analyzers" />
+    <PackageReference Remove="BepInEx.Core" />
+    <PackageReference Remove="BepInEx.PluginInfoProps" />
+    <PackageReference Remove="UnityEngine.Modules" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.*" />
+    <PackageReference Include="xunit" Version="2.*" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.*" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Timbn.GraveyardKeeperTwo.Core\Timbn.GraveyardKeeperTwo.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="BepInEx">
+      <HintPath>$(BepInExDir)\core\BepInEx.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="0Harmony">
+      <HintPath>$(BepInExDir)\core\0Harmony.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="LazyBearTechnology">
+      <HintPath>$(GameManagedDir)\LazyBearTechnology.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Timbn.GraveyardKeeperTwo.Core.Framework" />
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+</Project>

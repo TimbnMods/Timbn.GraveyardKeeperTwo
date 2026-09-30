@@ -1,9 +1,12 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
-[HarmonyPatch(typeof(WgoData), nameof(WgoData.FireInteractionEvent))]
+/// <summary>Harmony patch on world object interactions that starts a plugin's talk and keeps the game's talks ahead of it.</summary>
+[HarmonyPatch(typeof(WgoData))]
 internal static class WgoDataPatch
 {
-    private static bool Prefix(WgoData __instance, ref bool __result)
+    [HarmonyPatch(nameof(WgoData.FireInteractionEvent))]
+    [HarmonyPrefix]
+    private static bool FireInteractionEventPreFix(WgoData __instance, ref bool __result)
     {
         if (!TimbnDialog.TryHandleInteraction(__instance))
             return true;
@@ -11,4 +14,9 @@ internal static class WgoDataPatch
         __result = true;
         return false;
     }
+
+    [HarmonyPatch(nameof(WgoData.AddInteractionEvent))]
+    [HarmonyPostfix]
+    private static void AddInteractionEventPostFix(WgoData __instance, string id) =>
+        TimbnDialog.OnEventAdded(__instance, id);
 }

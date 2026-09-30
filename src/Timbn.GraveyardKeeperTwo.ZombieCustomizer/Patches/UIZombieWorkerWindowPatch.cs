@@ -6,5 +6,5 @@ internal static class UIZombieWorkerWindowPatch
     [HarmonyPatch(nameof(UIZombieWorkerWindow.Open))]
     [HarmonyPostfix]
     private static void OpenPostFix(UIZombieWorkerWindow __instance, UIZombieWorkerWindowData data) =>
-        RestyleButton.Attach(__instance, data);
+        Plugin.Instance?.RestyleButton.Attach(__instance, data);
 }

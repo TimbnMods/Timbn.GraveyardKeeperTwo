@@ -44,16 +44,11 @@ internal static class ZombieTint
 
     public static void PaintAll(bool reset)
     {
-        if (!TimbnGame.IsInGame)
-            return;
-
-        var zombies = MainGame.ZombieSystemData;
-        foreach (var id in zombies.zombieOnSceneWgoIds)
+        foreach (var zombie in TimbnZombies.OnScene())
         {
-            var zombie = zombies.GetZombie(id);
-            var view = zombie == null ? null : GameScene.GetWgoViewGlobal(zombie.UniqueId);
+            var view = TimbnWorld.ViewOf(zombie);
             if (view != null)
-                Paint(view, reset ? Color.white : Read(zombie!));
+                Paint(view, reset ? Color.white : Read(zombie));
         }
     }
 

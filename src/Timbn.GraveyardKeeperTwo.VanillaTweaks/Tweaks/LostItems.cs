@@ -13,7 +13,7 @@ internal static class LostItems
             "flitch",
             2,
             () => PluginConfig.SoftLockedBoards.Value,
-            () => MainGame.Instance.GameSave.knowledgeSystem.IsTechUnlocked("wood_basic")
+            () => TimbnPlayer.HasTech("wood_basic")
                 && !_boardMakerIds.Any(id => MainGame.WorldData.GetWgoDataList(id).Count > 0)),
         new(
             "timbn_larry_medallion",
@@ -33,51 +33,12 @@ internal static class LostItems
                 .Say(item.Name + "_offer_2")
                 .Ask(item.Name + "_accept", item.Name + "_decline")
                 .If(item.Name + "_accept", then => then
-                    .Do(() => Give(item, talk.Npc))
+                    .Give(item.Id, item.Count)
                     .Say(item.Name + "_given")
                     .PlayerSay(item.Name + "_accepted"))
                 .If(item.Name + "_decline", then => then
                     .Say(item.Name + "_declined")));
         }
-    }
-
-    private static int CountAnywhere(string id, int enough)
-    {
-        var count = MainGame.PlayerData.inventory.Data.GetTotalCountInInventory(id);
-        if (count >= enough)
-            return count;
-
-        foreach (var scene in MainGame.WorldData.gameSceneDataList)
-        {
-            foreach (var wgo in scene.wgoDataList)
-            {
-                if (wgo.Definition?.hasRefToOtherWgoInventory == true)
-                    continue;
-
-                count += wgo.Inventory?.Data?.GetTotalCountInInventory(id) ?? 0;
-                count += wgo.CraftInventory?.Data?.GetTotalCountInInventory(id) ?? 0;
-            }
-
-            count += scene.droppedItems.Where(drop => drop.Id == id).Sum(drop => drop.Count);
-            if (count >= enough)
-                return count;
-        }
-
-        return count;
-    }
-
-    private static void Give(LostItem lost, WgoData npc)
-    {
-        var item = new Item(lost.Id, lost.Count);
-        var moved = new MultiInventory(MainGame.PlayerData).AddItem(item);
-        if (moved < item.Count)
-        {
-            var rest = Item.Copy(item);
-            rest.Count = item.Count - moved;
-            MainGame.Instance.dropSystem.DropItemAsDropView(rest, npc.WorldId, npc.Position);
-        }
-
-        Plugin.Logger.LogInfo($"Larry gave you {lost.Count} {lost.Id}, {moved} into your inventory.");
     }
 
     private sealed class LostItem(string name, string id, int count, Func<bool> isEnabled, Func<bool> isNeeded)
@@ -88,6 +49,6 @@ internal static class LostItems
 
         public int Count { get; } = count;
 
-        public bool IsLost() => isEnabled() && isNeeded() && CountAnywhere(Id, Count) < Count;
+        public bool IsLost() => isEnabled() && isNeeded() && TimbnItems.CountAnywhere(Id, Count) < Count;
     }
 }

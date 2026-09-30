@@ -15,33 +15,33 @@ internal static class PluginConfig
             "Meditation",
             "TimeSpeed",
             7f,
-            new ConfigDescription(
-                "How many times faster time runs while you meditate. At 7 a day takes about 43 seconds, sleep runs at 50.",
-                new AcceptableValueRange<float>(1f, 50f)));
+            "How many times faster time runs while you meditate. At 7 a day takes about 43 seconds, sleep runs at 50.",
+            1f,
+            50f);
 
         EnergyPerDay = config.Bind(
             "Meditation",
             "EnergyPerDay",
             100f,
-            new ConfigDescription(
-                "Energy regained per in game day of meditating. Sleep gives 400.",
-                new AcceptableValueRange<float>(0f, 400f)));
+            "Energy regained per in game day of meditating. Sleep gives 400.",
+            0f,
+            400f);
 
         InsanityPerDay = config.Bind(
             "Meditation",
             "InsanityPerDay",
             40f,
-            new ConfigDescription(
-                "Insanity removed per in game day of meditating, until MaxInsanity is reached.",
-                new AcceptableValueRange<float>(0f, 400f)));
+            "Insanity removed per in game day of meditating, until MaxInsanity is reached.",
+            0f,
+            400f);
 
         MaxInsanity = config.Bind(
             "Meditation",
             "MaxInsanity",
             20f,
-            new ConfigDescription(
-                "The most insanity one meditation can remove. Sleep removes 20.",
-                new AcceptableValueRange<float>(0f, 100f)));
+            "The most insanity one meditation can remove. Sleep removes 20.",
+            0f,
+            100f);
 
         Radius = config.Bind(
             "Meditation",
@@ -53,6 +53,6 @@ internal static class PluginConfig
             "Meditation",
             "HomeOnly",
             true,
-            "Only the campfire at home, above your garden, can be used to meditate. Turn it off to meditate at any campfire.");
+            "Only the campfire at your home can be used to meditate. Turn it off to meditate at any campfire.");
     }
 }

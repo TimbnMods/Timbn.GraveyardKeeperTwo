@@ -7,10 +7,13 @@ internal sealed class Meditation
     private const string _meditateKey = "timbn_campfire_meditate";
     private const string _getUpKey = "timbn_campfire_get_up";
     private const string _insanity = "insanity";
-    private static readonly TakenControlType[] _windows = [TakenControlType.ByUI];
+    private const float _hintHeight = 1.2f;
 
+    private readonly TimbnFrameworkPlugin _plugin;
     private readonly Campfires _campfires = new();
-    private readonly CampfireHint _hint = new();
+    private readonly TimbnInteractionHint _hint;
+    private IDisposable? _control;
+    private IDisposable? _fastTime;
     private Vector3 _fire;
     private bool _meditating;
     private bool _applied;
@@ -18,39 +21,45 @@ internal sealed class Meditation
     private float _lastTimeOfDay;
     private float _insanityRemoved;
 
-    private static PlayerController? Player => MainGame.Instance != null ? MainGame.PlayerController : null;
+    public Meditation(TimbnFrameworkPlugin plugin)
+    {
+        _plugin = plugin;
+        _hint = plugin.UI.CreateHint();
+    }
 
+    private static PlayerController? Player => MainGame.Instance != null ? MainGame.PlayerController : null;
     public void Tick()
     {
-        var player = TimbnGame.IsInGame ? Player : null;
-        var engine = player != null ? EnvironmentEngine.Instance : null;
-        if (player == null || engine == null)
+        if (!TimbnGame.IsInGame || MainGame.PlayerController == null)
         {
             Stop();
             _hint.Hide();
             return;
         }
 
-        if (!player.IsControlsEnabledExcept(_windows))
+        if (TimbnPlayer.IsControlTakenByGame(TakenControlType.ByUI))
             Stop();
+
+        if (_meditating && TimbnPlayer.IsTired && CanGetUp())
+            GetUp();
 
         if (_meditating)
-            KeepMeditating(engine);
+            KeepMeditating();
 
-        if (IsFading() || !player.IsControlsEnabled || (!_meditating && (GameHasInteraction(player) || !FindFire())) || LazyWindowsStackController.ActiveWindow != null)
+        if (_meditating ? !CanGetUp() : !CanSitDown())
         {
             _hint.Hide();
             return;
         }
 
-        _hint.Show(_fire, LLBase.L(_meditating ? _getUpKey : _meditateKey));
+        _hint.Show(_fire + Vector3.up * _hintHeight, LLBase.L(_meditating ? _getUpKey : _meditateKey));
         if (!LazyInput.GetKeyDown(GameKey.Interaction))
             return;
 
         if (_meditating)
             GetUp();
         else
-            SitDown(player, engine);
+            SitDown();
     }
 
     public void Stop()
@@ -62,34 +71,27 @@ internal sealed class Meditation
         _meditating = false;
     }
 
-    public void Dispose()
-    {
-        Stop();
-        _hint.Hide();
-    }
+    private static bool CanGetUp() =>
+        !TimbnUI.IsScreenFading && TimbnInput.CanUseHotkeys;
 
-    private static bool IsFading()
-    {
-        var fade = LazyUI.Get<UIFade>();
-        return fade != null && fade.IsFadeShowing;
-    }
+    private bool CanSitDown() =>
+        !TimbnUI.IsScreenFading
+        && TimbnInput.PlayerHasControl
+        && !TimbnInput.GameHasInteraction
+        && !TimbnPlayer.IsTired
+        && FindFire();
 
-    private static bool GameHasInteraction(PlayerController player)
-    {
-        var interaction = player.PlayerInteractionComponent;
-        return interaction != null && (interaction.HasWgoUnderInteraction || interaction.BigDropUnderInteraction != null);
-    }
+    private bool FindFire() => _campfires.TryFindNear(TimbnPlayer.Position, out _fire);
 
-    private bool FindFire() => _campfires.TryFindNear(MainGame.PlayerData.position.Value, out _fire);
-
-    private void SitDown(PlayerController player, EnvironmentEngine engine)
+    private void SitDown()
     {
         _meditating = true;
-        MovementLock.Hold(player.PhysicalBody);
-        _lastTimeOfDay = engine.timeOfDay;
+        _control?.Dispose();
+        _control = _plugin.Player.TakeControl();
+        _lastTimeOfDay = TimbnClock.TimeOfDay;
         _insanityRemoved = 0f;
         var version = ++_version;
-        FadeThrough(() =>
+        TimbnUI.FadeThrough(() =>
         {
             if (version == _version)
                 Begin();
@@ -100,7 +102,7 @@ internal sealed class Meditation
     {
         _meditating = false;
         var version = ++_version;
-        FadeThrough(() =>
+        TimbnUI.FadeThrough(() =>
         {
             if (version == _version)
                 Restore();
@@ -121,8 +123,9 @@ internal sealed class Meditation
             player.PhysicalBody.SetFacingDirection(toFire.normalized);
 
         player.PhysicalBody.SetDirectionLock(false);
-        MainGame.UpdateManager.SetTimeSpeedMultiplier(PluginConfig.TimeSpeed.Value);
-        Plugin.Logger.LogInfo($"Meditating by the fire at {_fire} in {Campfires.CurrentZone ?? "no zone"}, time at x{PluginConfig.TimeSpeed.Value:0.#}.");
+        _fastTime?.Dispose();
+        _fastTime = _plugin.Clock.SetSpeed(PluginConfig.TimeSpeed.Value);
+        Plugin.Logger.LogInfo($"Meditating by the fire at {_fire} in {TimbnPlayer.ZoneId ?? "no zone"}, time at x{PluginConfig.TimeSpeed.Value:0.#}.");
     }
 
     private void Restore()
@@ -131,24 +134,23 @@ internal sealed class Meditation
         if (player != null)
             player.PhysicalBody.SetDirectionLock(true);
 
-        MovementLock.Release();
+        _control?.Dispose();
+        _control = null;
+        _fastTime?.Dispose();
+        _fastTime = null;
         if (!_applied)
             return;
 
         _applied = false;
-        if (MainGame.Instance != null)
-            MainGame.UpdateManager?.SetTimeSpeedMultiplier(1f);
         MeditationLighting.End();
         Plugin.Logger.LogInfo("Stopped meditating.");
     }
 
-    private void KeepMeditating(EnvironmentEngine engine)
+    private void KeepMeditating()
     {
-        var passed = engine.timeOfDay - _lastTimeOfDay;
-        if (passed < 0f)
-            passed += 1f;
-
-        _lastTimeOfDay = engine.timeOfDay;
+        var now = TimbnClock.TimeOfDay;
+        var passed = TimbnClock.Between(_lastTimeOfDay, now);
+        _lastTimeOfDay = now;
         if (!_applied || passed <= 0f)
             return;
 
@@ -172,14 +174,5 @@ internal sealed class Meditation
 
         insanity.Add(-amount);
         _insanityRemoved += amount;
-    }
-
-    private static void FadeThrough(Action whileBlack)
-    {
-        var fade = LazyUI.Get<UIFade>();
-        if (fade == null)
-            whileBlack();
-        else
-            fade.Fade(onInCompleted: whileBlack);
     }
 }

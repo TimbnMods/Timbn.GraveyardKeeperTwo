@@ -2,8 +2,12 @@ using LazyBearTechnology;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
-[HarmonyPatch(typeof(LLBase), nameof(LLBase.InitHashDictionary))]
+/// <summary>Harmony patch on the language load that writes the text plugins added into the loaded language.</summary>
+[HarmonyPatch(typeof(LLBase))]
 internal static class LLBasePatch
 {
-    private static void Postfix(LLBase __instance) => TimbnLocale.ApplyTo(__instance);
+    [HarmonyPatch(nameof(LLBase.InitHashDictionary))]
+    [HarmonyPostfix]
+    private static void InitHashDictionaryPostFix(LLBase __instance) =>
+        TimbnLocale.ApplyTo(__instance);
 }

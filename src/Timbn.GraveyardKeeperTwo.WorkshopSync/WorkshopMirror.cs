@@ -131,7 +131,7 @@ internal sealed class WorkshopMirror
     {
         foreach (var file in Directory.GetFiles(source, "*", SearchOption.AllDirectories))
         {
-            var destination = Path.Combine(target, file.Substring(source.Length + 1));
+            var destination = Path.Combine(target, file[(source.Length + 1)..]);
             if (!overwrite && File.Exists(destination))
             {
                 continue;

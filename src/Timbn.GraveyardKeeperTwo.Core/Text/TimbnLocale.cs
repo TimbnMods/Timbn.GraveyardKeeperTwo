@@ -2,9 +2,10 @@ using LazyBearTechnology;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Writes the text plugins added into the game's loaded language and puts the shipped text back when it is removed.</summary>
 internal static class TimbnLocale
 {
-    internal const string DefaultLanguage = LLBase.DEFAULT_LANGUAGE;
+    internal const string _defaultLanguage = LLBase.DEFAULT_LANGUAGE;
 
     private static readonly AccessTools.FieldRef<LL?> _currentLang =
         AccessTools.StaticFieldRefAccess<LL?>(AccessTools.Field(typeof(LLBase), "currentLang"));
@@ -15,12 +16,12 @@ internal static class TimbnLocale
     private static readonly AccessTools.FieldRef<LLBase, List<string>> _txts =
         AccessTools.FieldRefAccess<LLBase, List<string>>("txts");
 
-    private static readonly Dictionary<string, Entry> _entries = [];
+    private static readonly Dictionary<string, List<Entry>> _entries = [];
 
     internal static IDisposable Add(string key, string text) => Add(new Dictionary<string, string> { [key] = text });
 
     internal static IDisposable Add(IReadOnlyDictionary<string, string> texts) =>
-        Add(texts.Select(pair => new Entry(pair.Key, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { [DefaultLanguage] = pair.Value })));
+        Add(texts.Select(pair => new Entry(pair.Key, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { [_defaultLanguage] = pair.Value })));
 
     internal static IDisposable Add(IReadOnlyDictionary<string, Dictionary<string, string>> textsByKey) =>
         Add(textsByKey.Select(pair => new Entry(pair.Key, pair.Value)));
@@ -29,7 +30,12 @@ internal static class TimbnLocale
     {
         var added = entries.ToList();
         foreach (var entry in added)
-            _entries[entry.Key] = entry;
+        {
+            if (!_entries.TryGetValue(entry.Key, out var stack))
+                _entries[entry.Key] = stack = [];
+
+            stack.Add(entry);
+        }
 
         if (_currentLang() is { } lang)
         {
@@ -46,24 +52,41 @@ internal static class TimbnLocale
 
     internal static void ApplyTo(LLBase lang)
     {
-        foreach (var entry in _entries.Values)
-            Write(lang, entry);
+        foreach (var stack in _entries.Values)
+            Write(lang, stack[^1]);
     }
 
     private static void Write(LLBase lang, Entry entry)
     {
-        lang.dictionary[entry.Key] = entry.TextFor(lang.id);
-        lang.idsToMetaInfo[entry.Key] = new NestedLocalesMetaInfo();
-        lang.replacementIdMetaInfo.Remove(entry.Key);
+        var text = TimbnLocaleMarkup.Parse(entry.Key, entry.TextFor(lang.id), out var nested, out var replacement);
+        lang.dictionary[entry.Key] = text;
+        lang.idsToMetaInfo[entry.Key] = nested;
+        if (replacement is null)
+            lang.replacementIdMetaInfo.Remove(entry.Key);
+        else
+            lang.replacementIdMetaInfo[entry.Key] = replacement;
     }
 
     private static void Remove(Entry entry)
     {
-        if (!_entries.TryGetValue(entry.Key, out var current) || current != entry)
+        if (!_entries.TryGetValue(entry.Key, out var stack))
             return;
 
+        var wasCurrent = stack[^1] == entry;
+        if (!stack.Remove(entry) || !wasCurrent)
+            return;
+
+        var lang = _currentLang();
+        if (stack.Count > 0)
+        {
+            if (lang != null)
+                Write(lang, stack[^1]);
+
+            return;
+        }
+
         _entries.Remove(entry.Key);
-        if (_currentLang() is not { } lang)
+        if (lang == null)
             return;
 
         var index = _txtIds(lang).IndexOf(entry.Key);
@@ -71,14 +94,17 @@ internal static class TimbnLocale
         {
             lang.dictionary.Remove(entry.Key);
             lang.idsToMetaInfo.Remove(entry.Key);
+            lang.replacementIdMetaInfo.Remove(entry.Key);
             return;
         }
 
         lang.dictionary[entry.Key] = _txts(lang)[index];
         lang.idsToMetaInfo[entry.Key] = lang.nestedLocalesMetaInfos[index];
-        var replacement = lang.replacementKeysMetaInfoList.Find(r => r.id == entry.Key);
-        if (replacement != null)
-            lang.replacementIdMetaInfo[entry.Key] = replacement;
+        var shipped = lang.replacementKeysMetaInfoList.Find(r => r.id == entry.Key);
+        if (shipped != null)
+            lang.replacementIdMetaInfo[entry.Key] = shipped;
+        else
+            lang.replacementIdMetaInfo.Remove(entry.Key);
     }
 
     private sealed class Entry
@@ -95,7 +121,7 @@ internal static class TimbnLocale
 
         public string TextFor(string language)
         {
-            if (_texts.TryGetValue(language, out var text) || _texts.TryGetValue(DefaultLanguage, out text))
+            if (_texts.TryGetValue(language, out var text) || _texts.TryGetValue(_defaultLanguage, out text))
                 return text;
 
             return _texts.Values.FirstOrDefault() ?? Key;

@@ -1,7 +1,6 @@
-using Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
-
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks.Patches;
 
+[TimbnFeature(nameof(PluginConfig.DismantleUnreachable))]
 [HarmonyPatch(typeof(WgoData))]
 internal static class WgoDataPatch
 {
@@ -9,7 +8,7 @@ internal static class WgoDataPatch
     [HarmonyPostfix]
     private static void GetDropPosPostFix(WgoData __instance, ref Vector3 __result)
     {
-        if (UnreachableDismantle.Active is { } dismantle && dismantle.TryGetDropPosition(__instance, out var position))
+        if (Plugin.Instance?.Dismantle.TryGetDropPosition(__instance, out var position) == true)
             __result = position;
     }
 }

@@ -7,6 +7,7 @@ internal static class ConveyorLoopCrash
     private const float _half = 0.3f;
     private const string _alertKey = "timbn_conveyor_loop_stuck";
     private const float _expireAfter = 10f;
+    private const float _tickInterval = 0.5f;
 
     private static readonly List<ConveyorComponent> _path = [];
     private static readonly HashSet<ConveyorComponent> _walked = [];
@@ -16,6 +17,13 @@ internal static class ConveyorLoopCrash
     private static readonly Color _red = new(1f, 0.15f, 0.1f, 1f);
     private static readonly Color _yellow = new(1f, 0.85f, 0.2f, 1f);
     private static Material? _material;
+
+    public static void Register(TimbnFrameworkPlugin plugin)
+    {
+        plugin.Settings.Toggle(PluginConfig.ConveyorLoopCrash, Restore, Restore);
+        plugin.Settings.While(PluginConfig.ConveyorLoopCrash, () => plugin.Events.Every(_tickInterval, Tick));
+        plugin.Events.SaveClosed(Restore);
+    }
 
     public static bool Enter(ConveyorComponent component, ConveyorComponent cycleStart, out bool entered)
     {
@@ -44,8 +52,11 @@ internal static class ConveyorLoopCrash
             _walked.Clear();
     }
 
-    public static void Tick()
+    private static void Tick()
     {
+        if (!TimbnGame.IsInGame)
+            return;
+
         foreach (var id in _lastCaught.Keys.ToList())
         {
             if (Time.time - _lastCaught[id] < _expireAfter && MainGame.WorldData.GetWgoData(id) != null)
@@ -58,7 +69,7 @@ internal static class ConveyorLoopCrash
         }
     }
 
-    public static void Restore()
+    private static void Restore()
     {
         ClearMarkers();
         _reported.Clear();

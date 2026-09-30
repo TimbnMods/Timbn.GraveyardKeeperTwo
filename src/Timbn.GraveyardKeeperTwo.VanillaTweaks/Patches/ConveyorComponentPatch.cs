@@ -3,13 +3,14 @@ using Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
 
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks.Patches;
 
+[TimbnFeature(nameof(PluginConfig.ConveyorLoopCrash))]
 [HarmonyPatch]
 internal static class ConveyorComponentPatch
 {
     private static IEnumerable<MethodBase> TargetMethods() =>
         typeof(ConveyorComponent).Assembly.GetTypes()
             .Where(type => type.IsSubclassOf(typeof(ConveyorComponent)))
-            .Select(type => AccessTools.DeclaredMethod(type, nameof(ConveyorComponent.HandleCycleDependency)))
+            .Select(type => type.GetMethod(nameof(ConveyorComponent.HandleCycleDependency), BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly))
             .Where(method => method != null);
 
     [HarmonyPrefix]

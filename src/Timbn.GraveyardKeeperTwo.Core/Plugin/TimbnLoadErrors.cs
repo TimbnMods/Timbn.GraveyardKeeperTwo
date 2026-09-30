@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Turns BepInEx's dependency errors and Core's own start failures into the lines of the main menu popup.</summary>
 internal static class TimbnLoadErrors
 {
     private const int _maxLines = 6;
@@ -14,20 +15,28 @@ internal static class TimbnLoadErrors
     private static readonly Regex _dependency = new(@"^(\S+)(?: \(v(.+) or newer\))?$");
 
     private static readonly List<string> _startFailures = [];
+    private static readonly List<(string Plugin, string Feature)> _featureFailures = [];
 
     internal static void AddStartFailure(string plugin) => _startFailures.Add(plugin);
 
-    internal static string? Describe()
+    internal static void AddFeatureFailure(string plugin, string feature) => _featureFailures.Add((plugin, feature));
+
+    internal static string? Describe() => Describe(Chainloader.DependencyErrors, Chainloader.PluginInfos);
+
+    internal static string? Describe(IEnumerable<string> dependencyErrors, IReadOnlyDictionary<string, PluginInfo> plugins)
     {
         List<string> lines = [];
-        foreach (var error in Chainloader.DependencyErrors)
+        foreach (var error in dependencyErrors)
         {
-            if (Describe(error) is { } line)
+            if (Describe(error, plugins) is { } line)
                 lines.Add(line);
         }
 
         foreach (var plugin in _startFailures)
             lines.Add($"{plugin} is off because a game update changed something it needs.");
+
+        foreach (var group in _featureFailures.GroupBy(failure => failure.Plugin))
+            lines.Add($"{group.Key}: {string.Join(" and ", group.Select(failure => failure.Feature))} is off because a game update changed something it needs. The rest of the mod still works.");
 
         if (lines.Count == 0)
             return null;
@@ -39,7 +48,7 @@ internal static class TimbnLoadErrors
         return string.Join("\n\n", shown);
     }
 
-    private static string? Describe(string error)
+    internal static string? Describe(string error, IReadOnlyDictionary<string, PluginInfo> plugins)
     {
         if (_wrongBepInEx.IsMatch(error))
             return null;
@@ -47,7 +56,7 @@ internal static class TimbnLoadErrors
         var match = _missing.Match(error);
         if (match.Success)
         {
-            var needs = match.Groups[2].Value.Split([", "], StringSplitOptions.RemoveEmptyEntries).Select(DescribeDependency);
+            var needs = match.Groups[2].Value.Split([", "], StringSplitOptions.RemoveEmptyEntries).Select(entry => DescribeDependency(entry, plugins));
             return $"{match.Groups[1].Value} needs {string.Join(" and ", needs)}.";
         }
 
@@ -58,14 +67,14 @@ internal static class TimbnLoadErrors
         match = _incompatible.Match(error);
         if (match.Success)
         {
-            var others = match.Groups[2].Value.Split([", "], StringSplitOptions.RemoveEmptyEntries).Select(NameOf);
+            var others = match.Groups[2].Value.Split([", "], StringSplitOptions.RemoveEmptyEntries).Select(guid => NameOf(guid, plugins));
             return $"{match.Groups[1].Value} can't run alongside {string.Join(" and ", others)}.";
         }
 
         return error;
     }
 
-    private static string DescribeDependency(string entry)
+    private static string DescribeDependency(string entry, IReadOnlyDictionary<string, PluginInfo> plugins)
     {
         var match = _dependency.Match(entry);
         if (!match.Success)
@@ -73,7 +82,7 @@ internal static class TimbnLoadErrors
 
         var guid = match.Groups[1].Value;
         var minimum = match.Groups[2].Success ? match.Groups[2].Value : null;
-        if (Chainloader.PluginInfos.TryGetValue(guid, out var info))
+        if (plugins.TryGetValue(guid, out var info))
         {
             var installed = info.Metadata.Version;
             return minimum is null ? info.Metadata.Name : $"{info.Metadata.Name} {minimum} or newer (you have {installed})";
@@ -82,6 +91,6 @@ internal static class TimbnLoadErrors
         return minimum is null ? $"{guid}, which is missing" : $"{guid} {minimum} or newer, which is missing";
     }
 
-    private static string NameOf(string guid) =>
-        Chainloader.PluginInfos.TryGetValue(guid, out var info) ? info.Metadata.Name : guid;
+    private static string NameOf(string guid, IReadOnlyDictionary<string, PluginInfo> plugins) =>
+        plugins.TryGetValue(guid, out var info) ? info.Metadata.Name : guid;
 }

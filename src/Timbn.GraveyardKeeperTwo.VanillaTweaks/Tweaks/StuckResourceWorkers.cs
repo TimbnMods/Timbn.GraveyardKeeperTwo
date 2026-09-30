@@ -12,6 +12,9 @@ internal static class StuckResourceWorkers
         new("sand", "sand_zombie_crafter", "builder_clay_sand"),
     ];
 
+    public static void Register(TimbnFrameworkPlugin plugin) =>
+        plugin.Settings.Toggle(PluginConfig.StuckResourceWorkers, Repair);
+
     public static void Repair()
     {
         if (!PluginConfig.StuckResourceWorkers.Value)

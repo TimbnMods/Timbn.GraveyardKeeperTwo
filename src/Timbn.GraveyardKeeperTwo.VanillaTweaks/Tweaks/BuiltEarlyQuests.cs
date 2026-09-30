@@ -10,9 +10,17 @@ internal sealed class BuiltEarlyQuests
 
     private bool _pending;
 
-    public void Queue() => _pending = true;
+    public static void Register(TimbnFrameworkPlugin plugin)
+    {
+        var builtEarly = new BuiltEarlyQuests();
+        plugin.Settings.Toggle(PluginConfig.BuiltEarlyQuests, builtEarly.Queue);
+        plugin.Settings.While(PluginConfig.BuiltEarlyQuests, () => plugin.Events.QuestStarted(builtEarly.OnQuestStarted));
+        plugin.Settings.While(PluginConfig.BuiltEarlyQuests, () => plugin.Events.Update(builtEarly.Tick));
+    }
 
-    public void OnQuestStarted(QuestData quest)
+    private void Queue() => _pending = true;
+
+    private void OnQuestStarted(QuestData quest)
     {
         foreach (var entry in _quests)
         {
@@ -21,16 +29,15 @@ internal sealed class BuiltEarlyQuests
         }
     }
 
-    public void Tick()
+    private void Tick()
     {
         if (!_pending)
             return;
 
         _pending = false;
-        var locked = MainGame.Instance.GameSave.knowledgeSystem.lockedBuildings;
         foreach (var entry in _quests)
         {
-            if (TimbnQuests.StatusOf(entry.Quest) != QuestStatus.InProgress || !locked.Contains(entry.Building))
+            if (TimbnQuests.StatusOf(entry.Quest) != QuestStatus.InProgress || !TimbnPlayer.HasBuilt(entry.Building))
                 continue;
 
             Plugin.Logger.LogInfo($"{entry.Building} was built before {entry.Quest} started, finishing the quest.");

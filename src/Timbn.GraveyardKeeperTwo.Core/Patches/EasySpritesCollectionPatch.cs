@@ -2,12 +2,13 @@ using LazyBearTechnology;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
+/// <summary>Harmony patch on the game's sprite lookup that hands out sprites plugins added.</summary>
 [HarmonyPatch(typeof(EasySpritesCollection))]
 internal static class EasySpritesCollectionPatch
 {
-    [HarmonyPrefix]
     [HarmonyPatch(nameof(EasySpritesCollection.GetSprite))]
-    private static bool GetSprite(string spriteName, ref Sprite __result)
+    [HarmonyPrefix]
+    private static bool GetSpritePreFix(string spriteName, ref Sprite __result)
     {
         if (!TimbnSprites.TryGet(spriteName, out var sprite))
             return true;
@@ -16,9 +17,9 @@ internal static class EasySpritesCollectionPatch
         return false;
     }
 
-    [HarmonyPrefix]
     [HarmonyPatch(nameof(EasySpritesCollection.HasSprite))]
-    private static bool HasSprite(string spriteName, ref bool __result)
+    [HarmonyPrefix]
+    private static bool HasSpritePreFix(string spriteName, ref bool __result)
     {
         if (!TimbnSprites.TryGet(spriteName, out _))
             return true;

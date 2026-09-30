@@ -15,10 +15,8 @@ public static class TimbnInput
     /// world, such as an unstuck key.
     /// </summary>
     public static bool CanUseHotkeys =>
-        TimbnGame.IsInGame
-        && LazyInput.IsInitialized
-        && LazyInput.IsInputActive()
-        && LazyWindowsStackController.ActiveWindow == null;
+        IsReadingInput
+        && TimbnUI.ActiveWindow == null;
 
     /// <summary>
     /// True when <see cref="CanUseHotkeys"/> is and the player can also move and act. The game takes control away
@@ -30,6 +28,27 @@ public static class TimbnInput
         CanUseHotkeys
         && MainGame.PlayerController != null
         && MainGame.PlayerController.IsControlsEnabled;
+
+    /// <summary>
+    /// True when the game has its own interaction ready for the Interaction key, such as a world object in reach
+    /// or a big drop to pick up. A mod that also uses the Interaction key should stay out of the way then.
+    /// </summary>
+    public static bool GameHasInteraction
+    {
+        get
+        {
+            if (!TimbnGame.IsInGame || MainGame.PlayerController == null)
+                return false;
+
+            var interaction = MainGame.PlayerController.PlayerInteractionComponent;
+            return interaction != null && (interaction.HasWgoUnderInteraction || interaction.BigDropUnderInteraction != null);
+        }
+    }
+
+    private static bool IsReadingInput =>
+        TimbnGame.IsInGame
+        && LazyInput.IsInitialized
+        && LazyInput.IsInputActive();
 
     /// <summary>
     /// Whether <paramref name="shortcut"/> was pressed this frame while <see cref="CanUseHotkeys"/> holds. Call it
@@ -48,4 +67,37 @@ public static class TimbnInput
     /// key does nothing during dialog, cutscenes, or any other time the player cannot act.
     /// </summary>
     public static bool IsDownWithControl(this KeyboardShortcut shortcut) => PlayerHasControl && shortcut.IsDown();
+
+    /// <summary>
+    /// Whether <paramref name="shortcut"/> was pressed this frame, even while other keys are held. BepInEx's own
+    /// IsDown says no whenever any key beyond the shortcut is down, so a key that has to work while the player walks,
+    /// such as a jump, reads it with this instead. It does not check whether the game is reading input, so pair it
+    /// with <see cref="CanUseHotkeys"/> or <see cref="PlayerHasControl"/> as the key needs.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// if (TimbnInput.PlayerHasControl &amp;&amp; PluginConfig.Jump.Value.IsDownWhileMoving())
+    ///     jump.Start();
+    /// </code>
+    /// </example>
+    public static bool IsDownWhileMoving(this KeyboardShortcut shortcut) =>
+        shortcut.MainKey != KeyCode.None && Input.GetKeyDown(shortcut.MainKey) && shortcut.Modifiers.All(Input.GetKey);
+
+    /// <summary>Whether <paramref name="shortcut"/> is held right now, even while other keys are held, like <see cref="IsDownWhileMoving"/> for a held key.</summary>
+    public static bool IsHeldWhileMoving(this KeyboardShortcut shortcut) =>
+        shortcut.MainKey != KeyCode.None && Input.GetKey(shortcut.MainKey) && shortcut.Modifiers.All(Input.GetKey);
+
+    /// <summary>
+    /// Whether <paramref name="shortcut"/> was pressed this frame while a game window of the given type is open and
+    /// on top, for a key that adds to one of the game's own windows.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// if (PluginConfig.TogglePin.Value.IsDownInWindow&lt;UIBuildingWindow&gt;())
+    ///     buildPins.TogglePinUnderCursor();
+    /// </code>
+    /// </example>
+    /// <typeparam name="TWindow">The window's type.</typeparam>
+    public static bool IsDownInWindow<TWindow>(this KeyboardShortcut shortcut) where TWindow : LazyWidgetBase =>
+        IsReadingInput && TimbnUI.IsWindowOpen<TWindow>() && shortcut.IsDown();
 }

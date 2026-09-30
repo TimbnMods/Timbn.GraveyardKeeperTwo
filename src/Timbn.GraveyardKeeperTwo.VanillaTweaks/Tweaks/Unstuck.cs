@@ -13,7 +13,7 @@ internal static class Unstuck
 
     public static bool Run(float range)
     {
-        if (!TimbnGame.IsInGame || !TryGetRecastGraph(MainGame.PlayerData.currentGameSceneId, out var graph))
+        if (!TimbnGame.IsInGame || !TimbnWorld.TryGetNavGraph(null, out var graph))
         {
             Plugin.Logger.LogWarning("No recast graph in this scene.");
             return false;
@@ -26,7 +26,7 @@ internal static class Unstuck
                 areaSizes[node.Area] = areaSizes.TryGetValue(node.Area, out var count) ? count + 1 : 1;
         });
 
-        var from = MainGame.PlayerData.position.Value;
+        var from = TimbnPlayer.Position;
         var here = graph.GetNearest(from).node;
         var hereSize = here != null && areaSizes.TryGetValue(here.Area, out var size) ? size : 0;
         var overlapping = IsBlocked(from);
@@ -41,7 +41,7 @@ internal static class Unstuck
             return false;
         }
 
-        MainGame.PlayerController.SetPosition(target.Value);
+        TimbnPlayer.MoveTo(target.Value);
         Plugin.Logger.LogMessage($"Unstuck, moved {Vector3.Distance(from, target.Value):0.0} m.");
         return true;
     }
@@ -99,17 +99,5 @@ internal static class Unstuck
         }
 
         return false;
-    }
-
-    private static bool TryGetRecastGraph(string worldId, out NavGraph graph)
-    {
-        graph = null!;
-        var indices = GraphHelper.Instance?.SceneGraphsData?.GetRecastGraphIndexByWorldId(worldId);
-        var graphs = AstarPath.active?.data?.graphs;
-        if (indices == null || indices.Count == 0 || graphs == null || indices[0] < 0 || indices[0] >= graphs.Length)
-            return false;
-
-        graph = graphs[indices[0]];
-        return graph != null;
     }
 }

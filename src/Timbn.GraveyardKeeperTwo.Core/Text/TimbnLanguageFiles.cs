@@ -1,8 +1,11 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Reads a plugin's lang folder of key and text lines, one file per language.</summary>
 internal static class TimbnLanguageFiles
 {
     private const string _folderName = "lang";
+
+    internal static bool Exists(string folder) => Directory.Exists(Path.Combine(folder, _folderName));
 
     internal static Dictionary<string, Dictionary<string, string>> Read(string folder, ManualLogSource logger)
     {
@@ -26,9 +29,9 @@ internal static class TimbnLanguageFiles
             }
         }
 
-        var missing = textsByKey.Where(pair => !pair.Value.ContainsKey(TimbnLocale.DefaultLanguage)).Select(pair => pair.Key).ToList();
+        var missing = textsByKey.Where(pair => !pair.Value.ContainsKey(TimbnLocale._defaultLanguage)).Select(pair => pair.Key).ToList();
         if (missing.Count > 0)
-            logger.LogWarning($"{missing.Count} key(s) in {langFolder} have no {TimbnLocale.DefaultLanguage}.txt line: {string.Join(", ", missing)}");
+            logger.LogWarning($"{missing.Count} key(s) in {langFolder} have no {TimbnLocale._defaultLanguage}.txt line: {string.Join(", ", missing)}");
 
         logger.LogInfo($"Loaded {textsByKey.Count} text key(s) from {langFolder}.");
         return textsByKey;
