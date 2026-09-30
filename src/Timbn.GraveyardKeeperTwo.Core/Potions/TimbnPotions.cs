@@ -23,7 +23,7 @@ public static class TimbnPotions
             [potion.BuffId + "_d"] = potion.Buff.Description,
         });
         TimbnPotionBalance.Apply(_potions);
-        if (TimbnGame.IsInGame && MainGame.Instance.GameSave?.perkSystemData?.HasPerk(potion.BuffId) == true)
+        if (TimbnPlayer.HasPerk(potion.BuffId))
             Start(potion);
 
         return new TimbnUndo(() =>

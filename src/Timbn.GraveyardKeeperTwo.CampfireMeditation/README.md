@@ -4,7 +4,7 @@ Timbn Campfire Meditation lets you pass time by a campfire, like the stone garde
 
 ## How to use
 
-Stand by the campfire at home, above your garden, and a "Meditate" hint appears above it. Turn off `HomeOnly` to meditate at any campfire in the world. Press interact to start meditating, and press interact again ("Wake Up") to stop.
+Stand by the campfire at your home and a "Meditate" hint appears above it. Turn off `HomeOnly` to meditate at any campfire in the world. Press interact to start meditating, and press interact again ("Wake Up") to stop.
 
 ## What happens
 
@@ -17,9 +17,10 @@ Stand by the campfire at home, above your garden, and a "Meditate" hint appears 
 
 ## Good to know
 
+- Meditating doesn't work while you are tired.
 - The game is not saved while you meditate.
-- While you sit, the game treats you like it does in a cutscene. You cannot walk, use tools, attack, or open the inventory, map or other menus until you get up.
-- You can meditate while carrying something over your head, and you keep holding it.
+- While you sit you cannot walk, use tools, or open menus.
+- You can meditate while carrying something.
 - Going back to the main menu ends a meditation in progress.
 
 ## Translating

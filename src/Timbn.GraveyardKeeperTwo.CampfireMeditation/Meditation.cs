@@ -28,7 +28,6 @@ internal sealed class Meditation
     }
 
     private static PlayerController? Player => MainGame.Instance != null ? MainGame.PlayerController : null;
-
     public void Tick()
     {
         var engine = EnvironmentEngine.Instance;
@@ -41,6 +40,9 @@ internal sealed class Meditation
 
         if (TimbnPlayer.IsControlTakenByGame(TakenControlType.ByUI))
             Stop();
+
+        if (_meditating && TimbnPlayer.IsTired && CanGetUp())
+            GetUp();
 
         if (_meditating)
             KeepMeditating(engine);
@@ -77,6 +79,7 @@ internal sealed class Meditation
         !TimbnUI.IsScreenFading
         && TimbnInput.PlayerHasControl
         && !TimbnInput.GameHasInteraction
+        && !TimbnPlayer.IsTired
         && FindFire();
 
     private bool FindFire() => _campfires.TryFindNear(TimbnPlayer.Position, out _fire);

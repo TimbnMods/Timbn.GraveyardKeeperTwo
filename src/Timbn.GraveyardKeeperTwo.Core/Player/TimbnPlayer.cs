@@ -22,6 +22,26 @@ public static class TimbnPlayer
     /// <returns>True when the game has taken control for any other reason. False at the main menu.</returns>
     public static bool IsControlTakenByGame(params TakenControlType[] ignored) => TimbnControl.IsTakenByGame(ignored);
 
+    /// <summary>Whether the player has the game's tired debuff. False at the main menu.</summary>
+    /// <example>
+    /// <code>
+    /// if (TimbnPlayer.IsTired)
+    ///     return;
+    /// </code>
+    /// </example>
+    public static bool IsTired => HasPerk(LazyConsts.Perks.LACK_OF_SLEEP_DEBUFF);
+
+    /// <summary>Whether the player has a perk.</summary>
+    /// <example>
+    /// <code>
+    /// var greenThumb = TimbnPlayer.HasPerk("perk_green_thumb");
+    /// </code>
+    /// </example>
+    /// <param name="id">The perk's id, such as perk_green_thumb.</param>
+    /// <returns>True when the player has it. False at the main menu.</returns>
+    public static bool HasPerk(string id) =>
+        TimbnGame.IsInGame && MainGame.Instance.GameSave?.perkSystemData?.HasPerk(id) == true;
+
     /// <summary>The player's position in their current scene, or zero at the main menu.</summary>
     public static Vector3 Position => TimbnGame.IsInGame ? MainGame.PlayerData.position.Value : Vector3.zero;
 

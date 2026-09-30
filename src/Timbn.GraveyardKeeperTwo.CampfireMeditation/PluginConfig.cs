@@ -53,6 +53,6 @@ internal static class PluginConfig
             "Meditation",
             "HomeOnly",
             true,
-            "Only the campfire at home, above your garden, can be used to meditate. Turn it off to meditate at any campfire.");
+            "Only the campfire at your home can be used to meditate. Turn it off to meditate at any campfire.");
     }
 }
