@@ -36,6 +36,7 @@ public class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
         Subscriptions.Add(TimbnGameEvents.GameStarted(() => TimbnSession.Open(SessionSubscriptions)));
         Subscriptions.Add(TimbnGameEvents.GoToMainMenu(TimbnSession.Close));
         Subscriptions.Add(TimbnGameEvents.SaveWriteEnded(TimbnGlobalSaves.Flush));
+        Subscriptions.Add(TimbnGameEvents.On(TimbnSaves.OnLoadingExistingSave, h => SaveSystem.OnSaveLoadingStarted += h, h => SaveSystem.OnSaveLoadingStarted -= h));
         Subscriptions.Add(TimbnGameEvents.On(TimbnGlobalSaves.Flush, h => Application.quitting += h, h => Application.quitting -= h));
         Subscriptions.Add(TimbnGameEvents.On<LazyWidgetBase>(
             TimbnMainMenu.OnWindowOpened,

@@ -70,12 +70,12 @@ public sealed class TimbnPluginEvents
     /// <returns>A handle that unsubscribes early when disposed, without running the handler. You don't need to keep it.</returns>
     public IDisposable SaveClosed(Action handler)
     {
-        var goToMainMenu = TimbnGameEvents.GoToMainMenu(handler);
+        var closing = TimbnGameEvents.On(handler, h => TimbnSession.Closing += h, h => TimbnSession.Closing -= h);
         _saveClosed.Add(handler);
         return Own(new TimbnUndo(() =>
         {
             _saveClosed.Remove(handler);
-            goToMainMenu.Dispose();
+            closing.Dispose();
         }));
     }
 

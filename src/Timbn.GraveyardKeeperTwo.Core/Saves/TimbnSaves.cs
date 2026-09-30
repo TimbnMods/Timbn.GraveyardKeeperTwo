@@ -40,6 +40,8 @@ internal static class TimbnSaves
 
     internal static void OnNewGameStarting() => _newGameStarting = true;
 
+    internal static void OnLoadingExistingSave() => _newGameStarting = false;
+
     internal static void OnGameStarted()
     {
         var slot = MainGame.Instance.SaveSlotData;
@@ -53,6 +55,7 @@ internal static class TimbnSaves
 
     internal static void OnLeftGame()
     {
+        _newGameStarting = false;
         _sections = [];
         foreach (var entry in _entries.Values)
             entry.Reset();
