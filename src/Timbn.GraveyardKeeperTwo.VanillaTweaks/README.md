@@ -32,6 +32,10 @@ Battle rewards are dropped at your feet after a win. With full bags the game kno
 
 Fishing ignored bait kept in a bag, so with all of it in a fishing bag the Keeper said there was no bait and never cast. Bait in any of your bags now counts, and it is used from the bag like the game already does once fishing starts.
 
+### Crash with conveyor loops
+
+A loop of conveyors that feeds into another loop, such as a splitter sending part of its coal back into the chest before it, made the game close on its own a few seconds after loading once the first loop ran empty or jammed. It kept happening every time that save loaded. The game no longer gets stuck on those loops, and your conveyors work as before. A notice appears in the corner when such a loop is found. Yellow arrows trace the loop and a red square marks the belt to remove to break it. The arrows and square can be turned off in the config.
+
 ## Soft Locks
 
 ### Quest building built too early
