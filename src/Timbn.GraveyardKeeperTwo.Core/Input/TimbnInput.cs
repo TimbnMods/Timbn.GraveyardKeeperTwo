@@ -69,6 +69,25 @@ public static class TimbnInput
     public static bool IsDownWithControl(this KeyboardShortcut shortcut) => PlayerHasControl && shortcut.IsDown();
 
     /// <summary>
+    /// Whether <paramref name="shortcut"/> was pressed this frame, even while other keys are held. BepInEx's own
+    /// IsDown says no whenever any key beyond the shortcut is down, so a key that has to work while the player walks,
+    /// such as a jump, reads it with this instead. It does not check whether the game is reading input, so pair it
+    /// with <see cref="CanUseHotkeys"/> or <see cref="PlayerHasControl"/> as the key needs.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// if (TimbnInput.PlayerHasControl &amp;&amp; PluginConfig.Jump.Value.IsDownWhileMoving())
+    ///     jump.Start();
+    /// </code>
+    /// </example>
+    public static bool IsDownWhileMoving(this KeyboardShortcut shortcut) =>
+        shortcut.MainKey != KeyCode.None && Input.GetKeyDown(shortcut.MainKey) && shortcut.Modifiers.All(Input.GetKey);
+
+    /// <summary>Whether <paramref name="shortcut"/> is held right now, even while other keys are held, like <see cref="IsDownWhileMoving"/> for a held key.</summary>
+    public static bool IsHeldWhileMoving(this KeyboardShortcut shortcut) =>
+        shortcut.MainKey != KeyCode.None && Input.GetKey(shortcut.MainKey) && shortcut.Modifiers.All(Input.GetKey);
+
+    /// <summary>
     /// Whether <paramref name="shortcut"/> was pressed this frame while a game window of the given type is open and
     /// on top, for a key that adds to one of the game's own windows.
     /// </summary>

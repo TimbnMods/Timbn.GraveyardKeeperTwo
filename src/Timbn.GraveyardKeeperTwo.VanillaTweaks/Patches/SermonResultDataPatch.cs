@@ -2,6 +2,7 @@ using System.Reflection;
 
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks.Patches;
 
+[TimbnFeature(nameof(PluginConfig.SermonFaithRounding))]
 [HarmonyPatch]
 internal static class SermonResultDataPatch
 {

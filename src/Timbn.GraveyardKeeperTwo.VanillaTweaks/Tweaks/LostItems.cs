@@ -13,7 +13,7 @@ internal static class LostItems
             "flitch",
             2,
             () => PluginConfig.SoftLockedBoards.Value,
-            () => MainGame.Instance.GameSave.knowledgeSystem.IsTechUnlocked("wood_basic")
+            () => TimbnPlayer.HasTech("wood_basic")
                 && !_boardMakerIds.Any(id => MainGame.WorldData.GetWgoDataList(id).Count > 0)),
         new(
             "timbn_larry_medallion",

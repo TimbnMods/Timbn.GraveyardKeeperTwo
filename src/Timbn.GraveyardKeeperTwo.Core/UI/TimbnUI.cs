@@ -55,16 +55,6 @@ public static class TimbnUI
             return;
         }
 
-        fade.Fade(onInCompleted: () =>
-        {
-            try
-            {
-                whileBlack();
-            }
-            catch (Exception ex)
-            {
-                TimbnCorePlugin.Logger.LogError($"{nameof(TimbnUI)}|Code run during a fade threw: {ex}");
-            }
-        });
+        fade.Fade(onInCompleted: () => TimbnSafe.Run(whileBlack, $"{nameof(TimbnUI)}|Code run during a fade"));
     }
 }

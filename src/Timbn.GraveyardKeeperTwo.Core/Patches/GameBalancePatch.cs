@@ -1,15 +1,16 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
-[HarmonyPatch(typeof(GameBalance), nameof(GameBalance.LoadGameBalance))]
+[HarmonyPatch(typeof(GameBalance))]
 internal static class GameBalancePatch
 {
-    private static void Postfix()
+    [HarmonyPatch(nameof(GameBalance.LoadGameBalance))]
+    [HarmonyPostfix]
+    private static void LoadGameBalancePostFix()
     {
         if (TimbnBalance.Loaded is not { } balance)
             return;
 
         TimbnBalance.OnBalanceLoaded(balance);
-        TimbnPotions.OnBalanceLoaded();
         TimbnPatchedEvents.RaiseBalanceLoaded(balance);
     }
 }

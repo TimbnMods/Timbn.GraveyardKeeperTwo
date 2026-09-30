@@ -52,14 +52,18 @@ internal static class TimbnLocale
     internal static void ApplyTo(LLBase lang)
     {
         foreach (var stack in _entries.Values)
-            Write(lang, stack[stack.Count - 1]);
+            Write(lang, stack[^1]);
     }
 
     private static void Write(LLBase lang, Entry entry)
     {
-        lang.dictionary[entry.Key] = entry.TextFor(lang.id);
-        lang.idsToMetaInfo[entry.Key] = new NestedLocalesMetaInfo();
-        lang.replacementIdMetaInfo.Remove(entry.Key);
+        var text = TimbnLocaleMarkup.Parse(entry.Key, entry.TextFor(lang.id), out var nested, out var replacement);
+        lang.dictionary[entry.Key] = text;
+        lang.idsToMetaInfo[entry.Key] = nested;
+        if (replacement is null)
+            lang.replacementIdMetaInfo.Remove(entry.Key);
+        else
+            lang.replacementIdMetaInfo[entry.Key] = replacement;
     }
 
     private static void Remove(Entry entry)
@@ -67,7 +71,7 @@ internal static class TimbnLocale
         if (!_entries.TryGetValue(entry.Key, out var stack))
             return;
 
-        var wasCurrent = stack[stack.Count - 1] == entry;
+        var wasCurrent = stack[^1] == entry;
         if (!stack.Remove(entry) || !wasCurrent)
             return;
 
@@ -75,7 +79,7 @@ internal static class TimbnLocale
         if (stack.Count > 0)
         {
             if (lang != null)
-                Write(lang, stack[stack.Count - 1]);
+                Write(lang, stack[^1]);
 
             return;
         }
@@ -89,14 +93,17 @@ internal static class TimbnLocale
         {
             lang.dictionary.Remove(entry.Key);
             lang.idsToMetaInfo.Remove(entry.Key);
+            lang.replacementIdMetaInfo.Remove(entry.Key);
             return;
         }
 
         lang.dictionary[entry.Key] = _txts(lang)[index];
         lang.idsToMetaInfo[entry.Key] = lang.nestedLocalesMetaInfos[index];
-        var replacement = lang.replacementKeysMetaInfoList.Find(r => r.id == entry.Key);
-        if (replacement != null)
-            lang.replacementIdMetaInfo[entry.Key] = replacement;
+        var shipped = lang.replacementKeysMetaInfoList.Find(r => r.id == entry.Key);
+        if (shipped != null)
+            lang.replacementIdMetaInfo[entry.Key] = shipped;
+        else
+            lang.replacementIdMetaInfo.Remove(entry.Key);
     }
 
     private sealed class Entry

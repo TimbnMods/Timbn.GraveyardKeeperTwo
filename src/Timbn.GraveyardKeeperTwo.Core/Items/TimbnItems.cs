@@ -25,7 +25,7 @@ public static class TimbnItems
         if (count >= enough)
             return count;
 
-        foreach (var scene in MainGame.WorldData.gameSceneDataList)
+        foreach (var scene in TimbnWorld.Scenes)
         {
             foreach (var wgo in scene.wgoDataList)
             {
@@ -66,7 +66,7 @@ public static class TimbnItems
         if (!TimbnGame.IsInGame)
             return found;
 
-        foreach (var each in scene is null ? MainGame.WorldData.gameSceneDataList : [scene])
+        foreach (var each in scene is null ? TimbnWorld.Scenes : [scene])
         {
             foreach (var drop in (each.droppedItems ?? []).Concat(each.queuedDrops ?? []))
             {

@@ -1,5 +1,6 @@
 using LazyBearTechnology;
 using System.Collections;
+using System.Reflection;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
@@ -7,6 +8,8 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 public static class TimbnZombies
 {
     private static readonly Dictionary<string, TimbnZombieSkins?> _skins = [];
+    private static readonly MethodInfo _setupZombieSkin = AccessTools.Method(typeof(WgoPart), "SetupZombieSkin");
+    private static readonly MethodInfo _updateDropView = AccessTools.Method(typeof(DropView), "UpdateView");
 
     /// <summary>
     /// The zombies spawned in the world of the loaded save, workers and followers alike. Empty at the main menu.
@@ -45,6 +48,51 @@ public static class TimbnZombies
             _skins[dataId] = skins;
 
         return skins;
+    }
+
+    /// <summary>
+    /// Redraws a zombie after its looks or gear changed in its data, the way the game does when it spawns. It
+    /// covers a zombie standing in the world, one lying on the ground as an item, and a fighter. Events.ZombieViewReady
+    /// runs again for a zombie standing in the world.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// ZombieSkinHelper.ApplySkinToZombieWgoData(zombie, body, head, bodyColor, headColor);
+    /// TimbnZombies.Redraw(zombie);
+    /// </code>
+    /// </example>
+    /// <param name="zombie">The zombie.</param>
+    /// <returns>False when the zombie has no view to redraw right now, or at the main menu.</returns>
+    public static bool Redraw(ZombieWgoData zombie)
+    {
+        if (!TimbnGame.IsInGame)
+            return false;
+
+        var view = TimbnWorld.ViewOf(zombie);
+        if (view == null)
+        {
+            if (MainGame.PlayerController.TryGetCurrentGameScene(out var scene) && scene.TryGetDropView(zombie.ZombieItem, out var dropView))
+            {
+                _updateDropView.Invoke(dropView, []);
+                return true;
+            }
+
+            return false;
+        }
+
+        if (zombie.ZombieType == ZombieType.Fighter)
+        {
+            view.OnZombieItemsChanged(new Inventory(zombie.ZombieItem));
+            return true;
+        }
+
+        if (view.MainWgoPart == null)
+            return false;
+
+        var definition = zombie.Definition;
+        var visualId = definition == null ? string.Empty : definition.hasCustomVisualId ? definition.customVisualId : definition.id;
+        _setupZombieSkin.Invoke(view.MainWgoPart, [zombie, visualId]);
+        return true;
     }
 
     private static TimbnZombieSkins? ReadSkins(string dataId)

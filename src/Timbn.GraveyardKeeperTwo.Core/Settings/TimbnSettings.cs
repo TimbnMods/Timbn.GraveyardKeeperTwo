@@ -4,9 +4,8 @@ internal static class TimbnSettings
 {
     internal static IDisposable Toggle<T>(ConfigEntry<T> entry, Func<T, bool> isOn, Action apply, Action? revert, ManualLogSource logger)
     {
-        var binding = new Binding<T>(entry, isOn, apply, revert, logger);
-        binding.Start();
-        return binding;
+        var what = $"{nameof(TimbnSettings)}|{entry.Definition}";
+        return While(entry, isOn, () => Applied(apply, revert, logger, what), logger);
     }
 
     internal static IDisposable While<T>(ConfigEntry<T> entry, Func<T, bool> isOn, Func<IDisposable> subscribe, ManualLogSource logger)
@@ -18,101 +17,32 @@ internal static class TimbnSettings
 
     internal static IDisposable Changed<T>(ConfigEntry<T> entry, Action<T> handler, ManualLogSource logger)
     {
-        void changed(object sender, EventArgs args)
-        {
-            try
-            {
-                handler(entry.Value);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"{nameof(TimbnSettings)}|The change handler of {entry.Definition} threw: {ex}");
-            }
-        }
+        void changed(object sender, EventArgs args) =>
+            TimbnSafe.Run(() => handler(entry.Value), logger, $"{nameof(TimbnSettings)}|The change handler of {entry.Definition}");
 
         entry.SettingChanged += changed;
         return new TimbnUndo(() => entry.SettingChanged -= changed);
     }
 
-    private sealed class Binding<T> : IDisposable
+    private static IDisposable Applied(Action apply, Action? revert, ManualLogSource logger, string what)
     {
-        private readonly ConfigEntry<T> _entry;
-        private readonly Func<T, bool> _isOn;
-        private readonly Action _apply;
-        private readonly Action? _revert;
-        private readonly ManualLogSource _logger;
-        private IDisposable? _gameStarted;
-        private bool _applied;
-
-        public Binding(ConfigEntry<T> entry, Func<T, bool> isOn, Action apply, Action? revert, ManualLogSource logger)
+        var applied = false;
+        void run()
         {
-            _entry = entry;
-            _isOn = isOn;
-            _apply = apply;
-            _revert = revert;
-            _logger = logger;
+            applied = true;
+            TimbnSafe.Run(apply, logger, $"{what} threw while applying its change, it");
         }
 
-        public void Start()
+        var gameStarted = TimbnGameEvents.GameStarted(run);
+        if (TimbnGame.IsInGame)
+            run();
+
+        return new TimbnUndo(() =>
         {
-            _entry.SettingChanged += OnSettingChanged;
-            _gameStarted = TimbnGameEvents.GameStarted(Sync);
-            if (TimbnGame.IsInGame)
-                Sync();
-        }
-
-        public void Dispose()
-        {
-            if (_gameStarted == null)
-                return;
-
-            _entry.SettingChanged -= OnSettingChanged;
-            _gameStarted.Dispose();
-            _gameStarted = null;
-            Revert();
-        }
-
-        private void Sync()
-        {
-            if (_isOn(_entry.Value))
-                Apply();
-            else
-                Run(_revert);
-        }
-
-        private void OnSettingChanged(object sender, EventArgs args)
-        {
-            Revert();
-            if (_isOn(_entry.Value) && TimbnGame.IsInGame)
-                Apply();
-        }
-
-        private void Apply()
-        {
-            _applied = true;
-            Run(_apply);
-        }
-
-        private void Revert()
-        {
-            if (!_applied && !TimbnGame.IsInGame)
-                return;
-
-            _applied = false;
-            Run(_revert);
-        }
-
-        private void Run(Action? action)
-        {
-            try
-            {
-                action?.Invoke();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"{nameof(TimbnSettings)}|{_entry.Definition} threw while applying its change: {ex}");
-            }
-        }
+            gameStarted.Dispose();
+            if (applied || TimbnGame.IsInGame)
+                TimbnSafe.Run(revert, logger, $"{what} threw while reverting its change, it");
+        });
     }
 
     private sealed class Subscription<T> : IDisposable
@@ -174,14 +104,7 @@ internal static class TimbnSettings
         {
             var current = _current;
             _current = null;
-            try
-            {
-                current?.Dispose();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"{nameof(TimbnSettings)}|{_entry.Definition} threw while unsubscribing: {ex}");
-            }
+            TimbnSafe.Run(() => current?.Dispose(), _logger, $"{nameof(TimbnSettings)}|{_entry.Definition} threw while unsubscribing, it");
         }
     }
 }

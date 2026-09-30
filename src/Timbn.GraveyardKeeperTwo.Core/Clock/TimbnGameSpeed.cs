@@ -11,7 +11,7 @@ internal static class TimbnGameSpeed
     {
         var manager = MainGame.Instance != null ? MainGame.UpdateManager : null;
         if (manager == null)
-            return new TimbnUndo(() => { });
+            return TimbnUndo.None;
 
         if (_manager != manager)
         {

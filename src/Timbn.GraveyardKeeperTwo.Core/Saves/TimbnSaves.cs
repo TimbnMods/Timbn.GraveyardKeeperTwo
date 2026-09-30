@@ -3,17 +3,6 @@ using Newtonsoft.Json.Linq;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
-internal interface ITimbnSaveEntry
-{
-    string Id { get; }
-
-    void Load(JToken? section);
-
-    JToken Serialize();
-
-    void Reset();
-}
-
 internal static class TimbnSaves
 {
     private const string _fileSuffix = ".TimbnSaveData";
@@ -29,10 +18,12 @@ internal static class TimbnSaves
         ObjectCreationHandling = ObjectCreationHandling.Replace,
     });
 
+    internal static string? CurrentPath => TimbnGame.IsInGame && _slotName is { } slot ? MainPath(slot) : null;
+
     internal static IDisposable Register(ITimbnSaveEntry entry)
     {
         if (_entries.ContainsKey(entry.Id))
-            throw new InvalidOperationException($"{entry.Id} already registered save data. A plugin gets one save data object, so put everything it saves in one type.");
+            throw new InvalidOperationException($"{entry.Id} already registered save data. Give a second data object its own name.");
 
         _entries.Add(entry.Id, entry);
         if (TimbnGame.IsInGame)
@@ -42,7 +33,7 @@ internal static class TimbnSaves
         {
             _entries.Remove(entry.Id);
             if (TimbnGame.IsInGame)
-                KeepSection(entry);
+                TimbnSectionFile.KeepEntry(_sections, entry, nameof(TimbnSaves));
         });
     }
 
@@ -54,14 +45,14 @@ internal static class TimbnSaves
         _slotName = slot?.slotName;
         _freshSave = _newGameStarting || slot is null || slot.isDemoSave || string.IsNullOrEmpty(_slotName);
         _newGameStarting = false;
-        _sections = _freshSave || _slotName is null ? new JObject() : TimbnSectionFile.Read(MainPath(_slotName), BackupPath(_slotName));
+        _sections = _freshSave || _slotName is null ? [] : TimbnSectionFile.Read(MainPath(_slotName), BackupPath(_slotName));
         foreach (var entry in _entries.Values.ToList())
             Load(entry);
     }
 
     internal static void OnLeftGame()
     {
-        _sections = new JObject();
+        _sections = [];
         foreach (var entry in _entries.Values)
             entry.Reset();
     }
@@ -73,15 +64,7 @@ internal static class TimbnSaves
 
         return () =>
         {
-            try
-            {
-                Write(slotData.slotName);
-            }
-            catch (Exception ex)
-            {
-                TimbnCorePlugin.Logger.LogError($"{nameof(TimbnSaves)}|Could not write mod save data for slot {slotData.slotName}: {ex}");
-            }
-
+            TimbnSafe.Run(() => Write(slotData.slotName), $"{nameof(TimbnSaves)}|Writing mod save data for slot {slotData.slotName}");
             callback?.Invoke();
         };
     }
@@ -92,34 +75,8 @@ internal static class TimbnSaves
             File.Delete(path);
     }
 
-    private static void Load(ITimbnSaveEntry entry)
-    {
-        var section = _sections[entry.Id];
-        try
-        {
-            entry.Load(section);
-        }
-        catch (Exception ex)
-        {
-            TimbnCorePlugin.Logger.LogError($"{nameof(TimbnSaves)}|Could not read the save data of {entry.Id}, so it starts empty. {ex.Message}");
-            if (section is not null && _slotName is not null)
-                TimbnSectionFile.WriteAside(MainPath(_slotName) + "." + entry.Id + ".bad", section);
-
-            entry.Load(null);
-        }
-    }
-
-    private static void KeepSection(ITimbnSaveEntry entry)
-    {
-        try
-        {
-            _sections[entry.Id] = entry.Serialize();
-        }
-        catch (Exception ex)
-        {
-            TimbnCorePlugin.Logger.LogError($"{nameof(TimbnSaves)}|Could not keep the save data of {entry.Id}, so its last saved copy stays. {ex.Message}");
-        }
-    }
+    private static void Load(ITimbnSaveEntry entry) =>
+        TimbnSectionFile.LoadEntry(_sections, entry, _slotName is null ? "" : MainPath(_slotName), nameof(TimbnSaves));
 
     private static void Write(string slotName)
     {
@@ -134,7 +91,7 @@ internal static class TimbnSaves
 
         _slotName = slotName;
         foreach (var entry in _entries.Values)
-            KeepSection(entry);
+            TimbnSectionFile.KeepEntry(_sections, entry, nameof(TimbnSaves));
 
         if (_sections.Count == 0)
             return;

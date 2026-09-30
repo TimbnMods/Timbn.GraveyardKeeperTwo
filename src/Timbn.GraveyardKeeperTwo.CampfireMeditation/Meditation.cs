@@ -30,8 +30,7 @@ internal sealed class Meditation
     private static PlayerController? Player => MainGame.Instance != null ? MainGame.PlayerController : null;
     public void Tick()
     {
-        var engine = EnvironmentEngine.Instance;
-        if (MainGame.PlayerController == null || engine == null)
+        if (!TimbnGame.IsInGame || MainGame.PlayerController == null)
         {
             Stop();
             _hint.Hide();
@@ -45,7 +44,7 @@ internal sealed class Meditation
             GetUp();
 
         if (_meditating)
-            KeepMeditating(engine);
+            KeepMeditating();
 
         if (_meditating ? !CanGetUp() : !CanSitDown())
         {
@@ -60,7 +59,7 @@ internal sealed class Meditation
         if (_meditating)
             GetUp();
         else
-            SitDown(engine);
+            SitDown();
     }
 
     public void Stop()
@@ -84,12 +83,12 @@ internal sealed class Meditation
 
     private bool FindFire() => _campfires.TryFindNear(TimbnPlayer.Position, out _fire);
 
-    private void SitDown(EnvironmentEngine engine)
+    private void SitDown()
     {
         _meditating = true;
         _control?.Dispose();
         _control = _plugin.Player.TakeControl();
-        _lastTimeOfDay = engine.timeOfDay;
+        _lastTimeOfDay = TimbnClock.TimeOfDay;
         _insanityRemoved = 0f;
         var version = ++_version;
         TimbnUI.FadeThrough(() =>
@@ -126,7 +125,7 @@ internal sealed class Meditation
         player.PhysicalBody.SetDirectionLock(false);
         _fastTime?.Dispose();
         _fastTime = _plugin.Clock.SetSpeed(PluginConfig.TimeSpeed.Value);
-        Plugin.Logger.LogInfo($"Meditating by the fire at {_fire} in {Campfires.CurrentZone ?? "no zone"}, time at x{PluginConfig.TimeSpeed.Value:0.#}.");
+        Plugin.Logger.LogInfo($"Meditating by the fire at {_fire} in {TimbnPlayer.ZoneId ?? "no zone"}, time at x{PluginConfig.TimeSpeed.Value:0.#}.");
     }
 
     private void Restore()
@@ -147,10 +146,11 @@ internal sealed class Meditation
         Plugin.Logger.LogInfo("Stopped meditating.");
     }
 
-    private void KeepMeditating(EnvironmentEngine engine)
+    private void KeepMeditating()
     {
-        var passed = TimbnClock.Between(_lastTimeOfDay, engine.timeOfDay);
-        _lastTimeOfDay = engine.timeOfDay;
+        var now = TimbnClock.TimeOfDay;
+        var passed = TimbnClock.Between(_lastTimeOfDay, now);
+        _lastTimeOfDay = now;
         if (!_applied || passed <= 0f)
             return;
 

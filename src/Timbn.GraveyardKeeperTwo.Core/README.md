@@ -29,7 +29,7 @@ There is one setting, Enabled, in `BepInEx/config/Timbn.GraveyardKeeperTwo.Core.
 
 ## Troubleshooting
 
-If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and `BepInEx/LogOutput.log` says which part failed. If Core itself fails, every Timbn mod stays off. The startup line also warns when the game version differs from the one these mods were tested on, and a popup on the main menu says so once for each such game build. Include that line when reporting a problem.
+If a game update changes something a Timbn mod relies on, only the part of the mod that needs it turns off, its setting reads as off, a popup on the main menu names it, and the rest of the mod keeps working. A mod whose shared code is affected stays off as a whole instead of running half broken. `BepInEx/LogOutput.log` says which part failed. If Core itself fails, every Timbn mod stays off. The startup line also warns when the game version differs from the one these mods were tested on, and a popup on the main menu says so once for each such game build. Include that line when reporting a problem.
 
 If a mod does not load, a popup on the main menu names it and says why, for example when it needs a newer Timbn Core. Update the mod it names and restart the game.
 
@@ -49,6 +49,8 @@ Core is two things at once.
 
 - A loaded plugin (`TimbnCorePlugin`) that other Timbn mods hard depend on.
 - A shared framework (`TimbnFrameworkPlugin`) that every other Timbn mod builds on. The base plugin class gives you auto patching, config, logging, and per frame updates for free.
+
+The API comes in two shapes. Anything that changes the game on your behalf lives on a property of your plugin, such as `Events`, `Settings`, `Balance`, `Player`, `Clock`, `UI`, and `Saves`. Everything registered through one of those is owned by your plugin and undone when it unloads, so there is never cleanup to write. Anything that only reads the game is a public static, such as `TimbnPlayer`, `TimbnWorld`, `TimbnClock`, `TimbnItems`, `TimbnZombies`, `TimbnInput`, and `TimbnUI`. Public members stay across Core versions, and one that has to go is marked obsolete first.
 
 ## Getting started
 
@@ -92,6 +94,34 @@ internal static class PluginConfig
 
 The last two values of that `Bind` are the lowest and highest allowed, which a config manager shows as a slider. It is Core's shortcut for BepInEx's `Bind` with an `AcceptableValueRange`. `Plugin.IsActive` says whether the plugin's own `Enabled` and Core's are both on, for a patch that has to stand down the moment a player turns the plugin off.
 
+`Plugin.Instance` is the running plugin, or null while it is not running. A Harmony patch has to be static, so this is how it reaches the plugin's state without a static of its own, and Core clears it when the plugin unloads so a hot reload never leaves a patch talking to the old copy. Keep your state on the plugin and its objects, not in statics.
+
+```csharp
+[HarmonyPatch(typeof(WgoData))]
+internal static class WgoDataPatch
+{
+    [HarmonyPatch(nameof(WgoData.GetDropPos))]
+    [HarmonyPostfix]
+    private static void GetDropPosPostFix(WgoData __instance, ref Vector3 __result)
+    {
+        if (Plugin.Instance?.Dismantle.TryGetDropPosition(__instance, out var position) == true)
+            __result = position;
+    }
+}
+```
+
+## Features that survive game updates
+
+Core patches your assembly class by class when the plugin starts. A patch class marked with `[TimbnFeature]` belongs to one feature, named by the key of the config entry that switches it. Each feature is patched under its own Harmony instance, so when a game update renames something one feature's patches target, only that feature is turned off. Its toggle reads as off through `Settings.Toggle`, `Settings.While` and `Settings.IsOn`, the main menu popup names the feature, and the rest of the plugin runs. A patch class with no feature belongs to the plugin itself, and a failure there still turns the whole plugin off.
+
+```csharp
+[TimbnFeature(nameof(PluginConfig.StuckCarriers))]
+[HarmonyPatch(typeof(ZombieWgoData))]
+internal static class ZombieWgoDataStuckCarriersPatch
+```
+
+One class carries one feature, so a game type that two features patch gets two classes. `IsFeatureBroken(name)` on the plugin says whether a feature is off, for code that reads a toggle directly.
+
 ## Game Events
 
 The framework provides an easy way to listen to game events from Graveyard Keeper.
@@ -121,11 +151,13 @@ protected override void OnAwake()
 
 A few events come from Core rather than the game.
 
-- `Events.SleepStarted` and `Events.SleepEnded` run as the player falls asleep and wakes up.
+- `Events.SleepStarted` and `Events.SleepEnded` run as the player falls asleep and wakes up, and `Events.SleepRefused` when the bed turns them away for being rested, with whether that sleep would have saved.
 - `Events.Trigger(type, handler)` runs when the game fires one of the story triggers its quests wait on, such as `GlobalEventsSystem.Event.Type.BuildBuilding`, with the trigger's id.
 - `Events.BalanceLoaded(handler)` runs with the game's balance straight away if it has loaded, and after every later load.
+- `Events.ZombieViewReady(handler)` runs when a zombie's view has been given its body and head, which is the moment to change how it looks.
+- `Events.VoiceLine(allow)` decides whether a voice line plays. Return false and the character mumbles instead, the way lines without a recording do.
 
-Work that has to keep running can register for it too, so a tweak needs no `OnUpdate` of its own. `Events.Update(handler)` runs every frame, paused or not, and `Events.Every(seconds, handler)` runs at most that often and stops while the game is paused. Both run only while a save is loaded, and a handler that throws is logged once and stopped instead of failing every frame.
+Work that has to keep running can register for it too, so a tweak needs no `OnUpdate` of its own. `Events.Update(handler)` runs every frame, paused or not, and `Events.Every(seconds, handler)` runs at most that often and stops while the game is paused. `Events.LateUpdate(handler)` runs after the game's own Update, for camera work, and `Events.FixedUpdate(handler)` on every physics step. All of them run only while a save is loaded, and a handler that throws is logged once and stopped instead of failing every frame.
 
 ```csharp
 Events.Every(0.5f, () => stuckCarriers.Tick());
@@ -133,7 +165,7 @@ Events.Every(0.5f, () => stuckCarriers.Tick());
 
 ## Settings that apply live
 
-`Settings.Toggle` ties a config entry to the change it makes, so a setting switched in a config manager applies straight away instead of on the next start. While the setting is on, apply runs on every save load and as soon as it turns on. While it is off, revert runs on every save load and as soon as it turns off, and revert also runs when the plugin unloads. Apply can run more than once and revert can run when nothing was applied, so both must cope with that. At the main menu revert only runs for a change that was applied, so it can safely touch the loaded save. Leave revert out for a fix that runs once per save.
+`Settings.Toggle` ties a config entry to the change it makes, so a setting switched in a config manager applies straight away instead of on the next start. While the setting is on, apply runs on every save load and as soon as it turns on. Revert runs as soon as it turns off and when the plugin unloads. Apply can run more than once and revert can run when nothing was applied, so both must cope with that. At the main menu revert only runs for a change that was applied, so it can safely touch the loaded save. Leave revert out for a fix that runs once per save. A setting whose feature a game update broke reads as off here whatever its value.
 
 ```csharp
 protected override void OnAwake()
@@ -158,7 +190,7 @@ Settings.While(PluginConfig.RecoverBattleRewards, () => Events.SleepStarted(Lost
 Settings.While(PluginConfig.TechPointCap, cap => cap > 999, () => Balance.Edit<GameResSystemDef>("tech_red", Raise, Lower));
 ```
 
-`Settings.Changed(entry, handler)` runs your code with the new value whenever a setting changes, for anything Toggle and While do not fit.
+`Settings.Changed(entry, handler)` runs your code with the new value whenever a setting changes, for anything Toggle and While do not fit. `Settings.IsOn(entry)` reads a toggle the way Toggle and While do, off when its feature is broken, for a handler that reads the toggle by hand.
 
 BepInEx only reads a config file at startup, so a setting edited by hand is not seen until something reloads it. `TimbnConfig.ReloadAll()` re-reads the file of every loaded plugin, Timbn or not, and `TimbnConfig.Reload(plugin)` does one. Each changed value raises its `SettingChanged` event, so settings tied with `Settings.Toggle` apply straight away. Call it on the main thread. A key deleted from a file keeps its current value instead of going back to its default.
 
@@ -174,7 +206,7 @@ Settings.While(PluginConfig.PerkTalentBonus, () => Balance.Edit<PerkDef>(
     perk => { perk.craftStartTicks = ticks; perk.craftMasteryBonus = 0; }));
 ```
 
-`Balance.Add` puts in a definition of your own. Adding a `CraftDef` or `ItemDef` also rebuilds the game's craft lookups, and `TimbnBalance.RefreshCraftCaches()` does the same after a mod changed crafts or item groups in place. `TimbnBalance.SetIcon(item, iconId)` changes an item's icon in both places the game keeps it.
+`Balance.Add` puts in a definition of your own. Adding a `CraftDef` or `ItemDef` also rebuilds the game's craft lookups, and `TimbnBalance.RefreshCraftCaches()` does the same after a mod changed crafts or item groups in place. `TimbnBalance.SetIcon(item, iconId)` changes an item's icon in both places the game keeps it, and `TimbnBalance.ForgetPerks(item)` makes the game read an item's use effects again after a change to them, which `Balance.Edit` on an `ItemDef` does for you.
 
 ## Holds
 
@@ -182,6 +214,7 @@ A hold changes something the game or another mod may also change, and ends when 
 
 - `Player.TakeControl()` takes the player's control away the way the game's cutscenes do, so they cannot walk, interact, attack, use the hotbar or open menus, and cannot be pushed. Each call adds its own reason to the game's list of reasons the player is held, and the game only gives control back once every reason has let go, so a game cutscene ending meanwhile never frees the player early. Core's conversations use it too. Read your own keys with `LazyInput` while it is held, and use `TimbnPlayer.IsControlTakenByGame(...)` to notice the game taking control itself.
 - `Player.SetSpeed(multiplier)` multiplies how fast the player walks, on top of the game's own slowdowns such as aiming a bow. `Clock.SetSpeed(multiplier)` sets how fast the game's time runs, and gives back the speed from before unless the game changed it meanwhile. For both, the newest hold's speed wins.
+- `Clock.Pause()` stops the game's clock while the world keeps moving, and starts it again when the last hold lets go.
 
 ```csharp
 _fastTime = Clock.SetSpeed(7f);
@@ -192,14 +225,14 @@ _fastTime?.Dispose();
 ## Helpers
 
 - `TimbnConfig.CarryOver(config, (entry, oldSection, oldKey), ...)` moves the value of a renamed config entry into the new one. Call it at the end of `BindConfig`.
-- `TimbnInput.CanUseHotkeys`, `PlayerHasControl` and `GameHasInteraction` say when a mod's key should stay out of the way. `IsDownInGame`, `IsDownWithControl` and `IsDownInWindow<TWindow>` read a `KeyboardShortcut` with those checks built in.
+- `TimbnInput.CanUseHotkeys`, `PlayerHasControl` and `GameHasInteraction` say when a mod's key should stay out of the way. `IsDownInGame`, `IsDownWithControl` and `IsDownInWindow<TWindow>` read a `KeyboardShortcut` with those checks built in, and `IsDownWhileMoving` and `IsHeldWhileMoving` read one even while other keys are held, for a key such as a jump.
 - `TimbnUI.ActiveWindow`, `IsWindowOpen<TWindow>()` and `IsScreenFading` read the game's screens, and `TimbnUI.FadeThrough(action)` runs code while the screen is faded to black.
-- `UI.CreateHint()` makes the game's "press a key to do something" hint for any spot in the world. While it shows, the game ignores a press of its key, the way it does for its own hints, so the press only reaches your mod. `UI.Gui(draw)` `UI.Gui(draw)` draws IMGUI in place of an `OnGUI` method. Both are taken down when the plugin unloads.
+- `UI.CreateHint()` makes the game's "press a key to do something" hint for any spot in the world. While it shows, the game ignores a press of its key, the way it does for its own hints, so the press only reaches your mod. `UI.Gui(draw)` draws IMGUI in place of an `OnGUI` method, and `UI.Window(title, draw, toggleKey)` draws a debug or cheat menu with its box, title, close key, and "load a save" note done for you, with `TimbnGui.Header(text)` for a bold heading inside it. All are taken down when the plugin unloads.
 - `TimbnItems.CountAnywhere(id)` counts an item across the whole world and `CountOnPlayer(id)` only what the player carries, `GiveToPlayer` gives items and drops what does not fit in front of the player, `TakeFromPlayer` removes them, and `DropAt` and `PlayerDropPosition` drop items where the game would. `FindDrops(match)` finds items lying on the ground in every scene, and `RemoveDrops` clears them.
-- `TimbnPlayer.Position`, `SceneId` and `Scene` say where the player is, and `MoveTo` moves them. `HasPerk(id)` says whether the player has a perk, and `IsTired` whether they are tired.
-- `TimbnWorld.TryFindWalkable(point, range, out ground)` finds open ground near a spot, `TryGetNavGraph` gets a scene's navigation graph, `Near(position, radius)` lists the world objects around a spot, nearest first, and `ViewOf(data)` gets the view that draws one.
-- `TimbnClock.Day`, `Weekday`, `TimeOfDay` and `Time` read the calendar and clock, and `Between(from, to)` measures time passed across midnight.
-- `TimbnZombies.OnScene()` lists the zombies in the world, and `Skins()` the bodies, heads, and skin colors the game rolls for them.
+- `TimbnPlayer.Position`, `SceneId`, `Scene`, `Zone` and `ZoneId` say where the player is, and `MoveTo` moves them. `HasPerk(id)`, `HasTech(id)` and `HasBuilt(buildingId)` say what the player has, and `IsTired` whether they are tired.
+- `TimbnWorld.Scenes` lists the world's scenes and `All(match)` every world object in them, `ZonesAt(position)` the zones a spot lies in, `TryFindWalkable(point, range, out ground)` finds open ground near a spot, `TryGetNavGraph` gets a scene's navigation graph, `Near(position, radius)` lists the world objects around a spot, nearest first, and `ViewOf(data)` gets the view that draws one.
+- `TimbnClock.Day`, `Weekday`, `TimeOfDay`, `Time` and `IsPaused` read the calendar and clock, `Between(from, to)` measures time passed across midnight, and `SetTime(timeOfDay)` sets the clock.
+- `TimbnZombies.OnScene()` lists the zombies in the world, `Skins()` the bodies, heads, and skin colors the game rolls for them, and `Redraw(zombie)` redraws one after its data changed.
 
 ## Main menu
 
@@ -241,6 +274,7 @@ Every Timbn mod shares one file per save, `<slot>.TimbnSaveData.dat` next to the
 - A file that cannot be read is renamed to `.dat.bad` and Core loads the backup instead. A single section that cannot be read is kept as `.dat.<plugin GUID>.bad`, and only that plugin starts from a fresh `T`.
 - A section whose plugin is not loaded, because it is turned off or removed, is kept as it is and comes back when the plugin does.
 - On a hot reload the new copy of the plugin gets the old copy's data, unsaved changes included.
+- A plugin that keeps more than one data object names each one, `Saves.Register<GraveData>("Graves")`, and gets a section per name. `FilePath` on the handle is the file the data sits in.
 
 ### Global data
 
@@ -361,7 +395,7 @@ timbn_larry_boards_accept = Got any boards lying around?
 timbn_larry_boards_given = Lucky for you, the Inquisitors left a couple behind my box.\nTry not to lose these too.
 ```
 
-Lines starting with `#` are comments and `\n` is a line break. The game shows the file for its current language and falls back to `en.txt` for any key a translation lacks, so keep every key in `en.txt`. A translator copies it to `de.txt` and translates it, no rebuild needed. Ship the files with the mod from its csproj.
+Lines starting with `#` are comments and `\n` is a line break. The game's own markup works too. `(*money*)` draws the named icon, `#(other_key)` pastes another key's text, and `@(rule)` fills in one of the game's replacement words. The game shows the file for its current language and falls back to `en.txt` for any key a translation lacks, so keep every key in `en.txt`. A translator copies it to `de.txt` and translates it, no rebuild needed. Ship the files with the mod from its csproj.
 
 ```xml
 <ItemGroup>

@@ -13,6 +13,62 @@ public static class TimbnWorld
         [DistanceMetric.ClosestAsSeenFromAboveSoft(), DistanceMetric.ClosestAsSeenFromAbove()];
 
     /// <summary>
+    /// The scenes of the loaded world, the outdoor map and every interior, each holding its world objects, zones,
+    /// and the items on its ground. Empty at the main menu.
+    /// </summary>
+    public static IReadOnlyList<GameSceneData> Scenes =>
+        TimbnGame.IsInGame ? MainGame.WorldData.gameSceneDataList : [];
+
+    /// <summary>
+    /// Every world object in the loaded save, in every scene, loaded around the player or not. World objects are
+    /// everything placed in the world, such as chests, stations, graves, NPCs, and zombies.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// foreach (var station in TimbnWorld.All(wgo => wgo.CraftComponent != null))
+    ///     station.CraftComponent.ResetCraftsFromBalanceCache();
+    /// </code>
+    /// </example>
+    /// <param name="match">Which objects to keep. Leave it out to keep all of them.</param>
+    /// <returns>The matching objects, scene by scene. Empty at the main menu.</returns>
+    public static IEnumerable<WgoData> All(Func<WgoData, bool>? match = null)
+    {
+        foreach (var scene in Scenes)
+        {
+            foreach (var wgo in scene.wgoDataList)
+            {
+                if (wgo != null && (match?.Invoke(wgo) ?? true))
+                    yield return wgo;
+            }
+        }
+    }
+
+    /// <summary>
+    /// The zones a spot lies in, smallest first, read from the scene's data so it works for a scene that is not
+    /// loaded around the player. Zones can nest, so a spot in a room is also in the building around it.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var zone = TimbnWorld.ZonesAt(TimbnPlayer.Position).FirstOrDefault();
+    /// </code>
+    /// </example>
+    /// <param name="position">The spot to look at.</param>
+    /// <param name="scene">The scene to look in. Leave it out for the scene the player is in.</param>
+    /// <returns>The zones containing the spot, smallest first. Empty when it is in none or at the main menu.</returns>
+    public static List<WorldZoneData> ZonesAt(Vector3 position, GameSceneData? scene = null)
+    {
+        scene ??= TimbnPlayer.Scene;
+        if (scene is null)
+            return [];
+
+        var point = new Vector2(position.x, position.z);
+        return scene.worldZones
+            .Where(zone => zone != null && zone.wholeZoneRect.Contains(point))
+            .OrderBy(zone => zone.wholeZoneRect.width * zone.wholeZoneRect.height)
+            .ToList();
+    }
+
+    /// <summary>
     /// Gets the navigation graph of a scene, which holds its walkable ground. People and zombies path over it, and
     /// the player can stand anywhere on it.
     /// </summary>

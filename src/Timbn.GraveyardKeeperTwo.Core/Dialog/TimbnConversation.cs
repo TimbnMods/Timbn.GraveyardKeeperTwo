@@ -93,18 +93,10 @@ public sealed class TimbnConversation
     public TimbnConversation Do(Action action) =>
         Add((next, end) =>
         {
-            try
-            {
-                action();
-            }
-            catch (Exception ex)
-            {
-                TimbnCorePlugin.Logger.LogError($"{nameof(TimbnConversation)}|A step in talk '{_talkId}' threw: {ex}");
+            if (TimbnSafe.Run(action, $"{nameof(TimbnConversation)}|A step in talk '{_talkId}'"))
+                next();
+            else
                 end();
-                return;
-            }
-
-            next();
         });
 
     /// <summary>
@@ -175,14 +167,9 @@ public sealed class TimbnConversation
         var no = otherwise is null ? null : Branch(otherwise);
         return Add((next, end) =>
         {
-            bool chosen;
-            try
+            var chosen = false;
+            if (!TimbnSafe.Run(() => chosen = condition(), $"{nameof(TimbnConversation)}|A condition in talk '{_talkId}'"))
             {
-                chosen = condition();
-            }
-            catch (Exception ex)
-            {
-                TimbnCorePlugin.Logger.LogError($"{nameof(TimbnConversation)}|A condition in talk '{_talkId}' threw: {ex}");
                 end();
                 return;
             }

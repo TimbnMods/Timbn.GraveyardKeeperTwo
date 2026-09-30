@@ -2,6 +2,7 @@ using Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
 
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks.Patches;
 
+[TimbnFeature(nameof(PluginConfig.MoveIdenticalFromBags))]
 [HarmonyPatch(typeof(Inventory))]
 internal static class InventoryPatch
 {

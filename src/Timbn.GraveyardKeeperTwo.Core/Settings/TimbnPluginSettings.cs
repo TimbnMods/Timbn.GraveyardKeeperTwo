@@ -2,24 +2,24 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
 /// Keeps a plugin's changes to the game in step with its config, so a setting changed in a config menu applies
-/// straight away instead of on the next start. Reach it through the plugin's Settings property.
+/// straight away instead of on the next start. A setting whose feature is broken, because a game update broke
+/// its patches (see <see cref="TimbnFeatureAttribute"/>), reads as off here whatever its value. Reach it through
+/// the plugin's Settings property.
 /// </summary>
 public sealed class TimbnPluginSettings
 {
     private readonly TimbnFrameworkPlugin _owner;
-    private readonly ManualLogSource _logger;
 
-    internal TimbnPluginSettings(TimbnFrameworkPlugin owner, ManualLogSource logger)
+    internal TimbnPluginSettings(TimbnFrameworkPlugin owner)
     {
         _owner = owner;
-        _logger = logger;
     }
 
     /// <summary>
     /// Ties a toggle to the change it makes. While the toggle is on, apply runs on every save load and as soon as
-    /// the toggle turns on during play. While it is off, revert runs on every save load and as soon as it turns
-    /// off. Revert also runs when the plugin unloads. Both run straight away if a save is already loaded. At the
-    /// main menu, revert only runs for a change that was applied.
+    /// the toggle turns on during play. Revert runs as soon as the toggle turns off and when the plugin unloads.
+    /// Both run straight away if a save is already loaded. At the main menu, revert only runs for a change that
+    /// was applied.
     /// </summary>
     /// <example>
     /// <code>
@@ -55,7 +55,7 @@ public sealed class TimbnPluginSettings
     /// </param>
     /// <returns>A handle that stops following the setting and reverts when disposed. You don't need to keep it.</returns>
     public IDisposable Toggle<T>(ConfigEntry<T> entry, Func<T, bool> isOn, Action apply, Action? revert = null) =>
-        _owner.Subscriptions.Add(TimbnSettings.Toggle(entry, isOn, apply, revert, _logger));
+        _owner.Subscriptions.Add(TimbnSettings.Toggle(entry, Working(entry, isOn), apply, revert, _owner.PluginLogger));
 
     /// <summary>
     /// Keeps a registration alive only while a toggle is on. Subscribe runs straight away if the toggle is on and
@@ -90,7 +90,7 @@ public sealed class TimbnPluginSettings
     /// <param name="subscribe">Makes the registration and returns its handle.</param>
     /// <returns>A handle that stops following the setting and disposes the registration when disposed. You don't need to keep it.</returns>
     public IDisposable While<T>(ConfigEntry<T> entry, Func<T, bool> isOn, Func<IDisposable> subscribe) =>
-        _owner.Subscriptions.Add(TimbnSettings.While(entry, isOn, subscribe, _logger));
+        _owner.Subscriptions.Add(TimbnSettings.While(entry, Working(entry, isOn), subscribe, _owner.PluginLogger));
 
     /// <summary>
     /// Runs your code whenever a setting's value changes, such as from a config manager or a reloaded config file.
@@ -106,5 +106,17 @@ public sealed class TimbnPluginSettings
     /// <param name="handler">Gets the new value.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable Changed<T>(ConfigEntry<T> entry, Action<T> handler) =>
-        _owner.Subscriptions.Add(TimbnSettings.Changed(entry, handler, _logger));
+        _owner.Subscriptions.Add(TimbnSettings.Changed(entry, handler, _owner.PluginLogger));
+
+    /// <summary>
+    /// Whether a toggle is on and its feature is working, which is what <see cref="Toggle(ConfigEntry{bool}, Action, Action)"/>
+    /// and <see cref="While(ConfigEntry{bool}, Func{IDisposable})"/> go by. Use it in place of the entry's Value in a
+    /// patch or a handler that reads the toggle directly.
+    /// </summary>
+    /// <param name="entry">The toggle.</param>
+    /// <returns>True when the toggle is on and no game update has broken the feature's patches.</returns>
+    public bool IsOn(ConfigEntry<bool> entry) => entry.Value && !_owner.IsFeatureBroken(entry.Definition.Key);
+
+    private Func<T, bool> Working<T>(ConfigEntry<T> entry, Func<T, bool> isOn) =>
+        value => !_owner.IsFeatureBroken(entry.Definition.Key) && isOn(value);
 }

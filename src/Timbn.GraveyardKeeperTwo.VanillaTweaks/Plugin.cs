@@ -6,6 +6,8 @@ namespace Timbn.GraveyardKeeperTwo.VanillaTweaks;
 [BepInDependency(TimbnCorePlugin.Guid, "1.5.0")]
 public class Plugin : TimbnFrameworkPlugin<Plugin>
 {
+    internal UnreachableDismantle Dismantle { get; private set; } = null!;
+
     protected override void BindConfig(ConfigFile config) => PluginConfig.Bind(config);
 
     protected override void OnAwake()
@@ -16,9 +18,10 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         StuckCarriers.Register(this);
         StuckResourceWorkers.Register(this);
         BuiltEarlyQuests.Register(this);
-        UnreachableDismantle.Register(this);
+        Dismantle = UnreachableDismantle.Register(this);
         LostItems.Register(this);
         LostBattleRewards.Register(this);
+        BedSaveWhenRested.Register(this);
 
         Logger.LogMessage($"Vanilla Tweaks started. Unstuck on {PluginConfig.UnstuckKey.Value}.");
     }

@@ -2,11 +2,13 @@ using Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
 
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks.Patches;
 
-[HarmonyPatch(typeof(RemovePointer), "IsFromCurrentWorldZone")]
+[TimbnFeature(nameof(PluginConfig.RemoveInWholeArea))]
+[HarmonyPatch(typeof(RemovePointer))]
 internal static class RemovePointerPatch
 {
+    [HarmonyPatch("IsFromCurrentWorldZone")]
     [HarmonyPostfix]
-    private static void AllowWholeBuildArea(IBuildRemovable removable, ref bool __result)
+    private static void IsFromCurrentWorldZonePostFix(IBuildRemovable removable, ref bool __result)
     {
         if (!__result && PluginConfig.RemoveInWholeArea.Value && NestedZoneRemoval.IsInsideBuildArea(removable))
             __result = true;

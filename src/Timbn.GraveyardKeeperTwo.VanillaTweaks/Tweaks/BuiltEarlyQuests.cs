@@ -35,10 +35,9 @@ internal sealed class BuiltEarlyQuests
             return;
 
         _pending = false;
-        var locked = MainGame.Instance.GameSave.knowledgeSystem.lockedBuildings;
         foreach (var entry in _quests)
         {
-            if (TimbnQuests.StatusOf(entry.Quest) != QuestStatus.InProgress || !locked.Contains(entry.Building))
+            if (TimbnQuests.StatusOf(entry.Quest) != QuestStatus.InProgress || !TimbnPlayer.HasBuilt(entry.Building))
                 continue;
 
             Plugin.Logger.LogInfo($"{entry.Building} was built before {entry.Quest} started, finishing the quest.");

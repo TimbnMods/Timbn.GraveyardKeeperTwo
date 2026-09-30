@@ -10,8 +10,6 @@ internal sealed class TimbnSubscriptions : IDisposable
         _logger = logger;
     }
 
-    public int Count => _items.Count;
-
     public IDisposable Add(IDisposable subscription)
     {
         var owned = new Owned(this, subscription);
@@ -25,16 +23,9 @@ internal sealed class TimbnSubscriptions : IDisposable
     {
         while (_items.Count > 0)
         {
-            var last = _items[_items.Count - 1];
+            var last = _items[^1];
             _items.RemoveAt(_items.Count - 1);
-            try
-            {
-                last.DisposeInner();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"{nameof(TimbnSubscriptions)}|An undo threw: {ex}");
-            }
+            TimbnSafe.Run(last.DisposeInner, _logger, $"{nameof(TimbnSubscriptions)}|An undo");
         }
     }
 
@@ -69,6 +60,8 @@ internal sealed class TimbnSubscriptions : IDisposable
 
 internal sealed class TimbnUndo : IDisposable
 {
+    internal static readonly IDisposable None = new TimbnUndo(() => { });
+
     private Action? _undo;
 
     public TimbnUndo(Action undo)

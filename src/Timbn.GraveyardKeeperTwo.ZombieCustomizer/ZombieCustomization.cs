@@ -1,9 +1,8 @@
 using LazyBearTechnology;
-using System.Reflection;
 
 namespace Timbn.GraveyardKeeperTwo.ZombieCustomizer;
 
-internal static class ZombieCustomization
+internal sealed class ZombieCustomization
 {
     private static readonly AccessTools.FieldRef<UICustomizationWindow, UICharacterOptionSwitcher> _hairSwitcher = Switcher("hairSwitcher");
     private static readonly AccessTools.FieldRef<UICustomizationWindow, UICharacterOptionSwitcher> _beardSwitcher = Switcher("beardSwitcher");
@@ -16,19 +15,16 @@ internal static class ZombieCustomization
     private static readonly AccessTools.FieldRef<UICustomizationWindow, Sprite> _unavailableSprite =
         AccessTools.FieldRefAccess<UICustomizationWindow, Sprite>("nonInteractableSwitcherImage");
 
-    private static readonly MethodInfo _setupZombieSkin = AccessTools.Method(typeof(WgoPart), "SetupZombieSkin");
-    private static readonly MethodInfo _updateDropView = AccessTools.Method(typeof(DropView), "UpdateView");
-
     private const string _headRenderer = "hed";
 
-    private static readonly List<(Material Material, Shader Shader)> _swappedShaders = [];
-    private static readonly List<(SpriteRenderer Renderer, Color Color)> _previewColors = [];
-    private static readonly Dictionary<int, Texture2D> _swatches = [];
+    private readonly List<(Material Material, Shader Shader)> _swappedShaders = [];
+    private readonly List<(SpriteRenderer Renderer, Color Color)> _previewColors = [];
+    private readonly Dictionary<int, Texture2D> _swatches = [];
 
-    private static Session? _session;
-    private static bool _loggedShaders;
+    private Session? _session;
+    private bool _loggedShaders;
 
-    public static void Open(ZombieWgoData zombie, UIZombieWorkerWindowData returnTo)
+    public void Open(ZombieWgoData zombie, UIZombieWorkerWindowData returnTo)
     {
         var pool = TimbnZombies.Skins();
         if (pool == null || pool.Bodies.Count == 0 || pool.Heads.Count == 0)
@@ -42,7 +38,7 @@ internal static class ZombieCustomization
         LazyUI.GetWindow<UICustomizationWindow>().Open(data);
     }
 
-    public static void OnWindowOpened(UICustomizationWindow window)
+    public void OnWindowOpened(UICustomizationWindow window)
     {
         var session = _session;
         if (session == null)
@@ -60,7 +56,7 @@ internal static class ZombieCustomization
         ShowPreview(session);
     }
 
-    public static bool TryApply(UICustomizationWindow window)
+    public bool TryApply(UICustomizationWindow window)
     {
         var session = _session;
         if (session == null)
@@ -69,8 +65,8 @@ internal static class ZombieCustomization
         var zombie = session.Zombie;
         ZombieSkinHelper.ApplySkinToZombieWgoData(zombie, session.Body, session.Head, session.BodyColor, session.HeadColor);
         ZombieTint.Save(zombie, session.Tint);
-        Redraw(zombie);
-        var view = GameScene.GetWgoViewGlobal(zombie.UniqueId);
+        TimbnZombies.Redraw(zombie);
+        var view = TimbnWorld.ViewOf(zombie);
         if (view != null)
             ZombieTint.Paint(view, session.Tint);
 
@@ -80,7 +76,7 @@ internal static class ZombieCustomization
         return true;
     }
 
-    public static void OnWindowClosed()
+    public void OnWindowClosed()
     {
         var returnTo = _session?.ReturnTo;
         RestorePreview();
@@ -89,7 +85,7 @@ internal static class ZombieCustomization
             LazyUI.GetWindow<UIZombieWorkerWindow>().Open(returnTo);
     }
 
-    public static void Stop()
+    public void Stop()
     {
         if (_session == null)
             return;
@@ -102,7 +98,7 @@ internal static class ZombieCustomization
         _session = null;
     }
 
-    private static void Bind<TValue>(UICustomizationWindow window, UICharacterOptionSwitcher switcher, List<TValue> values, TValue current, Action<TValue> choose)
+    private void Bind<TValue>(UICustomizationWindow window, UICharacterOptionSwitcher switcher, List<TValue> values, TValue current, Action<TValue> choose)
     {
         if (values.Count <= 1)
         {
@@ -123,7 +119,7 @@ internal static class ZombieCustomization
         switcher.SetColorImage(null);
     }
 
-    private static void BindTint(UICharacterOptionSwitcher switcher, Session session)
+    private void BindTint(UICharacterOptionSwitcher switcher, Session session)
     {
         var palette = session.Palette;
         var labels = Enumerable.Range(1, palette.Count).Select(i => $"{i}/{palette.Count}").ToArray();
@@ -138,7 +134,7 @@ internal static class ZombieCustomization
         switcher.SetColorImage(Swatch(index, palette[index]));
     }
 
-    private static Texture2D Swatch(int index, Color color)
+    private Texture2D Swatch(int index, Color color)
     {
         if (_swatches.TryGetValue(index, out var swatch))
             return swatch;
@@ -156,7 +152,7 @@ internal static class ZombieCustomization
         switcher.SetSprite(_unavailableSprite(window));
     }
 
-    private static void ShowPreview(Session session)
+    private void ShowPreview(Session session)
     {
         var preview = ZombieSkinHelper.GetPresetForCustomizationData(
             ZombieSkinHelper.ZOMBIE_WORKER_DATA_ID, session.Body, session.Head, session.BodyColor, session.HeadColor);
@@ -174,7 +170,7 @@ internal static class ZombieCustomization
         ZombieTint.Paint(character, session.Tint);
     }
 
-    private static void UseColorSwapShader(ZombieWgoData zombie)
+    private void UseColorSwapShader(ZombieWgoData zombie)
     {
         LogColorSwapShaders();
         var shader = FindColorSwapShader(zombie);
@@ -197,7 +193,7 @@ internal static class ZombieCustomization
         Plugin.Logger.LogMessage($"Preview borrowed the {shader.name} shader for {_swappedShaders.Count} sprites.");
     }
 
-    private static void RestorePreview()
+    private void RestorePreview()
     {
         foreach (var (material, shader) in _swappedShaders)
         {
@@ -221,7 +217,7 @@ internal static class ZombieCustomization
 
     private static Shader? FindColorSwapShader(ZombieWgoData zombie)
     {
-        var wgo = GameScene.GetWgoViewGlobal(zombie.UniqueId);
+        var wgo = TimbnWorld.ViewOf(zombie);
         var own = wgo == null ? null : HeadShader(wgo.GetComponentsInChildren<SpriteRenderer>(true));
         return own ?? HeadShader(Resources.FindObjectsOfTypeAll<SpriteRenderer>());
     }
@@ -232,7 +228,7 @@ internal static class ZombieCustomization
             .Select(r => r.sharedMaterial.shader)
             .FirstOrDefault();
 
-    private static void LogColorSwapShaders()
+    private void LogColorSwapShaders()
     {
         if (_loggedShaders)
             return;
@@ -243,31 +239,6 @@ internal static class ZombieCustomization
             .Select(s => s.name)
             .Distinct();
         Plugin.Logger.LogMessage($"Loaded shaders with a color swap LUT: {string.Join(", ", names)}.");
-    }
-
-    private static void Redraw(ZombieWgoData zombie)
-    {
-        var wgo = GameScene.GetWgoViewGlobal(zombie.UniqueId);
-        if (wgo == null)
-        {
-            if (MainGame.PlayerController.TryGetCurrentGameScene(out var scene) && scene.TryGetDropView(zombie.ZombieItem, out var dropView))
-                _updateDropView.Invoke(dropView, []);
-
-            return;
-        }
-
-        if (zombie.ZombieType == ZombieType.Fighter)
-        {
-            wgo.OnZombieItemsChanged(new Inventory(zombie.ZombieItem));
-            return;
-        }
-
-        if (wgo.MainWgoPart == null)
-            return;
-
-        var definition = zombie.Definition;
-        var visualId = definition == null ? string.Empty : definition.hasCustomVisualId ? definition.customVisualId : definition.id;
-        _setupZombieSkin.Invoke(wgo.MainWgoPart, [zombie, visualId]);
     }
 
     private static string Describe(string color) => string.IsNullOrEmpty(color) ? "none" : color;

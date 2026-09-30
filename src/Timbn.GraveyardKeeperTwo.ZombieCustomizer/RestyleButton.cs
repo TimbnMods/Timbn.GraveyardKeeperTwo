@@ -3,7 +3,7 @@ using UnityEngine.UI;
 
 namespace Timbn.GraveyardKeeperTwo.ZombieCustomizer;
 
-internal static class RestyleButton
+internal sealed class RestyleButton(ZombieCustomization customization)
 {
     public const string TooltipKey = "timbn_zombie_restyle";
 
@@ -12,9 +12,10 @@ internal static class RestyleButton
     private static readonly AccessTools.FieldRef<UIZombieWorkerWindow, UIWorkerIcon> _workerIcon =
         AccessTools.FieldRefAccess<UIZombieWorkerWindow, UIWorkerIcon>("workerIcon");
 
-    private static UIZombieWorkerWindowData? _data;
+    private readonly ZombieCustomization _customization = customization;
+    private UIZombieWorkerWindowData? _data;
 
-    public static void Attach(UIZombieWorkerWindow window, UIZombieWorkerWindowData data)
+    public void Attach(UIZombieWorkerWindow window, UIZombieWorkerWindowData data)
     {
         _data = data;
         var icon = _workerIcon(window);
@@ -38,7 +39,7 @@ internal static class RestyleButton
         UIMouseTooltip.Attach(button, TooltipKey);
     }
 
-    public static void Remove()
+    public void Remove()
     {
         _data = null;
         var window = LazyUI.GetWindow<UIZombieWorkerWindow>();
@@ -48,13 +49,13 @@ internal static class RestyleButton
             UnityEngine.Object.Destroy(button.gameObject);
     }
 
-    private static void OnClick()
+    private void OnClick()
     {
         var data = _data;
         if (data?.ZombieWgoData == null)
             return;
 
         LazyUI.GetWindow<UIZombieWorkerWindow>().Close();
-        ZombieCustomization.Open(data.ZombieWgoData, data);
+        _customization.Open(data.ZombieWgoData, data);
     }
 }

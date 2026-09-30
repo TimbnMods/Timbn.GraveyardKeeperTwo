@@ -12,9 +12,6 @@ public static class TimbnBalance
     private static readonly AccessTools.FieldRef<GameBalance?> _instance =
         AccessTools.StaticFieldRefAccess<GameBalance?>(AccessTools.Field(typeof(GameBalance), "instance"));
 
-    private static readonly AccessTools.FieldRef<GameBalanceBase, List<IList>> _datas =
-        AccessTools.FieldRefAccess<GameBalanceBase, List<IList>>("datas");
-
     private static readonly AccessTools.FieldRef<GameBalanceBase, List<Type>> _types =
         AccessTools.FieldRefAccess<GameBalanceBase, List<Type>>("types");
 
@@ -28,6 +25,7 @@ public static class TimbnBalance
     private static readonly Action<GameBalance> _createCraftInItemsCache = CacheBuilder("CreateCraftInItemsCache");
 
     private static readonly AccessTools.FieldRef<ItemDef, string> _itemCustomIcon = AccessTools.FieldRefAccess<ItemDef, string>("customIcon");
+    private static readonly AccessTools.FieldRef<ItemDef, bool> _itemPerksCached = AccessTools.FieldRefAccess<ItemDef, bool>("perksCached");
 
     private static readonly List<Entry> _entries = [];
     private static readonly List<IEdit> _edits = [];
@@ -35,17 +33,26 @@ public static class TimbnBalance
     /// <summary>The balance if the game has loaded it, or null. Unlike GameBalance.Me it never forces a load.</summary>
     public static GameBalance? Loaded => _instance();
 
-    internal static IDisposable Add(BalanceBaseObject definition) => Add(definition, null);
+    internal static IDisposable Add(BalanceBaseObject definition) => Add(definition, null, null);
 
     internal static IDisposable Add(BalanceBaseObject definition, Action<GameBalance>? prepare)
     {
-        var entry = new Entry(definition, prepare);
+        Func<GameBalance, bool>? ready = prepare is null
+            ? null
+            : balance =>
+            {
+                prepare(balance);
+                return true;
+            };
+        return Add(definition, ready, null);
+    }
+
+    internal static IDisposable Add(BalanceBaseObject definition, Func<GameBalance, bool>? prepare, Action<GameBalance>? removed)
+    {
+        var entry = new Entry(definition, prepare, removed);
         _entries.Add(entry);
-        if (Loaded is { } balance)
-        {
-            Insert(balance, entry);
+        if (Loaded is { } balance && Insert(balance, entry))
             RefreshDerivedCaches(balance, definition.GetType());
-        }
 
         return new TimbnUndo(() => Remove(entry));
     }
@@ -67,7 +74,7 @@ public static class TimbnBalance
     internal static void OnBalanceLoaded(GameBalance balance)
     {
         var touched = new HashSet<Type>();
-        foreach (var entry in _entries)
+        foreach (var entry in _entries.ToList())
         {
             if (Insert(balance, entry))
                 touched.Add(entry.Definition.GetType());
@@ -102,14 +109,8 @@ public static class TimbnBalance
         balance.craftInItemsCacheShownInTooltips.Clear();
         _createCraftInItemsCache(balance);
 
-        if (!TimbnGame.IsInGame)
-            return;
-
-        foreach (var scene in MainGame.WorldData.gameSceneDataList)
-        {
-            foreach (var wgo in scene.wgoDataList)
-                wgo.CraftComponent?.ResetCraftsFromBalanceCache();
-        }
+        foreach (var wgo in TimbnWorld.All())
+            wgo.CraftComponent?.ResetCraftsFromBalanceCache();
     }
 
     /// <summary>
@@ -137,6 +138,14 @@ public static class TimbnBalance
     /// <returns>The sprite name the item is drawn with.</returns>
     public static string GetIcon(ItemDef item) => _itemCustomIcon(item) is { Length: > 0 } icon ? icon : item.iconId;
 
+    /// <summary>
+    /// Makes the game read an item's use effects again. The game remembers which buffs an item gives the first
+    /// time it looks, so a change to onUseExpressions is not seen until this is called. The plugin's Balance.Edit
+    /// on an ItemDef calls it for you after apply and revert.
+    /// </summary>
+    /// <param name="item">The item whose use effects changed.</param>
+    public static void ForgetPerks(ItemDef item) => _itemPerksCached(item) = false;
+
     private static Action<GameBalance> CacheBuilder(string name) =>
         AccessTools.MethodDelegate<Action<GameBalance>>(AccessTools.Method(typeof(GameBalance), name));
 
@@ -150,23 +159,25 @@ public static class TimbnBalance
             return false;
         }
 
-        var list = _datas(balance)[index];
+        var list = balance.GetDataCollection(definition.GetType());
         if (list.Contains(definition))
             return false;
 
-        entry.Prepare?.Invoke(balance);
         var existing = FindById(list, definition.id);
+        if (existing != -1 && !_entries.Any(e => e != entry && e.Definition == list[existing]))
+        {
+            TimbnCorePlugin.Logger.LogError($"{nameof(TimbnBalance)}|The game already has a {definition.GetType().Name} with id '{definition.id}'.");
+            return false;
+        }
+
+        if (entry.Prepare is { } prepare && !prepare(balance))
+            return false;
+
         if (existing == -1)
         {
             list.Add(definition);
             _cache(balance)[index][definition.id] = list.Count - 1;
             return true;
-        }
-
-        if (!_entries.Any(e => e != entry && e.Definition == list[existing]))
-        {
-            TimbnCorePlugin.Logger.LogError($"{nameof(TimbnBalance)}|The game already has a {definition.GetType().Name} with id '{definition.id}'.");
-            return false;
         }
 
         list[existing] = definition;
@@ -184,7 +195,7 @@ public static class TimbnBalance
         if (index == -1)
             return;
 
-        var list = _datas(balance)[index];
+        var list = balance.GetDataCollection(definition.GetType());
         var at = list.IndexOf(definition);
         if (at == -1)
             return;
@@ -196,6 +207,7 @@ public static class TimbnBalance
             cache[((BalanceBaseObject)list[i]).id] = i;
 
         RefreshDerivedCaches(balance, definition.GetType());
+        TimbnSafe.Run(() => entry.Removed?.Invoke(balance), $"{nameof(TimbnBalance)}|Cleaning up after {definition.GetType().Name} '{definition.id}'");
     }
 
     private static int FindById(IList list, string id)
@@ -255,27 +267,25 @@ public static class TimbnBalance
 
         private void Run(Action<T> action, T definition, string doing)
         {
-            try
-            {
-                action(definition);
-            }
-            catch (Exception ex)
-            {
-                logger.LogError($"{nameof(TimbnBalance)}|{doing} {typeof(T).Name} '{id}' threw: {ex}");
-            }
+            TimbnSafe.Run(() => action(definition), logger, $"{nameof(TimbnBalance)}|{doing} {typeof(T).Name} '{id}'");
+            if (definition is ItemDef item)
+                ForgetPerks(item);
         }
     }
 
     private sealed class Entry
     {
-        public Entry(BalanceBaseObject definition, Action<GameBalance>? prepare)
+        public Entry(BalanceBaseObject definition, Func<GameBalance, bool>? prepare, Action<GameBalance>? removed)
         {
             Definition = definition;
             Prepare = prepare;
+            Removed = removed;
         }
 
         public BalanceBaseObject Definition { get; }
 
-        public Action<GameBalance>? Prepare { get; }
+        public Func<GameBalance, bool>? Prepare { get; }
+
+        public Action<GameBalance>? Removed { get; }
     }
 }

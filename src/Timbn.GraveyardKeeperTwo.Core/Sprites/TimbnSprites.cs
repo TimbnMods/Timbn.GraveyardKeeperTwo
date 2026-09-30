@@ -19,7 +19,7 @@ internal static class TimbnSprites
         {
             UnityEngine.Object.Destroy(texture);
             TimbnCorePlugin.Logger.LogWarning($"{nameof(TimbnSprites)}|{name} is not a readable image.");
-            return new TimbnUndo(() => { });
+            return TimbnUndo.None;
         }
 
         texture = PadToCanvas(texture);
@@ -82,7 +82,7 @@ internal static class TimbnSprites
         if (name == null || !_sprites.TryGetValue(name, out var stack) || stack.Count == 0)
             return false;
 
-        sprite = stack[stack.Count - 1];
+        sprite = stack[^1];
         return sprite != null;
     }
 

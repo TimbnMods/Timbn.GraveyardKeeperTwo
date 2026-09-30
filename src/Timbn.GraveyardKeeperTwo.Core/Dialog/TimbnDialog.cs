@@ -13,7 +13,6 @@ internal static class TimbnDialog
     private static readonly HashSet<string> _warnedKeys = [];
     private static readonly HashSet<string> _modLines = [];
     private static Func<HashSet<string>>? _seenTalks;
-    private static float _nextRefresh;
     private static IDisposable? _control;
     private static bool _iconFailed;
 
@@ -60,8 +59,16 @@ internal static class TimbnDialog
     internal static bool Say(WgoData npc, string key, object[] values, Action then)
     {
         WarnIfMissing(key);
-        return TryFormat(key, values, out var text)
-            && Show(key, () => Bubble.Talk(new PhraseData(isPlayer: false, npc, text, then, null)));
+        if (!TryFormat(key, values, out var text))
+            return false;
+
+        void said()
+        {
+            GlobalEventsSystem.FireTrigger(GlobalEventsSystem.Event.Type.SpeechSaid, text);
+            then();
+        }
+
+        return Show(key, () => Bubble.Talk(new PhraseData(isPlayer: false, npc, text, said, null)));
     }
 
     internal static bool PlayerSay(string key, object[] values, Action then)
@@ -71,14 +78,7 @@ internal static class TimbnDialog
             && Show(key, () => Bubble.Talk(new PhraseData(isPlayer: true, null, text, then, null)));
     }
 
-    internal static bool AllowVoice(VoiceOverPlayer player, string id)
-    {
-        if (!_modLines.Contains(id) || !_talks.Any(t => t.Busy))
-            return true;
-
-        player.Stop();
-        return false;
-    }
+    internal static bool AllowVoice(string id) => !_modLines.Contains(id) || !_talks.Any(t => t.Busy);
 
     internal static void UseSeenTalks(Func<HashSet<string>> seenTalks) => _seenTalks = seenTalks;
 
@@ -196,19 +196,7 @@ internal static class TimbnDialog
         TimbnCorePlugin.Logger.LogWarning($"{nameof(TimbnDialog)}|The line '{key}' has no text in the current language, so the game shows the key itself. Add it with Text.Add or a lang file.");
     }
 
-    private static bool Show(string what, Action show)
-    {
-        try
-        {
-            show();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            TimbnCorePlugin.Logger.LogError($"{nameof(TimbnDialog)}|Showing '{what}' threw: {ex}");
-            return false;
-        }
-    }
+    private static bool Show(string what, Action show) => TimbnSafe.Run(show, $"{nameof(TimbnDialog)}|Showing '{what}'");
 
     internal static void OnGameStarted()
     {
@@ -221,15 +209,6 @@ internal static class TimbnDialog
         ReleaseControl();
         foreach (var talk in _talks)
             talk.Busy = false;
-    }
-
-    internal static void OnUpdate()
-    {
-        if (!TimbnGame.IsInGame || Time.unscaledTime < _nextRefresh)
-            return;
-
-        _nextRefresh = Time.unscaledTime + 1f;
-        Refresh();
     }
 
     internal static bool TryHandleInteraction(WgoData npc)
@@ -281,7 +260,7 @@ internal static class TimbnDialog
     internal static IDisposable RemoveForSave()
     {
         if (!TimbnGame.IsInGame)
-            return new TimbnUndo(() => { });
+            return TimbnUndo.None;
 
         foreach (var talk in _talks)
             MainGame.WorldData.GetWgoData(talk.NpcId)?.RemoveInteractionEvent(talk.EventId);
@@ -302,7 +281,7 @@ internal static class TimbnDialog
         control?.Dispose();
     }
 
-    private static void Refresh()
+    internal static void Refresh()
     {
         if (!TimbnGame.IsInGame)
             return;
@@ -355,15 +334,8 @@ internal static class TimbnDialog
 
     private static bool IsOffered(Talk talk)
     {
-        try
-        {
-            return talk.IsOffered();
-        }
-        catch (Exception ex)
-        {
-            TimbnCorePlugin.Logger.LogError($"{nameof(TimbnDialog)}|isOffered for '{talk.EventId}' threw: {ex}");
-            return false;
-        }
+        var offered = false;
+        return TimbnSafe.Run(() => offered = talk.IsOffered(), $"{nameof(TimbnDialog)}|isOffered for '{talk.EventId}'") && offered;
     }
 
     private sealed class Talk

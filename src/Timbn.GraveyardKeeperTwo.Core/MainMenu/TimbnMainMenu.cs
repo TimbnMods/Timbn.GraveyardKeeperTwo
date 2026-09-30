@@ -42,7 +42,11 @@ internal static class TimbnMainMenu
         return new TimbnUndo(() => _popups.Remove(popup));
     }
 
-    internal static void OnMenuOpened(UIMainMenuWindow menu) => _menu = menu;
+    internal static void OnWindowOpened(LazyWidgetBase window)
+    {
+        if (window is UIMainMenuWindow menu)
+            _menu = menu;
+    }
 
     internal static void DrawLines()
     {

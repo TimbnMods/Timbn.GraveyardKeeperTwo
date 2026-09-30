@@ -4,20 +4,20 @@ internal sealed class UnreachableDismantle
 {
     private DockPoint? _standIn;
     private WgoData? _station;
+    private bool _on;
 
-    public static UnreachableDismantle? Active { get; private set; }
-
-    public static void Register(TimbnFrameworkPlugin plugin)
+    public static UnreachableDismantle Register(TimbnFrameworkPlugin plugin)
     {
         var unreachableDismantle = new UnreachableDismantle();
         plugin.Settings.Toggle(PluginConfig.DismantleUnreachable, unreachableDismantle.Apply, unreachableDismantle.Revert);
+        return unreachableDismantle;
     }
 
-    public void Apply() => Active = this;
+    public void Apply() => _on = true;
 
     public void Revert()
     {
-        Active = null;
+        _on = false;
         if (_standIn != null)
             UnityEngine.Object.Destroy(_standIn.gameObject);
 
@@ -27,7 +27,7 @@ internal sealed class UnreachableDismantle
 
     public DockPoint? StandInFor(PlayerWorkComponent work, Wgo station, Transform player, Vector2 facing)
     {
-        if (station == null || station.MainWgoPart == null || !IsMarkedForDismantle(station.Data) || !work.CanWorkOn(station.Data))
+        if (!_on || station == null || station.MainWgoPart == null || !IsMarkedForDismantle(station.Data) || !work.CanWorkOn(station.Data))
             return null;
 
         if (_station != station.Data)
@@ -44,7 +44,7 @@ internal sealed class UnreachableDismantle
     public bool TryGetDropPosition(WgoData data, out Vector3 position)
     {
         position = MainGame.PlayerData.position.Value;
-        return data == _station && IsMarkedForDismantle(data);
+        return _on && data == _station && IsMarkedForDismantle(data);
     }
 
     private static bool IsMarkedForDismantle(WgoData? data) => data?.CraftComponent?.IsDestroyingCraftActive == true;

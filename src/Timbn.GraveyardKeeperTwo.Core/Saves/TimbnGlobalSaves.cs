@@ -11,16 +11,20 @@ internal static class TimbnGlobalSaves
     private static JObject? _sections;
     private static string _lastWritten = "";
 
+    internal static string MainPath => SaveSystem.SaveFolder + _fileName + ".dat";
+
+    private static string BackupPath => SaveSystem.SaveFolder + _fileName + ".backup.dat";
+
     internal static IDisposable Register(ITimbnSaveEntry entry)
     {
         if (_entries.ContainsKey(entry.Id))
-            throw new InvalidOperationException($"{entry.Id} already registered global data. A plugin gets one global data object, so put everything it keeps in one type.");
+            throw new InvalidOperationException($"{entry.Id} already registered global data. Give a second data object its own name.");
 
         _entries.Add(entry.Id, entry);
-        Load(entry);
+        TimbnSectionFile.LoadEntry(Sections, entry, MainPath, nameof(TimbnGlobalSaves));
         return new TimbnUndo(() =>
         {
-            KeepSection(entry);
+            TimbnSectionFile.KeepEntry(Sections, entry, nameof(TimbnGlobalSaves));
             _entries.Remove(entry.Id);
             Flush();
         });
@@ -34,7 +38,7 @@ internal static class TimbnGlobalSaves
                 return;
 
             foreach (var entry in _entries.Values)
-                KeepSection(entry);
+                TimbnSectionFile.KeepEntry(Sections, entry, nameof(TimbnGlobalSaves));
 
             var sections = Sections;
             if (sections.Count == 0)
@@ -53,10 +57,6 @@ internal static class TimbnGlobalSaves
         }
     }
 
-    private static string MainPath => SaveSystem.SaveFolder + _fileName + ".dat";
-
-    private static string BackupPath => SaveSystem.SaveFolder + _fileName + ".backup.dat";
-
     private static JObject Sections
     {
         get
@@ -68,35 +68,6 @@ internal static class TimbnGlobalSaves
             }
 
             return _sections;
-        }
-    }
-
-    private static void Load(ITimbnSaveEntry entry)
-    {
-        var section = Sections[entry.Id];
-        try
-        {
-            entry.Load(section);
-        }
-        catch (Exception ex)
-        {
-            TimbnCorePlugin.Logger.LogError($"{nameof(TimbnGlobalSaves)}|Could not read the global data of {entry.Id}, so it starts empty. {ex.Message}");
-            if (section is not null)
-                TimbnSectionFile.WriteAside(MainPath + "." + entry.Id + ".bad", section);
-
-            entry.Load(null);
-        }
-    }
-
-    private static void KeepSection(ITimbnSaveEntry entry)
-    {
-        try
-        {
-            Sections[entry.Id] = entry.Serialize();
-        }
-        catch (Exception ex)
-        {
-            TimbnCorePlugin.Logger.LogError($"{nameof(TimbnGlobalSaves)}|Could not keep the global data of {entry.Id}, so its last saved copy stays. {ex.Message}");
         }
     }
 }

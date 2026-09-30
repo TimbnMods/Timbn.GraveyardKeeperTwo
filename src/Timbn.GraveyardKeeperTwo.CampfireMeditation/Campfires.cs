@@ -10,9 +10,7 @@ internal sealed class Campfires
     private readonly Collider[] _hits = new Collider[32];
     private int _mask;
 
-    public static string? CurrentZone => MainGame.PlayerData.CurrentWorldZoneData?.id;
-
-    public static bool IsAtHome => CurrentZone is { } zone && _homeZones.Contains(zone);
+    public static bool IsAtHome => TimbnPlayer.ZoneId is { } zone && _homeZones.Contains(zone);
 
     public bool TryFindNear(Vector3 player, out Vector3 fire)
     {

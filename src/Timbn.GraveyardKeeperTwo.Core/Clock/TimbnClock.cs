@@ -8,6 +8,16 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 /// </summary>
 public static class TimbnClock
 {
+    private static readonly (TimbnWeekday Day, string Id)[] _weekdayIds =
+    [
+        (TimbnWeekday.Gluttony, LazyConsts.ConstDefs.DAY_GLUTTONY),
+        (TimbnWeekday.Sloth, LazyConsts.ConstDefs.DAY_SLOTH),
+        (TimbnWeekday.Lust, LazyConsts.ConstDefs.DAY_LUST),
+        (TimbnWeekday.Envy, LazyConsts.ConstDefs.DAY_ENVY),
+        (TimbnWeekday.Pride, LazyConsts.ConstDefs.DAY_PRIDE),
+        (TimbnWeekday.Wrath, LazyConsts.ConstDefs.DAY_WRATH),
+    ];
+
     private static EnvironmentData? Data => TimbnGame.IsInGame ? MainGame.Instance.GameSave?.environmentData : null;
 
     /// <summary>The day of the save, counting up from 1, the same number NewDayStarted hands its handlers.</summary>
@@ -33,9 +43,9 @@ public static class TimbnClock
             if (Data is not { } data)
                 return null;
 
-            foreach (TimbnWeekday day in Enum.GetValues(typeof(TimbnWeekday)))
+            foreach (var (day, id) in _weekdayIds)
             {
-                if (ConstDef.Get(WeekdayId(day))?.IntValue == data.CurrentDayNumber)
+                if (ConstDef.Get(id)?.IntValue == data.CurrentDayNumber)
                     return day;
             }
 
@@ -59,6 +69,9 @@ public static class TimbnClock
         }
     }
 
+    /// <summary>Whether the game's clock is stopped, as it is during some cutscenes or while a plugin holds Clock.Pause.</summary>
+    public static bool IsPaused => TimbnGame.IsInGame && EnvironmentEngine.Instance != null && EnvironmentEngine.Instance.IsPaused;
+
     /// <summary>
     /// How far the clock moved from <paramref name="from"/> to <paramref name="to"/>, as a fraction of a day. It
     /// counts across midnight, so 0.9 to 0.1 is 0.2. Useful with TimeOfDayChanged to work out how much game time
@@ -69,5 +82,26 @@ public static class TimbnClock
     /// <returns>The part of a day between the two, from 0 up to but not including 1.</returns>
     public static float Between(float from, float to) => Mathf.Repeat(to - from, 1f);
 
-    internal static string WeekdayId(TimbnWeekday day) => $"day_{day.ToString().ToLowerInvariant()}";
+    /// <summary>
+    /// Sets the time of day, the way the game does when a cutscene jumps the clock. The lighting and everything
+    /// that follows the clock update at once. The day does not change, so setting a time earlier than now turns the
+    /// clock back within the same day.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// TimbnClock.SetTime(0.25f);
+    /// </code>
+    /// </example>
+    /// <param name="timeOfDay">The new time, from 0 at midnight to 1 at the next midnight. Values outside wrap around.</param>
+    /// <returns>False at the main menu, when there is no clock to set.</returns>
+    public static bool SetTime(float timeOfDay)
+    {
+        if (!TimbnGame.IsInGame || EnvironmentEngine.Instance == null)
+            return false;
+
+        EnvironmentEngine.Instance.SetTimeOfDay(Mathf.Repeat(timeOfDay, 1f));
+        return true;
+    }
+
+    internal static string WeekdayId(TimbnWeekday day) => _weekdayIds.First(pair => pair.Day == day).Id;
 }

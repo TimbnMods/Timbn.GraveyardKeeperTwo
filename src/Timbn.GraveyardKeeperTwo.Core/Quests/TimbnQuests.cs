@@ -15,9 +15,6 @@ public static class TimbnQuests
     private static readonly AccessTools.FieldRef<ObjectLinkedToDefinition<QuestDef>, string> _cachedId =
         AccessTools.FieldRefAccess<ObjectLinkedToDefinition<QuestDef>, string>("cachedId");
 
-    private static readonly Action<QuestDef> _linkToParents =
-        AccessTools.MethodDelegate<Action<QuestDef>>(AccessTools.Method(typeof(QuestDef), "InitParentsAndChildren"));
-
     private static readonly Dictionary<string, QuestDef> _quests = [];
     private static readonly Dictionary<string, int> _registeredAt = [];
     private static int _registrations;
@@ -119,7 +116,7 @@ public static class TimbnQuests
         var balance = TimbnBalance.Add(definition, b =>
         {
             Relayout(b, definition);
-            _linkToParents(definition);
+            QuestDef.LinkQuests();
         });
         _quests[definition.id] = definition;
         if (_stubs.TryGetValue(definition.id, out var stub))
@@ -499,13 +496,11 @@ public static class TimbnQuests
             Relayout(balance, null, quests.questCollection.questsCache);
     }
 
-    internal static void OnGameStarted() => RelayoutIfLoaded();
-
     internal static IDisposable HideForSave(GameSave save)
     {
         var cache = save.questSystemData?.questCollection?.questsCache;
         if (cache is null)
-            return new TimbnUndo(() => { });
+            return TimbnUndo.None;
 
         List<QuestData> hidden = [];
         foreach (var definition in _quests.Values)

@@ -6,7 +6,7 @@ internal static class TimbnMovement
     private static float _speed = 1f;
 
     internal static IDisposable SetSpeed(float multiplier) =>
-        TimbnGame.IsInGame ? _speedHolds.Take(multiplier) : new TimbnUndo(() => { });
+        TimbnGame.IsInGame ? _speedHolds.Take(multiplier) : TimbnUndo.None;
 
     internal static float? SpeedUp(PlayerPhysicalBody body)
     {

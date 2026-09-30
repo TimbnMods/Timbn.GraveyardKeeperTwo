@@ -30,4 +30,20 @@ public sealed class TimbnPluginClock
     /// <param name="multiplier">How many times faster than normal time runs. 1 is normal speed.</param>
     /// <returns>A handle that puts the speed back when disposed. It is also released when the plugin unloads and on the way to the main menu.</returns>
     public IDisposable SetSpeed(float multiplier) => _owner.SessionSubscriptions.Add(TimbnGameSpeed.Set(multiplier));
+
+    /// <summary>
+    /// Stops the game's clock until the returned handle is disposed, so the time of day, the weather and the
+    /// calendar stand still while the world keeps moving. Several plugins can hold it at once, and the clock runs
+    /// again when the last one lets go, unless the game unpaused it meanwhile. Setting the clock's pause flag
+    /// directly instead makes mods undo each other.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// _frozen = Clock.Pause();
+    /// // later
+    /// _frozen?.Dispose();
+    /// </code>
+    /// </example>
+    /// <returns>A handle that starts the clock again when disposed. It is also released when the plugin unloads and on the way to the main menu.</returns>
+    public IDisposable Pause() => _owner.SessionSubscriptions.Add(TimbnClockPause.Take());
 }

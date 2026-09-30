@@ -46,7 +46,7 @@ internal static class ZombieTint
     {
         foreach (var zombie in TimbnZombies.OnScene())
         {
-            var view = GameScene.GetWgoViewGlobal(zombie.UniqueId);
+            var view = TimbnWorld.ViewOf(zombie);
             if (view != null)
                 Paint(view, reset ? Color.white : Read(zombie));
         }

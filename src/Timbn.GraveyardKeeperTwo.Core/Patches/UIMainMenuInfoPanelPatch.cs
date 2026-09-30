@@ -1,8 +1,10 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
-[HarmonyPatch(typeof(UIMainMenuInfoPanel), "SetMenuOnlyLabelsVisible")]
+[HarmonyPatch(typeof(UIMainMenuInfoPanel))]
 internal static class UIMainMenuInfoPanelPatch
 {
-    private static void Postfix() =>
+    [HarmonyPatch("SetMenuOnlyLabelsVisible")]
+    [HarmonyPostfix]
+    private static void SetMenuOnlyLabelsVisiblePostFix() =>
         TimbnMainMenu.DrawLines();
 }

@@ -1,8 +1,18 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
-internal static class TimbnGui
+/// <summary>Draws the IMGUI a plugin registered with UI.Gui and UI.Window, and offers the shared bits of a debug window.</summary>
+public static class TimbnGui
 {
     private static readonly List<Entry> _entries = [];
+    private static GUIStyle? _header;
+
+    /// <summary>Draws a bold label, for the heading of a section in a debug window.</summary>
+    /// <param name="text">The heading.</param>
+    public static void Header(string text)
+    {
+        _header ??= new GUIStyle(GUI.skin.label) { fontStyle = FontStyle.Bold };
+        GUILayout.Label(text, _header);
+    }
 
     internal static IDisposable Add(Action draw, Func<bool> isRunning, ManualLogSource logger)
     {
@@ -21,15 +31,8 @@ internal static class TimbnGui
             if (!entry.IsRunning())
                 continue;
 
-            try
-            {
-                entry.Draw();
-            }
-            catch (Exception ex)
-            {
+            if (!TimbnSafe.Run(entry.Draw, entry.Logger, $"{nameof(TimbnGui)}|A GUI handler was stopped because it"))
                 _entries.Remove(entry);
-                entry.Logger.LogError($"{nameof(TimbnGui)}|A GUI handler threw and was stopped: {ex}");
-            }
         }
     }
 

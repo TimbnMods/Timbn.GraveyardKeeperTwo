@@ -2,6 +2,7 @@ using Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
 
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks.Patches;
 
+[TimbnFeature(nameof(PluginConfig.BaitInBags))]
 [HarmonyPatch(typeof(FishingDef))]
 internal static class FishingDefPatch
 {

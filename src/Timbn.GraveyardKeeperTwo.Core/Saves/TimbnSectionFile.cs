@@ -7,7 +7,9 @@ internal static class TimbnSectionFile
 {
     private const int _formatVersion = 1;
 
-    internal static JObject Read(string path, string backupPath)
+    internal static JObject Read(string path, string backupPath) => Read(path, backupPath, TimbnCorePlugin.Logger);
+
+    internal static JObject Read(string path, string backupPath, ManualLogSource logger)
     {
         try
         {
@@ -16,24 +18,24 @@ internal static class TimbnSectionFile
         }
         catch (Exception ex)
         {
-            TimbnCorePlugin.Logger.LogError($"{nameof(TimbnSectionFile)}|Could not read {path}, trying its backup. {ex.Message}");
-            MoveAside(path, path + ".bad");
+            logger.LogError($"{nameof(TimbnSectionFile)}|Could not read {path}, trying its backup. {ex.Message}");
+            MoveAside(path, path + ".bad", logger);
         }
 
         try
         {
             if (ReadFile(backupPath) is { } sections)
             {
-                TimbnCorePlugin.Logger.LogWarning($"{nameof(TimbnSectionFile)}|Loaded mod data from the backup {backupPath}.");
+                logger.LogWarning($"{nameof(TimbnSectionFile)}|Loaded mod data from the backup {backupPath}.");
                 return sections;
             }
         }
         catch (Exception ex)
         {
-            TimbnCorePlugin.Logger.LogError($"{nameof(TimbnSectionFile)}|Could not read the backup {backupPath} either, so mod data starts empty. {ex.Message}");
+            logger.LogError($"{nameof(TimbnSectionFile)}|Could not read the backup {backupPath} either, so mod data starts empty. {ex.Message}");
         }
 
-        return new JObject();
+        return [];
     }
 
     internal static void Write(string path, string backupPath, JObject sections)
@@ -52,7 +54,36 @@ internal static class TimbnSectionFile
             File.Move(temporaryPath, path);
     }
 
-    internal static void WriteAside(string badPath, JToken section)
+    internal static void LoadEntry(JObject sections, ITimbnSaveEntry entry, string badPathPrefix, string what)
+    {
+        var section = sections[entry.Id];
+        try
+        {
+            entry.Load(section);
+        }
+        catch (Exception ex)
+        {
+            TimbnCorePlugin.Logger.LogError($"{what}|Could not read the data of {entry.Id}, so it starts empty. {ex.Message}");
+            if (section is not null)
+                WriteAside(badPathPrefix + "." + entry.Id + ".bad", section);
+
+            entry.Load(null);
+        }
+    }
+
+    internal static void KeepEntry(JObject sections, ITimbnSaveEntry entry, string what)
+    {
+        try
+        {
+            sections[entry.Id] = entry.Serialize();
+        }
+        catch (Exception ex)
+        {
+            TimbnCorePlugin.Logger.LogError($"{what}|Could not keep the data of {entry.Id}, so its last saved copy stays. {ex.Message}");
+        }
+    }
+
+    private static void WriteAside(string badPath, JToken section)
     {
         try
         {
@@ -71,20 +102,20 @@ internal static class TimbnSectionFile
             return null;
 
         var root = JObject.Parse(File.ReadAllText(path));
-        return root["mods"] as JObject ?? new JObject();
+        return root["mods"] as JObject ?? [];
     }
 
-    private static void MoveAside(string path, string badPath)
+    private static void MoveAside(string path, string badPath, ManualLogSource logger)
     {
         try
         {
             File.Delete(badPath);
             File.Move(path, badPath);
-            TimbnCorePlugin.Logger.LogWarning($"{nameof(TimbnSectionFile)}|Kept the unreadable file as {badPath}.");
+            logger.LogWarning($"{nameof(TimbnSectionFile)}|Kept the unreadable file as {badPath}.");
         }
         catch (Exception ex)
         {
-            TimbnCorePlugin.Logger.LogError($"{nameof(TimbnSectionFile)}|Could not move the unreadable file {path} aside: {ex.Message}");
+            logger.LogError($"{nameof(TimbnSectionFile)}|Could not move the unreadable file {path} aside: {ex.Message}");
         }
     }
 }

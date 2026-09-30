@@ -1,8 +1,8 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Reads where the player is in the loaded save and moves them. See the plugin's Player property for changes
-/// that have to be undone, such as holding the player still.
+/// Reads where the player is in the loaded save, what they know, and moves them. See the plugin's Player
+/// property for changes that have to be undone, such as holding the player still.
 /// </summary>
 public static class TimbnPlayer
 {
@@ -42,6 +42,33 @@ public static class TimbnPlayer
     public static bool HasPerk(string id) =>
         TimbnGame.IsInGame && MainGame.Instance.GameSave?.perkSystemData?.HasPerk(id) == true;
 
+    /// <summary>Whether the player has researched a technology.</summary>
+    /// <example>
+    /// <code>
+    /// if (TimbnPlayer.HasTech("wood_basic"))
+    ///     knowledge.UnlockCraft("timbn_pasta");
+    /// </code>
+    /// </example>
+    /// <param name="id">The technology's id, such as wood_basic.</param>
+    /// <returns>True when it is researched. False at the main menu.</returns>
+    public static bool HasTech(string id) =>
+        TimbnGame.IsInGame && MainGame.Instance.GameSave?.knowledgeSystem?.IsTechUnlocked(id) == true;
+
+    /// <summary>
+    /// Whether the player has built one of the buildings the game only allows once, such as the choir or the
+    /// organ. The game marks such a building as locked once it is built, so this reads that list.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// if (TimbnPlayer.HasBuilt("zmb_choir_unlock_s"))
+    ///     GlobalEventsSystem.FireTrigger(GlobalEventsSystem.Event.Type.BuildBuilding, "zmb_choir_unlock");
+    /// </code>
+    /// </example>
+    /// <param name="buildingId">The building's id from the balance, such as zmb_choir_unlock_s.</param>
+    /// <returns>True when it has been built. False at the main menu.</returns>
+    public static bool HasBuilt(string buildingId) =>
+        TimbnGame.IsInGame && MainGame.Instance.GameSave?.knowledgeSystem?.lockedBuildings.Contains(buildingId) == true;
+
     /// <summary>The player's position in their current scene, or zero at the main menu.</summary>
     public static Vector3 Position => TimbnGame.IsInGame ? MainGame.PlayerData.position.Value : Vector3.zero;
 
@@ -54,6 +81,20 @@ public static class TimbnPlayer
     /// </summary>
     public static GameSceneData? Scene =>
         SceneId is { Length: > 0 } id ? MainGame.WorldData.GetGameSceneDataById(id) : null;
+
+    /// <summary>
+    /// The zone the player stands in, such as the garden or the morgue, or null at the main menu and in the open
+    /// between zones. Zones are the game's named areas, each with its own build area and workers.
+    /// </summary>
+    public static WorldZoneData? Zone => TimbnGame.IsInGame ? MainGame.PlayerData.CurrentWorldZoneData : null;
+
+    /// <summary>The id of the zone the player stands in, such as garden, or null when they stand in none.</summary>
+    /// <example>
+    /// <code>
+    /// var atHome = TimbnPlayer.ZoneId is "garden" or "inquisitions_base";
+    /// </code>
+    /// </example>
+    public static string? ZoneId => Zone?.id;
 
     /// <summary>
     /// Moves the player to a spot in their current scene, the way the game moves them. Pair it with

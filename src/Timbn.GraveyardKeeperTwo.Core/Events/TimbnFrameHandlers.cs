@@ -4,12 +4,14 @@ internal sealed class TimbnFrameHandlers
 {
     private readonly List<Entry> _entries = [];
     private readonly ManualLogSource _logger;
+    private readonly string _name;
     private bool _running;
     private bool _dirty;
 
-    internal TimbnFrameHandlers(ManualLogSource logger)
+    internal TimbnFrameHandlers(ManualLogSource logger, string name)
     {
         _logger = logger;
+        _name = name;
     }
 
     internal IDisposable Add(Action handler, float interval, bool whilePaused)
@@ -37,16 +39,11 @@ internal sealed class TimbnFrameHandlers
                     continue;
 
                 entry.Next = now + entry.Interval;
-                try
-                {
-                    entry.Handler();
-                }
-                catch (Exception ex)
-                {
-                    entry.Removed = true;
-                    _dirty = true;
-                    _logger.LogError($"{nameof(TimbnFrameHandlers)}|A per frame handler threw and was stopped: {ex}");
-                }
+                if (TimbnSafe.Run(entry.Handler, _logger, $"{nameof(TimbnFrameHandlers)}|{_name} handler {TimbnSafe.Describe(entry.Handler)} was stopped because it"))
+                    continue;
+
+                entry.Removed = true;
+                _dirty = true;
             }
         }
         finally

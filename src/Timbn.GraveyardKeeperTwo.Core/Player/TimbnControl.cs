@@ -10,7 +10,7 @@ internal static class TimbnControl
     {
         var player = MainGame.Instance != null ? MainGame.PlayerController : null;
         if (player == null)
-            return new TimbnUndo(() => { });
+            return TimbnUndo.None;
 
         var reason = _firstReason;
         while (_holds.Any(hold => hold.Reason == (TakenControlType)reason))
