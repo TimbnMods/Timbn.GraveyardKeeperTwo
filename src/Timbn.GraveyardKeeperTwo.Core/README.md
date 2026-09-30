@@ -155,7 +155,6 @@ A few events come from Core rather than the game.
 - `Events.Trigger(type, handler)` runs when the game fires one of the story triggers its quests wait on, such as `GlobalEventsSystem.Event.Type.BuildBuilding`, with the trigger's id.
 - `Events.BalanceLoaded(handler)` runs with the game's balance straight away if it has loaded, and after every later load.
 - `Events.ZombieViewReady(handler)` runs when a zombie's view has been given its body and head, which is the moment to change how it looks.
-- `Events.VoiceLine(allow)` decides whether a voice line plays. Return false and the character mumbles instead, the way lines without a recording do.
 
 Work that has to keep running can register for it too, so a tweak needs no `OnUpdate` of its own. `Events.Update(handler)` runs every frame, paused or not, and `Events.Every(seconds, handler)` runs at most that often and stops while the game is paused. `Events.LateUpdate(handler)` runs after the game's own Update, for camera work, and `Events.FixedUpdate(handler)` on every physics step. All of them run only while a save is loaded, and a handler that throws is logged once and stopped instead of failing every frame.
 

@@ -8,11 +8,9 @@ internal static class TimbnDialog
 {
     private const string _iconId = "timbn_speech_bubble";
     private const string _leaveKey = "common_leave";
-    private const int _maxRememberedLines = 256;
     private const string _gameIconId = "icon_speech_bubble";
     private static readonly List<Talk> _talks = [];
     private static readonly HashSet<string> _warnedKeys = [];
-    private static readonly HashSet<string> _modLines = [];
     private static Func<HashSet<string>>? _seenTalks;
     private static IDisposable? _control;
     private static bool _iconFailed;
@@ -78,8 +76,6 @@ internal static class TimbnDialog
         return TryFormat(key, values, out var text)
             && Show(key, () => Bubble.Talk(new PhraseData(isPlayer: true, null, text, then, null)));
     }
-
-    internal static bool AllowVoice(string id) => !_modLines.Contains(id) || !_talks.Any(t => t.Busy);
 
     internal static void UseSeenTalks(Func<HashSet<string>> seenTalks) => _seenTalks = seenTalks;
 
@@ -149,10 +145,7 @@ internal static class TimbnDialog
     {
         text = key;
         if (values.Length == 0)
-        {
-            RememberLine(text);
             return true;
-        }
 
         try
         {
@@ -163,7 +156,6 @@ internal static class TimbnDialog
                 text = text.Replace($"%{i + 1}", string.Format(CultureInfo.CurrentCulture, "{0}", value));
             }
 
-            RememberLine(text);
             return true;
         }
         catch (Exception ex)
@@ -171,14 +163,6 @@ internal static class TimbnDialog
             TimbnCorePlugin.Logger.LogError($"{nameof(TimbnDialog)}|Filling in the line '{key}' threw: {ex}");
             return false;
         }
-    }
-
-    private static void RememberLine(string text)
-    {
-        if (_modLines.Count >= _maxRememberedLines)
-            _modLines.Clear();
-
-        _modLines.Add(text);
     }
 
     private static bool IsSeen(Talk talk) => talk.OnceKey is not null && HasSeen(talk.OnceKey);

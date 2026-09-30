@@ -251,21 +251,6 @@ public sealed class TimbnPluginEvents
         return subscription;
     }
 
-    /// <summary>
-    /// Decides whether a voice line plays. Every filter is asked before a line is voiced, and if any says no the
-    /// line is not spoken and the character mumbles instead, the way lines without a recording do. Core's own
-    /// conversations use this to keep the game from voicing a mod's lines with the wrong recording.
-    /// </summary>
-    /// <example>
-    /// Voice only the lines of characters the player picked in the config.
-    /// <code>
-    /// Events.VoiceLine(lineId => PluginConfig.IsVoiced(SpeakerOf(lineId)));
-    /// </code>
-    /// </example>
-    /// <param name="allow">Gets the line's id and returns false to keep it from being voiced.</param>
-    /// <returns>A handle that removes the filter early when disposed. You don't need to keep it.</returns>
-    public IDisposable VoiceLine(Func<string, bool> allow) => Own(TimbnVoice.Allow(allow));
-
     /// <summary>Runs when a quest starts in the loaded save. Subscribe once, and it follows every save the player loads.</summary>
     /// <param name="handler">Gets the quest's save data. Its id is the quest id.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>

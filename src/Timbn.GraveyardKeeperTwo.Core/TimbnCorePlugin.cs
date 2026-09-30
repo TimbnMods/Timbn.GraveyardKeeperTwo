@@ -42,7 +42,6 @@ public class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
             TimbnMainMenu.OnWindowOpened,
             h => LazyWindowsStackController.OnWindowOpened += h,
             h => LazyWindowsStackController.OnWindowOpened -= h));
-        Subscriptions.Add(TimbnVoice.Allow(TimbnDialog.AllowVoice));
         Events.Every(1f, TimbnDialog.Refresh);
         Events.Update(TimbnPotions.Tick);
         var saved = Saves.Register<TimbnCoreSaveData>();
