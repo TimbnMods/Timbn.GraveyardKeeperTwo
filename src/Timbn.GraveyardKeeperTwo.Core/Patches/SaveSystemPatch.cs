@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
+/// <summary>Harmony patch on saving and deleting that writes and removes the mod save data next to the game's save.</summary>
 [HarmonyPatch(typeof(SaveSystem))]
 internal static class SaveSystemPatch
 {

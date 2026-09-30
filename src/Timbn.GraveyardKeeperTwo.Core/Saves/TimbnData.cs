@@ -2,6 +2,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>One plugin's section in a mod data file, read, written and reset by Core.</summary>
 internal interface ITimbnSaveEntry
 {
     string Id { get; }

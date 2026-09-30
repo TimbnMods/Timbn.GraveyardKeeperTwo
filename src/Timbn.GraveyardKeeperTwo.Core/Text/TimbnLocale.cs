@@ -2,9 +2,10 @@ using LazyBearTechnology;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Writes the text plugins added into the game's loaded language and puts the shipped text back when it is removed.</summary>
 internal static class TimbnLocale
 {
-    internal const string DefaultLanguage = LLBase.DEFAULT_LANGUAGE;
+    internal const string _defaultLanguage = LLBase.DEFAULT_LANGUAGE;
 
     private static readonly AccessTools.FieldRef<LL?> _currentLang =
         AccessTools.StaticFieldRefAccess<LL?>(AccessTools.Field(typeof(LLBase), "currentLang"));
@@ -20,7 +21,7 @@ internal static class TimbnLocale
     internal static IDisposable Add(string key, string text) => Add(new Dictionary<string, string> { [key] = text });
 
     internal static IDisposable Add(IReadOnlyDictionary<string, string> texts) =>
-        Add(texts.Select(pair => new Entry(pair.Key, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { [DefaultLanguage] = pair.Value })));
+        Add(texts.Select(pair => new Entry(pair.Key, new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase) { [_defaultLanguage] = pair.Value })));
 
     internal static IDisposable Add(IReadOnlyDictionary<string, Dictionary<string, string>> textsByKey) =>
         Add(textsByKey.Select(pair => new Entry(pair.Key, pair.Value)));
@@ -120,7 +121,7 @@ internal static class TimbnLocale
 
         public string TextFor(string language)
         {
-            if (_texts.TryGetValue(language, out var text) || _texts.TryGetValue(DefaultLanguage, out text))
+            if (_texts.TryGetValue(language, out var text) || _texts.TryGetValue(_defaultLanguage, out text))
                 return text;
 
             return _texts.Values.FirstOrDefault() ?? Key;

@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Registers potions, runs their buff hooks while the player has the buff, and removes them again.</summary>
 internal static class TimbnPotions
 {
     private static readonly List<Registered> _potions = [];

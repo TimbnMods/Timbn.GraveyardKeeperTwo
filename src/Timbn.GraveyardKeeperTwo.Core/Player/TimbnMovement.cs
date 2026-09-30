@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Holds a walk speed multiplier for plugins and applies it on top of the game's own speed each move.</summary>
 internal static class TimbnMovement
 {
     private static readonly TimbnHolds<float> _speedHolds = new(multiplier => _speed = multiplier, () => _speed = 1f);

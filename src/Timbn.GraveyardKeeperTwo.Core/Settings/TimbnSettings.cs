@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Ties a config entry to the change it makes, applying and reverting as the entry changes.</summary>
 internal static class TimbnSettings
 {
     internal static IDisposable Toggle<T>(ConfigEntry<T> entry, Func<T, bool> isOn, Action apply, Action? revert, ManualLogSource logger)

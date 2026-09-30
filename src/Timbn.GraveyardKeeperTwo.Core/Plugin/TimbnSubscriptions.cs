@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>The bag of undos a plugin owns, disposed newest first when the plugin unloads.</summary>
 internal sealed class TimbnSubscriptions : IDisposable
 {
     private readonly List<Owned> _items = [];
@@ -58,6 +59,7 @@ internal sealed class TimbnSubscriptions : IDisposable
     }
 }
 
+/// <summary>An undo that runs once when disposed.</summary>
 internal sealed class TimbnUndo : IDisposable
 {
     internal static readonly IDisposable None = new TimbnUndo(() => { });

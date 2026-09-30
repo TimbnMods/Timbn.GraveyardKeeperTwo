@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Reads and writes the mod data file kept next to each save, shared by every plugin.</summary>
 internal static class TimbnSaves
 {
     private const string _fileSuffix = ".TimbnSaveData";

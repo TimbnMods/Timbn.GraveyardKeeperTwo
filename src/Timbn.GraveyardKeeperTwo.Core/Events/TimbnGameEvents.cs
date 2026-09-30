@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Subscribes to the game's static events with handlers wrapped so a throw is logged, for the few events Core itself needs.</summary>
 internal static class TimbnGameEvents
 {
     internal static IDisposable GameStarted(Action handler) =>

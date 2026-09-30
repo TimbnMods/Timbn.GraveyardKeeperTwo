@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Opens and closes Core's per save state, calling each subsystem in a stated order when a save starts and ends.</summary>
 internal static class TimbnSession
 {
     internal static void Open(TimbnSubscriptions session)

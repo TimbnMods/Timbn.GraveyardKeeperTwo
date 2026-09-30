@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Turns BepInEx's dependency errors and Core's own start failures into the lines of the main menu popup.</summary>
 internal static class TimbnLoadErrors
 {
     private const int _maxLines = 6;

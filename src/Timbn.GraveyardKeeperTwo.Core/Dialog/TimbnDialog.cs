@@ -3,6 +3,7 @@ using System.Globalization;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Runs the talks plugins add to NPCs, from the speech icon on the NPC through the conversation to giving control back.</summary>
 internal static class TimbnDialog
 {
     private const string _iconId = "timbn_speech_bubble";

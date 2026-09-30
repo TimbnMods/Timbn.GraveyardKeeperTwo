@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
+/// <summary>Harmony patch on the story triggers that raises the trigger event.</summary>
 [HarmonyPatch(typeof(GlobalEventsSystem))]
 internal static class GlobalEventsSystemPatch
 {

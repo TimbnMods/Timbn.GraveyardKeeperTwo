@@ -2,6 +2,7 @@ using LazyBearTechnology;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Puts one potion's perk, item, formula and ingredient mixes into the balance through Core's balance entries.</summary>
 internal sealed class TimbnPotionBalance : IDisposable
 {
     private const string _potionDrinkerInspiration = "AddInspiration(\"insp_potion_drinker\", 1)";

@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Reads and writes a mod data file with a section per plugin, with a backup and a file set aside when one cannot be read.</summary>
 internal static class TimbnSectionFile
 {
     private const int _formatVersion = 1;

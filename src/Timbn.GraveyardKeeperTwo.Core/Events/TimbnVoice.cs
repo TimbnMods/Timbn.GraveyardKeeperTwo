@@ -2,6 +2,7 @@ using LazyBearTechnology;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Asks every registered filter whether a voice line may play, and stops the clip when one says no.</summary>
 internal static class TimbnVoice
 {
     private static readonly List<Func<string, bool>> _filters = [];

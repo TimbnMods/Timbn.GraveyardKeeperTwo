@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Holds the game's time speed for plugins, newest hold winning, and puts the game's own speed back when the last hold goes.</summary>
 internal static class TimbnGameSpeed
 {
     private static readonly TimbnHolds<float> _holds = new(Apply, Restore);

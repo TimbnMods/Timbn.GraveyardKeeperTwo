@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
+/// <summary>Harmony patch on world object interactions that starts a plugin's talk and keeps the game's talks ahead of it.</summary>
 [HarmonyPatch(typeof(WgoData))]
 internal static class WgoDataPatch
 {

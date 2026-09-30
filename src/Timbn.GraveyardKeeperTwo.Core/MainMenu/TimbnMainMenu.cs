@@ -3,6 +3,7 @@ using TMPro;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Draws the list of Timbn plugins on the main menu and shows the queued popups in the game's dialog window.</summary>
 internal static class TimbnMainMenu
 {
     private static readonly AccessTools.FieldRef<MainGame, UIMainMenuInfoPanel> _infoPanel =

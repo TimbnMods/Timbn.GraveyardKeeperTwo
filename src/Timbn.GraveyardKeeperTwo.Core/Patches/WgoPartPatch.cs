@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
+/// <summary>Harmony patch on a zombie view's skin setup that raises the zombie view ready event.</summary>
 [HarmonyPatch(typeof(WgoPart))]
 internal static class WgoPartPatch
 {

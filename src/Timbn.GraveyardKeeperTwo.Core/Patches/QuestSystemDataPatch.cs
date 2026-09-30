@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
+/// <summary>Harmony patch on the quest system's load that keeps saved quests without a definition and lays out the quest tree.</summary>
 [HarmonyPatch(typeof(QuestSystemData))]
 internal static class QuestSystemDataPatch
 {

@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>The per frame handlers of one plugin for one Unity phase, run while a save is loaded and stopped after a throw.</summary>
 internal sealed class TimbnFrameHandlers
 {
     private readonly List<Entry> _entries = [];

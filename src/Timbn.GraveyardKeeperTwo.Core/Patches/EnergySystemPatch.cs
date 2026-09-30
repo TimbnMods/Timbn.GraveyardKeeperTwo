@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
+/// <summary>Harmony patch on sleeping that raises the sleep started, refused and ended events.</summary>
 [HarmonyPatch(typeof(EnergySystem))]
 internal static class EnergySystemPatch
 {

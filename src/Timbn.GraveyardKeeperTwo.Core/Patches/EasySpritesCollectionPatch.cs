@@ -2,6 +2,7 @@ using LazyBearTechnology;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
+/// <summary>Harmony patch on the game's sprite lookup that hands out sprites plugins added.</summary>
 [HarmonyPatch(typeof(EasySpritesCollection))]
 internal static class EasySpritesCollectionPatch
 {

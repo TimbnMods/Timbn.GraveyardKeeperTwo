@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Runs a handler and logs a throw instead of letting it reach the game, in one wording for all of Core.</summary>
 internal static class TimbnSafe
 {
     internal static bool Run(Action? action, ManualLogSource logger, string what)

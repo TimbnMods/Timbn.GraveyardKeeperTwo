@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Keeps the sprites plugins added, by name, and hands them to the game's sprite lookup.</summary>
 internal static class TimbnSprites
 {
     private const float _pixelsPerUnit = 50f;

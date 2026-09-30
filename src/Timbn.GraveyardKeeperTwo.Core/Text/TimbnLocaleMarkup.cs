@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Parses the game's text markup for icons, nested keys and replacement words, the way the game does when it loads a language.</summary>
 internal static class TimbnLocaleMarkup
 {
     private static readonly Regex _nested = new(@"\#\(.*?\)");

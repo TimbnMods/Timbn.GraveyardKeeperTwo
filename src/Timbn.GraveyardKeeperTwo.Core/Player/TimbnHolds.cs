@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>A stack of holds on one value where the newest hold wins and the value is released when the last hold goes.</summary>
 internal sealed class TimbnHolds<T>
 {
     private readonly List<Hold> _holds = [];

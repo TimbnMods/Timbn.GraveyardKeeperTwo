@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Takes the player's control for plugins, one reason in the game's own list per hold, and gives it back as holds are released.</summary>
 internal static class TimbnControl
 {
     private const int _firstReason = 7400;

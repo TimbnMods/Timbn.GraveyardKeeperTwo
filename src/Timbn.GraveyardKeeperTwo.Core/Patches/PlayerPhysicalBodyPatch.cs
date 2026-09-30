@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
+/// <summary>Harmony patch on the player's movement that applies the walk speed holds.</summary>
 [HarmonyPatch(typeof(PlayerPhysicalBody))]
 internal static class PlayerPhysicalBodyPatch
 {

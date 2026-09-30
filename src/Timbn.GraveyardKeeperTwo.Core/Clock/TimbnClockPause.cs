@@ -1,5 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
+/// <summary>Holds the game's clock still while any plugin asks for it, and lets it run again when the last hold goes.</summary>
 internal static class TimbnClockPause
 {
     private static readonly TimbnHolds<bool> _holds = new(_ => Apply(), Restore);

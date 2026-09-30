@@ -2,6 +2,7 @@ using LazyBearTechnology;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
+/// <summary>Harmony patch on the modded voice player that runs the voice line filters.</summary>
 [HarmonyPatch(typeof(ModdedVoiceOverPlayer))]
 internal static class ModdedVoiceOverPlayerPatch
 {
