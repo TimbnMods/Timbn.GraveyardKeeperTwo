@@ -46,7 +46,7 @@ internal static class TimbnDialog
 
     internal static void OnEventAdded(WgoData npc, string eventId)
     {
-        if (IsTalkOf(npc, eventId))
+        if (_talks.Count == 0 || IsTalkOf(npc, eventId) || !npc.Events.Any(e => IsTalkOf(npc, e.str)))
             return;
 
         var queued = npc.Events.Where(e => IsTalkOf(npc, e.str)).Select(e => e.str).ToList();
@@ -73,7 +73,7 @@ internal static class TimbnDialog
 
     internal static bool AllowVoice(VoiceOverPlayer player, string id)
     {
-        if (!_modLines.Contains(id))
+        if (!_modLines.Contains(id) || !_talks.Any(t => t.Busy))
             return true;
 
         player.Stop();

@@ -48,7 +48,7 @@ internal sealed class StuckCarriers
         _stuck.Clear();
     }
 
-    private static void Redraw(ZombieWgoData zombie) => GameScene.GetWgoViewGlobal(zombie.UniqueId)?.DrawWidgets();
+    private static void Redraw(ZombieWgoData zombie) => TimbnWorld.ViewOf(zombie)?.DrawWidgets();
 
     private static void WalkToStation(ZombieWgoData zombie)
     {

@@ -6,6 +6,22 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 /// </summary>
 public static class TimbnPlayer
 {
+    /// <summary>
+    /// Whether the game itself has taken the player's control, such as for a cutscene, sleep, or a teleport.
+    /// Control taken by mods with the plugin's Player.TakeControl does not count, so a mod holding the player can
+    /// use it to notice the game stepping in.
+    /// </summary>
+    /// <example>
+    /// Stop meditating when the game takes control for anything but an open window.
+    /// <code>
+    /// if (TimbnPlayer.IsControlTakenByGame(TakenControlType.ByUI))
+    ///     meditation.Stop();
+    /// </code>
+    /// </example>
+    /// <param name="ignored">The game's reasons that should not count, such as TakenControlType.ByUI for open windows.</param>
+    /// <returns>True when the game has taken control for any other reason. False at the main menu.</returns>
+    public static bool IsControlTakenByGame(params TakenControlType[] ignored) => TimbnControl.IsTakenByGame(ignored);
+
     /// <summary>The player's position in their current scene, or zero at the main menu.</summary>
     public static Vector3 Position => TimbnGame.IsInGame ? MainGame.PlayerData.position.Value : Vector3.zero;
 

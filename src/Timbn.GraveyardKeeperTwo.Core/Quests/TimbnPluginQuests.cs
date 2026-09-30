@@ -27,7 +27,18 @@ public sealed class TimbnPluginQuests
         quest.Validate();
         var text = TimbnLocale.Add(quest.Texts());
         var registered = TimbnQuests.Register(quest.ToDefinition());
-        var talk = TimbnDialog.AddTalk(quest.Npc, quest.Id + "_talk", quest.IsOffered, quest.Script, () => _owner.Dialog.BubbleColor);
+        IDisposable talk;
+        try
+        {
+            talk = TimbnDialog.AddTalk(quest.Npc, quest.Id + "_talk", quest.IsOffered, quest.Script, () => _owner.Dialog.BubbleColor);
+        }
+        catch
+        {
+            registered.Dispose();
+            text.Dispose();
+            throw;
+        }
+
         return _owner.Subscriptions.Add(new TimbnUndo(() =>
         {
             talk.Dispose();

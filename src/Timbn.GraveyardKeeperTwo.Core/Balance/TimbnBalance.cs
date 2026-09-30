@@ -73,6 +73,9 @@ public static class TimbnBalance
                 touched.Add(entry.Definition.GetType());
         }
 
+        if (touched.Remove(typeof(ItemDef)))
+            touched.Add(typeof(CraftDef));
+
         foreach (var type in touched)
             RefreshDerivedCaches(balance, type);
 

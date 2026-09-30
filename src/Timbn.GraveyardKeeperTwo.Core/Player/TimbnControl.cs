@@ -2,10 +2,9 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 internal static class TimbnControl
 {
-    internal const TakenControlType Flag = (TakenControlType)7400;
+    private const int _firstReason = 7400;
 
-    private static readonly TimbnHolds<bool> _holds = new(_ => SetTaken(true), () => SetTaken(false));
-    private static PlayerController? _player;
+    private static readonly List<Hold> _holds = [];
 
     internal static IDisposable Take()
     {
@@ -13,22 +12,44 @@ internal static class TimbnControl
         if (player == null)
             return new TimbnUndo(() => { });
 
-        if (_player != player)
-            _holds.ReleaseAll();
+        var reason = _firstReason;
+        while (_holds.Any(hold => hold.Reason == (TakenControlType)reason))
+            reason++;
 
-        _player = player;
-        return _holds.Take(true);
+        var taken = new Hold(player, (TakenControlType)reason);
+        _holds.Add(taken);
+        Set(player, taken.Reason, taken: true);
+        return taken;
     }
 
-    internal static void ReleaseAll() => _holds.ReleaseAll();
-
-    private static void SetTaken(bool taken)
+    internal static bool IsTakenByGame(TakenControlType[] ignored)
     {
-        var player = _player;
-        if (!taken)
-            _player = null;
+        if (!TimbnGame.IsInGame || MainGame.PlayerController == null)
+            return false;
 
-        if (player != null)
-            player.SetControlTakenType(Flag, isEnabled: !taken);
+        return !MainGame.PlayerController.IsControlsEnabledExcept(ignored.Concat(_holds.Select(hold => hold.Reason)).ToArray());
+    }
+
+    internal static void ReleaseAll()
+    {
+        foreach (var hold in _holds.ToList())
+            hold.Dispose();
+    }
+
+    private static void Set(PlayerController player, TakenControlType reason, bool taken)
+    {
+        player.SetControlTakenType(reason, isEnabled: !taken);
+        player.PhysicalBody.SetNonKinematicFlag((PlayerDynamicType)reason, isDynamic: !taken);
+    }
+
+    private sealed class Hold(PlayerController player, TakenControlType reason) : IDisposable
+    {
+        public TakenControlType Reason { get; } = reason;
+
+        public void Dispose()
+        {
+            if (_holds.Remove(this) && player != null)
+                Set(player, Reason, taken: false);
+        }
     }
 }

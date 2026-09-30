@@ -12,7 +12,7 @@ internal sealed class Meditation
     private readonly TimbnFrameworkPlugin _plugin;
     private readonly Campfires _campfires = new();
     private readonly TimbnInteractionHint _hint;
-    private IDisposable? _hold;
+    private IDisposable? _control;
     private IDisposable? _fastTime;
     private Vector3 _fire;
     private bool _meditating;
@@ -31,22 +31,21 @@ internal sealed class Meditation
 
     public void Tick()
     {
-        var player = Player;
-        var engine = player != null ? EnvironmentEngine.Instance : null;
-        if (player == null || engine == null)
+        var engine = EnvironmentEngine.Instance;
+        if (MainGame.PlayerController == null || engine == null)
         {
             Stop();
             _hint.Hide();
             return;
         }
 
-        if (!TimbnInput.PlayerHasControlExcept(TakenControlType.ByUI))
+        if (TimbnPlayer.IsControlTakenByGame(TakenControlType.ByUI))
             Stop();
 
         if (_meditating)
             KeepMeditating(engine);
 
-        if (TimbnUI.IsScreenFading || !TimbnInput.PlayerHasControl || (!_meditating && (TimbnInput.GameHasInteraction || !FindFire())))
+        if (_meditating ? !CanGetUp() : !CanSitDown())
         {
             _hint.Hide();
             return;
@@ -59,7 +58,7 @@ internal sealed class Meditation
         if (_meditating)
             GetUp();
         else
-            SitDown(player, engine);
+            SitDown(engine);
     }
 
     public void Stop()
@@ -71,13 +70,22 @@ internal sealed class Meditation
         _meditating = false;
     }
 
+    private static bool CanGetUp() =>
+        !TimbnUI.IsScreenFading && TimbnInput.CanUseHotkeys;
+
+    private bool CanSitDown() =>
+        !TimbnUI.IsScreenFading
+        && TimbnInput.PlayerHasControl
+        && !TimbnInput.GameHasInteraction
+        && FindFire();
+
     private bool FindFire() => _campfires.TryFindNear(TimbnPlayer.Position, out _fire);
 
-    private void SitDown(PlayerController player, EnvironmentEngine engine)
+    private void SitDown(EnvironmentEngine engine)
     {
         _meditating = true;
-        _hold?.Dispose();
-        _hold = _plugin.Player.HoldStill();
+        _control?.Dispose();
+        _control = _plugin.Player.TakeControl();
         _lastTimeOfDay = engine.timeOfDay;
         _insanityRemoved = 0f;
         var version = ++_version;
@@ -124,8 +132,8 @@ internal sealed class Meditation
         if (player != null)
             player.PhysicalBody.SetDirectionLock(true);
 
-        _hold?.Dispose();
-        _hold = null;
+        _control?.Dispose();
+        _control = null;
         _fastTime?.Dispose();
         _fastTime = null;
         if (!_applied)

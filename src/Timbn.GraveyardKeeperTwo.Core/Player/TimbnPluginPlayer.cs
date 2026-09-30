@@ -15,40 +15,29 @@ public sealed class TimbnPluginPlayer
     }
 
     /// <summary>
-    /// Holds the player still. The game's own requests to lock or unlock movement are remembered meanwhile and
-    /// applied when the last hold is released, so nothing that happens while held can free the player early or
-    /// leave them stuck. Several plugins can hold at once. The player can still use the menus and other keys, so
-    /// see <see cref="TakeControl"/> to take those away too.
+    /// Takes the player's control away, the way the game does during its own cutscenes and conversations. They
+    /// cannot walk, interact, attack, use the hotbar, or open the game's menus with their keys, nothing can push
+    /// them, and hotkeys checked with <see cref="TimbnInput.IsDownWithControl"/> stay quiet. Each call adds its own
+    /// reason to the game's list of reasons the player is held, and the game only gives control back once every
+    /// reason has let go, so several plugins can take control at once and a game cutscene ending meanwhile never
+    /// frees the player. Read your own keys with LazyInput while it is held, and see
+    /// <see cref="TimbnPlayer.IsControlTakenByGame"/> to notice the game stepping in.
     /// </summary>
     /// <example>
     /// <code>
-    /// _hold = Player.HoldStill();
+    /// _control = Player.TakeControl();
     /// // later
-    /// _hold?.Dispose();
-    /// </code>
-    /// </example>
-    /// <returns>A handle that releases the hold when disposed. It is also released when the plugin unloads and on the way to the main menu.</returns>
-    public IDisposable HoldStill() => _owner.SessionSubscriptions.Add(TimbnMovement.HoldStill());
-
-    /// <summary>
-    /// Takes the player's control away, the way the game does during its own dialogues and cutscenes, so they can
-    /// neither move nor interact and the game's hotkeys stay quiet. Core keeps its own flag for this, so the game
-    /// giving control back after one of its cutscenes never frees the player early, and several plugins can take
-    /// control at once. <see cref="TimbnInput.PlayerHasControl"/> reads false while it is held.
-    /// </summary>
-    /// <example>
-    /// <code>
-    /// using (Player.TakeControl())
-    ///     RunScriptedMoment();
+    /// _control?.Dispose();
     /// </code>
     /// </example>
     /// <returns>A handle that gives control back when disposed. It is also released when the plugin unloads and on the way to the main menu.</returns>
     public IDisposable TakeControl() => _owner.SessionSubscriptions.Add(TimbnControl.Take());
 
     /// <summary>
-    /// Makes the player walk faster or slower until the returned handle is disposed. Several plugins can hold a
-    /// speed at once, and the newest one wins. When the last is released, the speed goes back to what it was,
-    /// unless something else changed it meanwhile.
+    /// Makes the player walk faster or slower until the returned handle is disposed. It multiplies the game's own
+    /// speed without changing it, so the game's slowdowns, such as aiming a bow, still apply on top and cannot
+    /// cancel it. Several plugins can hold a speed at once, and the newest one wins. When the last is released,
+    /// the player walks at the game's speed again.
     /// </summary>
     /// <example>
     /// <code>
@@ -60,6 +49,6 @@ public sealed class TimbnPluginPlayer
     /// </code>
     /// </example>
     /// <param name="multiplier">How many times the normal walking speed. 1 is normal.</param>
-    /// <returns>A handle that puts the speed back when disposed. It is also released when the plugin unloads and on the way to the main menu.</returns>
+    /// <returns>A handle that ends the change when disposed. It is also released when the plugin unloads and on the way to the main menu.</returns>
     public IDisposable SetSpeed(float multiplier) => _owner.SessionSubscriptions.Add(TimbnMovement.SetSpeed(multiplier));
 }

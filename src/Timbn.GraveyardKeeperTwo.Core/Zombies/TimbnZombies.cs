@@ -41,7 +41,9 @@ public static class TimbnZombies
             return cached;
 
         var skins = ReadSkins(dataId);
-        _skins[dataId] = skins;
+        if (skins != null)
+            _skins[dataId] = skins;
+
         return skins;
     }
 

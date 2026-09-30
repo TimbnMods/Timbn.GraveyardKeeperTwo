@@ -1,6 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
-/// <summary>Finds, gives, and drops items in the loaded save.</summary>
+/// <summary>Finds, gives, and drops items in the loaded save. At the main menu every count is zero and nothing moves.</summary>
 public static class TimbnItems
 {
     /// <summary>
@@ -18,6 +18,9 @@ public static class TimbnItems
     /// <returns>The count found, which is at least <paramref name="enough"/> if it stopped early.</returns>
     public static int CountAnywhere(string id, int enough = int.MaxValue)
     {
+        if (!TimbnGame.IsInGame)
+            return 0;
+
         var count = MainGame.PlayerData.inventory.Data.GetTotalCountInInventory(id);
         if (count >= enough)
             return count;
@@ -104,6 +107,9 @@ public static class TimbnItems
     /// <returns>How many went into the player's inventory.</returns>
     public static int GiveToPlayer(Item item)
     {
+        if (!TimbnGame.IsInGame)
+            return 0;
+
         var moved = new MultiInventory(MainGame.PlayerData, addCurrentPlayerWorldZone: false).AddItem(item);
         if (moved < item.Count)
         {
@@ -121,7 +127,8 @@ public static class TimbnItems
     /// <summary>Counts an item in the player's inventory and bags. Storage in the world does not count.</summary>
     /// <param name="id">The item id.</param>
     /// <returns>How many the player is carrying.</returns>
-    public static int CountOnPlayer(string id) => MainGame.PlayerData.inventory.Data.GetTotalCountInInventory(id);
+    public static int CountOnPlayer(string id) =>
+        TimbnGame.IsInGame ? MainGame.PlayerData.inventory.Data.GetTotalCountInInventory(id) : 0;
 
     /// <summary>
     /// Removes an item from the player's inventory and bags, up to the count asked for. The items are gone, so
@@ -131,7 +138,9 @@ public static class TimbnItems
     /// <param name="count">How many to take.</param>
     /// <returns>How many were taken, which is less than <paramref name="count"/> when the player had fewer.</returns>
     public static int TakeFromPlayer(string id, int count) =>
-        new MultiInventory(MainGame.PlayerData, addCurrentPlayerWorldZone: false).RemoveItemByCount(id, count).Sum(item => item.Count);
+        TimbnGame.IsInGame
+            ? new MultiInventory(MainGame.PlayerData, addCurrentPlayerWorldZone: false).RemoveItemByCount(id, count).Sum(item => item.Count)
+            : 0;
 
     /// <summary>Drops an item on the ground as a pickup.</summary>
     /// <param name="item">The item and how many.</param>
@@ -144,9 +153,12 @@ public static class TimbnItems
     /// The spot in front of the player where the game itself drops things, or the player's own position when that
     /// spot is blocked.
     /// </summary>
-    /// <returns>A position in the player's current scene.</returns>
+    /// <returns>A position in the player's current scene, or zero at the main menu.</returns>
     public static Vector3 PlayerDropPosition()
     {
+        if (!TimbnGame.IsInGame)
+            return Vector3.zero;
+
         var player = MainGame.PlayerData;
         var position = player.position.Value;
         return SpecialPhysicsCastUtils.GetPlayerDropPosition(position, player.Direction, out var drop) ? drop : position;

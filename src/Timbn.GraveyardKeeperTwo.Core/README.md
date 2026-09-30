@@ -178,11 +178,10 @@ Settings.While(PluginConfig.PerkTalentBonus, () => Balance.Edit<PerkDef>(
 
 ## Holds
 
-A hold changes something the game or another mod may also change, and gives it back when its handle is disposed, the plugin unloads, or the player returns to the main menu. Several mods can hold the same thing at once, and the value from before the first hold comes back when the last one goes, unless the game changed it meanwhile.
+A hold changes something the game or another mod may also change, and ends when its handle is disposed, the plugin unloads, or the player returns to the main menu. Several mods can hold the same thing at once, and it only ends when the last hold goes.
 
-- `Player.HoldStill()` holds the player in place. The game's own lock requests are kept and applied on release.
-- `Player.TakeControl()` takes the player's control away the way the game's cutscenes do, under Core's own flag, so the game handing control back never frees the player early. Core's conversations use it too.
-- `Player.SetSpeed(multiplier)` changes how fast the player walks, and `Clock.SetSpeed(multiplier)` how fast the game's time runs. The newest hold's speed wins.
+- `Player.TakeControl()` takes the player's control away the way the game's cutscenes do, so they cannot walk, interact, attack, use the hotbar or open menus, and cannot be pushed. Each call adds its own reason to the game's list of reasons the player is held, and the game only gives control back once every reason has let go, so a game cutscene ending meanwhile never frees the player early. Core's conversations use it too. Read your own keys with `LazyInput` while it is held, and use `TimbnPlayer.IsControlTakenByGame(...)` to notice the game taking control itself.
+- `Player.SetSpeed(multiplier)` multiplies how fast the player walks, on top of the game's own slowdowns such as aiming a bow. `Clock.SetSpeed(multiplier)` sets how fast the game's time runs, and gives back the speed from before unless the game changed it meanwhile. For both, the newest hold's speed wins.
 
 ```csharp
 _fastTime = Clock.SetSpeed(7f);
@@ -193,9 +192,9 @@ _fastTime?.Dispose();
 ## Helpers
 
 - `TimbnConfig.CarryOver(config, (entry, oldSection, oldKey), ...)` moves the value of a renamed config entry into the new one. Call it at the end of `BindConfig`.
-- `TimbnInput.CanUseHotkeys`, `PlayerHasControl`, `PlayerHasControlExcept(reasons)` and `GameHasInteraction` say when a mod's key should stay out of the way. `IsDownInGame`, `IsDownWithControl` and `IsDownInWindow<TWindow>` read a `KeyboardShortcut` with those checks built in.
+- `TimbnInput.CanUseHotkeys`, `PlayerHasControl` and `GameHasInteraction` say when a mod's key should stay out of the way. `IsDownInGame`, `IsDownWithControl` and `IsDownInWindow<TWindow>` read a `KeyboardShortcut` with those checks built in.
 - `TimbnUI.ActiveWindow`, `IsWindowOpen<TWindow>()` and `IsScreenFading` read the game's screens, and `TimbnUI.FadeThrough(action)` runs code while the screen is faded to black.
-- `UI.CreateHint()` makes the game's "press a key to do something" hint for any spot in the world, and `UI.Gui(draw)` draws IMGUI in place of an `OnGUI` method. Both are taken down when the plugin unloads.
+- `UI.CreateHint()` makes the game's "press a key to do something" hint for any spot in the world. While it shows, the game ignores a press of its key, the way it does for its own hints, so the press only reaches your mod. `UI.Gui(draw)` `UI.Gui(draw)` draws IMGUI in place of an `OnGUI` method. Both are taken down when the plugin unloads.
 - `TimbnItems.CountAnywhere(id)` counts an item across the whole world and `CountOnPlayer(id)` only what the player carries, `GiveToPlayer` gives items and drops what does not fit in front of the player, `TakeFromPlayer` removes them, and `DropAt` and `PlayerDropPosition` drop items where the game would. `FindDrops(match)` finds items lying on the ground in every scene, and `RemoveDrops` clears them.
 - `TimbnPlayer.Position`, `SceneId` and `Scene` say where the player is, and `MoveTo` moves them.
 - `TimbnWorld.TryFindWalkable(point, range, out ground)` finds open ground near a spot, `TryGetNavGraph` gets a scene's navigation graph, `Near(position, radius)` lists the world objects around a spot, nearest first, and `ViewOf(data)` gets the view that draws one.

@@ -18,6 +18,8 @@ Stand by the campfire at home, above your garden, and a "Meditate" hint appears 
 ## Good to know
 
 - The game is not saved while you meditate.
+- While you sit, the game treats you like it does in a cutscene. You cannot walk, use tools, attack, or open the inventory, map or other menus until you get up.
+- You can meditate while carrying something over your head, and you keep holding it.
 - Going back to the main menu ends a meditation in progress.
 
 ## Translating

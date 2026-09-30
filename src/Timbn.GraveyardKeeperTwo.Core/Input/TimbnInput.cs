@@ -30,25 +30,6 @@ public static class TimbnInput
         && MainGame.PlayerController.IsControlsEnabled;
 
     /// <summary>
-    /// True when a save is loaded and nothing but the listed reasons has taken the player's control, whether or not
-    /// a window is open. Use it when some of the game's reasons should not count, such as an open window in
-    /// <c>TakenControlType.ByUI</c>.
-    /// </summary>
-    /// <example>
-    /// Stop meditating when anything but a window takes control, such as a cutscene or sleep.
-    /// <code>
-    /// if (!TimbnInput.PlayerHasControlExcept(TakenControlType.ByUI))
-    ///     meditation.Stop();
-    /// </code>
-    /// </example>
-    /// <param name="ignored">The reasons to ignore.</param>
-    /// <returns>True when no other reason has taken control.</returns>
-    public static bool PlayerHasControlExcept(params TakenControlType[] ignored) =>
-        TimbnGame.IsInGame
-        && MainGame.PlayerController != null
-        && MainGame.PlayerController.IsControlsEnabledExcept(ignored);
-
-    /// <summary>
     /// True when the game has its own interaction ready for the Interaction key, such as a world object in reach
     /// or a big drop to pick up. A mod that also uses the Interaction key should stay out of the way then.
     /// </summary>
@@ -56,7 +37,10 @@ public static class TimbnInput
     {
         get
         {
-            var interaction = MainGame.PlayerController?.PlayerInteractionComponent;
+            if (!TimbnGame.IsInGame || MainGame.PlayerController == null)
+                return false;
+
+            var interaction = MainGame.PlayerController.PlayerInteractionComponent;
             return interaction != null && (interaction.HasWgoUnderInteraction || interaction.BigDropUnderInteraction != null);
         }
     }
