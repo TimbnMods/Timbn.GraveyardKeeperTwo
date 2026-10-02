@@ -12,7 +12,6 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
 
     protected override void OnAwake()
     {
-        PerkTalentBonus.Register(this);
         TechPointCap.Register(this);
         StrayTechPoints.Register(this);
         StuckCarriers.Register(this);
