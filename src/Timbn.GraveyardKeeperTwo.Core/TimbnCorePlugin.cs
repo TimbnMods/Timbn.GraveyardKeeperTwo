@@ -15,17 +15,17 @@ public class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
     public const string Version = MyPluginInfo.PLUGIN_VERSION;
 
     /// <summary>The game version these mods were last verified against.</summary>
-    public const string TestedGameVersion = "1.007.1";
+    public const string TestedGameVersion = "1.008";
 
     /// <summary>
     /// The <see cref="GameBuild"/> of <see cref="TestedGameVersion"/>. It tells a silent hotfix apart from the build
     /// these mods were verified on, since a hotfix can ship without a new version string.
     /// </summary>
-    public const string TestedGameBuild = "3ffadd70169d";
+    public const string TestedGameBuild = "f7d46132dd54";
 
     /// <summary>
     /// A short id for the running game's code, the first twelve hex digits of Assembly-CSharp's module version id.
-    /// It changes whenever the game's scripts are rebuilt, for example "3ffadd70169d" on 1.007.1 (Steam build 25601286).
+    /// It changes whenever the game's scripts are rebuilt, for example "f7d46132dd54" on 1.008 (Steam build 25676698).
     /// </summary>
     public static string GameBuild { get; } = typeof(MainGame).Assembly.ManifestModule.ModuleVersionId.ToString("N")[..12];
 

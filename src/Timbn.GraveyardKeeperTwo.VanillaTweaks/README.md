@@ -4,10 +4,6 @@ Timbn Vanilla Tweaks fixes bugs and adds light gameplay tweaks that are intended
 
 ## Bug Fixes
 
-### Green Thumb, Master Brewer and Sommelier perks
-
-These perks never worked. Green Thumb now adds +2 farming mastery when planting, Master Brewer +2 when brewing beer and mead, and Sommelier +3 when making wine, so you can brew and make the better wines sooner. The game does not use the player's mastery on harvest, so that part of Green Thumb's description still can't do anything.
-
 ### Lost tech points
 
 Tech points can bounce through a wall and land where they can't reach you. Now any tech points stuck off walkable ground are pulled to you.
@@ -93,6 +89,7 @@ Every line this mod adds is in `lang/en.txt` inside its folder. Copy it to your 
 - Destroying a bag deleting everything inside it
 - Items in the wrong bag being used forever
 - Getting stuck on the stairs from the dock up to the stone pier in the Port Area
+- Green Thumb, Master Brewer and Sommelier perks doing nothing
 
 ## Requirements
 
