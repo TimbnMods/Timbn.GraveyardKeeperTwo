@@ -30,8 +30,6 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> RecoverBattleRewards { get; private set; } = null!;
 
-    public static ConfigEntry<bool> BaitInBags { get; private set; } = null!;
-
     public static ConfigEntry<bool> MoveIdenticalFromBags { get; private set; } = null!;
 
     public static ConfigEntry<bool> SortIntoBags { get; private set; } = null!;
@@ -94,13 +92,6 @@ internal static class PluginConfig
             + "for Looters, Town Gratitude, and Zombie Goo) lying anywhere in the world back to your feet. Battle "
             + "rewards are dropped at your feet after a win, and with full bags walking into one knocks it away "
             + "until it lands somewhere you can't reach.");
-
-        BaitInBags = config.Bind(
-            _bugFixes,
-            nameof(BaitInBags),
-            true,
-            "Bait kept in a bag counts when you start fishing. The game only looked for bait loose in your "
-            + "inventory, so with all of it in a fishing bag you were told you had none.");
 
         ConveyorLoopCrash = config.Bind(
             _bugFixes,
