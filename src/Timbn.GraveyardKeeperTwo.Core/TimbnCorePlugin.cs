@@ -21,11 +21,11 @@ public class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
     /// The <see cref="GameBuild"/> of <see cref="TestedGameVersion"/>. It tells a silent hotfix apart from the build
     /// these mods were verified on, since a hotfix can ship without a new version string.
     /// </summary>
-    public const string TestedGameBuild = "06096414ba3b";
+    public const string TestedGameBuild = "5ec8094e4c33";
 
     /// <summary>
     /// A short id for the running game's code, the first twelve hex digits of Assembly-CSharp's module version id.
-    /// It changes whenever the game's scripts are rebuilt, for example "06096414ba3b" on 1.010 (Steam build 25907946).
+    /// It changes whenever the game's scripts are rebuilt, for example "5ec8094e4c33" on 1.010 (Steam build 25910882).
     /// </summary>
     public static string GameBuild { get; } = typeof(MainGame).Assembly.ManifestModule.ModuleVersionId.ToString("N")[..12];
 
