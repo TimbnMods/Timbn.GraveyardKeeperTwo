@@ -47,11 +47,17 @@ public static class TimbnBalance
         return Add(definition, ready, null);
     }
 
-    internal static IDisposable Add(BalanceBaseObject definition, Func<GameBalance, bool>? prepare, Action<GameBalance>? removed)
+    internal static IDisposable Add(BalanceBaseObject definition, Func<GameBalance, bool>? prepare, Action<GameBalance>? removed) =>
+        Add(definition, prepare, removed, true);
+
+    // For adding many at once. The caller rebuilds the derived caches itself afterward.
+    internal static IDisposable AddWithoutRefresh(BalanceBaseObject definition) => Add(definition, null, null, false);
+
+    private static IDisposable Add(BalanceBaseObject definition, Func<GameBalance, bool>? prepare, Action<GameBalance>? removed, bool refresh)
     {
         var entry = new Entry(definition, prepare, removed);
         _entries.Add(entry);
-        if (Loaded is { } balance && Insert(balance, entry))
+        if (Loaded is { } balance && Insert(balance, entry) && refresh)
             RefreshDerivedCaches(balance, definition.GetType());
 
         return new TimbnUndo(() => Remove(entry));

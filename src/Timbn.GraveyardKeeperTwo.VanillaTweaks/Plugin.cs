@@ -19,7 +19,6 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         BuiltEarlyQuests.Register(this);
         Dismantle = UnreachableDismantle.Register(this);
         LostItems.Register(this);
-        LostBattleRewards.Register(this);
         BedSaveWhenRested.Register(this);
         ConveyorLoopCrash.Register(this);
 

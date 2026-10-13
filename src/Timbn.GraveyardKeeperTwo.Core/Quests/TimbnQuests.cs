@@ -471,7 +471,8 @@ public static class TimbnQuests
             if (_stubs.TryGetValue(data.id, out var old))
                 old.Dispose();
 
-            _stubs[data.id] = TimbnBalance.Add(stub);
+            // Relayout below rebuilds the quest cache once for all of them.
+            _stubs[data.id] = TimbnBalance.AddWithoutRefresh(stub);
             _cachedId(data) = string.Empty;
             data.isHidden = true;
             stubbed++;

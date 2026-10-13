@@ -150,6 +150,22 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
 
     private void Awake()
     {
+        // BepInEx rewrites the whole .cfg on every Bind, so write it once after all of them.
+        var saveOnSet = Config.SaveOnConfigSet;
+        Config.SaveOnConfigSet = false;
+        try
+        {
+            Initialize();
+        }
+        finally
+        {
+            Config.SaveOnConfigSet = saveOnSet;
+            Config.Save();
+        }
+    }
+
+    private void Initialize()
+    {
         EnabledSetting = Config.Bind("General", "Enabled", true, $"Master toggle for {Metadata.Name}.");
         BindConfig(Config);
         if (this is not TimbnCorePlugin && TimbnCorePlugin.Instance is null)

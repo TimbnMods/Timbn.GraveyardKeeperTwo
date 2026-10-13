@@ -20,10 +20,6 @@ Supply zombies could freeze holding an item when all storage was full. They now 
 
 Workstations can act weird when destroying them while a zombie is working or removing zombies from working. This fixes stuck zombies.
 
-### Lost battle rewards
-
-Battle rewards are dropped at your feet after a win. With full bags the game knocks an item away every time you walk into it, so following it pushes it further until it lands somewhere you can't reach, and rewards like the Defender's Emblem were lost for good. Going to sleep brings every item battles give as a reward (Defender's Emblem, Victory Banner, Keys for Looters, Town Gratitude, and Zombie Goo) lying anywhere in the world back to your feet, including ones lost before you installed this.
-
 ### Crash with conveyor loops
 
 A loop of conveyors that feeds into another loop, such as a splitter sending part of its coal back into the chest before it, made the game close on its own a few seconds after loading once the first loop ran empty or jammed. It kept happening every time that save loaded. The game no longer gets stuck on those loops, and your conveyors work as before. A notice appears in the corner when such a loop is found. Yellow arrows trace the loop and a red square marks the belt to remove to break it. The arrows and square can be turned off in the config.
@@ -87,6 +83,7 @@ Every line this mod adds is in `lang/en.txt` inside its folder. Copy it to your 
 - Getting stuck on the stairs from the dock up to the stone pier in the Port Area
 - Green Thumb, Master Brewer and Sommelier perks doing nothing
 - Bait in bags
+- Lost battle rewards
 
 ## Requirements
 
