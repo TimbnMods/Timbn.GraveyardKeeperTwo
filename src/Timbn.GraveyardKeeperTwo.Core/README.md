@@ -185,7 +185,7 @@ The last form works for any setting type. Any change to the value reverts and th
 
 ```csharp
 Settings.While(PluginConfig.StuckCarriers, () => Events.Every(0.5f, stuckCarriers.Tick));
-Settings.While(PluginConfig.RecoverBattleRewards, () => Events.SleepStarted(LostBattleRewards.Recover));
+Settings.While(PluginConfig.BedSaveWhenRested, () => Events.SleepRefused(BedSaveWhenRested.Save));
 Settings.While(PluginConfig.TechPointCap, cap => cap > 999, () => Balance.Edit<GameResSystemDef>("tech_red", Raise, Lower));
 ```
 

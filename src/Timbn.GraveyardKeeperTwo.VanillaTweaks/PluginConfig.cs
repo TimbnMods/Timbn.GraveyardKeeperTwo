@@ -28,8 +28,6 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> LostQuestItems { get; private set; } = null!;
 
-    public static ConfigEntry<bool> RecoverBattleRewards { get; private set; } = null!;
-
     public static ConfigEntry<bool> MoveIdenticalFromBags { get; private set; } = null!;
 
     public static ConfigEntry<bool> SortIntoBags { get; private set; } = null!;
@@ -83,15 +81,6 @@ internal static class PluginConfig
             true,
             "Allows you to remove buildings you should be allowed to but the game blocks its. Chests built in the " +
             "resurrection lab from the morgue build desk are an example.");
-
-        RecoverBattleRewards = config.Bind(
-            _bugFixes,
-            nameof(RecoverBattleRewards),
-            true,
-            "Going to sleep brings every item battles give as a reward (Defender's Emblem, Victory Banner, Keys "
-            + "for Looters, Town Gratitude, and Zombie Goo) lying anywhere in the world back to your feet. Battle "
-            + "rewards are dropped at your feet after a win, and with full bags walking into one knocks it away "
-            + "until it lands somewhere you can't reach.");
 
         ConveyorLoopCrash = config.Bind(
             _bugFixes,
