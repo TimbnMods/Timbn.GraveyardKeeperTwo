@@ -1,11 +1,31 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
-/// <summary>Harmony patch on the player's input that skips the game's own interaction while a plugin's hint claims the key.</summary>
 [HarmonyPatch(typeof(PlayerInputHandler))]
 internal static class PlayerInputHandlerPatch
 {
     [HarmonyPatch(nameof(PlayerInputHandler.UpdateInput))]
     [HarmonyPrefix]
-    private static bool UpdateInputPreFix() =>
-        !TimbnInteractionHint.IsKeyClaimed();
+    private static bool UpdateInputPreFix()
+    {
+        TimbnCarry.IsReadingInput = true;
+        return !TimbnInteractionHint.IsKeyClaimed();
+    }
+
+    [HarmonyPatch(nameof(PlayerInputHandler.UpdateInput))]
+    [HarmonyFinalizer]
+    private static void UpdateInputFinalizer() =>
+        TimbnCarry.IsReadingInput = false;
+
+    [HarmonyPatch(nameof(PlayerInputHandler.UpdateInputInteractionOnly))]
+    [HarmonyPrefix]
+    private static bool UpdateInputInteractionOnlyPreFix()
+    {
+        TimbnCarry.IsReadingInput = true;
+        return !TimbnInteractionHint.IsKeyClaimed();
+    }
+
+    [HarmonyPatch(nameof(PlayerInputHandler.UpdateInputInteractionOnly))]
+    [HarmonyFinalizer]
+    private static void UpdateInputInteractionOnlyFinalizer() =>
+        TimbnCarry.IsReadingInput = false;
 }

@@ -3,7 +3,7 @@ using Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-[BepInDependency(TimbnCorePlugin.Guid, "1.5.0")]
+[BepInDependency(TimbnCorePlugin.Guid, "2.0.0")]
 public class Plugin : TimbnFrameworkPlugin<Plugin>
 {
     internal UnreachableDismantle Dismantle { get; private set; } = null!;
@@ -21,8 +21,6 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         LostItems.Register(this);
         BedSaveWhenRested.Register(this);
         ConveyorLoopCrash.Register(this);
-
-        Logger.LogMessage($"Vanilla Tweaks started. Unstuck on {PluginConfig.UnstuckKey.Value}.");
     }
 
     protected override void OnUpdate()

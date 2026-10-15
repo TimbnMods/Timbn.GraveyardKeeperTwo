@@ -11,17 +11,38 @@ dotnet_diagnostic.IDE0130.severity = none
 # overloaded null check, so a destroyed object slips through.
 dotnet_diagnostic.IDE0031.severity = none
 
+# IDE0029, IDE0030, IDE0041, IDE0074 and IDE0270 suggest ??, is null, ??= and ?? throw. On a UnityEngine.Object
+# they skip Unity's overloaded null check the same way ?. does, so a destroyed object slips through.
+dotnet_diagnostic.IDE0029.severity = none
+dotnet_diagnostic.IDE0030.severity = none
+dotnet_diagnostic.IDE0041.severity = none
+dotnet_diagnostic.IDE0074.severity = none
 dotnet_diagnostic.IDE0270.severity = none
 
-# Non-public fields (incl. const/static) are _camelCase
-dotnet_naming_rule.non_public_fields_underscore.symbols = non_public_fields
-dotnet_naming_rule.non_public_fields_underscore.style = underscore_camel_case
-dotnet_naming_rule.non_public_fields_underscore.severity = suggestion
+# IDE0019 and IDE0078 turn an as cast with a null check, and == null comparisons, into patterns, which skip
+# Unity's overloaded null check as well.
+dotnet_diagnostic.IDE0019.severity = none
+dotnet_diagnostic.IDE0078.severity = none
 
-dotnet_naming_symbols.non_public_fields.applicable_kinds = field
-dotnet_naming_symbols.non_public_fields.applicable_accessibilities = private, internal, protected, protected_internal, private_protected
+# Private fields are _camelCase, const and static included
+dotnet_naming_rule.private_fields_underscore.symbols = private_fields
+dotnet_naming_rule.private_fields_underscore.style = underscore_camel_case
+dotnet_naming_rule.private_fields_underscore.severity = suggestion
+
+dotnet_naming_symbols.private_fields.applicable_kinds = field
+dotnet_naming_symbols.private_fields.applicable_accessibilities = private
 
 dotnet_naming_style.underscore_camel_case.capitalization = camel_case
 dotnet_naming_style.underscore_camel_case.required_prefix = _
+
+# Every other field is PascalCase
+dotnet_naming_rule.non_private_fields_pascal.symbols = non_private_fields
+dotnet_naming_rule.non_private_fields_pascal.style = pascal_case
+dotnet_naming_rule.non_private_fields_pascal.severity = suggestion
+
+dotnet_naming_symbols.non_private_fields.applicable_kinds = field
+dotnet_naming_symbols.non_private_fields.applicable_accessibilities = public, internal, protected, protected_internal, private_protected
+
+dotnet_naming_style.pascal_case.capitalization = pascal_case
 
 

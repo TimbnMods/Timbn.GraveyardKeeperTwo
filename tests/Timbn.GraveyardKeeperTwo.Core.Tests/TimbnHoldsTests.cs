@@ -46,14 +46,15 @@ public sealed class TimbnHoldsTests
     }
 
     [Fact]
-    public void SameValueTwiceAppliesOnce()
+    public void SameValueTwiceAppliesAgain()
     {
         var holds = NewHolds();
 
         holds.Take(2f);
-        holds.Take(2f);
+        var second = holds.Take(2f);
+        second.Dispose();
 
-        Assert.Equal(["apply 2"], _log);
+        Assert.Equal(["apply 2", "apply 2", "apply 2"], _log);
     }
 
     [Fact]

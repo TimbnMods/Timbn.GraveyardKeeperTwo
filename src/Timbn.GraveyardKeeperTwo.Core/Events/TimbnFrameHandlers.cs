@@ -1,18 +1,27 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
-/// <summary>The per frame handlers of one plugin for one Unity phase, run while a save is loaded and stopped after a throw.</summary>
+/// <summary>
+/// The per frame handlers of one plugin for one Unity phase, run while a save is loaded. A mod's handler is stopped
+/// after a throw, and Core's own keeps running, since Core is never reloaded and a stopped tick would be gone until the
+/// game restarts.
+/// </summary>
 internal sealed class TimbnFrameHandlers
 {
+    // A kept handler waits this long after a throw, so a lasting fault logs once a second instead of every frame.
+    private const float _retryDelay = 1f;
+
     private readonly List<Entry> _entries = [];
     private readonly ManualLogSource _logger;
     private readonly string _name;
+    private readonly bool _keep;
     private bool _running;
     private bool _dirty;
 
-    internal TimbnFrameHandlers(ManualLogSource logger, string name)
+    internal TimbnFrameHandlers(ManualLogSource logger, string name, bool keep = false)
     {
         _logger = logger;
         _name = name;
+        _keep = keep;
     }
 
     internal IDisposable Add(Action handler, float interval, bool whilePaused)
@@ -40,8 +49,15 @@ internal sealed class TimbnFrameHandlers
                     continue;
 
                 entry.Next = now + entry.Interval;
-                if (TimbnSafe.Run(entry.Handler, _logger, $"{nameof(TimbnFrameHandlers)}|{_name} handler {TimbnSafe.Describe(entry.Handler)} was stopped because it"))
+                var outcome = _keep ? "keeps running after it" : "was stopped because it";
+                if (TimbnSafe.Run(entry.Handler, _logger, $"{nameof(TimbnFrameHandlers)}|{_name} handler {TimbnSafe.Describe(entry.Handler)} {outcome}"))
                     continue;
+
+                if (_keep)
+                {
+                    entry.Next = now + Math.Max(entry.Interval, _retryDelay);
+                    continue;
+                }
 
                 entry.Removed = true;
                 _dirty = true;

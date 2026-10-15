@@ -13,6 +13,8 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
     private static readonly AccessTools.FieldRef<BaseUnityPlugin, PluginInfo?> _infoField =
         AccessTools.FieldRefAccess<BaseUnityPlugin, PluginInfo?>("<Info>k__BackingField");
 
+    private static readonly List<TimbnFrameworkPlugin> _running = [];
+
     private static int _harmonyInstances;
 
     private readonly List<Harmony> _harmonies = [];
@@ -38,6 +40,12 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
         Clock = new(this);
         UI = new(this);
         Saves = new(this);
+        Npcs = new(this);
+        Audio = new(this);
+        Models = new(this);
+        Stations = new(this);
+        Crafts = new(this);
+        Techs = new(this);
     }
 
     /// <summary>The plugin's own BepInPlugin attribute. Use this instead of Info.</summary>
@@ -103,6 +111,27 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
     public TimbnPluginSaves Saves { get; }
 
     /// <summary>
+    /// Walks and adds people and gives them a day on the game clock, with every walk, claim and added person undone
+    /// when this plugin unloads.
+    /// </summary>
+    public TimbnPluginNpcs Npcs { get; }
+
+    /// <summary>Plays the game's own music for the plugin, put back the way it was when the plugin is done.</summary>
+    public TimbnPluginAudio Audio { get; }
+
+    /// <summary>Loads 3D models from the plugin's asset bundle and uses them in the world, all unloaded when this plugin unloads.</summary>
+    public TimbnPluginModels Models { get; }
+
+    /// <summary>Adds buildable workstations and bench extensions, offered at a build desk, that are removed when this plugin unloads.</summary>
+    public TimbnPluginStations Stations { get; }
+
+    /// <summary>Adds crafts at the game's stations or the plugin's own that are removed when this plugin unloads.</summary>
+    public TimbnPluginCrafts Crafts { get; }
+
+    /// <summary>Adds technologies to the tech tree, bought with tech points and removed when this plugin unloads.</summary>
+    public TimbnPluginTechs Techs { get; }
+
+    /// <summary>
     /// Whether a feature's patches failed to apply, which happens when a game update renamed or removed something
     /// they target. The feature is named by the <see cref="TimbnFeatureAttribute"/> on its patch classes, and its
     /// config toggle reads as off through Settings.Toggle and Settings.While while it is broken. Check it by hand
@@ -112,6 +141,8 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
     /// <returns>True when the feature's patches are not applied.</returns>
     public bool IsFeatureBroken(string feature) => _brokenFeatures.Contains(feature);
 
+    internal static IReadOnlyList<TimbnFrameworkPlugin> Running => _running;
+
     internal TimbnSubscriptions Subscriptions { get; }
 
     internal TimbnSubscriptions SessionSubscriptions { get; }
@@ -120,10 +151,10 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
 
     internal ManualLogSource PluginLogger => Logger;
 
-    internal bool IsEnabled =>
-        EnabledSetting.Value && (this is TimbnCorePlugin || TimbnCorePlugin.Instance?.IsEnabled == true);
+    internal bool IsPluginEnabled =>
+        EnabledSetting.Value && (this is TimbnCorePlugin || TimbnCorePlugin.Instance?.IsPluginEnabled == true);
 
-    internal bool IsRunning => _started && IsEnabled;
+    internal bool IsRunning => _started && IsPluginEnabled;
 
     internal string Folder
     {
@@ -147,6 +178,8 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
             return Path.Combine(Paths.PluginPath, Metadata.GUID);
         }
     }
+
+    internal static event Action<TimbnFrameworkPlugin>? PluginStarted;
 
     private void Awake()
     {
@@ -174,7 +207,7 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
             return;
         }
 
-        if (!IsEnabled)
+        if (!IsPluginEnabled)
         {
             Logger.LogInfo($"Plugin {Metadata.GUID} is disabled in config (its own or Core's Enabled toggle). Skipping.");
             return;
@@ -193,7 +226,16 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
         Subscriptions.Add(TimbnMainMenu.AddLine($"{Metadata.Name}: ", Metadata.Version.ToString()));
         Logger.LogMessage($"Plugin {Metadata.GUID} v{Metadata.Version} loaded, patches under '{harmonyId}'.");
         Text.AddLanguageFilesIfPresent();
-        OnAwake();
+        if (!TimbnSafe.Run(OnAwake, Logger, nameof(OnAwake)))
+        {
+            Stop();
+            Logger.LogError($"Plugin {Metadata.GUID} v{Metadata.Version} not started, its {nameof(OnAwake)} threw. Nothing was left patched or registered.");
+            TimbnLoadErrors.AddStartFailure($"{Metadata.Name} {Metadata.Version}");
+            return;
+        }
+
+        _running.Add(this);
+        TimbnSafe.Run(() => PluginStarted?.Invoke(this), Logger, $"{nameof(TimbnFrameworkPlugin)}|{nameof(PluginStarted)}");
     }
 
     private bool TryPatchAll(string harmonyId)
@@ -287,7 +329,14 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
         if (!_started)
             return;
 
-        TimbnSafe.Run(OnDestroyed, Logger, nameof(OnDestroyed));
+        Stop();
+        Logger.LogMessage($"Plugin {Metadata.GUID} unloaded, subscriptions and patches removed.");
+    }
+
+    private void Stop()
+    {
+        _running.Remove(this);
+        TimbnSafe.Run(OnUnload, Logger, nameof(OnUnload));
         Events.CloseSave();
         SessionSubscriptions.Dispose();
         Subscriptions.Dispose();
@@ -297,7 +346,6 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
         _harmonies.Clear();
         _started = false;
         OnStopped();
-        Logger.LogMessage($"Plugin {Metadata.GUID} unloaded, subscriptions and patches removed.");
     }
 
     private protected virtual void OnStarted() { }
@@ -317,10 +365,10 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
     /// Runs when the plugin unloads, before Core removes everything the plugin registered and its Harmony
     /// patches. Put back anything the plugin changed in the game directly, such as a value it set or a
     /// GameObject it created. Registrations made through Events, Settings, Potions, Quests, Dialog, Text,
-    /// Sprites, Balance, MainMenu, Player, Clock, UI, and Saves are cleaned up for you, and cleanup that belongs
+    /// Sprites, Balance, MainMenu, Player, Clock, UI, Saves, Npcs, Audio, Models, Stations, Crafts and Techs are cleaned up for you, and cleanup that belongs
     /// to a save is better placed in Events.SaveClosed, which also runs on the way to the main menu.
     /// </summary>
-    protected virtual void OnDestroyed() { }
+    protected virtual void OnUnload() { }
 }
 
 /// <summary>
@@ -330,6 +378,10 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
 [SuppressMessage("BepInEx", "BepInEx001:BaseUnityPlugin should have a BepInPlugin attribute", Justification = "Abstract base; concrete plugins carry [BepInPlugin]")]
 public abstract class TimbnFrameworkPlugin<T> : TimbnFrameworkPlugin where T : TimbnFrameworkPlugin<T>
 {
+    /// <summary>
+    /// The plugin's log source, writing under the plugin's name. It hides the BepInEx instance Logger so a static
+    /// Harmony patch or helper can log the same way the plugin does.
+    /// </summary>
     public static new ManualLogSource Logger { get; private set; } = null!;
 
     /// <summary>The plugin's General/Enabled toggle. Null until the plugin has started.</summary>
@@ -353,9 +405,10 @@ public abstract class TimbnFrameworkPlugin<T> : TimbnFrameworkPlugin where T : T
 
     /// <summary>
     /// Whether the plugin's own Enabled toggle and Core's are both on. Check it in a patch or a static helper that
-    /// has to stand down the moment a player turns the plugin off in a config manager.
+    /// has to stand down the moment a player turns the plugin off in a config manager. For one feature's toggle, see
+    /// the plugin's Settings.IsEnabled.
     /// </summary>
-    public static bool IsActive => Enabled?.Value == true && TimbnCorePlugin.Enabled?.Value == true;
+    public static bool IsEnabled => Enabled?.Value == true && TimbnCorePlugin.Enabled?.Value == true;
 
     protected TimbnFrameworkPlugin()
     {
@@ -368,5 +421,9 @@ public abstract class TimbnFrameworkPlugin<T> : TimbnFrameworkPlugin where T : T
         Instance = (T)this;
     }
 
-    private protected sealed override void OnStopped() => Instance = null;
+    private protected sealed override void OnStopped()
+    {
+        Instance = null;
+        Enabled = null!;
+    }
 }

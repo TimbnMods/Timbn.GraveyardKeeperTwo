@@ -1,6 +1,5 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
-/// <summary>Harmony patch on a zombie view's skin setup that raises the zombie view ready event.</summary>
 [HarmonyPatch(typeof(WgoPart))]
 internal static class WgoPartPatch
 {
@@ -8,4 +7,12 @@ internal static class WgoPartPatch
     [HarmonyPostfix]
     private static void SetupZombieSkinPostFix(WgoPart __instance, ZombieWgoData zombieWgoData) =>
         TimbnPatchedEvents.RaiseZombieViewReady(__instance, zombieWgoData);
+
+    [HarmonyPatch("ApplyWgoPartState", typeof(WgoPartState))]
+    [HarmonyPostfix]
+    private static void ApplyWgoPartStatePostFix(WgoPart __instance)
+    {
+        TimbnPartPrefab.PlaceDock(__instance);
+        TimbnNavmeshBake.Refresh(__instance.GetComponentInParent<Wgo>(true));
+    }
 }

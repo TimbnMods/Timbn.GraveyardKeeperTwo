@@ -14,18 +14,18 @@ internal sealed class StuckCarriers
     {
         var stuckCarriers = new StuckCarriers();
         plugin.Settings.Toggle(PluginConfig.StuckCarriers, stuckCarriers.Reset, stuckCarriers.Revert);
-        plugin.Settings.While(PluginConfig.StuckCarriers, () => plugin.Events.Every(_interval, stuckCarriers.Tick));
+        plugin.Settings.While(PluginConfig.StuckCarriers, () => plugin.Events.EveryRealSeconds(_interval, stuckCarriers.Tick));
     }
 
     private void Tick()
     {
-        var stuck = TimbnZombies.OnScene().Where(IsStuck).ToHashSet();
+        var stuck = TimbnZombies.All().Where(IsStuck).ToHashSet();
 
         foreach (var zombie in stuck.Where(z => !_stuck.Contains(z)))
         {
             Redraw(zombie);
             WalkToStation(zombie);
-            Plugin.Logger.LogInfo($"Carrier {zombie.Name} has nowhere to put {zombie.CaretakerPortableItem.Count} "
+            Plugin.Logger.LogInfo($"Zombie supplier {zombie.Name} has nowhere to put {zombie.CaretakerPortableItem.Count} "
                 + $"{zombie.CaretakerPortableItem.id} in {zombie.WorldZoneData?.id}.");
         }
 

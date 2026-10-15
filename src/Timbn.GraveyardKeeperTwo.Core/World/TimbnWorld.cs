@@ -3,8 +3,9 @@ using Pathfinding;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Finds things in the loaded world, such as the walkable ground of a scene or the objects near a spot. A mod that
-/// uses the navigation graph needs its own reference to AstarPathfindingProject.dll from the game's Managed
+/// Finds things in the loaded world, such as the walkable ground of a scene or the objects near a spot, and reads how
+/// the world is doing, such as the graveyard, church and town scores, the town's gratitude and the weather. A mod
+/// that uses the navigation graph needs its own reference to AstarPathfindingProject.dll from the game's Managed
 /// folder.
 /// </summary>
 public static class TimbnWorld
@@ -13,25 +14,26 @@ public static class TimbnWorld
         [DistanceMetric.ClosestAsSeenFromAboveSoft(), DistanceMetric.ClosestAsSeenFromAbove()];
 
     /// <summary>
-    /// The scenes of the loaded world, the outdoor map and every interior, each holding its world objects, zones,
-    /// and the items on its ground. Empty at the main menu.
+    /// The scenes of the loaded world, each holding its world objects, zones, and the items on its ground. Empty at
+    /// the main menu.
     /// </summary>
     public static IReadOnlyList<GameSceneData> Scenes =>
         TimbnGame.IsInGame ? MainGame.WorldData.gameSceneDataList : [];
 
     /// <summary>
     /// Every world object in the loaded save, in every scene, loaded around the player or not. World objects are
-    /// everything placed in the world, such as chests, stations, graves, NPCs, and zombies.
+    /// everything placed in the world, such as chests, stations, graves, NPCs, and zombies. It walks every scene, so
+    /// use <see cref="FindAll"/> when the definition id is known.
     /// </summary>
     /// <example>
     /// <code>
-    /// foreach (var station in TimbnWorld.All(wgo => wgo.CraftComponent != null))
+    /// foreach (var station in TimbnWorld.Objects(wgo => wgo.CraftComponent != null))
     ///     station.CraftComponent.ResetCraftsFromBalanceCache();
     /// </code>
     /// </example>
     /// <param name="match">Which objects to keep. Leave it out to keep all of them.</param>
     /// <returns>The matching objects, scene by scene. Empty at the main menu.</returns>
-    public static IEnumerable<WgoData> All(Func<WgoData, bool>? match = null)
+    public static IEnumerable<WgoData> Objects(Func<WgoData, bool>? match = null)
     {
         foreach (var scene in Scenes)
         {
@@ -42,6 +44,36 @@ public static class TimbnWorld
             }
         }
     }
+
+    /// <summary>
+    /// Every world object of one definition in the loaded save, such as every sawhorse, in every scene, read from
+    /// the game's own by id cache rather than by walking every scene.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var hasSawhorse = TimbnWorld.FindAll("sawhorse").Count > 0;
+    /// </code>
+    /// </example>
+    /// <param name="definitionId">The definition's id from the balance, such as sawhorse, or an NPC's id from <see cref="TimbnGameIds.Npcs"/>.</param>
+    /// <returns>A copy of the list, so objects can be removed while looping it. Empty when there are none or at the main menu.</returns>
+    public static IReadOnlyList<WgoData> FindAll(string definitionId) =>
+        TimbnGame.IsInGame ? [.. MainGame.WorldData.GetWgoDataList(definitionId)] : [];
+
+    /// <summary>
+    /// The world objects attached to a station, such as the ones built into its slots or a tool rack built next to it,
+    /// read from the links the game keeps on the station and saves with it.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var stands = TimbnWorld.Extensions(machine).Where(wgo => wgo.id == "timbn_infusion_stand").ToList();
+    /// </code>
+    /// </example>
+    /// <param name="station">The station.</param>
+    /// <returns>A copy of the list. Empty when nothing is attached or at the main menu.</returns>
+    public static IReadOnlyList<WgoData> Extensions(WgoData station) =>
+        TimbnGame.IsInGame && station != null
+            ? [.. station.AttachedWorkbenchExtensions.Select(guid => MainGame.WorldData.GetWgoData(guid)).Where(wgo => wgo != null)]
+            : [];
 
     /// <summary>
     /// The zones a spot lies in, smallest first, read from the scene's data so it works for a scene that is not
@@ -62,17 +94,19 @@ public static class TimbnWorld
             return [];
 
         var point = new Vector2(position.x, position.z);
-        return scene.worldZones
-            .Where(zone => zone != null && zone.wholeZoneRect.Contains(point))
-            .OrderBy(zone => zone.wholeZoneRect.width * zone.wholeZoneRect.height)
-            .ToList();
+        return
+        [
+            .. scene.worldZones
+                .Where(zone => zone != null && zone.wholeZoneRect.Contains(point))
+                .OrderBy(zone => zone.wholeZoneRect.width * zone.wholeZoneRect.height),
+        ];
     }
 
     /// <summary>
-    /// Gets the navigation graph of a scene, which holds its walkable ground. People and zombies path over it, and
-    /// the player can stand anywhere on it.
+    /// Gets the navigation graph of a scene, which holds its walkable ground. The game calculates walking paths
+    /// over it.
     /// </summary>
-    /// <param name="sceneId">The scene's id. Leave it out for the scene the player is in.</param>
+    /// <param name="sceneId">The scene's id, or null for the scene the player is in.</param>
     /// <param name="graph">The scene's graph, or null when there is none.</param>
     /// <returns>True when the scene has a graph.</returns>
     public static bool TryGetNavGraph(string? sceneId, out NavGraph graph)
@@ -82,14 +116,103 @@ public static class TimbnWorld
         if (string.IsNullOrEmpty(sceneId))
             return false;
 
-        var indices = GraphHelper.Instance?.SceneGraphsData?.GetRecastGraphIndexByWorldId(sceneId);
-        var graphs = AstarPath.active?.data?.graphs;
+        var helper = GraphHelper.Instance;
+        if (helper == null || helper.SceneGraphsData == null || Pathfinding is not { } pathfinding)
+            return false;
+
+        var indices = helper.SceneGraphsData.GetRecastGraphIndexByWorldId(sceneId);
+        var graphs = pathfinding.data?.graphs;
         if (indices == null || indices.Count == 0 || graphs == null || indices[0] < 0 || indices[0] >= graphs.Length)
             return false;
 
         graph = graphs[indices[0]];
         return graph != null;
     }
+
+    /// <summary>The graveyard's quality score, the one the save slot and the graveyard's own info show, or 0 at the main menu.</summary>
+    /// <example>
+    /// <code>
+    /// var visitors = Mathf.RoundToInt(TimbnWorld.GraveyardQuality / 25f);
+    /// </code>
+    /// </example>
+    public static float GraveyardQuality => ZoneQuality("graveyard");
+
+    /// <summary>
+    /// The church's quality score, the one the sermon window shows by the cross, or 0 at the main menu. A sermon draws
+    /// no more parishioners than this.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// if (TimbnWorld.ChurchQuality >= 100f)
+    ///     Logger.LogInfo("The church is looking fine.");
+    /// </code>
+    /// </example>
+    public static float ChurchQuality => ZoneQuality("church");
+
+    /// <summary>
+    /// The graveyard's ground as seen from above, one rectangle of x and z for each graveyard module built, the area
+    /// whose graves count toward <see cref="GraveyardQuality"/>. It grows as the graveyard does. Empty at the main menu.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var inGraveyard = TimbnWorld.GraveyardBuiltAreas.Any(area => area.Contains(new Vector2(spot.x, spot.z)));
+    /// </code>
+    /// </example>
+    public static IReadOnlyList<Rect> GraveyardBuiltAreas =>
+        TimbnGame.IsInGame ? [.. MainGame.Instance.GameSave.worldData.GetWorldZoneDataById("graveyard")?.CustomQualityZonesRectList ?? []] : [];
+
+    /// <summary>
+    /// The whole graveyard as seen from above, its paths and grass as well as the ground built on, as one rectangle of
+    /// x and z. It stays the same however much is built. Empty at the main menu.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var bounds = TimbnWorld.GraveyardBounds;
+    /// var spot = new Vector3(Random.Range(bounds.xMin, bounds.xMax), 0f, Random.Range(bounds.yMin, bounds.yMax));
+    /// </code>
+    /// </example>
+    public static Rect GraveyardBounds =>
+        TimbnGame.IsInGame ? MainGame.Instance.GameSave.worldData.GetWorldZoneDataById("graveyard")?.wholeZoneRect ?? default : default;
+
+    /// <summary>The town's quality score, the number by the Town label and the most gratitude the town can have, or 0 at the main menu.</summary>
+    /// <example>
+    /// <code>
+    /// var full = TimbnWorld.TownGratitude >= TimbnWorld.TownQuality;
+    /// </code>
+    /// </example>
+    public static int TownQuality => TimbnGame.IsInGame ? MainGame.Instance.GameSave.townSystem?.Quality ?? 0 : 0;
+
+    /// <summary>
+    /// The town's gratitude, which selling to town vendors earns, or 0 at the main menu. A sermon draws as
+    /// many parishioners as this or <see cref="ChurchQuality"/>, whichever is lower. Gains stop at
+    /// <see cref="TownQuality"/>, but it is not lowered when the town's quality drops.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var visitors = TimbnWorld.TownGratitude / 5;
+    /// </code>
+    /// </example>
+    public static int TownGratitude => TimbnGame.IsInGame ? MainGame.PlayerData.GetResInt("happiness") : 0;
+
+    /// <summary>
+    /// The weather right now, by the game's own name for it, such as CleanWeather, RainDayWeak or RainDayStorm, or empty
+    /// at the main menu.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var stormy = TimbnWorld.Weather is "RainDayStorm" or "RainDayThunder";
+    /// </code>
+    /// </example>
+    public static string Weather => TimbnGame.IsInGame ? MainGame.Instance.GameSave.weatherData?.stateName ?? "" : "";
+
+    /// <summary>Whether it is raining, in any of the game's rain weathers from a drizzle to a thunderstorm.</summary>
+    /// <example>
+    /// <code>
+    /// if (TimbnWorld.IsRaining)
+    ///     Logger.LogInfo("Bring an umbrella.");
+    /// </code>
+    /// </example>
+    public static bool IsRaining => Weather.StartsWith("Rain", StringComparison.Ordinal);
 
     /// <summary>
     /// Finds the nearest walkable ground to a spot in the player's scene, measured flat as seen from above, so a
@@ -98,7 +221,7 @@ public static class TimbnWorld
     /// <example>
     /// <code>
     /// if (TimbnWorld.TryFindWalkable(TimbnPlayer.Position, 5f, out var ground))
-    ///     TimbnPlayer.MoveTo(ground);
+    ///     TimbnPlayer.TeleportTo(ground);
     /// </code>
     /// </example>
     /// <param name="point">The spot to search from.</param>
@@ -128,6 +251,20 @@ public static class TimbnWorld
     }
 
     /// <summary>
+    /// Every grave in the graveyard with a body buried in it, whether or not it has a stone or a fence. Open graves and
+    /// graves left empty after an exhumation are not counted.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var graves = TimbnWorld.GravesWithBodies().ToList();
+    /// npc.Face(graves[0].Position);
+    /// </code>
+    /// </example>
+    /// <returns>The graves. Empty at the main menu or when nobody is buried yet.</returns>
+    public static IEnumerable<WgoData> GravesWithBodies() =>
+        Objects(wgo => wgo.id == "grave_ground" && wgo.Inventory?.GetItemsByGroupId("body").Count > 0);
+
+    /// <summary>
     /// Lists the world objects in the player's scene within a flat distance of a spot, nearest first. World objects
     /// are everything placed in the world, such as chests, stations, graves, NPCs, and zombies.
     /// </summary>
@@ -145,10 +282,12 @@ public static class TimbnWorld
         if (TimbnPlayer.Scene is not { } scene)
             return [];
 
-        return scene.wgoDataList
-            .Where(wgo => wgo != null && FlatDistance(position, wgo.Position) <= radius && (match?.Invoke(wgo) ?? true))
-            .OrderBy(wgo => FlatDistance(position, wgo.Position))
-            .ToList();
+        return
+        [
+            .. scene.wgoDataList
+                .Where(wgo => wgo != null && FlatDistance(position, wgo.Position) <= radius && (match?.Invoke(wgo) ?? true))
+                .OrderBy(wgo => FlatDistance(position, wgo.Position)),
+        ];
     }
 
     /// <summary>
@@ -157,7 +296,7 @@ public static class TimbnWorld
     /// </summary>
     /// <example>
     /// <code>
-    /// foreach (var zombie in TimbnZombies.OnScene())
+    /// foreach (var zombie in TimbnZombies.All())
     ///     TimbnWorld.ViewOf(zombie)?.DrawWidgets();
     /// </code>
     /// </example>
@@ -166,7 +305,7 @@ public static class TimbnWorld
     public static Wgo? ViewOf(WgoData data)
     {
         var view = GameScene.GetWgoViewGlobal(data.UniqueId);
-        return view != null ? view : null;
+        return view ? view : null;
     }
 
     /// <summary>The distance between two spots as seen from above, ignoring height.</summary>
@@ -175,4 +314,9 @@ public static class TimbnWorld
     /// <returns>The flat distance in world units.</returns>
     public static float FlatDistance(Vector3 first, Vector3 second) =>
         new Vector2(first.x - second.x, first.z - second.z).magnitude;
+
+    internal static AstarPath? Pathfinding => (object)AstarPath.active is UnityEngine.Object pathfinding && pathfinding != null ? AstarPath.active : null;
+
+    private static float ZoneQuality(string zoneId) =>
+        TimbnGame.IsInGame ? MainGame.Instance.GameSave.worldData.GetWorldZoneDataById(zoneId)?.GetTotalQuality() ?? 0f : 0f;
 }

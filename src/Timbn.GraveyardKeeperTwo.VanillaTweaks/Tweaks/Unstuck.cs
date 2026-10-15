@@ -41,7 +41,7 @@ internal static class Unstuck
             return false;
         }
 
-        TimbnPlayer.MoveTo(target.Value);
+        TimbnPlayer.TeleportTo(target.Value);
         Plugin.Logger.LogMessage($"Unstuck, moved {Vector3.Distance(from, target.Value):0.0} m.");
         return true;
     }

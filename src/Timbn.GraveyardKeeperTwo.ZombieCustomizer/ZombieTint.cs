@@ -44,7 +44,7 @@ internal static class ZombieTint
 
     public static void PaintAll(bool reset)
     {
-        foreach (var zombie in TimbnZombies.OnScene())
+        foreach (var zombie in TimbnZombies.All())
         {
             var view = TimbnWorld.ViewOf(zombie);
             if (view != null)

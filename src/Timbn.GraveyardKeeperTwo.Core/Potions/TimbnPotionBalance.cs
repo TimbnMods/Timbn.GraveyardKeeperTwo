@@ -10,7 +10,7 @@ internal sealed class TimbnPotionBalance : IDisposable
 
     private static readonly AccessTools.FieldRef<PerkDef, string> _perkCustomIcon = AccessTools.FieldRefAccess<PerkDef, string>("customIcon");
 
-    private static readonly string[] _alchemyStations = ["alchemy_mix", "alchemy_mix_2"];
+    private static readonly string[] _alchemyStations = [TimbnGameIds.Workstations.AlchemyLab.AlchemyMix, TimbnGameIds.Workstations.AlchemyLab.AlchemyMix2];
 
     private readonly TimbnPotion _potion;
     private readonly PerkDef _perk;
@@ -63,7 +63,8 @@ internal sealed class TimbnPotionBalance : IDisposable
             return false;
         }
 
-        if (balance.GetDataOrNull<ItemDef>(potion.Id) != null)
+        // A held copy of the potion itself, left in over an F6 reload, is replaced rather than refused.
+        if (balance.GetDataOrNull<ItemDef>(potion.Id) is { } existing && !TimbnBalance.IsAdded(existing))
         {
             reason = "An item with that id already exists.";
             return false;
@@ -124,7 +125,7 @@ internal sealed class TimbnPotionBalance : IDisposable
         _item.canBeUsedInAlchemy = false;
         _item.onUseExpressions = [new LazyExpression(_potionDrinkerInspiration), new LazyExpression($"AddPerk(\"{_perk.id}\")")];
         _item.sortOrder = balance.itemDefs.Count;
-        TimbnBalance.ForgetPerks(_item);
+        TimbnBalance.RefreshUseEffects(_item);
         return true;
     }
 
@@ -155,11 +156,11 @@ internal sealed class TimbnPotionBalance : IDisposable
     {
         var color = buff.GlowColor();
         _perkCustomIcon(perk) = buff.IconId;
-        perk.duration = buff.Seconds();
+        perk.duration = buff.DurationSeconds();
         perk.worldFxPrefabId = $"{_glowPrefix}{color}";
         perk.hudFxPrefabId = $"buff_hud_{color}";
-        perk.onAddExpressions = [.. buff.OnAddExpressions.Select(e => new LazyExpression(e))];
-        perk.onRemoveExpressions = [.. buff.OnRemoveExpressions.Select(e => new LazyExpression(e))];
+        perk.onAddExpressions = [.. buff.StartExpressions.Select(text => new TimbnExpression(text).Game)];
+        perk.onRemoveExpressions = [.. buff.EndExpressions.Select(text => new TimbnExpression(text).Game)];
         perk.setGameResOnAdd = new();
         perk.addGameResOnAdd = new();
         perk.setGameResOnRemove = new();
@@ -207,8 +208,14 @@ internal sealed class TimbnPotionBalance : IDisposable
     private void TryAddMix(GameBalance balance, ItemDef[] parts, CraftDef? boost)
     {
         var mixId = AlchemyMixDef.MixId(parts.Select(p => p.id).ToArray(), boost);
-        if (balance.alchemyMixSourcesByIdCache.ContainsKey(mixId))
+        if (balance.alchemyMixSourcesByIdCache.TryGetValue(mixId, out var existing))
+        {
+            // The held copy's mixes are still in over an F6 reload, and its cleanup never runs once it is replaced.
+            if (existing.formulaId == _formula.id)
+                _mixes.Add(existing);
+
             return;
+        }
 
         var mix = new AlchemyMixSourceDef
         {

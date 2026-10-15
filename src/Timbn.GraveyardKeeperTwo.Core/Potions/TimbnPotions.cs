@@ -1,6 +1,5 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
-/// <summary>Registers potions, runs their buff hooks while the player has the buff, and removes them again.</summary>
 internal static class TimbnPotions
 {
     private static readonly List<Registered> _potions = [];
@@ -10,6 +9,17 @@ internal static class TimbnPotions
     {
         if (_potions.Find(p => p.Potion.Id == potion.Id) is { } previous)
             Unregister(previous);
+
+        try
+        {
+            foreach (var expression in potion.Buff.StartExpressions.Concat(potion.Buff.EndExpressions))
+                _ = new TimbnExpression(expression);
+        }
+        catch (ArgumentException ex)
+        {
+            TimbnCorePlugin.Logger.LogWarning($"{nameof(TimbnPotions)}|Skipped {potion.Id}. {ex.Message}");
+            return TimbnUndo.None;
+        }
 
         if (!TimbnPotionBalance.TryAdd(potion, out var balance, out var reason))
         {
@@ -80,13 +90,30 @@ internal static class TimbnPotions
             return;
 
         _active.Add(potion);
+        Run(potion, nameof(TimbnPotionBuff.ApplyChange), potion.Buff.ApplyChange);
         Run(potion, nameof(TimbnPotionBuff.OnStart), potion.Buff.OnStart);
     }
 
     private static void End(TimbnPotion potion)
     {
-        if (_active.Remove(potion))
-            Run(potion, nameof(TimbnPotionBuff.OnEnd), potion.Buff.OnEnd);
+        if (!_active.Remove(potion))
+            return;
+
+        Run(potion, nameof(TimbnPotionBuff.OnEnd), potion.Buff.OnEnd);
+        Run(potion, nameof(TimbnPotionBuff.RevertChange), potion.Buff.RevertChange);
+    }
+
+    internal static IDisposable RevertForSave()
+    {
+        var reverted = _active.Where(potion => potion.Buff.RevertChange is not null).ToList();
+        foreach (var potion in reverted)
+            Run(potion, nameof(TimbnPotionBuff.RevertChange), potion.Buff.RevertChange);
+
+        return new TimbnUndo(() =>
+        {
+            foreach (var potion in reverted)
+                Run(potion, nameof(TimbnPotionBuff.ApplyChange), potion.Buff.ApplyChange);
+        });
     }
 
     private static void EndAll()

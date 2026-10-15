@@ -1,12 +1,15 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
-/// <summary>Keeps the sprites plugins added, by name, and hands them to the game's sprite lookup.</summary>
 internal static class TimbnSprites
 {
     private const float _pixelsPerUnit = 50f;
     private const int _canvasSize = 48;
 
     private static readonly Dictionary<string, List<Sprite>> _sprites = [];
+
+    // Removed during an F6 reload and kept alive until the reloaded plugins have added theirs.
+    private static readonly List<(string Name, Sprite Sprite)> _held = [];
+    private static bool _holding;
 
     internal static IDisposable AddPng(string name, byte[] png)
     {
@@ -73,8 +76,29 @@ internal static class TimbnSprites
             if (_sprites.TryGetValue(name, out var current) && current.Remove(sprite) && current.Count == 0)
                 _sprites.Remove(name);
 
-            Destroy(sprite);
+            if (_holding)
+                _held.Add((name, sprite));
+            else
+                Destroy(sprite);
         });
+    }
+
+    internal static void HoldRemovals() => _holding = true;
+
+    /// <summary>
+    /// Destroys every held sprite no reloaded plugin added again. One added again stays alive but unlisted, since the
+    /// HUD keeps drawing the old object until it redraws and a destroyed texture shows as a white square.
+    /// </summary>
+    internal static void ReleaseHeldRemovals()
+    {
+        _holding = false;
+        var held = _held.ToList();
+        _held.Clear();
+        foreach (var (name, sprite) in held)
+        {
+            if (!_sprites.ContainsKey(name))
+                Destroy(sprite);
+        }
     }
 
     internal static bool TryGet(string? name, out Sprite sprite)

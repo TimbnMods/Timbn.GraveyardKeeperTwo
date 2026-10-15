@@ -4,9 +4,9 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 public static class TimbnItems
 {
     /// <summary>
-    /// Counts an item everywhere in the world. The player's inventory, every storage and craft inventory, and
-    /// every item lying on the ground or queued to drop. Stops looking once <paramref name="enough"/> is reached,
-    /// so asking "is there at least this many" is cheap.
+    /// Counts an item everywhere in the world, meaning the player's inventory, every storage and craft inventory,
+    /// and every item lying on the ground or queued to drop. It stops looking once <paramref name="enough"/> is
+    /// reached, so asking "is there at least this many" is cheap.
     /// </summary>
     /// <example>
     /// <code>
@@ -100,8 +100,8 @@ public static class TimbnItems
 
     /// <summary>
     /// Puts an item into the player's inventory and bags, and drops whatever does not fit in front of the player
-    /// so nothing is lost. The overflow is dropped the way the game drops items, so a big stack is split into several
-    /// pickups. An item the game refuses to drop that way, such as fuel, still lands as a single pickup.
+    /// so nothing is lost. The overflow drops the way the game drops items, so a big stack splits into several
+    /// pickups. An item the game won't drop that way, such as fuel, still lands as a single pickup.
     /// </summary>
     /// <param name="item">The item and how many.</param>
     /// <returns>How many went into the player's inventory.</returns>
@@ -124,6 +124,32 @@ public static class TimbnItems
         return moved;
     }
 
+    /// <summary>
+    /// What one of an item sells for, the price the town pallets and the game's orders pay, in the game's raw money
+    /// units where 100 is one silver coin.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var price = TimbnItems.SalePrice("cook_muffin");
+    /// </code>
+    /// </example>
+    /// <param name="id">The item id.</param>
+    /// <returns>The price, or 0 for an item the game doesn't have or sells for nothing.</returns>
+    public static int SalePrice(string id) => GameBalance.Me?.GetDataOrNull<ItemDef>(id)?.basePrice ?? 0;
+
+    /// <summary>
+    /// The sprite id of an item's icon, the one its inventory cell shows, for anything that takes a sprite id, such as
+    /// a quest's Icon.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// .Icon(run => TimbnItems.IconId(run.Item("dish")))
+    /// </code>
+    /// </example>
+    /// <param name="id">The item id.</param>
+    /// <returns>The sprite id, or an empty string for an item the game doesn't have.</returns>
+    public static string IconId(string id) => GameBalance.Me?.GetDataOrNull<ItemDef>(id) is { } item ? TimbnBalance.GetIcon(item) : "";
+
     /// <summary>Counts an item in the player's inventory and bags. Storage in the world does not count.</summary>
     /// <param name="id">The item id.</param>
     /// <returns>How many the player is carrying.</returns>
@@ -142,12 +168,15 @@ public static class TimbnItems
             ? new MultiInventory(MainGame.PlayerData, addCurrentPlayerWorldZone: false).RemoveItemByCount(id, count).Sum(item => item.Count)
             : 0;
 
-    /// <summary>Drops an item on the ground as a pickup.</summary>
+    /// <summary>Drops an item on the ground as a pickup. Nothing happens at the main menu.</summary>
     /// <param name="item">The item and how many.</param>
-    /// <param name="worldId">The scene to drop in.</param>
+    /// <param name="sceneId">The scene to drop in.</param>
     /// <param name="position">Where to drop it.</param>
-    public static void DropAt(Item item, string worldId, Vector3 position) =>
-        MainGame.Instance.dropSystem.DropItemAsDropView(item, worldId, position);
+    public static void DropAt(Item item, string sceneId, Vector3 position)
+    {
+        if (TimbnGame.IsInGame)
+            MainGame.Instance.dropSystem.DropItemAsDropView(item, sceneId, position);
+    }
 
     /// <summary>
     /// The spot in front of the player where the game itself drops things, or the player's own position when that

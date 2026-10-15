@@ -6,7 +6,7 @@ Timbn Vanilla Tweaks fixes bugs and adds light gameplay tweaks that are intended
 
 ### Lost tech points
 
-Tech points can bounce through a wall and land where they can't reach you. Now any tech points stuck off walkable ground are pulled to you.
+A tech point can settle off the walkable ground where you can't reach it, and the game only gathers those when you sleep. Now such a tech point is pulled to you after a moment.
 
 ### Priest perk rounding down
 
@@ -14,11 +14,11 @@ The game can end up with 3.4999 faith when it should be 3.5, which rounds down i
 
 ### Stuck supply zombies
 
-Supply zombies could freeze holding an item when all storage was full. They now walk back to their station and show the game's storage full icon until there is room.
+A Zombie Supplier with nowhere to put its item stood where it was. It now walks back to its Zombie Supplier Station and shows the game's no storage icon until there is room.
 
-### Lumberjack, miner, clay and sand zombies stuck swinging
+### Lumberjack, miner, clay digger and sand digger zombies stuck swinging
 
-Workstations can act weird when destroying them while a zombie is working or removing zombies from working. This fixes stuck zombies.
+Dismantling a stand while its zombie was out working left that work spot taken for good, and once every spot was taken a zombie stood in place swinging its tool forever. Spots are now freed, including ones already lost in a save, and stranded zombies go back to work.
 
 ### Crash with conveyor loops
 
@@ -28,21 +28,20 @@ A loop of conveyors that feeds into another loop, such as a splitter sending par
 
 ### Quest building built too early
 
-Partly fixed by the game developers, still needed for saves where it was already built early.
+Mostly fixed by the game developers, still needed for saves where it was already built early.
 
-Building the church choir or organ before being asked will lock the quest from completing. The game only noticed the build at the moment it happened, not if it has happened in the past. The quest now finishes when you load a save with the choir or organ already built.
+Building the church choir or organ before its quest step starts locked the quest line, since the game only noticed the build at the moment it happened. The game now keeps both hidden until their quest steps start, but a save where one was already built early is still stuck. The step now finishes when you load that save or when the step starts.
 
 ### Stations you can't reach to dismantle
 
 A station up against a fence or wall might be blocked from dismantling. This will allow you to still work on it.
-
 ### Locked out of boards
 
-If you are soft locked and run out of boards without a sawhorse or circular saw, Larry will help you out.
+If you have fewer than two boards and no sawhorse or circular saw, Larry will offer you two.
 
 ### Lost story items
 
-Losing story items before you use them can soft lock the game. Larry will have found it and gives it back.
+If you lose the Inquisitor's medallion before opening the tower prison bars, Larry will have found it and gives it back.
 
 ## Vanilla Tweaks
 

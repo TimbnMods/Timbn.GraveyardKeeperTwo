@@ -10,7 +10,7 @@ internal static class BedSaveWhenRested
         if (!wouldSave)
             return;
 
-        SaveSystem.Save(MainGame.Instance.SaveSlotData, MainGame.Instance.GameSave);
-        Plugin.Logger.LogInfo("Saved from the bed without sleeping.");
+        if (TimbnGame.SaveNow())
+            Plugin.Logger.LogInfo("Saved from the bed without sleeping.");
     }
 }

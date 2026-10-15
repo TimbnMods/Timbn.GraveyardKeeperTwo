@@ -4,7 +4,9 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
 /// Reads the game's calendar and clock for the loaded save, so a mod can ask what day or time it is without
-/// digging through EnvironmentEngine and the save. Every member reads as zero or empty at the main menu.
+/// digging through EnvironmentEngine and the save, and sets the time of day as a one shot change that needs no
+/// undo. Every member reads as zero or empty at the main menu. See the plugin's Clock property for holds on the
+/// clock that are undone, such as freezing it or running it faster.
 /// </summary>
 public static class TimbnClock
 {
@@ -24,8 +26,7 @@ public static class TimbnClock
     public static int Day => Data?.Day ?? 0;
 
     /// <summary>
-    /// The day's place in the game's six day week, from 1 to 6, the same number NewWeekdayStarted hands its handlers.
-    /// See <see cref="Weekday"/> for its name.
+    /// The day's place in the game's six day week, from 1 to 6. See <see cref="Weekday"/> for its name.
     /// </summary>
     public static int WeekdayNumber => Data?.CurrentDayNumber ?? 0;
 
@@ -33,7 +34,7 @@ public static class TimbnClock
     /// <example>
     /// <code>
     /// if (TimbnClock.Weekday == TimbnWeekday.Pride)
-    ///     Logger.LogInfo("The town market is open.");
+    ///     Logger.LogInfo("Town orders can be accepted today.");
     /// </code>
     /// </example>
     public static TimbnWeekday? Weekday
@@ -59,8 +60,22 @@ public static class TimbnClock
     /// </summary>
     public static float TimeOfDay => Data?.TimeOfDay ?? 0f;
 
+    /// <summary>
+    /// The game clock in minutes since the save began, counting whole days and the part of today. Use it for waits
+    /// that follow game time, so they stop while the game is paused and speed up with it, and are never real seconds.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// _leaveAt = TimbnClock.Minutes + 30;
+    /// // later
+    /// if (TimbnClock.Minutes >= _leaveAt)
+    ///     herm.WalkTo("npc_sim_village_right_side_road_34");
+    /// </code>
+    /// </example>
+    public static double Minutes => TimbnDayPlan.Minutes(Day, TimeOfDay);
+
     /// <summary>The time of day as a 24 hour clock, such as 06:30.</summary>
-    public static string Time
+    public static string TimeText
     {
         get
         {
@@ -69,7 +84,7 @@ public static class TimbnClock
         }
     }
 
-    /// <summary>Whether the game's clock is stopped, as it is during some cutscenes or while a plugin holds Clock.Pause.</summary>
+    /// <summary>Whether the game's clock is stopped, as it is during some cutscenes or while a plugin holds Clock.Freeze.</summary>
     public static bool IsPaused => TimbnGame.IsInGame && EnvironmentEngine.Instance != null && EnvironmentEngine.Instance.IsPaused;
 
     /// <summary>
@@ -80,7 +95,7 @@ public static class TimbnClock
     /// <param name="from">The earlier time of day.</param>
     /// <param name="to">The later time of day.</param>
     /// <returns>The part of a day between the two, from 0 up to but not including 1.</returns>
-    public static float Between(float from, float to) => Mathf.Repeat(to - from, 1f);
+    public static float DayFractionBetween(float from, float to) => Mathf.Repeat(to - from, 1f);
 
     /// <summary>
     /// Sets the time of day, the way the game does when a cutscene jumps the clock. The lighting and everything
