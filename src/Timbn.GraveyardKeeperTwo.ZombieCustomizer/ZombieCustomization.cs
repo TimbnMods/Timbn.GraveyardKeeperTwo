@@ -26,7 +26,7 @@ internal sealed class ZombieCustomization
 
     public void Open(ZombieWgoData zombie, UIZombieWorkerWindowData returnTo)
     {
-        var pool = TimbnZombies.Skins();
+        var pool = TimbnZombies.Looks();
         if (pool == null || pool.Bodies.Count == 0 || pool.Heads.Count == 0)
         {
             Plugin.Logger.LogWarning("No zombie skin pool found, nothing to choose from.");
@@ -98,7 +98,7 @@ internal sealed class ZombieCustomization
         _session = null;
     }
 
-    private void Bind<TValue>(UICustomizationWindow window, UICharacterOptionSwitcher switcher, List<TValue> values, TValue current, Action<TValue> choose)
+    private void Bind<TValue>(UICustomizationWindow window, UICharacterOptionSwitcher switcher, IReadOnlyList<TValue> values, TValue current, Action<TValue> choose)
     {
         if (values.Count <= 1)
         {
@@ -106,7 +106,7 @@ internal sealed class ZombieCustomization
             return;
         }
 
-        var index = Math.Max(0, values.IndexOf(current));
+        var index = Math.Max(0, values.ToList().IndexOf(current));
         choose(values[index]);
         var labels = Enumerable.Range(1, values.Count).Select(i => $"{i}/{values.Count}").ToArray();
         switcher.IsInteractable = true;

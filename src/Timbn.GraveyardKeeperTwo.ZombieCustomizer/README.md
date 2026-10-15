@@ -20,12 +20,12 @@ Five colors for the hair and beard: auburn, light brown, ash gray, blue black an
 
 Ten tints for the clothes, plus none. By default they are red, orange, yellow, green, teal, blue, purple, pink, gray and dark, and you can change any of them in the config. Zombies only have one outfit in the game, so this tints it rather than swapping it, and the hands take the tint too. Each zombie keeps the color you gave it, so changing a color in the config later only changes what the window offers.
 
-Rows that have nothing to choose from for a zombie, like Beard and Clothes, are greyed out.
+Rows that have nothing to choose from for a zombie, like Beard and Clothes, are grayed out.
 
 ## Good to know
 
 - The look is saved with your game.
-- Zombies at a mine or a garden wear their work hat while working and keep their beard and hair color under it.
+- Zombies at a mine or a garden wear their work hat while working and keep any beard and its hair color.
 - Zombies in armor keep their hairstyle and hair color.
 - A zombie you are carrying or one lying on the ground shows its hairstyle and hair color but not its clothes color. The color comes back when it stands up.
 - If you uninstall the mod, hairstyles and hair colors stay but clothes colors go away.
@@ -33,7 +33,7 @@ Rows that have nothing to choose from for a zombie, like Beard and Clothes, are 
 
 ## Requirements
 
-- Timbn Core 1.3.0 or newer
+- Timbn Core 2.0.0 or newer
 
 ## Configuration
 
