@@ -228,8 +228,8 @@ internal sealed class ChurchVisits
         _funeralArrivals.Clear();
         var from = Math.Max(TimbnClock.Minutes, (TimbnClock.Day + (double)_opens) * 24 * 60);
         var to = Math.Max(from, (TimbnClock.Day + (double)Funeral.LastArrival) * 24 * 60 - 1);
-        List<int> sizes = [];
-        List<double> gaps = [];
+        var sizes = new List<int>();
+        var gaps = new List<double>();
         for (var left = _toArrive; left > 0;)
         {
             var size = Math.Min(left, FuneralGroupSize());
@@ -266,7 +266,7 @@ internal sealed class ChurchVisits
     private int Arrive(int size, IReadOnlyList<string> kinds)
     {
         var leaveAt = Math.Min(TimbnClock.Minutes + _random.Next(_shortestStay, _longestStay + 1), EveryoneLeavesAt);
-        List<string> names = [];
+        var names = new List<string>();
         for (var place = 0; place < size; place++)
         {
             if (_plugin.Npcs.Spawn(kinds[place % kinds.Count], _arrive) is not { } npc)
@@ -286,6 +286,7 @@ internal sealed class ChurchVisits
             steps.Walk(_road)
                 .RunCode(visitor => GraveyardVisitors.Log($"{visitor.Id} reaches {_road} {TimbnClock.Minutes - setOff:0} minutes after arriving."))
                 .Decide(visitor => _funeral.IsOn ? _funeral.Welcome(visitor, WayOut) : _driver.Welcome(visitor, leaveAt, WayOut));
+
             npc.RunSteps(steps, () => Leave(npc));
             names.Add(npc.Id);
         }

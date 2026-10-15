@@ -95,6 +95,7 @@ internal sealed class LindaDay
         var playing = _performer is { IsGone: false } performer
             && TimbnPlayer.Zone is { } zone
             && TimbnWorld.ZonesAt(performer.Position).Contains(zone);
+
         if (playing && _song == null)
         {
             _song = _plugin.Audio.PlayMusic(_music);

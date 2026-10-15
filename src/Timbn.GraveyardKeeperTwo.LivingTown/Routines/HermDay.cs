@@ -129,6 +129,7 @@ internal sealed class HermDay
         Log(chaining
             ? $"Heading back to the stall, every other route had its spot taken: {string.Join(", ", taken)}."
             : $"Skipped, every route had its spot taken: {string.Join(", ", taken)}. Staying at the stall.");
+
         return null;
     }
 
@@ -138,41 +139,33 @@ internal sealed class HermDay
         return null;
     }
 
-    private TimbnNpcTrip Trip(string route, string destination)
-    {
-        switch (route)
+    private TimbnNpcTrip Trip(string route, string destination) =>
+        route switch
         {
-            case "spot":
-                return new TimbnNpcTrip()
-                    .Leave(steps => steps.WalkNavmesh(_ramp))
-                    .Body(steps => steps
-                        .Walk(destination)
-                        .Face(_loopFacing[destination])
-                        .WaitGameMinutes(15, 30))
-                    .Return(steps => steps
-                        .Walk(_road03)
-                        .WalkNavmesh(_ramp)
-                        .WalkNavmesh(_stand));
-            case "pond":
-                return Away(viaLeave: false, trip => trip.Walk(_pond).WaitGameMinutes(45));
-            case "bench01":
-                return Away(viaLeave: true, trip => trip.GoToFreePoint([_bench]).WaitGameMinutes(30));
-            case "bot01":
-                return Away(viaLeave: true, trip => trip.Walk(_botSide).WaitGameMinutes(30));
-            case "guard":
-                return Away(viaLeave: true, trip => trip.Walk(_guard).WaitGameMinutes(20));
-            default:
-                return Away(viaLeave: true, trip => trip
-                    .Walk(_toiletsInside)
-                    .WaitGameMinutes(10)
-                    .Walk(_toiletsOutside)
-                    .Teleport(_toiletsOutside)
-                    .GoToFreePoint(_benches)
-                    .WaitGameMinutes(30)
-                    .Walk("npc_sim_village_right_side_road_29")
-                    .Walk("npc_sim_village_right_side_road_32"));
-        }
-    }
+            "spot" => new TimbnNpcTrip()
+                .Leave(steps => steps.WalkNavmesh(_ramp))
+                .Body(steps => steps
+                    .Walk(destination)
+                    .Face(_loopFacing[destination])
+                    .WaitGameMinutes(15, 30))
+                .Return(steps => steps
+                    .Walk(_road03)
+                    .WalkNavmesh(_ramp)
+                    .WalkNavmesh(_stand)),
+            "pond" => Away(viaLeave: false, trip => trip.Walk(_pond).WaitGameMinutes(45)),
+            "bench01" => Away(viaLeave: true, trip => trip.GoToFreePoint([_bench]).WaitGameMinutes(30)),
+            "bot01" => Away(viaLeave: true, trip => trip.Walk(_botSide).WaitGameMinutes(30)),
+            "guard" => Away(viaLeave: true, trip => trip.Walk(_guard).WaitGameMinutes(20)),
+            _ => Away(viaLeave: true, trip => trip
+                .Walk(_toiletsInside)
+                .WaitGameMinutes(10)
+                .Walk(_toiletsOutside)
+                .Teleport(_toiletsOutside)
+                .GoToFreePoint(_benches)
+                .WaitGameMinutes(30)
+                .Walk("npc_sim_village_right_side_road_29")
+                .Walk("npc_sim_village_right_side_road_32")),
+        };
 
     private static TimbnNpcTrip Away(bool viaLeave, System.Func<TimbnNpcSteps, TimbnNpcSteps> body) =>
         new TimbnNpcTrip()

@@ -215,6 +215,7 @@ internal sealed class Funeral
         var free = ChurchStop.Seats()
             .Where(seat => !_usedSeats.Any(taken => TimbnWorld.FlatDistance(taken, seat.Position) < _seatTaken))
             .ToList();
+
         return free.Count == 0 ? null : free[_random.Next(free.Count)];
     }
 
@@ -224,6 +225,7 @@ internal sealed class Funeral
         var free = (MainGame.WorldData.gdPointsData.GetGDPointsDataByCustomTag(_parishionerTag) ?? [])
             .Where(point => point.Enabled && !reserved.Contains(point.Id) && !_usedPosts.Contains(point.Id))
             .ToList();
+
         if (free.Count == 0)
             return null;
 
@@ -246,9 +248,13 @@ internal sealed class Funeral
                 BeginLeaving();
             }
             else if (_toSpeak.Count == 0 && CeremonyDue)
+            {
                 BeginLeaving();
+            }
             else if (_toSpeak.Count > 0 && _toSpeak[0] == mourner && (_spoken > 0 || CeremonyDue))
+            {
                 return Speak(mourner, wayOut);
+            }
         }
 
         if (_leaving)

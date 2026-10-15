@@ -185,6 +185,7 @@ internal sealed class GraveyardPaths
             .Select(tile => Anchor(tile, horizontal))
             .OrderBy(line => line)
             .ToList();
+
         List<Segment> segments = [];
         foreach (var line in Cluster(anchors))
         {
@@ -194,6 +195,7 @@ internal sealed class GraveyardPaths
                 .Select(tile => horizontal ? (Start: tile.Bounds.min.x, End: tile.Bounds.max.x, Main: tile.Name.Contains("_big_")) : (Start: tile.Bounds.min.z, End: tile.Bounds.max.z, Main: tile.Name.Contains("_big_")))
                 .OrderBy(span => span.Start)
                 .ToList();
+
             Segment? current = null;
             foreach ((var start, var end, var main) in spans)
             {
@@ -266,6 +268,7 @@ internal sealed class GraveyardPaths
             .Where(other => other.Contains(segment.Line, _touching) && (other.Line - end) * inward >= -_touching && Mathf.Abs(other.Line - end) <= _junctionReach)
             .OrderBy(other => Mathf.Abs(other.Line - end))
             .ToList();
+
         if (junctions.Count > 0)
             return junctions[0].Line;
 
@@ -288,7 +291,7 @@ internal sealed class GraveyardPaths
         (var exitSegment, var exit) = Nearest(to);
         var links = Links(entrySegment, entry, exitSegment, exit, avoid, across);
         var path = Shortest(links, Key(entry), Key(exit));
-        return Corners(path).Select(point => new Vector3(point.x, from.y, point.y)).ToList();
+        return [.. Corners(path).Select(point => new Vector3(point.x, from.y, point.y))];
     }
 
     // With preferAcross enabled, the nearest horizontal path segment takes precedence, ensuring graves are viewed from the horizontal path they align with.
@@ -325,6 +328,7 @@ internal sealed class GraveyardPaths
             stops.AddRange(_segments
                 .Where(other => other.Horizontal != segment.Horizontal && other.Contains(segment.Line, _touching) && segment.Contains(other.Line, _touching))
                 .Select(other => other.Line));
+
             if (segment == entrySegment)
                 stops.Add(segment.Along(entry));
 

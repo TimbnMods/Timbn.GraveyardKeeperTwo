@@ -65,6 +65,7 @@ internal sealed class Deliveries
             if (_random.Next(_daysPerDelivery) == 0)
                 _errand.NewRun();
         });
+
         _plugin.Settings.Changed(PluginConfig.VillagerDeliveries, on =>
         {
             if (on)
@@ -97,6 +98,7 @@ internal sealed class Deliveries
             .Text("where", toTown ? Areas.TownKey : Areas.VillageKey)
             .Item("parcel", item)
             .Text("delivering", DeliveringKey(_parcels.First(parcel => parcel.Items.Contains(item))));
+
         return true;
     }
 

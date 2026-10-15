@@ -100,11 +100,11 @@ internal sealed class BenchStop : IGraveyardStop
     }
 
     private static List<(Vector3 Seat, Vector3 Edge)> FreeSeats(WgoData bench, Direction facing, GraveyardVisitors visitors) =>
-        Seats(bench, facing).Where(seat => !visitors.Taken.Any(taken => TimbnWorld.FlatDistance(taken, seat.Seat) < _seatTaken)).ToList();
+        [.. Seats(bench, facing).Where(seat => !visitors.Taken.Any(taken => TimbnWorld.FlatDistance(taken, seat.Seat) < _seatTaken))];
 
     private static List<(Vector3 Seat, Vector3 Edge)> Seats(WgoData bench, Direction facing)
     {
-        List<(Vector3 Seat, Vector3 Edge)> seats = [];
+        var seats = new List<(Vector3 Seat, Vector3 Edge)>();
         var depth = facing == Direction.Up ? _seatDepthFacingUp : _seatDepthFacingDown;
         foreach (var side in new[] { -_seatSide, _seatSide })
         {

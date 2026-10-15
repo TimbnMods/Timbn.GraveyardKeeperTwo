@@ -43,6 +43,7 @@ internal sealed class Requests
             if (_random.Next(_daysPerRequest) == 0)
                 craving.NewRun();
         });
+
         _plugin.Settings.Changed(PluginConfig.VillagerRequests, on =>
         {
             if (!on)
@@ -69,6 +70,7 @@ internal sealed class Requests
         run.Npc("villager", people[_random.Next(people.Count)])
             .Text("where", where)
             .Item("dish", dishes[_random.Next(dishes.Count)]);
+
         return true;
     }
 
