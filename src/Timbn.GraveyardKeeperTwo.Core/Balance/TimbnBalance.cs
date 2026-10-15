@@ -260,12 +260,9 @@ public static class TimbnBalance
     internal static bool IsAdded(BalanceBaseObject definition) =>
         _entries.Any(entry => entry.Definition == definition) || _held.Any(entry => entry.Definition == definition);
 
-    /// <summary>
-    /// Rebuilds the game's lookups of which station makes what and which items belong to which group, after a mod
-    /// changed crafts or item groups in place, and has every station in the loaded save pick up the new crafts.
-    /// Adding a CraftDef or ItemDef with the plugin's Balance.Add already does this.
-    /// </summary>
-    public static void RefreshCraftCaches()
+    // Rebuilds which station makes what and which items belong to which group, and has every station in the loaded
+    // save pick up the new crafts.
+    internal static void RefreshCraftCaches()
     {
         if (Loaded is not { } balance)
             return;
@@ -310,13 +307,9 @@ public static class TimbnBalance
     /// <returns>The sprite name the item is drawn with.</returns>
     public static string GetIcon(ItemDef item) => _itemCustomIcon(item) is { Length: > 0 } icon ? icon : item.iconId;
 
-    /// <summary>
-    /// Makes the game read an item's use effects again. The game remembers which buffs an item gives the first
-    /// time it looks, so a change to onUseExpressions is not seen until this is called. The plugin's Balance.Edit
-    /// on an ItemDef calls it for you after apply and revert, and Balance.AddCopy and Balance.AddItem after edit.
-    /// </summary>
-    /// <param name="item">The item whose use effects changed.</param>
-    public static void RefreshUseEffects(ItemDef item) => _itemPerksCached(item) = false;
+    // The game remembers which buffs an item gives the first time it looks, so a change to onUseExpressions is not
+    // seen until this clears that.
+    internal static void RefreshUseEffects(ItemDef item) => _itemPerksCached(item) = false;
 
     private static Action<GameBalance> CacheBuilder(string name) =>
         AccessTools.MethodDelegate<Action<GameBalance>>(AccessTools.Method(typeof(GameBalance), name));

@@ -16,9 +16,10 @@ public sealed class TimbnPluginUI
     }
 
     /// <summary>
-    /// Fades the screen to black, runs your code while it is black, and fades back in, like
-    /// <see cref="TimbnUI.FadeThrough"/>, but the code can be called off before the screen goes black, such as when
-    /// the player changes their mind during the fade.
+    /// Fades the screen to black, runs your code while it is black, and fades back in, the way the game hides a
+    /// change such as the player sitting down or a teleport. The code can be called off before the screen goes black,
+    /// such as when the player changes their mind during the fade. When the game has no fade to show, or one is
+    /// already showing, the code runs straight away.
     /// </summary>
     /// <example>
     /// <code>
