@@ -6,5 +6,5 @@ internal interface IGraveyardStop
 
     TimbnNpcSteps? Plan(TimbnNpc npc, GraveyardVisitors visitors, int stay);
 
-    IEnumerable<(Vector3 Spot, Vector3 Target, bool Seat)> Spots(GraveyardVisitors visitors);
+    int Capacity();
 }

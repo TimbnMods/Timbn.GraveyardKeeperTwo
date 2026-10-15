@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace Timbn.GraveyardKeeperTwo.LivingTown;
 
-// The graveyard's paths as straight lines read from the scene's road tiles, since neither navmesh marks them.
+// Graveyard path network constructed from the scene's road tiles, as the navmesh does not define path lines.
 internal sealed class GraveyardPaths
 {
     private const string _roadsPath = "World/StaticContent/CemeteryZone/Roads";
@@ -11,8 +11,8 @@ internal sealed class GraveyardPaths
     private const float _junctionReach = 1f;
     private const float _endInset = 1f;
 
-    // A small tile draws its dirt off its middle, north on an across tile and east on an up and down one (west when
-    // mirrored), checked against screenshots. The cobbled tiles are centered.
+    // Small dirt tiles render offset from center: north on horizontal tiles and east on vertical tiles (west when
+    // mirrored), verified against screenshots. Cobbled tiles are centered.
     private const float _acrossDirt = 0.3f;
     private const float _upAndDownDirt = 0.16f;
     private const float _groundSnap = 0.1f;
@@ -20,8 +20,8 @@ internal sealed class GraveyardPaths
     private const int _groundTries = 20;
     private const int _spotTries = 10;
 
-    // Walks favor the cobbled main path, a line of people to a grave favors the across line the grave is on over the
-    // up and down ones, and a walk goes round people standing in a line when another way exists.
+    // Paths favor the cobbled main road. Queues heading to a grave prioritize the horizontal path segment containing
+    // the grave over vertical branches, and walkers route around queued mourners when an alternate path exists.
     private const float _mainPathCost = 0.5f;
     private const float _upAndDownCost = 2.5f;
     private const float _crowdedCost = 1000f;
@@ -29,16 +29,11 @@ internal sealed class GraveyardPaths
     private const float _acrossReach = 2f;
 
     private readonly List<Segment> _segments = [];
-    private readonly Dictionary<TimbnNpc, List<Vector3>> _routes = [];
 
-    public IReadOnlyList<Segment> Segments => _segments;
-
-    public IReadOnlyCollection<List<Vector3>> Routes => _routes.Values;
-
-    // Who stands in a walker's way, such as a line of people, as x and z spots. A walk goes round them when it can.
+    // Coordinates (X and Z) of NPCs currently blocking the way, such as a funeral queue. Walkers route around them when possible.
     public Func<TimbnNpc, IReadOnlyList<Vector2>>? Avoid { get; set; }
 
-    // Where the paths meet the road outside, the gate. A walk from or to a spot outside the graveyard goes through it.
+    // The gate where the interior paths meet the outside road. Any route entering or leaving the graveyard passes through this point.
     public Vector3? Entrance { get; set; }
 
     public void Rebuild()
@@ -50,8 +45,8 @@ internal sealed class GraveyardPaths
             return;
         }
 
-        // The game switches whole path sets on and off as the paths are upgraded, and switches each tile off while
-        // the keeper is away, so the sets say what is built and the tiles are read switched off or not.
+        // The game toggles path object hierarchies as paths are upgraded and disables tiles when the player is away.
+        // The active set determines constructed paths regardless of temporary tile visibility.
         List<Tile> tiles = [];
         foreach (Transform set in roads.transform)
         {
@@ -82,9 +77,9 @@ internal sealed class GraveyardPaths
         GraveyardVisitors.Log($"the graveyard paths are {across.Count} across and {upAndDown.Count} up and down, from {tiles.Count} tiles.");
     }
 
-    // The whole route is one straight line walk through its corners, since a navmesh walk picks its own line between
-    // two points and wanders off the dirt, and a stop at every corner made the walk stutter. Each corner ends a hop
-    // along one path line, or the short step between the path and what the visitor came to see.
+    // The route forms a continuous straight-line path through its corner waypoints, preventing navmesh wander off dirt
+    // paths and eliminating corner stutter. Each corner marks the end of a segment along a path line or the short step
+    // between the path and what the visitor came to see.
     public TimbnNpcSteps Walk(TimbnNpc npc, TimbnNpcSteps steps, Vector3 to)
     {
         if (_segments.Count == 0)
@@ -111,11 +106,9 @@ internal sealed class GraveyardPaths
 
         Add(end);
         Add(to);
-        _routes[npc] = [from, .. corners];
         return corners.Count == 0 ? steps : steps.WalkStraight(corners);
 
-        // A corner within the game's own arrival slack of the one before (0.1, which is also how far off its point a
-        // navmesh walk may end) would only make the person stop and twitch, so it is left out.
+        // Waypoints within arrival tolerance of the previous corner (0.1 units) are omitted to prevent jitter and stuttering.
         void Add(Vector3 point)
         {
             if (TimbnWorld.FlatDistance(corners.Count == 0 ? from : corners[^1], point) >= _touching)
@@ -164,8 +157,8 @@ internal sealed class GraveyardPaths
         return true;
     }
 
-    // The spot a distance along the paths from the path nearest one place toward another, such as where the fourth
-    // person in a line to a grave stands. Past the end of the way it is the end.
+    // Finds a point at a specified distance along the path network from an origin toward a destination (e.g. queue
+    // positions). If the distance exceeds total path length, it clamps to the end point.
     public Vector3 PointAlong(Vector3 from, Vector3 to, float distance)
     {
         var way = Route(from, to, null, across: true);
@@ -184,10 +177,6 @@ internal sealed class GraveyardPaths
         return way[^1];
     }
 
-    public void Forget(TimbnNpc npc) => _routes.Remove(npc);
-
-    public void Clear() => _routes.Clear();
-
     private static List<Segment> Lines(List<Tile> tiles, float height, bool horizontal)
     {
         var axis = horizontal ? "_hor" : "_ver";
@@ -199,7 +188,7 @@ internal sealed class GraveyardPaths
         List<Segment> segments = [];
         foreach (var line in Cluster(anchors))
         {
-            // Crosses and ends are drawn off their line, so they only say where a line starts and stops.
+            // Intersections and end caps render offset from the path axis, so they are only used to delimit segment boundaries.
             var spans = tiles
                 .Where(tile => (tile.Name.Contains(axis) || tile.Name.Contains("cross")) && Covers(tile.Bounds, line, horizontal))
                 .Select(tile => horizontal ? (Start: tile.Bounds.min.x, End: tile.Bounds.max.x, Main: tile.Name.Contains("_big_")) : (Start: tile.Bounds.min.z, End: tile.Bounds.max.z, Main: tile.Name.Contains("_big_")))
@@ -241,7 +230,7 @@ internal sealed class GraveyardPaths
             yield return group.Average();
     }
 
-    // A switched off renderer reports empty bounds, so these come from the sprite itself.
+    // Inactive renderers report empty bounds, so dimensions are retrieved directly from the sprite.
     private static Bounds WorldBounds(SpriteRenderer tile)
     {
         var local = tile.sprite.bounds;
@@ -263,8 +252,8 @@ internal sealed class GraveyardPaths
     private static bool Covers(Bounds bounds, float line, bool horizontal) =>
         horizontal ? bounds.min.z <= line && line <= bounds.max.z : bounds.min.x <= line && line <= bounds.max.x;
 
-    // A line stops on the path it meets when that is within its last tile, which cuts the stub a T crossing draws
-    // past it. A line that meets nothing stops short of its end tile's edge, on walkable ground.
+    // A segment terminates at the intersecting path within its final tile to eliminate overhang on T-junctions.
+    // Dead-end segments stop short of the tile edge on walkable ground.
     private static void Trim(Segment segment, List<Segment> crossing)
     {
         segment.Start = TrimEnd(segment, segment.Start, 1f, crossing);
@@ -302,7 +291,7 @@ internal sealed class GraveyardPaths
         return Corners(path).Select(point => new Vector3(point.x, from.y, point.y)).ToList();
     }
 
-    // With preferAcross the nearest across line wins when one lies within reach, so a grave is viewed from the line it sits on.
+    // With preferAcross enabled, the nearest horizontal path segment takes precedence, ensuring graves are viewed from the horizontal path they align with.
     private (Segment Segment, Vector3 Point) Nearest(Vector3 spot, bool preferAcross = false)
     {
         var candidates = _segments;
@@ -413,7 +402,7 @@ internal sealed class GraveyardPaths
         return path;
     }
 
-    // Only the turns matter, since the walk between two points on one line stays on that line.
+    // Only corner turns are needed, as straight segments between waypoints remain aligned on the path line.
     private static IEnumerable<Vector2> Corners(List<Vector2> path)
     {
         for (var i = 0; i < path.Count; i++)

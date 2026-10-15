@@ -1,8 +1,8 @@
 namespace Timbn.GraveyardKeeperTwo.LivingTown;
 
 /// <summary>
-/// Herm's day. He works the stall from dawn and takes short trips between (none in the rain), sits in the tavern in the
-/// evening and goes home at night.
+/// Herm's daily schedule. He manages his stall starting at dawn, takes occasional short walks (except in the rain),
+/// visits the tavern in the evening, and heads home at night.
 /// </summary>
 internal sealed class HermDay
 {
@@ -21,7 +21,7 @@ internal sealed class HermDay
     private const float _commonChance = 0.7f;
     private const float _chainChance = 0.4f;
 
-    // His longest trips (bot01 and the bathroom) took up to 112 game minutes in a traced day.
+    // His longest trips (bot01 and the bathroom) take up to 112 in-game minutes during schedule profiling.
     private const double _quietTailMinutes = 120;
 
     private static readonly string[] _benches = ["npc_sim_village_right_side_05", "npc_sim_village_right_side_04"];

@@ -1,9 +1,9 @@
 namespace Timbn.GraveyardKeeperTwo.LivingTown;
 
 /// <summary>
-/// The village and the town districts people live in, and who in each is free to ask the player for something. A
-/// town district only has people once the player has rebuilt a house or plot there, which needs its fights won
-/// first, so a district with people is one the player can reach.
+/// The village and town districts where residents live, and who in each is available to offer player errands. A
+/// town district is only populated once the player clears its combat encounters and rebuilds a building there,
+/// ensuring populated districts are always accessible.
 /// </summary>
 internal static class Areas
 {

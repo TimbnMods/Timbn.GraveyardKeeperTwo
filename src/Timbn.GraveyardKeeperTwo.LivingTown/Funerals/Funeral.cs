@@ -1,11 +1,11 @@
 namespace Timbn.GraveyardKeeperTwo.LivingTown;
 
-// A grave filled in since the last check brings a funeral. The visitors gather in the church, three of them speak in
-// turn at the choir, then everyone lines up on the path to the grave and each looks at it before going home.
+// A grave filled in since the previous check triggers a funeral. Attendees gather in the church, three mourners speak
+// in turn at the choir, then everyone files out to line up along the path to the grave and view it before departing.
 internal sealed class Funeral
 {
     internal const float LastArrival = 9 / 24f;
-    internal const int MinimumMourners = 10;
+    internal const int MinimumMourners = 5;
 
     private const float _checkedAt = 2 / 24f;
     private const float _beginsAt = 12 / 24f;
@@ -20,8 +20,8 @@ internal sealed class Funeral
     private const float _lineGap = 0.8f;
     private const float _seatTaken = 0.1f;
 
-    // The first three to arrive speak in this order. Each starts at one post and goes back to another, and the first
-    // starts at the altar so it never has to walk there.
+    // The first three arrivals speak in this order. Each begins at one post and returns to another. The first speaker
+    // begins directly at the altar to avoid walking there.
     private static readonly string[] _startPosts = [_altar, "church_parishioner_1", "church_parishioner_2"];
 
     private static readonly string[] _returnPosts = ["church_parishioner_3", "church_parishioner_1", "church_parishioner_2"];
@@ -52,20 +52,19 @@ internal sealed class Funeral
 
     public bool IsOn => _grave != null;
 
-    // Whether more mourners are still to leave the donkey, so the speaking waits for them.
+    // Whether more mourners are still arriving from the road spawn point, holding the ceremony until they arrive.
     public Func<bool> MoreComing { get; set; } = () => false;
 
-    // Everyone but the speakers stands at a pew seat point, so the church holds as many as it has seat points plus the
-    // three speakers.
+    // Non-speaking attendees stand at pew seat points, so church capacity equals available pew seats plus the three speakers.
     public static int Capacity => ChurchStop.Seats().Count() + _startPosts.Length;
 
     private static double BeginsAt => (TimbnClock.Day + (double)_beginsAt) * 24 * 60;
 
-    // Past this everyone leaves for the grave whether or not every speaker has spoken, so a speaker who never gets
-    // to the choir cannot keep the church full all day.
+    // Past this cutoff, attendees proceed to the grave even if some speakers never spoke, preventing a delayed speaker
+    // from holding up the service.
     private static bool Overdue => TimbnClock.Minutes >= (TimbnClock.Day + (double)_leavesBy) * 24 * 60;
 
-    // The speaking starts once everyone coming has sat or stopped at their post, or at noon even if some are still walking.
+    // The speaking begins once all attendees are seated or at their posts, or at noon even if some are still walking.
     private bool CeremonyDue =>
         TimbnClock.Minutes >= BeginsAt || (_mourners.Count > 0 && !MoreComing() && _mourners.All(mourner => mourner.InChurch));
 
@@ -79,7 +78,7 @@ internal sealed class Funeral
 
         data.CheckedDay = TimbnClock.Day;
 
-        // Whatever is left of yesterday's funeral is over, since nobody carries on past the night.
+        // Any leftover attendees from yesterday's funeral are cleared, as funeral services do not carry over overnight.
         Clear();
         var graves = TimbnWorld.GravesWithBodies().GroupBy(grave => grave.UniqueId.Id).ToDictionary(group => group.Key, group => group.First());
         if (!data.Seeded)
@@ -99,8 +98,8 @@ internal sealed class Funeral
             return;
         }
 
-        // The grave stays new, so the next check holds the funeral. The sermon day is left to the sermon crowd, the same
-        // as the church stop does.
+        // The grave remains fresh so the next daily check schedules the funeral. Funerals are postponed on sermon day to
+        // leave the church for the congregation.
         if (TimbnClock.Weekday == TimbnWeekday.Wrath)
         {
             GraveyardVisitors.Log("funeral, a new grave was filled in but it is the sermon day, so tomorrow.");
@@ -117,8 +116,8 @@ internal sealed class Funeral
         _graves = [.. fresh.Select(pair => pair.Key)];
         GraveyardVisitors.Log($"funeral, a new grave at {GraveyardVisitors.Flat(_grave.Position)} gets one today.");
 
-        // A funeral that never reaches the ceremony (the church door can't be found, or the player sleeps before the
-        // speaking) would otherwise be held again every day, so the second try counts as held whatever happens.
+        // If a funeral fails to reach the ceremony (e.g. door pathfinding failure or the player sleeping early), the
+        // second attempt is treated as completed to avoid repeating indefinitely.
         if (_graves.All(data.TriedGraves.Contains))
         {
             GraveyardVisitors.Log("funeral, it is the second try for this grave, so there is no third.");
@@ -203,7 +202,7 @@ internal sealed class Funeral
         _leaving = false;
     }
 
-    // The people standing in the line, which anyone leaving the grave goes round when another way home exists.
+    // Mourners queued along the path, which departing attendees navigate around when an alternate route is available.
     private IReadOnlyList<Vector2> Crowd(TimbnNpc walker) =>
         _grave == null
             ? []
@@ -260,7 +259,7 @@ internal sealed class Funeral
             .Decide(_ => Act(mourner, wayOut));
     }
 
-    // Once the ceremony begins the grave counts as having had its funeral, even when a save cuts the rest short.
+    // Once the ceremony begins, the grave is marked as having had its funeral, even if saving the game interrupts the procession.
     private void Held()
     {
         _data.Current.KnownGraves.UnionWith(_graves);
@@ -316,8 +315,8 @@ internal sealed class Funeral
         if (ChurchStop.Landing(ChurchStop.OutsideLanding) is not { } outside || ChurchStop.Landing(ChurchStop.InsideLanding) is not { } inside)
             return wayOut(mourner.Npc);
 
-        // The speakers lead the way out and everyone else holds their place until every speaker has reached the aisle
-        // point, then follows one minute apart.
+        // The speakers lead the exit, and remaining attendees hold position until all speakers reach the aisle
+        // point, then follow spaced one minute apart.
         if (!mourner.Speaker && _mourners.Any(other => other.Speaker && !other.Reached))
         {
             return new TimbnNpcSteps()

@@ -33,8 +33,6 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         Settings.Changed(PluginConfig.GratitudePerVisitor, _ => visits.Replan());
         Settings.Changed(PluginConfig.MinimumChurchVisitors, _ => visits.Replan());
         Settings.Changed(PluginConfig.MaximumChurchVisitors, _ => visits.Replan());
-        var pathsOverlay = new GraveyardPathsOverlay(this, visits.Visitors);
-        Settings.While(PluginConfig.ShowGraveyardPaths, pathsOverlay.Show);
         Settings.While(PluginConfig.OpeningHours, () => Npcs.CloseTradeWhen(TimbnGameIds.Npcs.Herm, VendorHours.IsClosed, _hermClosedKey));
         new Requests(this).Start();
         new Deliveries(this).Start();

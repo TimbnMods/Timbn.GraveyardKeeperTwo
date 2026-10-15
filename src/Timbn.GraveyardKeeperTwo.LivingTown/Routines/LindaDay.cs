@@ -1,9 +1,9 @@
 namespace Timbn.GraveyardKeeperTwo.LivingTown;
 
 /// <summary>
-/// Linda's day in her club. She works the club from the morning, stands at the entrance in the afternoon, is back in
-/// the club for the evening, is on the stage after midnight once the concert quest is done, and goes to bed at two. It
-/// starts once the Safe Harbor quest is done.
+/// Linda's daily routine at the club. She tends the club starting in the morning, stands at the entrance during
+/// the afternoon, returns inside for the evening, performs on stage after midnight once the concert quest is completed,
+/// and goes to bed at 2:00. The routine activates after completing the Safe Harbor quest.
 /// </summary>
 internal sealed class LindaDay
 {

@@ -1,9 +1,8 @@
 namespace Timbn.GraveyardKeeperTwo.LivingTown;
 
 /// <summary>
-/// Now and then someone in the village or an open town district asks the player to cook a dish they already know the
-/// recipe for, and pays the dish's sale price for it. It is one repeatable quest, so it only ever takes one entry in
-/// the log.
+/// Occasional cooking requests where a resident asks the player to prepare a known recipe,
+/// paying its sale price upon delivery. This is a single repeatable quest that occupies only one quest log entry.
 /// </summary>
 internal sealed class Requests
 {

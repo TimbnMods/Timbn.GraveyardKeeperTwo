@@ -8,7 +8,8 @@ internal sealed class WanderStop : IGraveyardStop
     public int RollStay(System.Random random) =>
         random.NextDouble() < _longStayChance ? random.Next(40, 81) : random.Next(10, 31);
 
-    public IEnumerable<(Vector3 Spot, Vector3 Target, bool Seat)> Spots(GraveyardVisitors visitors) => [];
+    // Wandering has no spot of its own, so it adds nothing to how many the graveyard holds.
+    public int Capacity() => 0;
 
     public TimbnNpcSteps? Plan(TimbnNpc npc, GraveyardVisitors visitors, int stay)
     {

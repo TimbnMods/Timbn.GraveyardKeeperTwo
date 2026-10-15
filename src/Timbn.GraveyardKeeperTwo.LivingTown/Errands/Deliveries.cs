@@ -1,10 +1,10 @@
 namespace Timbn.GraveyardKeeperTwo.LivingTown;
 
 /// <summary>
-/// Now and then someone hands the player something to take to a friend, from the village to an open town district
-/// or the other way round, and the friend pays the item's sale price on delivery. It is one repeatable quest, so it
-/// only ever takes one entry in the log, and it runs on its own next to the cooking requests. An untaken offer or an
-/// undelivered parcel runs out after a week, and the player pays for a parcel they kept, as much as they have.
+/// Occasional errand deliveries where an NPC asks the player to deliver an item to a friend in another district,
+/// who pays the item's sale price upon delivery. This is a single repeatable quest that occupies only one quest log entry,
+/// running alongside cooking requests. Unaccepted offers or uncompleted deliveries expire after one week,
+/// and keeping a parcel incurs a reimbursement fee up to the player's available funds.
 /// </summary>
 internal sealed class Deliveries
 {

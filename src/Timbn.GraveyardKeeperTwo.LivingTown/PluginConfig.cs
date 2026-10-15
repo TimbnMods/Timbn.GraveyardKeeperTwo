@@ -14,39 +14,37 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> VillagerDeliveries { get; private set; } = null!;
 
-    public static ConfigEntry<bool> ShowGraveyardPaths { get; private set; } = null!;
-
     public static void Bind(ConfigFile config)
     {
         DailyRoutine = config.Bind(
             "People",
             "DailyRoutine",
             true,
-            "Herm, Linda, Larry and the astrologer go about their day. Turning it off puts them back in their usual spots.");
+            "Enable to have Herm, Linda, Larry and the astrologer go about their day. Turning it off puts them back in their usual spots.");
 
         OpeningHours = config.Bind(
             "People",
             "OpeningHours",
             true,
-            "Herm only trades from 6:00 until 16:48.");
+            "Enable the vendors to be closed to trading outside of opening hours.");
 
         ChurchVisits = config.Bind(
             "Crowds",
             "ChurchVisits",
             true,
-            "Villagers and townsfolk come to visit the graveyard each day between 6:00 and 13:00 and stay 4 to 6 hours (until 16:00 at the latest), more of them the more grateful the town is.");
+            "Enable to have villagers and townsfolk visit the graveyard each day with crowd sizes scaling up with town gratitude.");
 
         Funerals = config.Bind(
             "Crowds",
             "Funerals",
             true,
-            "The day after you fill in a new grave, the villagers who visit hold a funeral for it. They gather in the church, three of them speak at the choir in turn, then everyone lines up at the grave to pay their respects. At least 10 villagers come that day whatever the weather and the visitor settings say, even with ChurchVisits off, though never more than the church has pew seats and speakers to hold. They all arrive by 9:00, mostly alone or in pairs and sometimes in groups of up to five, one group close behind the other. It never happens on the sermon day.");
+            "Enable villagers to hold funerals for bodies you recently buried. They gather in the church, three of them speak at the choir in turn, then everyone lines up at the grave to pay their respects. Funerals are postponed on sermon day.");
 
         GratitudePerVisitor = config.BindRange(
             "Crowds",
             "GratitudePerVisitor",
-            5,
-            "How much town gratitude brings one more graveyard visitor.",
+            7,
+            "Ratio of town gratitude to additional graveyard visitors. For example, every 8 gratitude points result in one extra visitor.",
             1,
             50);
 
@@ -54,35 +52,29 @@ internal static class PluginConfig
             "Crowds",
             "MinimumChurchVisitors",
             2,
-            "The minimum number of villagers that visit the graveyard in a day, however little the town thanks you.",
+            "The minimum number of villagers that visit the graveyard in a day, regardless of town gratitude.",
             0,
             30);
 
         MaximumChurchVisitors = config.BindRange(
             "Crowds",
             "MaximumChurchVisitors",
-            15,
-            "The maximum number of villagers that visit the graveyard in a day, however grateful the town is.",
+            30,
+            "The maximum number of villagers that visit the graveyard in a day, regardless of town gratitude.",
             0,
-            30);
+            50);
 
         VillagerRequests = config.Bind(
             "Requests",
             "VillagerRequests",
             true,
-            "About once a week someone in the village or town asks you to cook a dish you know the recipe for, and pays its sale price when you bring it.");
+            "Enable to have villagers in the village or town ask you to cook a dish you know the recipe for, and pay its sale price when you bring it.");
 
         VillagerDeliveries = config.Bind(
             "Requests",
             "VillagerDeliveries",
             true,
-            "About once a week someone gives you something to take between the village and town, and the friend pays its sale price. It runs out after a week.");
-
-        ShowGraveyardPaths = config.Bind(
-            "Debug",
-            "ShowGraveyardPaths",
-            false,
-            "Draws the graveyard paths visitors walk along in orange, each visitor's last walk in blue, the walk they are on right now in red, where they stand in green and the bench seats in pink.");
+            "Enable to have villagers in the village or town give you something to take between the village and town, and the friend pays its sale price. Deliveries expire after one week.");
 
         WriteDebugLog = config.BindHidden(
             "Debug",

@@ -8,6 +8,6 @@ internal sealed class FuneralData
 
     public HashSet<string> KnownGraves { get; set; } = [];
 
-    // Graves whose funeral was started once and never got as far as the ceremony, so the second try is the last.
+    // Graves whose funeral began once but failed to reach the ceremony, capping subsequent attempts to two.
     public HashSet<string> TriedGraves { get; set; } = [];
 }

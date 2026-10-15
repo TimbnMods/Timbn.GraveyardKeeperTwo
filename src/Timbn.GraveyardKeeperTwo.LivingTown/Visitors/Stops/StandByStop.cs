@@ -23,6 +23,8 @@ internal sealed class StandByStop : IGraveyardStop
 
     public int RollStay(System.Random random) => random.Next(_shortestStay, _longestStay + 1);
 
+    public int Capacity() => _find().Count();
+
     public TimbnNpcSteps? Plan(TimbnNpc npc, GraveyardVisitors visitors, int stay)
     {
         var targets = _find().ToList();
@@ -49,15 +51,6 @@ internal sealed class StandByStop : IGraveyardStop
 
         GraveyardVisitors.Log($"{(free.Count == 0 ? $"every {_name} has a visitor" : $"no free {_name} has ground to stand on")}, so {npc.Id} skips the {_name}.");
         return null;
-    }
-
-    public IEnumerable<(Vector3 Spot, Vector3 Target, bool Seat)> Spots(GraveyardVisitors visitors)
-    {
-        foreach (var target in _find())
-        {
-            if (TryFindStandSpot(target, visitors.Paths, out var stand))
-                yield return (stand, target.Position, false);
-        }
     }
 
     internal bool TryFindStandSpot(WgoData target, GraveyardPaths paths, out Vector3 stand)

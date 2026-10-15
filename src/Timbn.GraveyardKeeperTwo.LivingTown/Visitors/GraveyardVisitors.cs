@@ -40,7 +40,7 @@ internal sealed class GraveyardVisitors
 
     public IEnumerable<Vector3> Taken => _taken.Values;
 
-    public IEnumerable<TimbnNpc> People => _visitors.Keys;
+    public int Capacity() => _stops.Sum(stop => stop.Capacity());
 
     public static void Log(string line)
     {
@@ -56,8 +56,6 @@ internal sealed class GraveyardVisitors
         return Next(npc);
     }
 
-    public IEnumerable<(Vector3 Spot, Vector3 Target, bool Seat)> Spots() => _stops.SelectMany(stop => stop.Spots(this));
-
     public void Take(TimbnNpc npc, Vector3 spot) => _taken[npc] = spot;
 
     public void Claim(TimbnNpc npc, WgoData target) => _claimed[npc] = target;
@@ -69,7 +67,6 @@ internal sealed class GraveyardVisitors
         _visitors.Remove(npc);
         _taken.Remove(npc);
         _claimed.Remove(npc);
-        Paths.Forget(npc);
     }
 
     public void Clear()
@@ -77,7 +74,6 @@ internal sealed class GraveyardVisitors
         _visitors.Clear();
         _taken.Clear();
         _claimed.Clear();
-        Paths.Clear();
     }
 
     private TimbnNpcSteps? Next(TimbnNpc npc)

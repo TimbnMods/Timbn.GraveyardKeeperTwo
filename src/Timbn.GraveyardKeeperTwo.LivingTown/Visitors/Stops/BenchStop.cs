@@ -5,22 +5,22 @@ internal sealed class BenchStop : IGraveyardStop
     private const int _shortestStay = 60;
     private const int _longestStay = 120;
 
-    // The bench models have no seat points, so these are measured off graveyard_bench_1, a backless bench 1.24 wide
-    // running z -0.25 to 0.10. Deeper than these the sitter is drawn through the bench, and further forward they float.
+    // Bench models lack predefined seat points, so positions are calibrated from graveyard_bench_1 (width 1.24,
+    // Z -0.25 to 0.10). Positioning further back clips the character into the mesh, while positioning further forward leaves them floating.
     private const float _seatSide = 0.25f;
     private const float _seatDepthFacingDown = -0.23f;
 
-    // Mirrors the down seat about the model's middle (z -0.075), so a sitter facing up sits on the side they face,
-    // the way the church benches put their parishioner points behind the bench.
+    // Mirrors the south-facing seat across the model center (Z -0.075) so north-facing sitters occupy the side they face,
+    // matching church pew parishioner points.
     private const float _seatDepthFacingUp = -0.06f;
     private const float _edgeStep = 0.05f;
     private const float _seatTaken = 0.1f;
 
-    // A placed bench cuts its footprint out of the navmesh, so the nearest walkable ground is just off the seat.
+    // Placed benches carve their footprint out of the navmesh, placing walkable access points just in front of the seat.
     private const float _edgeRange = 0.5f;
 
-    // A plot is only a frame of build slots (GraveyardModuleArea, 3.84 by 3.00 from its lower left corner), and the
-    // cemetery's own path runs through it between the lower bench slot (z 0.60 to 1.20) and the upper one (1.80 to 2.40).
+    // A graveyard plot is a grid of build slots (GraveyardModuleArea, 3.84 by 3.00), intersected by an interior path
+    // between the lower bench slot (Z 0.60 to 1.20) and the upper slot (Z 1.80 to 2.40).
     private const string _plotPrefix = "graveyard_module_";
     private const float _plotWidth = 3.84f;
     private const float _plotDepth = 3f;
@@ -29,6 +29,19 @@ internal sealed class BenchStop : IGraveyardStop
     private static readonly string[] _benchIds = ["graveyard_bench_1", "graveyard_bench_2", "graveyard_bench_3"];
 
     public int RollStay(System.Random random) => random.Next(_shortestStay, _longestStay + 1);
+
+    public int Capacity()
+    {
+        var plots = TimbnWorld.Objects(wgo => wgo.id.StartsWith(_plotPrefix)).ToList();
+        var seats = 0;
+        foreach (var bench in _benchIds.SelectMany(TimbnWorld.FindAll))
+        {
+            if (Facing(bench, plots) is { } facing)
+                seats += Seats(bench, facing).Count;
+        }
+
+        return seats;
+    }
 
     public TimbnNpcSteps? Plan(TimbnNpc npc, GraveyardVisitors visitors, int stay)
     {
@@ -72,20 +85,7 @@ internal sealed class BenchStop : IGraveyardStop
             .WalkStraight(edge.x, edge.z);
     }
 
-    public IEnumerable<(Vector3 Spot, Vector3 Target, bool Seat)> Spots(GraveyardVisitors visitors)
-    {
-        var plots = TimbnWorld.Objects(wgo => wgo.id.StartsWith(_plotPrefix)).ToList();
-        foreach (var bench in _benchIds.SelectMany(TimbnWorld.FindAll))
-        {
-            if (Facing(bench, plots) is not { } facing)
-                continue;
-
-            foreach ((var seat, _) in Seats(bench, facing))
-                yield return (seat, bench.Position, true);
-        }
-    }
-
-    // Benches have one facing, so visitors sit looking at their plot's path, down from a bench above it and up from one below.
+    // Benches have a fixed orientation, so visitors face toward their plot's interior path: south from an upper bench and north from a lower bench.
     private static Direction? Facing(WgoData bench, List<WgoData> plots)
     {
         foreach (var plot in plots)
@@ -116,7 +116,7 @@ internal sealed class BenchStop : IGraveyardStop
         return seats;
     }
 
-    // Visitors get on and off from the side they face, which is the path's side, never round the back.
+    // Visitors approach and leave the bench from the front facing the path, never walking around behind it.
     private static bool TryFindEdge(Vector3 seat, Direction facing, out Vector3 edge)
     {
         var ahead = facing == Direction.Up ? Vector3.forward : Vector3.back;

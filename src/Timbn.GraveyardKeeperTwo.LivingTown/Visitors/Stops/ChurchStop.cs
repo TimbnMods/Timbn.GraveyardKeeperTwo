@@ -5,23 +5,22 @@ internal sealed class ChurchStop : IGraveyardStop
     private const int _shortestStay = 60;
     private const int _longestStay = 120;
 
-    // The church door only lets the keeper through, so visitors are put from one landing to the other, the way the
-    // keeper goes in. Both landings are world objects, not points.
+    // Because the church door only triggers transitions for the player, visitors teleport between the outside and
+    // inside landings. Both landings are world objects rather than GDPoints.
     internal const string OutsideLanding = "tp_RT_church_enter";
     internal const string InsideLanding = "tp_RT_church_exit";
 
-    // Every pew the keeper builds brings two of these, facing the pulpit.
+    // Each constructed pew provides two seating points facing the pulpit.
     private const string _seatTag = "parishioner_bench_point";
     private const float _seatTaken = 0.1f;
 
     public int RollStay(System.Random random) => random.Next(_shortestStay, _longestStay + 1);
 
-    public IEnumerable<(Vector3 Spot, Vector3 Target, bool Seat)> Spots(GraveyardVisitors visitors) =>
-        Seats().Select(seat => (seat.Position, seat.Position, true));
+    public int Capacity() => TimbnClock.Weekday == TimbnWeekday.Wrath ? 0 : Seats().Count();
 
     public TimbnNpcSteps? Plan(TimbnNpc npc, GraveyardVisitors visitors, int stay)
     {
-        // The sermon's own crowd may want the pews, so visitors leave the church to it that day.
+        // The Sunday congregation occupies the church pews on sermon day, so casual visitors bypass the church.
         if (TimbnClock.Weekday == TimbnWeekday.Wrath)
         {
             GraveyardVisitors.Log($"it is the sermon day, so {npc.Id} skips the church.");

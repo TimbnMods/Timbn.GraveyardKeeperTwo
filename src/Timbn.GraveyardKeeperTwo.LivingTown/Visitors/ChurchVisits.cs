@@ -15,6 +15,9 @@ internal sealed class ChurchVisits
     private const int _longestStay = 6 * 60;
     private const int _funeralShortestGap = 2;
     private const int _funeralLongestGap = 10;
+    private const float _groupSpacing = 3f;
+    private const float _groupSpacingJitter = 1f;
+    private const int _capacitySpare = 3;
 
     private static readonly string[] _homeGroups =
     [
@@ -46,8 +49,6 @@ internal sealed class ChurchVisits
         _funeral = new Funeral(plugin, _driver) { MoreComing = () => _toArrive > 0 };
     }
 
-    public GraveyardVisitors Visitors => _driver;
-
     private bool IsOpen => TimbnClock.TimeOfDay >= _opens && TimbnClock.TimeOfDay < (_funeral.IsOn ? Funeral.LastArrival : _closes);
 
     private static bool IsSermonDay => TimbnClock.Weekday == TimbnWeekday.Wrath;
@@ -63,7 +64,7 @@ internal sealed class ChurchVisits
 
     public void Tick()
     {
-        // A funeral is held even with the daily visits off, so only both off stops the clock.
+        // Funerals run even when daily visits are disabled, so the update loop only pauses when both features are turned off.
         if (!TimbnGame.IsInGame || (!VisitsOn && !_plugin.Settings.IsEnabled(PluginConfig.Funerals)))
             return;
 
@@ -74,8 +75,8 @@ internal sealed class ChurchVisits
             _funeral.Forget(gone);
         }
 
-        // A story event that takes a visitor ends their run without the leave callback, and they would stand where
-        // the game left them until the next save.
+        // A story scene that claims an NPC interrupts their routine without invoking the exit callback, which would
+        // otherwise leave them stranded until the next save.
         foreach (var taken in _visitors.Where(npc => !npc.IsRunning).ToList())
         {
             GraveyardVisitors.Log($"{taken.Id} was taken over by the game, so they are sent away.");
@@ -183,13 +184,17 @@ internal sealed class ChurchVisits
         if (_funeral.IsOn)
             return Mathf.Min(Mathf.Max(crowd, Funeral.MinimumMourners), Funeral.Capacity);
 
-        return IsSermonDay ? Mathf.Min(Mathf.FloorToInt(crowd * _sermonDayCrowd), maximum) : crowd;
+        if (IsSermonDay)
+            crowd = Mathf.Min(Mathf.FloorToInt(crowd * _sermonDayCrowd), maximum);
+
+        // A graveyard with little to see holds few at once. Arrivals spread over the morning, so a few more fit in turn.
+        return Mathf.Min(crowd, Mathf.Max(minimum, _driver.Capacity() + _capacitySpare));
     }
 
     private TimbnNpcSteps WayOut(TimbnNpc npc)
     {
-        // The road point lies outside the graveyard, so the paths walk goes out through the gate and straight along
-        // the road to it in the one movement.
+        // Because the road waypoint is outside the graveyard, the path walk exits through the gate and continues directly
+        // along the road in a single movement.
         var steps = new TimbnNpcSteps();
         if (MainGame.WorldData.gdPointsData.GetGDPointDataById(_road) is { } road)
             _driver.Paths.Walk(npc, steps, road.Position);
@@ -216,8 +221,8 @@ internal sealed class ChurchVisits
         GraveyardVisitors.Log($"the graveyard runs x {bounds.xMin:0.0} to {bounds.xMax:0.0}, z {bounds.yMin:0.0} to {bounds.yMax:0.0}.");
     }
 
-    // The mourners come in groups one close behind the other with a random gap, all of them before the deadline. A
-    // chain that would run past it has its gaps squeezed to fit.
+    // Mourners arrive in small staggered groups with randomized intervals, arriving before the cutoff. If arrivals would
+    // exceed the cutoff, intervals are compressed to fit.
     private void ScheduleFuneralArrivals()
     {
         _funeralArrivals.Clear();
@@ -271,12 +276,12 @@ internal sealed class ChurchVisits
             _visitors.Add(npc);
             var steps = new TimbnNpcSteps();
 
-            // Staggered so a group doesn't spawn on top of itself at the donkey, closer together for a funeral.
+            // Staggered so group members do not spawn on top of each other at the road spawn point.
             if (place > 0)
-                steps.WaitGameMinutes(place, _funeral.IsOn ? place * 1.5f : place * 2);
+                steps.WaitGameMinutes(place * _groupSpacing, place * _groupSpacing + _groupSpacingJitter);
 
-            // The walk into the graveyard starts at the road point and goes straight along the road through the gate,
-            // all in the one movement with the paths inside.
+            // The walk into the graveyard begins at the road waypoint and proceeds through the gate onto the interior
+            // paths in a single continuous movement.
             var setOff = TimbnClock.Minutes;
             steps.Walk(_road)
                 .RunCode(visitor => GraveyardVisitors.Log($"{visitor.Id} reaches {_road} {TimbnClock.Minutes - setOff:0} minutes after arriving."))

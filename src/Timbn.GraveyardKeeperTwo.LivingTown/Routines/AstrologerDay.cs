@@ -1,9 +1,9 @@
 namespace Timbn.GraveyardKeeperTwo.LivingTown;
 
 /// <summary>
-/// The astrologer's day in his tower. He stands at his spot facing down, now and then reads the necronomicon or looks
-/// over his pieces and comes back, or does his custom_02 animation. It starts once you've met him in the port and he
-/// stands at his spot.
+/// The astrologer's daily routine in his tower. He stands at his post facing south, occasionally reading the
+/// Necronomicon, inspecting his instruments, or playing his custom_02 animation. The routine begins once the player
+/// meets him in the port and he takes his position in the tower.
 /// </summary>
 internal sealed class AstrologerDay
 {

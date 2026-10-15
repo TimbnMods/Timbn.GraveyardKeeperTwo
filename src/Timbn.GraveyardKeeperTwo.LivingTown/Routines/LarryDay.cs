@@ -1,8 +1,8 @@
 namespace Timbn.GraveyardKeeperTwo.LivingTown;
 
 /// <summary>
-/// Larry's day at the base. He stays at his spot, now and then does his custom_01 animation or walks over to the
-/// fairy spot and back. It starts once he stands at his spot.
+/// Larry's daily routine at the base. He remains near his post, occasionally playing his chattering animation
+/// or walking to the fairy ring and back. The routine activates once he is at his post.
 /// </summary>
 internal sealed class LarryDay
 {
@@ -45,7 +45,7 @@ internal sealed class LarryDay
             .Walk(_fairy)
             .WaitGameMinutes(15, 30)
             .Walk(_home)
-            // The walk lands on the spot, but he only looks right standing there after his own spawn teleport.
+            // The walk reaches the destination point, but his orientation and posture only align correctly after triggering his spawn teleport.
             .FireEvent(TimbnGameIds.NpcEvents.Larry.TpToSpawnWithoutPuff);
 
     private static void Log(string line)
