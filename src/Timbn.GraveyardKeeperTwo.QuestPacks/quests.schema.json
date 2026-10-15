@@ -1,0 +1,491 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/TimbnMods/Timbn.GraveyardKeeperTwo/main/src/Timbn.GraveyardKeeperTwo.QuestPacks/quests.schema.json",
+  "title": "Timbn quest pack file",
+  "description": "A file in a quest pack's quests folder, holding quests and talks that Timbn Core adds to the game.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "quests": {
+      "description": "The quests in this file.",
+      "type": "array",
+      "items": { "$ref": "#/definitions/quest" }
+    },
+    "talks": {
+      "description": "Conversations that aren't quests.",
+      "type": "array",
+      "items": { "$ref": "#/definitions/talk" }
+    }
+  },
+  "definitions": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "text": {
+      "type": "string",
+      "minLength": 1
+    },
+    "npc": {
+      "description": "An NPC's id, such as npc_larry or npc_herm. Core reports an id the game doesn't have and skips the quest or talk.",
+      "type": "string",
+      "minLength": 1
+    },
+    "questRef": {
+      "description": "A quest id. A short id from this pack means that quest, and anything else is a game quest or another pack's full id.",
+      "type": "string",
+      "minLength": 1
+    },
+    "color": {
+      "description": "A color such as \"#9ad0ff\".",
+      "type": "string",
+      "pattern": "^#?([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$"
+    },
+    "day": {
+      "description": "A day of the week.",
+      "type": "string",
+      "enum": ["Gluttony", "Sloth", "Lust", "Envy", "Pride", "Wrath"]
+    },
+    "itemCounts": {
+      "description": "Items and how many, such as { \"grape_wine:1\": 3 }.",
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 1 }
+    },
+    "amounts": {
+      "description": "Resources and how much, such as { \"money\": 500 }.",
+      "type": "object",
+      "additionalProperties": { "type": "number" }
+    },
+    "event": {
+      "description": "Something the player does: slept, crafted:<craft>, built:<object>, enteredZone:<tag>, walkedInto:<zone>, wonFight:<fight> or usedItem:<item>.",
+      "type": "string",
+      "pattern": "^(slept|(crafted|built|enteredZone|walkedInto|wonFight|usedItem):.+)$"
+    },
+    "condition": {
+      "description": "A check on the game's state. Text such as \"hasTech:wood_basic\" or \"expr:$money >= 500\" for any of the game's script expressions, an object such as { \"carries\": \"flitch\", \"count\": 2 }, or all, any or not around others.",
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^((questStarted|questCompleted|questNotStarted|carries|owns|hasTech|expr):.+|(resource|reputation):.+:-?[0-9]+(\\.[0-9]+)?|day:[A-Za-z]+|time:[0-9]+(\\.[0-9]+)?-[0-9]+(\\.[0-9]+)?)$"
+        },
+        {
+          "type": "object",
+          "required": ["all"],
+          "additionalProperties": false,
+          "properties": {
+            "all": { "description": "True when every condition is.", "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/condition" } }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["any"],
+          "additionalProperties": false,
+          "properties": {
+            "any": { "description": "True when any condition is.", "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/condition" } }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["not"],
+          "additionalProperties": false,
+          "properties": {
+            "not": { "description": "True when the condition isn't.", "$ref": "#/definitions/condition" }
+          }
+        },
+        {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": false,
+          "anyOf": [
+            { "required": ["questStarted"] },
+            { "required": ["questCompleted"] },
+            { "required": ["questNotStarted"] },
+            { "required": ["carries"] },
+            { "required": ["owns"] },
+            { "required": ["hasTech"] },
+            { "required": ["resource"] },
+            { "required": ["reputation"] },
+            { "required": ["day"] },
+            { "required": ["time"] }
+          ],
+          "properties": {
+            "questStarted": { "description": "The quest is in progress or done.", "$ref": "#/definitions/questRef" },
+            "questCompleted": { "description": "The quest is done.", "$ref": "#/definitions/questRef" },
+            "questNotStarted": { "description": "The quest is neither in progress nor done.", "$ref": "#/definitions/questRef" },
+            "carries": { "description": "The player carries the item, at least count of it.", "type": "string" },
+            "owns": { "description": "The player has the item anywhere, chests included, at least count of it.", "type": "string" },
+            "hasTech": { "description": "The tech is researched.", "type": "string" },
+            "resource": { "description": "The player has at least amount of the resource.", "type": "string" },
+            "reputation": { "description": "The player has at least amount of reputation with this NPC.", "type": "string" },
+            "day": { "$ref": "#/definitions/day" },
+            "time": { "description": "The game hours, such as \"18-24\".", "type": "string" },
+            "count": { "type": "number" },
+            "amount": { "type": "number" }
+          }
+        }
+      ]
+    },
+    "action": {
+      "description": "Something Core does: startQuest:<id>, give:<item>, take:<item>, addResource:<id>:<amount>, reputation:<npc>:<amount> or run:<game script expression>, or an object such as { \"give\": \"flitch\", \"count\": 2 }.",
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^((startQuest|give|take|run):.+|(addResource|reputation):.+:-?[0-9]+(\\.[0-9]+)?)$"
+        },
+        {
+          "type": "object",
+          "minProperties": 1,
+          "additionalProperties": false,
+          "anyOf": [
+            { "required": ["startQuest"] },
+            { "required": ["give"] },
+            { "required": ["take"] },
+            { "required": ["addResource"] },
+            { "required": ["reputation"] }
+          ],
+          "properties": {
+            "startQuest": { "description": "Starts a mod quest that can start now.", "$ref": "#/definitions/questRef" },
+            "give": { "description": "Gives the player count of the item.", "type": "string" },
+            "take": { "description": "Takes count of the item from the player.", "type": "string" },
+            "addResource": { "description": "Adds amount to the resource, such as money.", "type": "string" },
+            "reputation": { "description": "Adds amount of reputation with this NPC.", "type": "string" },
+            "count": { "type": "number" },
+            "amount": { "type": "number" }
+          }
+        }
+      ]
+    },
+    "actions": {
+      "description": "One action or a list run in order.",
+      "oneOf": [
+        { "$ref": "#/definitions/action" },
+        { "type": "array", "items": { "$ref": "#/definitions/action" } }
+      ]
+    },
+    "expressions": {
+      "description": "One game script expression or a list.",
+      "oneOf": [
+        { "type": "string", "minLength": 1 },
+        { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      ]
+    },
+    "values": {
+      "description": "Fill the line's %1, %2 and so on, worked out when it shows: itemCount:<item>, ownedCount:<item>, resource:<id>, or text and numbers as written.",
+      "type": "array",
+      "items": { "type": ["string", "number"] }
+    },
+    "lines": {
+      "description": "Lines of a conversation. Plain text is a line the NPC says.",
+      "type": "array",
+      "items": { "$ref": "#/definitions/line" }
+    },
+    "line": {
+      "oneOf": [
+        { "description": "A line the NPC says.", "$ref": "#/definitions/text" },
+        {
+          "type": "object",
+          "required": ["say"],
+          "additionalProperties": false,
+          "properties": {
+            "say": { "description": "A line the NPC says.", "$ref": "#/definitions/text" },
+            "values": { "$ref": "#/definitions/values" },
+            "key": { "description": "A name for the line's text key in place of a number, so translators see what it is and adding lines never moves it.", "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["playerSay"],
+          "additionalProperties": false,
+          "properties": {
+            "playerSay": { "description": "A line the player says.", "$ref": "#/definitions/text" },
+            "values": { "$ref": "#/definitions/values" },
+            "key": { "description": "A name for the line's text key in place of a number, so translators see what it is and adding lines never moves it.", "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["sayAs", "text"],
+          "additionalProperties": false,
+          "properties": {
+            "sayAs": { "description": "Another NPC who says the line, skipped when they're not around.", "$ref": "#/definitions/npc" },
+            "text": { "$ref": "#/definitions/text" },
+            "key": { "description": "A name for the line's text key in place of a number, so translators see what it is and adding lines never moves it.", "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["give"],
+          "additionalProperties": false,
+          "properties": {
+            "give": { "description": "An item to give the player.", "type": "string" },
+            "count": { "type": "integer", "minimum": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["take"],
+          "additionalProperties": false,
+          "properties": {
+            "take": { "description": "An item to take from the player, as many as they have up to count.", "type": "string" },
+            "count": { "type": "integer", "minimum": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["wait"],
+          "additionalProperties": false,
+          "properties": {
+            "wait": { "description": "A pause, in real seconds.", "type": "number" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["cinematic"],
+          "additionalProperties": false,
+          "properties": {
+            "cinematic": { "description": "Shows the game's black story bars until the conversation ends.", "const": true }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["when"],
+          "additionalProperties": false,
+          "properties": {
+            "when": { "$ref": "#/definitions/condition" },
+            "then": { "description": "The lines when the condition is true.", "$ref": "#/definitions/lines" },
+            "otherwise": { "description": "The lines when it's false.", "$ref": "#/definitions/lines" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["ask"],
+          "additionalProperties": false,
+          "properties": {
+            "ask": { "description": "Answer choices.", "type": "array", "minItems": 1, "items": { "$ref": "#/definitions/askAnswer" } }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["run"],
+          "additionalProperties": false,
+          "properties": {
+            "run": { "description": "Runs a game script expression at this point, against the NPC being talked to.", "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["do"],
+          "additionalProperties": false,
+          "properties": {
+            "do": { "$ref": "#/definitions/actions" }
+          }
+        }
+      ]
+    },
+    "askAnswer": {
+      "oneOf": [
+        { "$ref": "#/definitions/text" },
+        {
+          "type": "object",
+          "required": ["text"],
+          "additionalProperties": false,
+          "properties": {
+            "text": { "$ref": "#/definitions/text" },
+            "then": { "description": "What follows the answer.", "$ref": "#/definitions/lines" },
+            "needs": { "$ref": "#/definitions/needs" },
+            "cost": { "$ref": "#/definitions/cost" },
+            "reward": { "$ref": "#/definitions/reward" },
+            "key": { "description": "A name for the line's text key in place of a number, so translators see what it is and adding lines never moves it.", "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }
+          }
+        }
+      ]
+    },
+    "simpleAnswer": {
+      "oneOf": [
+        { "$ref": "#/definitions/text" },
+        {
+          "type": "object",
+          "required": ["text"],
+          "additionalProperties": false,
+          "properties": {
+            "text": { "$ref": "#/definitions/text" },
+            "then": { "description": "What follows the answer.", "$ref": "#/definitions/lines" }
+          }
+        }
+      ]
+    },
+    "acceptAnswer": {
+      "oneOf": [
+        { "$ref": "#/definitions/text" },
+        {
+          "type": "object",
+          "required": ["text"],
+          "additionalProperties": false,
+          "properties": {
+            "text": { "$ref": "#/definitions/text" },
+            "then": { "description": "What follows the answer.", "$ref": "#/definitions/lines" },
+            "needs": { "$ref": "#/definitions/needs" },
+            "cost": { "description": "What the player pays to take the quest on, given back if it can't start.", "$ref": "#/definitions/cost" }
+          }
+        }
+      ]
+    },
+    "talkAccept": {
+      "oneOf": [
+        { "$ref": "#/definitions/text" },
+        { "description": "Finishes the step as soon as the lines are done, with no answer to pick. The talk then needs lines and no decline or resume, and the step can't have a cost.", "const": true },
+        {
+          "type": "object",
+          "required": ["text"],
+          "additionalProperties": false,
+          "properties": {
+            "text": { "$ref": "#/definitions/text" },
+            "then": { "description": "What follows the answer, such as the NPC's thanks or what to do next.", "$ref": "#/definitions/lines" }
+          }
+        }
+      ]
+    },
+    "needs": {
+      "description": "What has to be true, checked but never taken. On an answer each shows as a lock and the answer is grayed out until they're all met. On a quest or stage the NPC only offers its talk once they're met.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "items": { "description": "Items the player has to carry but keeps.", "$ref": "#/definitions/itemCounts" },
+        "resources": { "description": "Resources the player has to have but keeps.", "$ref": "#/definitions/amounts" },
+        "money": { "description": "Money the player has to have but keeps, where 100 is one silver coin.", "type": "integer" },
+        "reputation": { "description": "Reputation with the NPC the player is talking to.", "type": "integer" },
+        "happiness": { "description": "Happiness, the smiley town vendors ask for.", "type": "number" },
+        "onDay": { "description": "Only on this day of the week.", "$ref": "#/definitions/day" },
+        "orderCompleted": { "description": "A town vendor's order finished this week, such as quest_order_iron.", "type": "string" }
+      }
+    },
+    "cost": {
+      "description": "What the player pays, taken when the answer is picked. It shows the game's prices and is grayed out until they can pay.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "items": { "description": "Items the player hands over.", "$ref": "#/definitions/itemCounts" },
+        "resources": { "description": "Resources the player pays.", "$ref": "#/definitions/amounts" },
+        "money": { "description": "Money in the game's units, where 100 is one silver coin.", "type": "integer" }
+      }
+    },
+    "reward": {
+      "description": "What the player gets.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "money": { "description": "Money in the game's units, where 100 is one silver coin.", "type": "integer" },
+        "items": { "$ref": "#/definitions/itemCounts" },
+        "resources": { "$ref": "#/definitions/amounts" },
+        "reputation": { "description": "Reputation with the NPC the player is talking to.", "type": "integer" },
+        "shows": { "description": "Items drawn on the answer but not given, for ones a give line hands out.", "$ref": "#/definitions/itemCounts" },
+        "showsResources": { "description": "Resources drawn on the answer but not given.", "$ref": "#/definitions/amounts" }
+      }
+    },
+    "quest": {
+      "type": "object",
+      "required": ["id", "giver", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "description": "The quest's id in this pack. The pack id goes in front of it in the game.", "$ref": "#/definitions/id" },
+        "giver": { "description": "The NPC who gives the quest.", "$ref": "#/definitions/npc" },
+        "name": { "description": "The quest's name in the quest tree.", "$ref": "#/definitions/text" },
+        "icon": { "description": "The quest's icon, a PNG in the pack's sprites folder or a game sprite id such as quest_icon_larry_portal. Left out, a continues step uses the icon of the step it continues.", "type": "string" },
+        "phase": { "description": "Which of the game's five rings the quest tree shows while the quest is in progress.", "type": "integer", "minimum": 1, "maximum": 5 },
+        "description": { "description": "The quest window text while the quest is in progress.", "type": "string" },
+        "done": { "description": "The quest window text once the quest is done. With stages, it goes to the last one.", "type": "string" },
+        "after": {
+          "description": "Offers the quest once these quests are done, and draws it below the first in the quest tree.",
+          "oneOf": [
+            { "$ref": "#/definitions/questRef" },
+            { "type": "array", "items": { "$ref": "#/definitions/questRef" } }
+          ]
+        },
+        "continues": { "description": "Makes the quest the next step of another quest in this pack, taking its place in the quest tree.", "$ref": "#/definitions/id" },
+        "offerWhen": { "description": "An extra condition for offering or starting the quest.", "$ref": "#/definitions/condition" },
+        "offer": { "$ref": "#/definitions/offer" },
+        "startsOn": { "description": "Starts the quest by itself when the player does this.", "$ref": "#/definitions/event" },
+        "npc": { "description": "The NPC the talk is with. Defaults to the giver.", "$ref": "#/definitions/npc" },
+        "needs": { "description": "What has to be true before the NPC offers the talk.", "$ref": "#/definitions/needs" },
+        "cost": { "description": "What the player pays to finish the quest's first step, taken when they pick the talk's accept answer.", "$ref": "#/definitions/cost" },
+        "talk": { "$ref": "#/definitions/questTalk" },
+        "reward": { "description": "What the player gets when the quest's first step is done. A talk's accept shows it and the game pays it when picked.", "$ref": "#/definitions/reward" },
+        "readyOn": { "description": "The quest is ready once the player does this.", "$ref": "#/definitions/event" },
+        "readyWhen": { "description": "The quest is ready once this is true, checked about once a second.", "$ref": "#/definitions/condition" },
+        "then": { "description": "Lines after a quest with no talk is done.", "$ref": "#/definitions/lines" },
+        "onDone": { "description": "What happens once the quest is done.", "$ref": "#/definitions/actions" },
+        "runOnStart": { "description": "Game script expressions the game runs once the moment the quest starts, such as AddPerk(\"perk_x\") or $money += 50. Use them for changes that are saved.", "$ref": "#/definitions/expressions" },
+        "runOnDone": { "description": "Game script expressions the game runs once the moment the quest is completed, such as RevealTech(\"tech_x\").", "$ref": "#/definitions/expressions" },
+        "stages": {
+          "description": "The quest's next steps, written in one place. Each becomes its own game quest continuing the one before. When the quest has step fields of its own (description, npc, needs, cost, talk, reward, the ready fields and so on), it is the first step and these come after it. Otherwise the first stage is the first step and keeps the quest's id.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/definitions/stage" }
+        }
+      }
+    },
+    "stage": {
+      "type": "object",
+      "required": ["id", "description"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "description": "The stage's name. A stage's id is the quest id plus this name, so keep it stable. Only the first stage of a quest with no step fields of its own keeps the quest's id.", "$ref": "#/definitions/id" },
+        "name": { "description": "The stage's name in the quest tree. Defaults to the quest's name.", "$ref": "#/definitions/text" },
+        "description": { "description": "The quest window text during this stage.", "type": "string" },
+        "icon": { "description": "The stage's icon. Defaults to the icon of the stage before.", "type": "string" },
+        "phase": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "done": { "description": "The quest window text once this stage is done.", "type": "string" },
+        "npc": { "description": "The NPC the talk is with. Defaults to the giver.", "$ref": "#/definitions/npc" },
+        "needs": { "description": "What has to be true before the NPC offers the talk.", "$ref": "#/definitions/needs" },
+        "cost": { "description": "What the player pays to finish the stage, taken when they pick the talk's accept answer.", "$ref": "#/definitions/cost" },
+        "talk": { "$ref": "#/definitions/questTalk" },
+        "reward": { "description": "What the player gets when the stage is done. A talk's accept shows it and the game pays it when picked.", "$ref": "#/definitions/reward" },
+        "readyOn": { "$ref": "#/definitions/event" },
+        "readyWhen": { "$ref": "#/definitions/condition" },
+        "then": { "description": "Lines after a stage with no talk is done.", "$ref": "#/definitions/lines" },
+        "onDone": { "$ref": "#/definitions/actions" },
+        "runOnStart": { "description": "Game script expressions the game runs once the moment the stage starts, such as AddPerk(\"perk_x\") or $money += 50. Use them for changes that are saved.", "$ref": "#/definitions/expressions" },
+        "runOnDone": { "description": "Game script expressions the game runs once the moment the stage is completed, such as RevealTech(\"tech_x\").", "$ref": "#/definitions/expressions" }
+      }
+    },
+    "offer": {
+      "description": "The conversation where the giver offers the quest.",
+      "type": "object",
+      "required": ["accept"],
+      "additionalProperties": false,
+      "properties": {
+        "lines": { "$ref": "#/definitions/lines" },
+        "accept": { "description": "The answer that starts the quest.", "$ref": "#/definitions/acceptAnswer" },
+        "decline": { "description": "The answer that turns it down for now.", "$ref": "#/definitions/simpleAnswer" }
+      }
+    },
+    "questTalk": {
+      "description": "The conversation that finishes the step, with the step's npc. The lines play, then accept takes the step's cost, gives its reward and completes the step. With accept set to true, the step completes as soon as the lines are done.",
+      "type": "object",
+      "required": ["accept"],
+      "additionalProperties": false,
+      "properties": {
+        "lines": { "$ref": "#/definitions/lines" },
+        "accept": { "description": "The answer that finishes the step, or true to finish once the lines are done.", "$ref": "#/definitions/talkAccept" },
+        "decline": { "description": "The answer that leaves it for later.", "$ref": "#/definitions/simpleAnswer" },
+        "resume": { "description": "What the NPC says in place of the lines when the player comes back after hearing them once.", "$ref": "#/definitions/text" }
+      }
+    },
+    "talk": {
+      "type": "object",
+      "required": ["id", "npc", "lines"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "description": "The talk's id in this pack.", "$ref": "#/definitions/id" },
+        "npc": { "description": "The NPC who has the talk.", "$ref": "#/definitions/npc" },
+        "when": { "description": "When the talk is offered. Defaults to always.", "$ref": "#/definitions/condition" },
+        "once": { "description": "Offers the talk only once per save.", "type": "boolean" },
+        "bubbleColor": { "$ref": "#/definitions/color" },
+        "lines": { "$ref": "#/definitions/lines" }
+      }
+    }
+  }
+}

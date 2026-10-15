@@ -24,6 +24,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Timbn.GraveyardKeeperTwo.Core\Timbn.GraveyardKeeperTwo.Core.csproj" />
+    <ProjectReference Include="..\..\src\Timbn.GraveyardKeeperTwo.QuestPacks\Timbn.GraveyardKeeperTwo.QuestPacks.csproj" />
   </ItemGroup>
 
   <ItemGroup>

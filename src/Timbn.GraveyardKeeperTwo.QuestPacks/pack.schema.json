@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/TimbnMods/Timbn.GraveyardKeeperTwo/main/src/Timbn.GraveyardKeeperTwo.QuestPacks/pack.schema.json",
+  "title": "Timbn quest pack",
+  "description": "The pack.json of a Timbn quest pack, a folder in BepInEx/plugins that Timbn Core loads quests and talks from.",
+  "type": "object",
+  "required": ["id"],
+  "additionalProperties": false,
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "id": {
+      "description": "The pack's id, put in front of every quest and talk id it holds. Lowercase letters, digits and underscores. Never change it once players have the pack, since their saves keep progress under it.",
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "name": {
+      "description": "The pack's name, shown in the log. Defaults to the id.",
+      "type": "string",
+      "minLength": 1
+    },
+    "bubbleColor": {
+      "description": "The color of the speech bubble over an NPC with one of this pack's quests or talks, such as \"#9ad0ff\".",
+      "type": "string",
+      "pattern": "^#?([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$"
+    }
+  }
+}
