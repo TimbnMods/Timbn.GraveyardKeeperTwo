@@ -1,0 +1,48 @@
+# Timbn Living Town text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
+# and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
+
+# Shown when you try to trade with Herm outside his opening hours
+timbn_living_town_herm_closed = Tut mir leid, ich habe für heute geschlossen. Komm am Morgen vorbei.
+
+# The hint over the cat on the boxes by Linda's club
+timbn_living_town_pet = Streicheln
+
+# Where the person a request or errand is about lives, as in "a friend of mine in town"
+timbn_living_town_where_village = im Dorf
+timbn_living_town_where_town = in der Stadt
+
+# Shown when you took a neighbor's parcel but didn't deliver it within the week
+timbn_living_town_errand_lapsed = Du hast das Paket nie abgeliefert, also hast du den Nachbarn dafür bezahlt.
+
+# A Neighbor's Craving, the cooking request. {dish} is the dish and {where} where the person lives.
+timbn_living_town_request = Heißhunger eines Nachbarn
+quest_open_timbn_living_town_request_d = Koche {dish} für die Person {where}, die darum gebeten hat.
+quest_closed_timbn_living_town_request_d = Koche {dish} für die Person {where}, die darum gebeten hat.
+timbn_living_town_request_offer_ask = Ich habe Heißhunger auf {dish}. Könntest du mir etwas davon kochen?
+timbn_living_town_request_accept = Ich koche es.
+timbn_living_town_request_accept_thanks = Gott segne dich, ich werde warten.
+timbn_living_town_request_decline = Nicht jetzt.
+timbn_living_town_request_talk_ask = Hast du {dish} für mich mitgebracht?
+timbn_living_town_request_talk_accept = Hier, bitte.
+timbn_living_town_request_talk_accept_thanks = Köstlich, danke!
+timbn_living_town_request_talk_decline = Noch nicht.
+
+# An Errand for a Neighbor, the delivery. {parcel} is the item and {where} where the friend lives.
+timbn_living_town_delivery = Ein Botengang für einen Nachbarn
+quest_open_timbn_living_town_delivery_d = Bringe {parcel} zu einem Freund {where}. Du hast eine Woche Zeit, es abzuliefern.
+quest_closed_timbn_living_town_delivery_d = Bringe {parcel} zu einem Freund {where}. Du hast eine Woche Zeit, es abzuliefern.
+timbn_living_town_delivery_offer_ask_keepsake = Ich habe ein Geschenk für einen Freund {where}, aber ich komme hier nicht weg. Würdest du es vorbeibringen?
+timbn_living_town_delivery_offer_ask_vegetables = Mein Garten hat mehr hergegeben, als ich essen kann. Würdest du diese Kiste Gemüse zu einem Freund von mir {where} bringen?
+timbn_living_town_delivery_offer_ask_potion = Einem Freund von mir {where} geht es nicht gut. Würdest du ihm diese Medizin bringen?
+timbn_living_town_delivery_accept = Ich nehme es.
+timbn_living_town_delivery_accept_thanks = Danke, ich stehe in deiner Schuld.
+timbn_living_town_delivery_decline = Nicht jetzt.
+timbn_living_town_delivery_delivering_keepsake = Ich habe eine Geschenklieferung für dich.
+timbn_living_town_delivery_delivering_vegetables = Ich habe eine Kiste Gemüse für dich.
+timbn_living_town_delivery_delivering_potion = Ich habe etwas Medizin für dich.
+# The answer that hands the parcel over, which shows one of the three lines above. Keep it as it is.
+timbn_living_town_delivery_talk_accept = {delivering}
+timbn_living_town_delivery_talk_accept_thanks_keepsake = Wie aufmerksam! Danke ihnen von mir.
+timbn_living_town_delivery_talk_accept_thanks_vegetables = Herrlich frisch, danke!
+timbn_living_town_delivery_talk_accept_thanks_potion = Genau das, was ich brauchte, Gott segne dich.
+timbn_living_town_delivery_talk_decline = Noch nicht.
