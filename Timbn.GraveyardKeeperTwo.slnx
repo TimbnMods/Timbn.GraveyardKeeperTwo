@@ -5,6 +5,7 @@
   <Folder Name="/src/">
     <Project Path="src/Timbn.GraveyardKeeperTwo.CampfireMeditation/Timbn.GraveyardKeeperTwo.CampfireMeditation.csproj" />
     <Project Path="src/Timbn.GraveyardKeeperTwo.Core/Timbn.GraveyardKeeperTwo.Core.csproj" />
+    <Project Path="src/Timbn.GraveyardKeeperTwo.QuestPacks/Timbn.GraveyardKeeperTwo.QuestPacks.csproj" />
     <Project Path="src/Timbn.GraveyardKeeperTwo.VanillaTweaks/Timbn.GraveyardKeeperTwo.VanillaTweaks.csproj" />
     <Project Path="src/Timbn.GraveyardKeeperTwo.WorkshopSync/Timbn.GraveyardKeeperTwo.WorkshopSync.csproj" />
     <Project Path="src/Timbn.GraveyardKeeperTwo.ZombieCustomizer/Timbn.GraveyardKeeperTwo.ZombieCustomizer.csproj" />
