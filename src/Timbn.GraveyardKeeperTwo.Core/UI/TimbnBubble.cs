@@ -26,13 +26,13 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 /// </example>
 public sealed class TimbnBubble : IBubbleDrawable, IDisposable
 {
-    private static readonly ConditionalWeakTable<UIWorkbenchAdditionWorldIconWidgetData, TimbnBubble> _sized = new();
+    private static readonly ConditionalWeakTable<UIWorkbenchAdditionWorldIconWidgetData, TimbnBubble> _sized = [];
 
     private static readonly ConstructorInfo? _withBackground = AccessTools.Constructor(
         typeof(UIWorkbenchAdditionWorldIconWidgetData),
         [typeof(string), typeof(bool), typeof(bool), typeof(string)]);
 
-    private static readonly ConditionalWeakTable<UIWorkbenchAdditionWorldIconWidget, StrongBox<Color>> _gameColors = new();
+    private static readonly ConditionalWeakTable<UIWorkbenchAdditionWorldIconWidget, StrongBox<Color>> _gameColors = [];
 
     private static readonly AccessTools.FieldRef<UIWorkbenchAdditionWorldIconWidget, UIWorkbenchAdditionWorldIconWidgetData>? _widgetData =
         TimbnReflection.TryField<UIWorkbenchAdditionWorldIconWidget, UIWorkbenchAdditionWorldIconWidgetData>("data");

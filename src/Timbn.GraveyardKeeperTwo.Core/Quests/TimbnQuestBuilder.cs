@@ -41,7 +41,7 @@ public sealed class TimbnQuestBuilder
     private string? _done;
 
     internal TimbnQuestBuilder(string id, string npcId, string name)
-        : this(id, npcId, new Dictionary<string, string>())
+        : this(id, npcId, [])
     {
         Texts[id] = name;
     }

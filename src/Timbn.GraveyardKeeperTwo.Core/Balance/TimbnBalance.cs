@@ -183,9 +183,9 @@ public static class TimbnBalance
     internal static void RefreshQuestCaches(GameBalance balance) => _createQuestsCache(balance);
 
     internal static HashSet<string> AddedIds<T>() where T : BalanceBaseObject =>
-        new(_entries.Where(entry => entry.Definition is T).Select(entry => entry.Definition.id));
+        [.. _entries.Where(entry => entry.Definition is T).Select(entry => entry.Definition.id)];
 
-    internal static HashSet<string> AllAddedIds() => new(_entries.Select(entry => entry.Definition.id));
+    internal static HashSet<string> AllAddedIds() => [.. _entries.Select(entry => entry.Definition.id)];
 
     /// <summary>Whether a plugin added the definition through Core, counting one held over an F6 reload.</summary>
     internal static bool IsAdded(BalanceBaseObject definition) =>

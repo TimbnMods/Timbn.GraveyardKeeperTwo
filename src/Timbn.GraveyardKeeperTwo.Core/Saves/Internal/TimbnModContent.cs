@@ -1080,7 +1080,7 @@ internal static class TimbnModContent
             list = container is { InventorySize: > 0 } ? container.Inventory : null;
         }
 
-        var at = entry.Path[entry.Path.Count - 1];
+        var at = entry.Path[^1];
         if (list is not null && at <= list.Count && (container is null || HasRoom(container)))
         {
             list.Insert(at, item);

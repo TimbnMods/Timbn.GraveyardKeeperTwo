@@ -244,7 +244,7 @@ internal sealed class TimbnPartPrefab : IDisposable
             if (side.Shape.DockPoint is not { } own)
                 continue;
 
-            Vector3? source = side.MirrorOf is { } flipped ? _sides.First(candidate => candidate.Facing == flipped).Shape.DockPoint : null;
+            var source = side.MirrorOf is { } flipped ? _sides.First(candidate => candidate.Facing == flipped).Shape.DockPoint : null;
             var spot = new WgoPartBakedData.GDPointBakedData
             {
                 id = TimbnZombieSpotRules.PointId,

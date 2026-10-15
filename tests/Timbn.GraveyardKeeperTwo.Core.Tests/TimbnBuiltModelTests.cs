@@ -1,5 +1,3 @@
-using UnityEngine;
-
 namespace Timbn.GraveyardKeeperTwo.Core.Tests;
 
 public sealed class TimbnBuiltModelTests

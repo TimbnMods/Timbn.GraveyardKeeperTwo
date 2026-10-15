@@ -110,6 +110,7 @@ internal static class TimbnStations
             undo.Add(AddRemoval(balance => TimbnStationRules.RemovalId(TimbnStationRules.SiteId(Family(balance))), TimbnStationRules.RemovalId(siteId), siteId,
                 station.BuildDeskId, cost));
         }
+
         return TimbnUndo.All(undo);
     }
 

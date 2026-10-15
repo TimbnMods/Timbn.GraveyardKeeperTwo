@@ -34,7 +34,8 @@ internal static class TimbnEventHooks
             {
                 if (hooked.Remove(handler, out var hook))
                     remove.Invoke(source?.Invoke(), [hook]);
-            });
+            }
+        );
     }
 
     private static Type[] Parameters(Type delegateType) =>

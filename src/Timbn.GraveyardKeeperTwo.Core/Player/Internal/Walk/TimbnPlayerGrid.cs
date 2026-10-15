@@ -1,6 +1,5 @@
 using Pathfinding;
 using Pathfinding.Graphs.Grid.Rules;
-using Pathfinding.Graphs.Navmesh;
 using Pathfinding.Util;
 using System.Collections;
 using System.Runtime.CompilerServices;
