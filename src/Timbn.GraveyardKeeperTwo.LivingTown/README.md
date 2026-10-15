@@ -5,8 +5,8 @@ Timbn Living Town gives the village and the port a daily life.
 ## What happens
 
 - Herm opens his stall at 6:00 and now and then wanders off for a short walk, to the pond, a bench or a chat with the guard, and comes back. When it rains he stays at his stall.
-- At 16:48 he closes and goes to sit in the tavern.
-- At 20:24 he heads home for the night.
+- At 19:12 he closes and goes to sit in the tavern.
+- At 22:00 he heads home for the night.
 - Outside his opening hours he won't trade and tells you to come back in the morning.
 - Once you've finished the Safe Harbor quest, Linda works her club from 8:00, going between the tables.
 - From 15:00 she waits by the club's entrance and now and then goes to see the cat.
