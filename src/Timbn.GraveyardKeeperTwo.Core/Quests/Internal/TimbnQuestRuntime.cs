@@ -46,9 +46,11 @@ internal sealed class TimbnQuestRuntime
         : _quest.TalkNpc.Length > 0 ? _quest.TalkNpc
         : GiverNow;
 
-    internal string? HandInMarkerNpc => _quest.ShowsMarker && _quest.TalkOf is not null && IsTalkReady() ? TalkNpcNow : null;
+    internal string? HandInMarkerNpc => _quest.HandInMarkerWhen?.Invoke() == true && _quest.TalkOf is not null && IsTalkReady() ? TalkNpcNow : null;
 
-    internal string? OfferMarkerNpc => _quest.ShowsMarker && _quest.OfferTalk is not null && IsOfferable() ? GiverNow : null;
+    internal Color MarkerColor => _bubbleColor();
+
+    internal string? OfferMarkerNpc => _quest.OfferMarkerWhen?.Invoke() == true && _quest.OfferTalk is not null && IsOfferable() ? GiverNow : null;
 
     private TimbnWants Needs => _quest.NeedsFor(Run);
 

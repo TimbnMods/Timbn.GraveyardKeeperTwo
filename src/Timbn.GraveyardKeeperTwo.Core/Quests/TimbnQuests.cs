@@ -213,12 +213,12 @@ public static class TimbnQuests
 
     internal static void Mark(string id) => _marks?.Invoke().Add(id);
 
-    internal static void CollectMarkerNpcs(HashSet<string> into)
+    internal static void CollectMarkerNpcs(Dictionary<string, Color> into)
     {
         foreach (var runtime in _runtimes)
         {
-            if ((runtime.HandInMarkerNpc ?? runtime.OfferMarkerNpc) is { } npc)
-                into.Add(npc);
+            if ((runtime.HandInMarkerNpc ?? runtime.OfferMarkerNpc) is { } npc && !into.ContainsKey(npc))
+                into[npc] = runtime.MarkerColor;
         }
     }
 

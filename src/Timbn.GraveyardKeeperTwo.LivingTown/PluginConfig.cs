@@ -14,6 +14,10 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> VillagerDeliveries { get; private set; } = null!;
 
+    public static ConfigEntry<bool> OfferMarkers { get; private set; } = null!;
+
+    public static ConfigEntry<bool> HandInMarkers { get; private set; } = null!;
+
     public static void Bind(ConfigFile config)
     {
         DailyRoutine = config.Bind(
@@ -75,6 +79,18 @@ internal static class PluginConfig
             "VillagerDeliveries",
             true,
             "Enable to have villagers in the village or town give you something to take between the village and town, and the friend pays its sale price. Deliveries expire after one week.");
+
+        OfferMarkers = config.Bind(
+            "Requests",
+            "OfferMarkers",
+            true,
+            "Shows a marker on the villager who wants to ask you for a dish or an errand, pointing the way while they're off screen.");
+
+        HandInMarkers = config.Bind(
+            "Requests",
+            "HandInMarkers",
+            true,
+            "Shows a marker on the villager waiting for your dish or parcel once you have it, pointing the way while they're off screen.");
 
         WriteDebugLog = config.BindHidden(
             "Debug",
