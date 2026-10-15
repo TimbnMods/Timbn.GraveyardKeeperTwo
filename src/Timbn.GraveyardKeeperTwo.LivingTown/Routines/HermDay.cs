@@ -96,7 +96,7 @@ internal sealed class HermDay
             return null;
 
         var common = random.NextDouble() < _commonChance;
-        List<string> order = [];
+        var order = new List<string>();
         if (rare != null)
             order.Add(rare);
 
@@ -105,7 +105,7 @@ internal sealed class HermDay
         if (chaining)
             order.Remove(_lastRoute);
 
-        List<string> taken = [];
+        var taken = new List<string>();
         foreach (var route in order)
         {
             var destination = Destination(route, herm, random);

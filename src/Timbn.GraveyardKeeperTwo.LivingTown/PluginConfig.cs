@@ -48,7 +48,7 @@ internal static class PluginConfig
             "Crowds",
             "GratitudePerVisitor",
             7,
-            "Ratio of town gratitude to additional graveyard visitors. For example, every 8 gratitude points result in one extra visitor.",
+            "Ratio of town gratitude to additional graveyard visitors. For example, every 7 gratitude points result in one extra visitor.",
             1,
             50);
 

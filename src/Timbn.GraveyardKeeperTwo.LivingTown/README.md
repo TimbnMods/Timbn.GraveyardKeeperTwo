@@ -31,7 +31,7 @@ Timbn Living Town gives the village and the port a daily life.
 | `People:DailyRoutine` | true | Enable to have Herm, Linda, Larry and the astrologer go about their day. Turning it off puts them back in their usual spots. |
 | `People:OpeningHours` | true | Enable the vendors to be closed to trading outside of opening hours. |
 | `Crowds:ChurchVisits` | true | Enable to have villagers and townsfolk visit the graveyard each day with crowd sizes scaling up with town gratitude. |
-| `Crowds:GratitudePerVisitor` | 7 | Ratio of town gratitude to additional graveyard visitors. For example, every 8 gratitude points result in one extra visitor. |
+| `Crowds:GratitudePerVisitor` | 7 | Ratio of town gratitude to additional graveyard visitors. For example, every 7 gratitude points result in one extra visitor. |
 | `Crowds:MinimumChurchVisitors` | 2 | The minimum number of villagers that visit the graveyard in a day, regardless of town gratitude. |
 | `Crowds:MaximumChurchVisitors` | 30 | The maximum number of villagers that visit the graveyard in a day, regardless of town gratitude. |
 | `Crowds:Funerals` | true | Enable villagers to hold funerals for bodies you recently buried. They gather in the church, three of them speak at the choir in turn, then everyone lines up at the grave to pay their respects. Funerals are postponed on sermon day. |

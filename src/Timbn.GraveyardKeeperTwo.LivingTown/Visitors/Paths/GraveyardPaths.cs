@@ -47,7 +47,7 @@ internal sealed class GraveyardPaths
 
         // The game toggles path object hierarchies as paths are upgraded and disables tiles when the player is away.
         // The active set determines constructed paths regardless of temporary tile visibility.
-        List<Tile> tiles = [];
+        var tiles = new List<Tile>();
         foreach (Transform set in roads.transform)
         {
             if (!set.gameObject.activeSelf)
@@ -86,7 +86,7 @@ internal sealed class GraveyardPaths
             return steps.WalkNavmesh(to.x, to.z);
 
         var from = npc.Position;
-        List<Vector3> corners = [];
+        var corners = new List<Vector3>();
         var start = from;
         var end = to;
         if (Entrance is { } entrance)
@@ -186,7 +186,7 @@ internal sealed class GraveyardPaths
             .OrderBy(line => line)
             .ToList();
 
-        List<Segment> segments = [];
+        var segments = new List<Segment>();
         foreach (var line in Cluster(anchors))
         {
             // Intersections and end caps render offset from the path axis, so they are only used to delimit segment boundaries.
@@ -216,7 +216,7 @@ internal sealed class GraveyardPaths
 
     private static IEnumerable<float> Cluster(List<float> sorted)
     {
-        List<float> group = [];
+        var group = new List<float>();
         foreach (var value in sorted)
         {
             if (group.Count > 0 && value - group[^1] > _sameLine)
@@ -321,10 +321,10 @@ internal sealed class GraveyardPaths
 
     private Dictionary<Vector2, List<(Vector2 To, float Length)>> Links(Segment entrySegment, Vector3 entry, Segment exitSegment, Vector3 exit, IReadOnlyList<Vector2>? avoid, bool across)
     {
-        Dictionary<Vector2, List<(Vector2 To, float Length)>> links = [];
+        var links = new Dictionary<Vector2, List<(Vector2 To, float Length)>>();
         foreach (var segment in _segments)
         {
-            List<float> stops = [segment.Start, segment.End];
+            var stops = new List<float> { segment.Start, segment.End };
             stops.AddRange(_segments
                 .Where(other => other.Horizontal != segment.Horizontal && other.Contains(segment.Line, _touching) && segment.Contains(other.Line, _touching))
                 .Select(other => other.Line));
@@ -370,9 +370,9 @@ internal sealed class GraveyardPaths
 
     private static List<Vector2> Shortest(Dictionary<Vector2, List<(Vector2 To, float Length)>> links, Vector2 start, Vector2 goal)
     {
-        Dictionary<Vector2, float> distances = new() { [start] = 0f };
-        Dictionary<Vector2, Vector2> previous = [];
-        HashSet<Vector2> done = [];
+        var distances = new Dictionary<Vector2, float> { [start] = 0f };
+        var previous = new Dictionary<Vector2, Vector2>();
+        var done = new HashSet<Vector2>();
         while (true)
         {
             var open = distances.Where(pair => !done.Contains(pair.Key)).ToList();
@@ -398,7 +398,7 @@ internal sealed class GraveyardPaths
             }
         }
 
-        List<Vector2> path = [goal];
+        var path = new List<Vector2> { goal };
         while (path[^1] != start)
             path.Add(previous[path[^1]]);
 
