@@ -5,19 +5,19 @@
 timbn_conveyor_loop_stuck = A conveyor belt loop was detected that would crash the base game
 
 # Larry, when you run out of boards with no way to make more
-timbn_larry_boards_offer_1 = I may have run out of boards with no way to get more.
-timbn_larry_boards_offer_2 = No sawhorse, no boards. No boards, no sawhorse...
-timbn_larry_boards_accept = Got any boards lying around?
-timbn_larry_boards_decline = I'll figure something out.
-timbn_larry_boards_given = Lucky for you, there are a few spare boards in my box. Here you go.
-timbn_larry_boards_declined = Suit yourself... I'll be right here.
-timbn_larry_boards_accepted = Thank you, I will be more careful next time.
+timbn_larry_boards_talk_1 = I may have run out of boards with no way to get more.
+timbn_larry_boards_talk_2 = No sawhorse, no boards. No boards, no sawhorse...
+timbn_larry_boards_talk_3 = Got any boards lying around?
+timbn_larry_boards_talk_4 = Lucky for you, there are a few spare boards in my box. Here you go.
+timbn_larry_boards_talk_5 = Thank you, I will be more careful next time.
+timbn_larry_boards_talk_6 = I'll figure something out.
+timbn_larry_boards_talk_7 = Suit yourself... I'll be right here.
 
 # Larry, when the Inquisitor's medallion is lost before the Plague Doctor's tower door is open
-timbn_larry_medallion_offer_1 = Have you seen an Inquisitor's medallion anywhere?
-timbn_larry_medallion_offer_2 = Funny thing, one rolled up against my box this morning.
-timbn_larry_medallion_accept = That's the one! Can I have it back?
-timbn_larry_medallion_decline = No, that can't be mine.
-timbn_larry_medallion_given = Here you go.
-timbn_larry_medallion_declined = Suit yourself...
-timbn_larry_medallion_accepted = Thank you, Larry. I'll hold on to it this time.
+timbn_larry_medallion_talk_1 = Have you seen an Inquisitor's medallion anywhere?
+timbn_larry_medallion_talk_2 = Funny thing, one rolled up against my box this morning.
+timbn_larry_medallion_talk_3 = That's the one! Can I have it back?
+timbn_larry_medallion_talk_4 = Here you go.
+timbn_larry_medallion_talk_5 = Thank you, Larry. I'll hold on to it this time.
+timbn_larry_medallion_talk_6 = No, that can't be mine.
+timbn_larry_medallion_talk_7 = Suit yourself...

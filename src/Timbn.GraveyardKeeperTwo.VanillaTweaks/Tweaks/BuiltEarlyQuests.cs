@@ -41,7 +41,7 @@ internal sealed class BuiltEarlyQuests
                 continue;
 
             Plugin.Logger.LogInfo($"{entry.Building} was built before {entry.Quest} started, finishing the quest.");
-            GlobalEventsSystem.FireTrigger(GlobalEventsSystem.Event.Type.BuildBuilding, entry.Wgo);
+            TimbnQuests.FireStoryTrigger(GlobalEventsSystem.Event.Type.BuildBuilding, entry.Wgo);
         }
     }
 }

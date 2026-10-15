@@ -1,4 +1,3 @@
-using LazyBearTechnology;
 
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
 
@@ -21,7 +20,7 @@ internal static class ConveyorLoopCrash
     public static void Register(TimbnFrameworkPlugin plugin)
     {
         plugin.Settings.Toggle(PluginConfig.ConveyorLoopCrash, Restore, Restore);
-        plugin.Settings.While(PluginConfig.ConveyorLoopCrash, () => plugin.Events.Every(_tickInterval, Tick));
+        plugin.Settings.While(PluginConfig.ConveyorLoopCrash, () => plugin.Events.EveryRealSeconds(_tickInterval, Tick));
         plugin.Events.SaveClosed(Restore);
     }
 
@@ -107,7 +106,7 @@ internal static class ConveyorLoopCrash
         {
             Plugin.Logger.LogWarning($"Conveyor loop of {loop.Count} pieces would never end. Removing the {data.id} at "
                 + $"({data.Position.x:0.0}, {data.Position.z:0.0}) breaks it.");
-            LazySingleton<UINotificator>.Instance?.ShowSimpleTextNotificationOneTime(_alertKey);
+            TimbnUI.NotifyOnce(_alertKey);
         }
 
         if (!PluginConfig.HighlightConveyorLoops.Value)

@@ -6,10 +6,10 @@ internal static class StuckResourceWorkers
 
     private static readonly Station[] _stations =
     [
-        new("sawmill", "sawmill_wood_crafter", "builder_sawmill"),
-        new("mine", "mine_ore_coal_crafter", "builder_mine"),
-        new("clay", "clay_zombie_crafter", "builder_clay_sand"),
-        new("sand", "sand_zombie_crafter", "builder_clay_sand"),
+        new("sawmill", TimbnGameIds.Workstations.Sawmill.SawmillWoodCrafter, TimbnGameIds.BuildDesks.Sawmill),
+        new("mine", TimbnGameIds.Workstations.Mine.MineOreCoalCrafter, TimbnGameIds.BuildDesks.Mine),
+        new("clay", TimbnGameIds.Workstations.ClaySand.ClayZombieCrafter, TimbnGameIds.BuildDesks.ClaySand),
+        new("sand", TimbnGameIds.Workstations.ClaySand.SandZombieCrafter, TimbnGameIds.BuildDesks.ClaySand),
     ];
 
     public static void Register(TimbnFrameworkPlugin plugin) =>
@@ -102,7 +102,7 @@ internal static class StuckResourceWorkers
         stand == null ? null : _stations.FirstOrDefault(s => s.StandId == stand.id);
 
     private static IEnumerable<ZombieWgoData> Workers(Station station) =>
-        MainGame.WorldData.GetWgoDataList(station.StandId).Select(stand => stand.Worker).OfType<ZombieWgoData>();
+        TimbnWorld.FindAll(station.StandId).Select(stand => stand.Worker).OfType<ZombieWgoData>();
 
     private sealed class Station(string prefix, string standId, string builderId)
     {

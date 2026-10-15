@@ -3,9 +3,9 @@
   <PropertyGroup>
     <AssemblyName>Timbn.GraveyardKeeperTwo.VanillaTweaks</AssemblyName>
     <Product>Timbn Vanilla Tweaks</Product>
-    <Version>1.11.0</Version>
-    <ThunderstoreName>TimbnVanillaTweaks</ThunderstoreName>
-    <ThunderstoreDescription>Fixes bugs and soft locks and adds light tweaks that keep the vanilla experience without cheating. Almost every fix and tweak can be turned off on its own.</ThunderstoreDescription>
+    <Version>1.12.0</Version>
+    <Thunderstore>true</Thunderstore>
+    <Description>Fixes bugs and soft locks and adds light tweaks that keep the vanilla experience without cheating. Almost every fix and tweak can be turned off on its own.</Description>
     <SteamWorkshop>true</SteamWorkshop>
     <WorkshopItemId>3810071056</WorkshopItemId>
   </PropertyGroup>

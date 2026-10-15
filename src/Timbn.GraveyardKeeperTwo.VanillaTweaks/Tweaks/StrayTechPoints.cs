@@ -26,7 +26,7 @@ internal sealed class StrayTechPoints
     {
         var strayTechPoints = new StrayTechPoints();
         plugin.Settings.Toggle(PluginConfig.CollectStrayTechPoints, strayTechPoints.Reset, strayTechPoints.Reset);
-        plugin.Settings.While(PluginConfig.CollectStrayTechPoints, () => plugin.Events.Every(_interval, strayTechPoints.Tick));
+        plugin.Settings.While(PluginConfig.CollectStrayTechPoints, () => plugin.Events.EveryRealSeconds(_interval, strayTechPoints.Tick));
     }
 
     private void Reset() => _offMeshLastCheck.Clear();

@@ -6,7 +6,7 @@ internal static class TechPointCap
 {
     private const int _gameCap = 999;
 
-    private static readonly string[] _resourceIds = ["tech_red", "tech_green", "tech_blue"];
+    private static readonly string[] _resourceIds = [TimbnGameIds.TechPoints.Red, TimbnGameIds.TechPoints.Green, TimbnGameIds.TechPoints.Blue];
 
     public static void Register(TimbnFrameworkPlugin plugin)
     {

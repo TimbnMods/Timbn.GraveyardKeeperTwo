@@ -46,32 +46,32 @@ internal static class PluginConfig
             _bugFixes,
             nameof(CollectStrayTechPoints),
             true,
-            "Pulls a tech point orb to you when it settles off the walkable ground, say through a wall, where "
-            + "the game's magnet can never reach it. The game only does this when you sleep.");
+            "Pulls a tech point orb to you when it settles off the walkable ground and out of reach of the "
+            + "game's magnet. The game only gathers those when you sleep.");
 
         SermonFaithRounding = config.Bind(
             _bugFixes,
             nameof(SermonFaithRounding),
             true,
             "Rounds ceremony faith the way the numbers say. Priest makes Basic Prayer pay 0.35 faith per "
-            + "parishioner, but 0.35 is stored as 0.3499999, so at 10, 30, 50 parishioners and so on 3.5 comes "
-            + "out as 3.4999999 and rounds down, and Priest adds nothing.");
+            + "parishioner, but the game stores 0.35 as a number just under it, so at 10, 30, 50 parishioners "
+            + "and so on a total of 3.5 can land just under 3.5 and round down, and Priest adds nothing.");
 
         StuckCarriers = config.Bind(
             _bugFixes,
             nameof(StuckCarriers),
             true,
-            "When a carrier zombie has nothing in its room to put its item into, it shows the no storage icon "
-            + "the game already uses for gardeners and walks back to its supplier station instead of freezing where it "
-            + "stands. It goes on with its work as soon as a slot frees up, as it would anyway.");
+            "When a zombie supplier has nowhere to put its item, it shows the no storage icon the game already "
+            + "uses for gardeners and walks back to its Zombie Supplier Station instead of standing where it is. "
+            + "It goes on with its work as soon as there is room, as it would anyway.");
 
         StuckResourceWorkers = config.Bind(
             _bugFixes,
             nameof(StuckResourceWorkers),
             true,
-            "Keeps lumberjack, miner, clay and sand zombies working. Each of them walks out to one of a few "
-            + "work spots, and dismantling a stand while its zombie was out left that spot taken for good. Once "
-            + "every spot was taken, a zombie stood at the stockpile or its stand swinging its tool forever. Spots "
+            "Keeps lumberjack, miner, clay digger and sand digger zombies working. Each of them walks out to one "
+            + "of a few work spots, and dismantling a stand while its zombie was out left that spot taken for good. "
+            + "Once every spot was taken, a zombie stood in place swinging its tool forever. Spots "
             + "are now freed when a zombie leaves its stand, spots already lost in a save are freed when it loads, "
             + "and a stranded zombie goes back to work as soon as a spot is free.");
 
@@ -79,8 +79,8 @@ internal static class PluginConfig
             _bugFixes,
             nameof(RemoveInWholeArea),
             true,
-            "Allows you to remove buildings you should be allowed to but the game blocks its. Chests built in the " +
-            "resurrection lab from the morgue build desk are an example.");
+            "Lets you remove a building that stands inside your build area when the game refuses because it counts "
+            + "the building as part of a different area than the one you are building in.");
 
         ConveyorLoopCrash = config.Bind(
             _bugFixes,
@@ -116,14 +116,15 @@ internal static class PluginConfig
             _softLocks,
             nameof(SoftLockedBoards),
             true,
-            "If you are soft locked and run out of boards without a sawhorse or circular saw, Larry "
-            + "will help you out.");
+            "If you have fewer than two boards and no sawhorse or circular saw, Larry will offer you two when "
+            + "you talk to him.");
 
         LostQuestItems = config.Bind(
             _softLocks,
             nameof(LostQuestItems),
             true,
-            "If you lose an item the story still needs, Larry will have found it.");
+            "If you lose the Inquisitor's medallion before opening the tower prison bars, Larry will have found "
+            + "it.");
 
         MoveIdenticalFromBags = config.Bind(
             _tweaks,
@@ -148,7 +149,7 @@ internal static class PluginConfig
             + "collider. Only works while you can move, so not with a window open or during dialog or a "
             + "cutscene. Clear it to turn the key off.");
 
-        UnstuckRange = config.Bind(
+        UnstuckRange = config.BindRange(
             _tweaks,
             nameof(UnstuckRange),
             30f,
@@ -163,7 +164,7 @@ internal static class PluginConfig
             "Saves the game when you use the bed with full energy and the Keeper refuses to sleep. "
             + "The game only saves when you actually sleep.");
 
-        TechPointCap = config.Bind(
+        TechPointCap = config.BindRange(
             _tweaks,
             nameof(TechPointCap),
             999,
