@@ -203,10 +203,11 @@ internal sealed class Funeral
     }
 
     // Mourners queued along the path, which departing attendees navigate around when an alternate route is available.
+    // Someone still in the line is joining or moving up it, so they walk the line's own path instead of going round.
     private IReadOnlyList<Vector2> Crowd(TimbnNpc walker) =>
-        _grave == null
+        _grave == null || _line.Any(mourner => mourner.Npc == walker)
             ? []
-            : _line.Where(mourner => mourner.Npc != walker && mourner.Place >= 0).Select(mourner => new Vector2(mourner.Npc.Position.x, mourner.Npc.Position.z)).ToList();
+            : [.. _line.Where(mourner => mourner.Place >= 0).Select(mourner => new Vector2(mourner.Npc.Position.x, mourner.Npc.Position.z))];
 
     private static GDPointData? Point(string id) => MainGame.WorldData.gdPointsData.GetGDPointDataById(id);
 
