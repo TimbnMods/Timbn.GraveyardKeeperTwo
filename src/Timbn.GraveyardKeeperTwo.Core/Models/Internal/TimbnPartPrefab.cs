@@ -1,4 +1,5 @@
 using LazyBearTechnology;
+using System.Reflection;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
@@ -137,9 +138,9 @@ internal sealed class TimbnPartPrefab : IDisposable
         }
     }
 
-    internal void RegisterBakedData()
+    internal void RegisterBakedData(bool allowLoad = false)
     {
-        if (!TryGetBakedData(out var collection))
+        if (!TryGetBakedData(out var collection, allowLoad))
             return;
 
         var data = new WgoPartBakedData(_assetId);
@@ -376,6 +377,8 @@ internal sealed class TimbnPartPrefab : IDisposable
     private static TDelegate WgoMethod<TDelegate>(string name) where TDelegate : Delegate =>
         AccessTools.MethodDelegate<TDelegate>(AccessTools.Method(typeof(Wgo), name));
 
+    private static readonly FieldInfo _bakedDataSingleton = AccessTools.Field(typeof(LazySingletonSerializedSO<WgoPartBakedDataCollection>), "instance");
+
     private static Collider AddBox(TimbnPartBox box, Transform parent)
     {
         var child = new GameObject(box.Name) { layer = box.Layer };
@@ -387,16 +390,21 @@ internal sealed class TimbnPartPrefab : IDisposable
         return collider;
     }
 
-    private static bool TryGetBakedData(out WgoPartBakedDataCollection collection)
+    // The game's singleton getter waits on Addressables, which never finishes while a plugin registers at startup. The
+    // field is read directly instead, and the getter only runs once the balance has loaded.
+    private static bool TryGetBakedData(out WgoPartBakedDataCollection collection, bool allowLoad = false)
     {
-        // Addressables may not be up yet when a plugin registers at startup, and the balance load registers again.
-        try
+        collection = (_bakedDataSingleton.GetValue(null) as WgoPartBakedDataCollection)!;
+        if (collection == null && allowLoad)
         {
-            collection = LazySingletonSerializedSO<WgoPartBakedDataCollection>.Instance;
-        }
-        catch (Exception)
-        {
-            collection = null!;
+            try
+            {
+                collection = LazySingletonSerializedSO<WgoPartBakedDataCollection>.Instance;
+            }
+            catch (Exception)
+            {
+                collection = null!;
+            }
         }
 
         return collection != null;

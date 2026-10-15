@@ -64,7 +64,7 @@ internal static class TimbnModels
     internal static void OnBalanceLoaded()
     {
         foreach (var part in _parts.Values)
-            part.RegisterBakedData();
+            part.RegisterBakedData(allowLoad: true);
     }
 
     internal static void OnLeftGame() => _waitingForRedraw.Clear();
