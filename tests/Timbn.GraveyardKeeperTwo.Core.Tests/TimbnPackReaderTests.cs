@@ -283,6 +283,22 @@ public sealed class TimbnPackReaderTests
     }
 
     [Fact]
+    public void ARootWithOnlyAnIconOrDoneLineStillCountsAsTheFirstStage()
+    {
+        var content = Read("""
+            {
+              "quests": [
+                { "id": "marked", "giver": "npc_larry", "name": "Marked", "icon": "wine_icon", "stages": [ { "id": "only", "description": "Only.", "readyOn": "slept" } ] },
+                { "id": "later", "giver": "npc_larry", "name": "Later", "readyOn": "slept", "after": ["marked"] }
+              ]
+            }
+            """);
+
+        Assert.Empty(content.Problems);
+        Assert.Equal(["pack_marked_only"], content.Quests.Single(quest => quest.Id == "pack_later").Parents);
+    }
+
+    [Fact]
     public void QuestCompletedReadsTheLastStageAndTheOtherQuestRulesTheFirst()
     {
         List<string> starts = [];

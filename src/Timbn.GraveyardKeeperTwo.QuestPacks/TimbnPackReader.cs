@@ -16,7 +16,7 @@ internal sealed class TimbnPackReader
 
     private static readonly string[] _lineKinds = ["say", "playerSay", "sayAs", "give", "take", "wait", "cinematic", "when", "ask", "do", "run"];
 
-    private static readonly string[] _stepParts = ["phase", "description", "npc", "needs", "cost", "talk", "reward", "readyOn", "readyWhen", "then", "onDone", "runOnStart", "runOnDone"];
+    private static readonly string[] _stepParts = ["phase", "description", "done", "icon", "npc", "needs", "cost", "talk", "reward", "readyOn", "readyWhen", "then", "onDone", "runOnStart", "runOnDone"];
 
     private readonly string _packId;
     private readonly HashSet<string> _sprites;
