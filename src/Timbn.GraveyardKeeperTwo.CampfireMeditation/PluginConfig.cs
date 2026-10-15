@@ -11,7 +11,7 @@ internal static class PluginConfig
 
     public static void Bind(ConfigFile config)
     {
-        TimeSpeed = config.Bind(
+        TimeSpeed = config.BindRange(
             "Meditation",
             "TimeSpeed",
             7f,
@@ -19,7 +19,7 @@ internal static class PluginConfig
             1f,
             50f);
 
-        EnergyPerDay = config.Bind(
+        EnergyPerDay = config.BindRange(
             "Meditation",
             "EnergyPerDay",
             100f,
@@ -27,7 +27,7 @@ internal static class PluginConfig
             0f,
             400f);
 
-        InsanityPerDay = config.Bind(
+        InsanityPerDay = config.BindRange(
             "Meditation",
             "InsanityPerDay",
             40f,
@@ -35,7 +35,7 @@ internal static class PluginConfig
             0f,
             400f);
 
-        MaxInsanity = config.Bind(
+        MaxInsanity = config.BindRange(
             "Meditation",
             "MaxInsanity",
             20f,

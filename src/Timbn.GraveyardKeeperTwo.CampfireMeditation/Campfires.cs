@@ -1,6 +1,5 @@
 namespace Timbn.GraveyardKeeperTwo.CampfireMeditation;
 
-/// <summary>Finds the campfire the player stands by from the colliders around them.</summary>
 internal sealed class Campfires
 {
     private const string _fireName = "light_source_bonfire_w_logs_m";

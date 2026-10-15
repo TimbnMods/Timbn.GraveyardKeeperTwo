@@ -17,8 +17,8 @@ Stand by the campfire at your home and a "Meditate" hint appears above it. Turn 
 
 ## Good to know
 
-- Meditating doesn't work while you are tired.
-- The game is not saved while you meditate.
+- Meditating doesn't work while you are tired, and it ends by itself if you get tired.
+- Meditating doesn't save your game, only sleeping does.
 - While you sit you cannot walk, use tools, or open menus.
 - You can meditate while carrying something.
 - Going back to the main menu ends a meditation in progress.
@@ -29,7 +29,7 @@ Every line this mod adds is in `lang/en.txt` inside its folder. Copy it to your 
 
 ## Requirements
 
-- Timbn Core 1.5.0 or newer
+- Timbn Core 2.0.0 or newer
 
 ## Configuration
 

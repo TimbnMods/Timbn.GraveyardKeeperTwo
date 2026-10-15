@@ -2,7 +2,6 @@ using LazyBearTechnology;
 
 namespace Timbn.GraveyardKeeperTwo.CampfireMeditation;
 
-/// <summary>Lights the world like midnight with the sun, moon and ambient light turned off while meditating.</summary>
 internal static class MeditationLighting
 {
     private static readonly AccessTools.FieldRef<EnvironmentEngine, LightEnvironmentPreset?> _presetOverride =
