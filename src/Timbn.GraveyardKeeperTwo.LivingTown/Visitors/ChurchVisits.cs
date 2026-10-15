@@ -196,7 +196,7 @@ internal sealed class ChurchVisits
         // Because the road waypoint is outside the graveyard, the path walk exits through the gate and continues directly
         // along the road in a single movement.
         var steps = new TimbnNpcSteps();
-        if (MainGame.WorldData.gdPointsData.GetGDPointDataById(_road) is { } road)
+        if (TimbnWorld.Point(_road) is { } road)
             _driver.Paths.Walk(npc, steps, road.Position);
         else
             steps.WalkNavmesh(_road);
@@ -215,7 +215,7 @@ internal sealed class ChurchVisits
             ScheduleFuneralArrivals();
 
         _driver.Paths.Rebuild();
-        _driver.Paths.Entrance = MainGame.WorldData.gdPointsData.GetGDPointDataById(_gate)?.Position;
+        _driver.Paths.Entrance = TimbnWorld.Point(_gate)?.Position;
         GraveyardVisitors.Log($"town gratitude {TimbnWorld.TownGratitude}{(IsSermonDay ? ", the sermon day" : "")}, {_toArrive} visitor(s) today.");
         var bounds = TimbnWorld.GraveyardBounds;
         GraveyardVisitors.Log($"the graveyard runs x {bounds.xMin:0.0} to {bounds.xMax:0.0}, z {bounds.yMin:0.0} to {bounds.yMax:0.0}.");

@@ -69,7 +69,7 @@ public sealed class TimbnPluginNpcs
     /// <returns>The handle, or null when the point or the person is missing or at the main menu.</returns>
     public TimbnNpc? Spawn(string npcId, string pointId)
     {
-        if (TimbnNpcs.Point(pointId) is not { } point)
+        if (TimbnWorld.Point(pointId) is not { } point)
             return null;
 
         if (!MainGame.WorldData.AddWgoData(npcId, point.Position, point.GameSceneDataId, TimbnNpcs.SpawnTag, out var data) || data == null)
@@ -103,7 +103,7 @@ public sealed class TimbnPluginNpcs
             return null;
 
         if (GameBalance.Me.GetDataOrNull<WGODef>(npcId) is not { } definition || string.IsNullOrEmpty(definition.npcLifeSimGroup)
-            || TimbnNpcs.Point(definition.npcLifeSimHome) is not { } home)
+            || TimbnWorld.Point(definition.npcLifeSimHome) is not { } home)
         {
             _owner.PluginLogger.LogWarning($"{npcId} has no life simulator group or home, not adding one.");
             return null;

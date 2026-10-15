@@ -164,7 +164,7 @@ internal sealed class Funeral
         {
             steps.WalkNavmesh(seatPoint.Position.x, seatPoint.Position.z).Face(seatPoint.Direction);
         }
-        else if (mourner.StartPost != null && Point(mourner.StartPost) is { } post)
+        else if (mourner.StartPost != null && TimbnWorld.Point(mourner.StartPost) is { } post)
         {
             steps.WalkNavmesh(post.Id).Face(Direction.Up);
         }
@@ -209,8 +209,6 @@ internal sealed class Funeral
             ? []
             : [.. _line.Where(mourner => mourner.Place >= 0).Select(mourner => new Vector2(mourner.Npc.Position.x, mourner.Npc.Position.z))];
 
-    private static GDPointData? Point(string id) => MainGame.WorldData.gdPointsData.GetGDPointDataById(id);
-
     private GDPointData? FreeSeat()
     {
         var free = ChurchStop.Seats()
@@ -223,7 +221,7 @@ internal sealed class Funeral
     private string? FreePost()
     {
         var reserved = _startPosts.Concat(_returnPosts).ToHashSet();
-        var free = (MainGame.WorldData.gdPointsData.GetGDPointsDataByCustomTag(_parishionerTag) ?? [])
+        var free = TimbnWorld.PointsWithTag(_parishionerTag)
             .Where(point => point.Enabled && !reserved.Contains(point.Id) && !_usedPosts.Contains(point.Id))
             .ToList();
 
@@ -279,11 +277,11 @@ internal sealed class Funeral
         var minutes = _spoken == 0 ? _firstSpeechMinutes : _laterSpeechMinutes;
         GraveyardVisitors.Log($"funeral, {mourner.Npc.Id} speaks at the choir for {minutes} minutes.");
         var steps = new TimbnNpcSteps();
-        if (mourner.StartPost != _altar && Point(_altar) is { } altar)
+        if (mourner.StartPost != _altar && TimbnWorld.Point(_altar) is { } altar)
             steps.WalkStraight(altar.Position.x, altar.Position.z);
 
         steps.Walk(_choir).Face(Direction.Down).WaitGameMinutes(minutes).Walk(_altar);
-        if (mourner.ReturnPost != null && Point(mourner.ReturnPost) is { } back)
+        if (mourner.ReturnPost != null && TimbnWorld.Point(mourner.ReturnPost) is { } back)
             steps.WalkStraight(back.Position.x, back.Position.z).Face(Direction.Up);
 
         return steps

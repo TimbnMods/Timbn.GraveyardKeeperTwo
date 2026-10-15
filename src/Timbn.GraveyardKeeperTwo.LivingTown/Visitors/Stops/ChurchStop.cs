@@ -57,5 +57,5 @@ internal sealed class ChurchStop : IGraveyardStop
         TimbnWorld.FindAll(id) is { Count: > 0 } landings ? landings[0].Position : null;
 
     internal static IEnumerable<GDPointData> Seats() =>
-        MainGame.WorldData.gdPointsData.GetGDPointsDataByCustomTag(_seatTag)?.Where(seat => seat.Enabled) ?? [];
+        TimbnWorld.PointsWithTag(_seatTag).Where(seat => seat.Enabled);
 }
