@@ -6,7 +6,7 @@ A suite of [BepInEx](https://github.com/BepInEx/BepInEx) mods for Graveyard Keep
 
 | Mod | What it does |
 | --- | --- |
-| **[Core](src/Timbn.GraveyardKeeperTwo.Core/README.md)** | Shared framework the other mods depend on that aims to makes modding easier. |
+| **[Core](src/Timbn.GraveyardKeeperTwo.Core/README.md)** | Shared framework the other mods depend on, which makes modding easier. |
 | **[CampfireMeditation](src/Timbn.GraveyardKeeperTwo.CampfireMeditation/README.md)** | Pass time by a campfire, like the stone garden in the first game. |
 | **[VanillaTweaks](src/Timbn.GraveyardKeeperTwo.VanillaTweaks/README.md)** | Aims to fix bugs and adds light gameplay tweaks that are intended to enhance the vanilla experience without cheating. |
 | **[WorkshopSync](src/Timbn.GraveyardKeeperTwo.WorkshopSync/README.md)** | Installs the BepInEx mods you subscribe to on the Steam Workshop. A BepInEx patcher that goes in BepInEx/patchers and does not need Core. |
@@ -25,7 +25,7 @@ A suite of [BepInEx](https://github.com/BepInEx/BepInEx) mods for Graveyard Keep
 
 ## Configuration
 
-Edit the files in BepInEx/config. BepInEx does not hot reload config, so restart the game after editing.
+Edit the files in BepInEx/config. A config manager applies changes straight away, even in the middle of a game. Editing a file by hand needs a restart.
 
 Every mod has a General / Enabled toggle (default true). Set it to false to turn that mod off while leaving it installed. Core's toggle is the master switch, so turning Core off turns off every Timbn mod.
 
@@ -44,11 +44,11 @@ The framework supports [ScriptEngine](https://github.com/BepInEx/BepInEx.Debug) 
 To deploy a mod to the scripts folder while the game is not running:
 
 ```cmd
-dotnet build Timbn.GraveyardKeeperTwo.VanillaTweaks/Timbn.GraveyardKeeperTwo.VanillaTweaks.csproj -c Debug -p:DeployTo=scripts
+dotnet build src/Timbn.GraveyardKeeperTwo.VanillaTweaks/Timbn.GraveyardKeeperTwo.VanillaTweaks.csproj -c Debug -p:DeployTo=scripts
 ```
 
 To deploy a mod to the scripts folder while the game is running:
 
 ```cmd
-dotnet build Timbn.GraveyardKeeperTwo.VanillaTweaks/Timbn.GraveyardKeeperTwo.VanillaTweaks.csproj -c Debug -p:DeployTo=scripts -p:BuildProjectReferences=false
+dotnet build src/Timbn.GraveyardKeeperTwo.VanillaTweaks/Timbn.GraveyardKeeperTwo.VanillaTweaks.csproj -c Debug -p:DeployTo=scripts -p:BuildProjectReferences=false
 ```

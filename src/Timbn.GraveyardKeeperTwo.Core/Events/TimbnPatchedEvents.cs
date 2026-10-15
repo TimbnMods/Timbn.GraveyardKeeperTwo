@@ -1,6 +1,5 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
-/// <summary>The events Core raises from its Harmony patches, for moments the game has no event of its own for.</summary>
 internal static class TimbnPatchedEvents
 {
     internal static event Action? SleepStarted;

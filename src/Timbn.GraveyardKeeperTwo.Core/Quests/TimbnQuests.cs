@@ -1,11 +1,11 @@
+using BepInEx.Bootstrap;
 using LazyBearTechnology;
-using System.Runtime.CompilerServices;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Registers quests defined in code as real QuestDefs, so the game's own quest system starts, finishes,
-/// saves, and lists them.
+/// Registers the quests plugins add as real QuestDefs, so the game's own quest system starts, finishes, saves and
+/// lists them. It also reads the status of any quest, the game's own included.
 /// </summary>
 public static class TimbnQuests
 {
@@ -20,18 +20,14 @@ public static class TimbnQuests
     private static int _registrations;
     private static readonly Dictionary<string, IDisposable> _stubs = [];
     private static readonly Dictionary<QuestDef, int> _gameY = [];
-    private static readonly ConditionalWeakTable<QuestDef, StrongBox<int>> _moneyRewards = [];
+    private static readonly Dictionary<QuestDef, Registration> _registered = [];
+    private static readonly List<TimbnQuestRuntime> _runtimes = [];
+    private static readonly List<TimbnQuestCycle> _cycles = [];
+    private static readonly HashSet<string> _warnedParents = [];
+    private static Func<HashSet<string>>? _marks;
+    private static Func<Dictionary<string, TimbnQuestRunData>>? _runs;
 
-    /// <summary>
-    /// Creates a blank quest with empty start and finish checks. It stays out of the quest tree until it
-    /// starts. Start it with <see cref="Start"/>, for example when the player accepts it in a conversation.
-    /// </summary>
-    /// <param name="id">
-    /// The quest id. It is also the localisation key for the quest's name, and quest_open_&lt;id&gt;_d
-    /// and quest_closed_&lt;id&gt;_d hold its descriptions.
-    /// </param>
-    /// <returns>The new definition, ready for <see cref="After"/>, <see cref="FinishOnAnswer"/>, and <see cref="Register"/>.</returns>
-    public static QuestDef CreateDefinition(string id) => new()
+    internal static QuestDef CreateDefinition(string id) => new()
     {
         id = id,
         isHidden = true,
@@ -40,85 +36,25 @@ public static class TimbnQuests
         finishCheck = new QuestFinishCheck { questId = id },
     };
 
-    /// <summary>
-    /// Makes this quest a child of another in the quest tree, joined by a line. It only affects the tree, so the
-    /// quest still has to be started.
-    /// </summary>
-    /// <param name="definition">The quest to link.</param>
-    /// <param name="parentId">A quest registered earlier, or one of the game's own.</param>
-    /// <returns>The same definition, for chaining.</returns>
-    public static QuestDef After(this QuestDef definition, string parentId)
+    internal static QuestDef After(this QuestDef definition, string parentId)
     {
         definition.parents.Add(parentId);
         return definition;
     }
 
-    /// <summary>
-    /// Completes the quest when the player picks the given answer in a conversation, the same way the game's own
-    /// fetch quests work. The answer shows the items as its price, is greyed out until the player has them, and
-    /// takes them when picked. Build the answer with <see cref="TimbnDialog.Answer"/> using the same id.
-    /// </summary>
-    /// <param name="definition">The quest to finish.</param>
-    /// <param name="answerId">The answer's localisation key.</param>
-    /// <param name="price">Items the player hands over, built with <see cref="Item"/>. Leave it empty for an answer that costs nothing.</param>
-    /// <returns>The same definition, for chaining.</returns>
-    public static QuestDef FinishOnAnswer(this QuestDef definition, string answerId, params ItemCount[] price)
+    internal static IDisposable Register(QuestDef definition, string owner, bool continues = false, Func<Color>? lineColor = null)
     {
-        var finish = definition.finishCheck;
-        finish.triggerType = GlobalEventsSystem.Event.Type.MultiAnswerSay;
-        finish.triggerId = answerId;
-        finish.hasTrigger = true;
-        finish.phrase = answerId;
-        foreach (var item in price)
-        {
-            finish.phraseReqs.Add(new QuestPhraseRequirement
-            {
-                requirement = QuestPhraseRequirement.Requirement.Price,
-                entity = QuestPhraseRequirement.Entity.Item,
-                itemCount = item,
-            });
-        }
+        if (OtherOwnerOf(definition.id, owner) is { } other)
+            throw new InvalidOperationException($"{OwnerName(other)} already adds a quest with the id '{definition.id}'.");
 
-        return definition;
-    }
-
-    /// <summary>
-    /// Builds an item price for <see cref="FinishOnAnswer"/>. It never touches the balance, so it works before
-    /// the balance loads.
-    /// </summary>
-    /// <param name="itemId">The item id, with its quality suffix where the item has one, such as grape_wine:2.</param>
-    /// <param name="count">How many the player has to hand over.</param>
-    public static ItemCount Item(string itemId, int count) => new() { itemId = itemId, count = count };
-
-    /// <summary>
-    /// Pays the player money when they hand the quest in through its FinishOnAnswer answer. The answer shows
-    /// the coins as its reward next to the price, and the game pays them when the answer is picked.
-    /// </summary>
-    /// <param name="definition">The quest to reward.</param>
-    /// <param name="amount">The money in the game's raw units, where 100 is one silver coin and 10,000 one gold coin.</param>
-    /// <returns>The same definition, for chaining.</returns>
-    public static QuestDef RewardMoney(this QuestDef definition, int amount)
-    {
-        _moneyRewards.Remove(definition);
-        _moneyRewards.Add(definition, new StrongBox<int>(amount));
-        return definition;
-    }
-
-    internal static int MoneyRewardOf(QuestDef definition) =>
-        _moneyRewards.TryGetValue(definition, out var reward) ? reward.Value : 0;
-
-    internal static IDisposable Register(QuestDef definition)
-    {
         FillBlanks(definition);
         if (!_registeredAt.ContainsKey(definition.id))
             _registeredAt[definition.id] = _registrations++;
 
-        var balance = TimbnBalance.Add(definition, b =>
-        {
-            Relayout(b, definition);
-            QuestDef.LinkQuests();
-        });
+        _registered[definition] = new Registration([.. definition.parents], definition.phase, definition.iconId, continues, lineColor, owner);
+        var balance = TimbnBalance.Add(definition, b => Relayout(b, definition));
         _quests[definition.id] = definition;
+        AssignFromChains();
         if (_stubs.TryGetValue(definition.id, out var stub))
         {
             _stubs.Remove(definition.id);
@@ -135,15 +71,74 @@ public static class TimbnQuests
 
             DetachFromLoadedSave(definition, replaced);
             Unlink(definition);
+            if (_registered.TryGetValue(definition, out var registration))
+            {
+                definition.parents.Clear();
+                definition.parents.AddRange(registration.Parents);
+                definition.phase = registration.Phase;
+                definition.iconId = registration.Icon;
+                _registered.Remove(definition);
+            }
+
+            AssignFromChains();
             balance.Dispose();
             RelayoutIfLoaded();
         });
     }
 
+    internal static string? OtherOwnerOf(string id, string owner) =>
+        _quests.TryGetValue(id, out var current) && _registered.TryGetValue(current, out var registration) && registration.Owner != owner
+            ? registration.Owner
+            : null;
+
+    internal static string OwnerName(string owner) =>
+        Chainloader.PluginInfos.TryGetValue(owner, out var info) && info?.Metadata is { } metadata ? metadata.Name : owner;
+
+    internal static Func<Color>? LineColorOf(string id) =>
+        _quests.TryGetValue(id, out var quest) && _registered.TryGetValue(quest, out var registration) ? registration.LineColor : null;
+
+    private static void AssignFromChains()
+    {
+        var ordered = _quests.Values.OrderBy(Order).ToList();
+        var phases = TimbnQuestPhases.Assign([.. ordered.Select(q => _registered.TryGetValue(q, out var registration)
+            ? new TimbnQuestPhases.Step(q.id, Continued(registration), registration.Phase)
+            : new TimbnQuestPhases.Step(q.id, null, q.phase))]);
+        var icons = TimbnQuestIcons.Inherit([.. ordered.Select(q => _registered.TryGetValue(q, out var registration)
+            ? new TimbnQuestIcons.Step(q.id, Continued(registration), registration.Icon)
+            : new TimbnQuestIcons.Step(q.id, null, q.iconId ?? ""))]);
+        foreach (var quest in ordered)
+        {
+            quest.phase = phases[quest.id];
+            quest.iconId = icons[quest.id];
+        }
+    }
+
+    private static string? Continued(Registration registration) => registration.Continues ? registration.Parents.FirstOrDefault() : null;
+
     private static void RelayoutIfLoaded()
     {
         if (TimbnBalance.Loaded is { } balance)
             Relayout(balance, null);
+    }
+
+    internal static void OnLeftGame()
+    {
+        foreach (var runtime in _runtimes.ToList())
+            TimbnSafe.Run(runtime.Deactivate, $"{nameof(TimbnQuests)}|Ending quest '{runtime.Id}' for the main menu");
+
+        DropStubs();
+    }
+
+    /// <summary>Whether the quest has a real definition, the game's or a plugin's, not counting a placeholder for a saved quest whose mod is gone.</summary>
+    internal static bool HasDefinition(string id) =>
+        !_stubs.ContainsKey(id) && GameBalance.Me.GetDataOrNull<QuestDef>(id) is not null;
+
+    private static void DropStubs()
+    {
+        foreach (var stub in _stubs.Values.ToList())
+            TimbnSafe.Run(stub.Dispose, $"{nameof(TimbnQuests)}|Dropping a saved quest's placeholder");
+
+        _stubs.Clear();
     }
 
     internal static void OnQuestStarted(QuestData quest)
@@ -152,22 +147,192 @@ public static class TimbnQuests
             RelayoutIfLoaded();
     }
 
-    /// <summary>The quest's status in the loaded save, or null when no save is loaded or it has no such quest.</summary>
+    /// <summary>
+    /// A quest's status in the loaded save, the game's own quests included, such as 6_intro_guards_burial. Null when
+    /// no save is loaded or it has no such quest.
+    /// </summary>
+    /// <example>
+    /// <code><![CDATA[
+    /// .OfferWhen(() => TimbnQuests.StatusOf("6_intro_guards_burial") is QuestStatus.InProgress or QuestStatus.Completed)
+    /// ]]></code>
+    /// </example>
+    /// <param name="id">The quest id.</param>
+    /// <returns>The status, or null.</returns>
     public static QuestStatus? StatusOf(string id) =>
         LoadedQuests?.questCollection.questsCache.TryGetValue(id, out var data) == true ? data.status : null;
 
     /// <summary>
-    /// Starts a quest in the loaded save. Does nothing when no save is loaded.
+    /// Fires one of the game's story triggers, the signals its quests and cutscenes wait on, as if the player had
+    /// just built the building or won the fight. Use it to finish a game quest whose step was done before the quest
+    /// started. Events.StoryTrigger hears it like any other. Nothing happens at the main menu.
     /// </summary>
-    /// <param name="id">The quest id.</param>
-    public static void Start(string id) => LoadedQuests?.StartQuest(id);
+    /// <example>
+    /// <code>
+    /// if (TimbnPlayer.HasBuilt("zmb_choir_unlock_s"))
+    ///     TimbnQuests.FireStoryTrigger(GlobalEventsSystem.Event.Type.BuildBuilding, "zmb_choir_unlock");
+    /// </code>
+    /// </example>
+    /// <param name="type">The kind of trigger.</param>
+    /// <param name="id">The trigger's id, such as the building or the answer. Leave it out for a kind that has none.</param>
+    public static void FireStoryTrigger(GlobalEventsSystem.Event.Type type, string id = "")
+    {
+        if (TimbnGame.IsInGame)
+            GlobalEventsSystem.FireTrigger(type, id);
+    }
 
-    internal static void Complete(string id) => LoadedQuests?.CompleteQuest(id);
+    internal static void Start(string id) => LoadedQuests?.StartQuest(id);
 
-    /// <summary>True when the quest is in progress and the player meets its finish requirements, such as a FinishOnAnswer price.</summary>
-    public static bool CanFinish(string id) =>
-        StatusOf(id) == QuestStatus.InProgress
-        && GameBalance.Me.GetDataOrNull<QuestDef>(id)?.finishCheck.IsReadyToFinish() == true;
+    internal static bool StartModQuest(string id, string reason) => _runtimes.Find(runtime => runtime.Id == id) is { } found && found.Start(reason);
+
+    internal static void Complete(string id)
+    {
+        ClearProgress(id);
+        LoadedQuests?.CompleteQuest(id);
+    }
+
+    internal static bool ResetToAvailable(string id)
+    {
+        if (LoadedQuests is not { } quests || !quests.questCollection.questsCache.TryGetValue(id, out var data))
+            return false;
+
+        ClearProgress(id);
+        quests.ResetQuestToAvailable(id);
+        data.isHidden = true;
+        RelayoutIfLoaded();
+        return true;
+    }
+
+    private static void ClearProgress(string id)
+    {
+        _marks?.Invoke().Remove(id);
+    }
+
+    internal static void UseReadyMarks(Func<HashSet<string>> marks) => _marks = marks;
+
+    internal static bool IsMarked(string id) => _marks?.Invoke().Contains(id) == true;
+
+    internal static void Mark(string id) => _marks?.Invoke().Add(id);
+
+    internal static IDisposable Track(TimbnQuestRuntime runtime)
+    {
+        _runtimes.Add(runtime);
+        return new TimbnUndo(() => _runtimes.Remove(runtime));
+    }
+
+    internal static IDisposable Track(TimbnQuestCycle cycle)
+    {
+        _cycles.Add(cycle);
+        return new TimbnUndo(() => _cycles.Remove(cycle));
+    }
+
+    internal static void UseRuns(Func<Dictionary<string, TimbnQuestRunData>> runs) => _runs = runs;
+
+    /// <summary>
+    /// Whether the current run of any mod's quest names this NPC, such as the villager who asked for a dish. A quest's
+    /// Setup can skip them, so one person never has two quests going at once.
+    /// </summary>
+    /// <example>
+    /// <code><![CDATA[
+    /// var villagers = TimbnNpcs.GroupMemberIds(TimbnGameIds.Groups.VillagersDayAll).Where(npc => !TimbnQuests.HasQuestRun(npc)).ToList();
+    /// ]]></code>
+    /// </example>
+    /// <param name="npcId">The NPC, from <see cref="TimbnGameIds.Npcs"/>.</param>
+    /// <returns>True while a run names them. False at the main menu.</returns>
+    public static bool HasQuestRun(string npcId) =>
+        TimbnGame.IsInGame
+        && _runs?.Invoke() is { } runs
+        && runs.Any(run => run.Value.Npcs.ContainsValue(npcId) && _cycles.Exists(cycle => cycle.Id == run.Key && !cycle.IsFinished));
+
+    internal static TimbnQuestRunData? RunOf(string id) =>
+        TimbnGame.IsInGame && _runs?.Invoke() is { } runs && runs.TryGetValue(id, out var data) ? data : null;
+
+    internal static void SetRun(string id, TimbnQuestRunData? data)
+    {
+        if (_runs?.Invoke() is not { } runs)
+            return;
+
+        if (data is null)
+            runs.Remove(id);
+        else
+            runs[id] = data;
+    }
+
+    internal static void OnGameStarted()
+    {
+        WarnAboutParents();
+        foreach (var runtime in _runtimes.ToList())
+            TimbnSafe.Run(runtime.Apply, $"{nameof(TimbnQuests)}|Setting up quest '{runtime.Id}' for the save");
+
+        foreach (var cycle in _cycles.ToList())
+            TimbnSafe.Run(cycle.OnGameStarted, $"{nameof(TimbnQuests)}|Setting up the run of quest '{cycle.Id}' for the save");
+
+        StartContinuedQuests();
+    }
+
+    internal static void OnNewDay()
+    {
+        foreach (var cycle in _cycles.ToList())
+            TimbnSafe.Run(cycle.OnNewDay, $"{nameof(TimbnQuests)}|Checking the run of quest '{cycle.Id}' on a new day");
+    }
+
+    private static void WarnAboutParents()
+    {
+        foreach (var (quest, registration) in _registered)
+        {
+            foreach (var parentId in registration.Parents)
+            {
+                var known = _quests.ContainsKey(parentId) || (!_stubs.ContainsKey(parentId) && GameBalance.Me?.GetDataOrNull<QuestDef>(parentId) is not null);
+                if (!known && _warnedParents.Add($"{quest.id}/{parentId}"))
+                    TimbnCorePlugin.Logger.LogWarning($"{nameof(TimbnQuests)}|Quest '{quest.id}' comes after '{parentId}', which is not a quest in the game or any loaded mod, so it is never offered.");
+            }
+
+            if (WaitsOnItself(quest) && _warnedParents.Add(quest.id))
+                TimbnCorePlugin.Logger.LogWarning($"{nameof(TimbnQuests)}|Quest '{quest.id}' comes after quests that lead back to it, so it is never offered.");
+        }
+    }
+
+    private static bool WaitsOnItself(QuestDef quest)
+    {
+        HashSet<string> seen = [];
+        var waiting = new Stack<string>(OwnParents(quest));
+        while (waiting.Count > 0)
+        {
+            var id = waiting.Pop();
+            if (id == quest.id)
+                return true;
+
+            if (!seen.Add(id) || !_quests.TryGetValue(id, out var parent))
+                continue;
+
+            foreach (var parentId in OwnParents(parent))
+                waiting.Push(parentId);
+        }
+
+        return false;
+    }
+
+    internal static void StartContinuedQuests()
+    {
+        foreach (var runtime in _runtimes.ToList())
+            TimbnSafe.Run(runtime.StartWithContinued, $"{nameof(TimbnQuests)}|Starting quest '{runtime.Id}' after the one it continues");
+    }
+
+    internal static void OnGameEvent(GlobalEventsSystem.Event.Type type, string id)
+    {
+        if (type != GlobalEventsSystem.Event.Type.AfterSleep)
+            Raise(type, id);
+    }
+
+    internal static void OnWakingUp() => Raise(GlobalEventsSystem.Event.Type.AfterSleep, "");
+
+    private static void Raise(GlobalEventsSystem.Event.Type type, string id)
+    {
+        if (_runtimes.Count == 0 || !TimbnGame.IsInGame)
+            return;
+
+        foreach (var runtime in _runtimes.ToList())
+            TimbnSafe.Run(() => runtime.OnGameEvent(type, id), $"{nameof(TimbnQuests)}|Quest '{runtime.Id}' on {type}");
+    }
 
     private static QuestSystemData? LoadedQuests
     {
@@ -197,222 +362,85 @@ public static class TimbnQuests
         if (adding is not null)
             ours.Add(adding);
 
+        ours = [.. ours.OrderBy(Order)];
         var oursById = ours.ToDictionary(q => q.id);
         var game = balance.questDefs.Where(q => !oursById.ContainsKey(q.id)).ToList();
+        var inBalance = new HashSet<QuestDef>(balance.questDefs);
+
+        // Stubs are new QuestDefs on every load, so the old ones would pile up here.
+        foreach (var gone in _gameY.Keys.Where(q => !inBalance.Contains(q)).ToList())
+            _gameY.Remove(gone);
+
         foreach (var quest in game)
         {
             if (!_gameY.ContainsKey(quest))
                 _gameY[quest] = quest.TreePos.y;
         }
 
-        var gameById = new Dictionary<string, QuestDef>();
-        foreach (var quest in game)
-            gameById[quest.id] = quest;
-
         var cache = saved ?? LoadedQuests?.questCollection.questsCache;
-        bool shown(QuestDef q) => cache is not null && cache.TryGetValue(q.id, out var data) && !data.isHidden;
-        QuestDef? parentOf(QuestDef q) =>
-            q.parents.Count > 0 && oursById.TryGetValue(q.parents[0], out var p) && p != q && shown(p) ? p : null;
+        bool started(QuestDef q) =>
+            cache is not null && cache.TryGetValue(q.id, out var data) && data.status is QuestStatus.InProgress or QuestStatus.Completed;
 
-        var offTree = 0;
-        var kids = new Dictionary<QuestDef, List<QuestDef>>();
-        List<QuestDef> roots = [];
-        foreach (var quest in ours.OrderBy(Order))
+        var plan = TimbnQuestLayout.Arrange(
+            [.. ours.Select(q => new TimbnQuestLayout.Quest(q.id, OwnParents(q), default, started: started(q), continues: _registered.TryGetValue(q, out var r) && r.Continues))],
+            [.. game.Select(q => new TimbnQuestLayout.Quest(q.id, q.parents, new TimbnQuestLayout.Cell(q.TreePos.x, _gameY[q]), q.hasPosInBalance))]);
+
+        foreach (var quest in ours)
         {
-            if (quest.parents.Count > 0 && gameById.TryGetValue(quest.parents[0], out var anchor))
-                LinkToCell(quest, anchor, game);
-
-            if (!shown(quest))
-            {
-                SetPosition(quest, new Vector2Int(0, -1 - offTree++));
-                continue;
-            }
-
-            if (parentOf(quest) is not { } parent)
-            {
-                roots.Add(quest);
-                continue;
-            }
-
-            if (!kids.TryGetValue(parent, out var list))
-                kids[parent] = list = [];
-
-            list.Add(quest);
+            var cell = plan.Cells[quest.id];
+            _posX(quest) = cell.X;
+            _posY(quest) = cell.Y;
         }
 
-        var width = game.Where(q => q.hasPosInBalance).Select(q => q.TreePos.x).DefaultIfEmpty(0).Max() + 1;
-        var band = new HashSet<Vector2Int>();
-        List<(QuestDef Root, QuestDef Anchor)> anchored = [];
-        foreach (var root in roots)
-        {
-            if (root.parents.Count > 0 && gameById.TryGetValue(root.parents[0], out var anchor))
-            {
-                anchored.Add((root, anchor));
-                continue;
-            }
-
-            var shape = Shape(root, kids, out var shapeWidth);
-            Place(shape, FindSpot(shape, shapeWidth, band, width, 0, 0), band);
-        }
-
-        var shift = band.Count == 0 ? 0 : band.Max(c => c.y) + 2;
         foreach (var quest in game)
-            _posY(quest) = _gameY[quest] + shift;
+            _posY(quest) = plan.Cells[quest.id].Y;
 
-        List<QuestDef> placed = [];
-        foreach (var (root, anchor) in anchored.OrderBy(a => a.Anchor.TreePos.y))
+        if (cache is not null)
         {
-            var shape = Shape(root, kids, out var shapeWidth);
-            var height = shape.Values.Max(c => c.y) + 1;
-            if (!TryNextTo(shape, shapeWidth, anchor.TreePos, 2, game, gameById, band, placed, width, out var origin))
+            foreach (var (id, hidden) in plan.Hidden)
             {
-                foreach (var quest in game.Concat(placed))
-                {
-                    if (quest.TreePos.y > anchor.TreePos.y)
-                        _posY(quest) += height;
-                }
-
-                if (!TryNextTo(shape, shapeWidth, anchor.TreePos, 1, game, gameById, band, placed, width, out origin))
-                {
-                    var blocked = BlockedCells(game, gameById);
-                    blocked.UnionWith(band);
-                    blocked.UnionWith(placed.Select(q => q.TreePos));
-                    origin = FindSpot(shape, shapeWidth, blocked, width, anchor.TreePos.y + 1, anchor.TreePos.x);
-                }
+                if (cache.TryGetValue(id, out var data))
+                    data.isHidden = hidden;
             }
+        }
 
-            Place(shape, origin, []);
-            placed.AddRange(shape.Keys);
+        var byId = new Dictionary<string, QuestDef>();
+        foreach (var quest in game.Concat(ours))
+            byId[quest.id] = quest;
+
+        foreach (var quest in ours)
+        {
+            Unlink(quest);
+            quest.parents.Clear();
+            quest.parents.AddRange(OwnParents(quest));
+            if (plan.ExtraParents.TryGetValue(quest.id, out var extra))
+                quest.parents.AddRange(extra);
+
+            Link(quest, byId);
         }
 
         TimbnBalance.RefreshQuestCaches(balance);
     }
 
-    private static void LinkToCell(QuestDef root, QuestDef anchor, List<QuestDef> game)
+    private static void Link(QuestDef quest, Dictionary<string, QuestDef> byId)
     {
-        foreach (var mate in game)
+        foreach (var parentId in quest.parents)
         {
-            if (mate.hasPosInBalance && mate.TreePos == anchor.TreePos && !root.parents.Contains(mate.id))
-                root.parents.Add(mate.id);
+            if (!byId.TryGetValue(parentId, out var parent) || parent == quest)
+                continue;
+
+            if (!parent.childDefinitionList.Contains(quest))
+                parent.childDefinitionList.Add(quest);
+
+            if (!quest.parentDefinitionList.Contains(parent))
+                quest.parentDefinitionList.Add(parent);
         }
     }
 
-    private static bool TryNextTo(
-        Dictionary<QuestDef, Vector2Int> shape,
-        int shapeWidth,
-        Vector2Int parent,
-        int maxRows,
-        List<QuestDef> game,
-        Dictionary<string, QuestDef> gameById,
-        HashSet<Vector2Int> band,
-        List<QuestDef> placed,
-        int width,
-        out Vector2Int origin)
-    {
-        var occupied = new HashSet<Vector2Int>(game.Select(q => q.TreePos));
-        occupied.UnionWith(band);
-        occupied.UnionWith(placed.Select(q => q.TreePos));
-        var blocked = BlockedCells(game, gameById);
-        blocked.UnionWith(occupied);
-        for (var dy = 1; dy <= maxRows; dy++)
-        {
-            if (dy > 1 && occupied.Contains(new Vector2Int(parent.x, parent.y + dy - 1)))
-                break;
-
-            foreach (var dx in new[] { 0, 1, -1 })
-            {
-                var start = new Vector2Int(parent.x + dx, parent.y + dy);
-                if (start.x < 0 || start.x + shapeWidth > width)
-                    continue;
-
-                if (shape.Values.Any(cell => blocked.Contains(start + cell)))
-                    continue;
-
-                origin = start;
-                return true;
-            }
-        }
-
-        origin = default;
-        return false;
-    }
-
-    private static Dictionary<QuestDef, Vector2Int> Shape(QuestDef root, Dictionary<QuestDef, List<QuestDef>> kids, out int width)
-    {
-        var shape = new Dictionary<QuestDef, Vector2Int>();
-        var next = 0;
-        void layout(QuestDef node, int depth)
-        {
-            shape[node] = Vector2Int.zero;
-            var children = kids.TryGetValue(node, out var list) ? list.Where(k => !shape.ContainsKey(k)).ToList() : [];
-            if (children.Count == 0)
-            {
-                shape[node] = new Vector2Int(next++, depth);
-                return;
-            }
-
-            foreach (var child in children)
-                layout(child, depth + 1);
-
-            shape[node] = new Vector2Int(shape[children[0]].x, depth);
-        }
-
-        layout(root, 0);
-        width = next;
-        return shape;
-    }
-
-    private static Vector2Int FindSpot(Dictionary<QuestDef, Vector2Int> shape, int shapeWidth, HashSet<Vector2Int> blocked, int width, int startY, int preferX)
-    {
-        var starts = Enumerable.Range(0, Math.Max(1, width - shapeWidth + 1))
-            .OrderBy(x => Math.Abs(x - preferX))
-            .ThenBy(x => x)
-            .ToList();
-        for (var y = startY; ; y++)
-        {
-            foreach (var x in starts)
-            {
-                var origin = new Vector2Int(x, y);
-                if (!shape.Values.Any(cell => blocked.Contains(origin + cell)))
-                    return origin;
-            }
-        }
-    }
-
-    private static void Place(Dictionary<QuestDef, Vector2Int> shape, Vector2Int origin, HashSet<Vector2Int> taken)
-    {
-        foreach (var pair in shape)
-        {
-            SetPosition(pair.Key, origin + pair.Value);
-            taken.Add(origin + pair.Value);
-        }
-    }
+    private static List<string> OwnParents(QuestDef definition) =>
+        _registered.TryGetValue(definition, out var registration) ? registration.Parents : [.. definition.parents];
 
     private static int Order(QuestDef definition) => _registeredAt.TryGetValue(definition.id, out var at) ? at : int.MaxValue;
-
-    private static HashSet<Vector2Int> BlockedCells(List<QuestDef> quests, Dictionary<string, QuestDef> byId)
-    {
-        var blocked = new HashSet<Vector2Int>(quests.Select(q => q.TreePos));
-        foreach (var quest in quests.Where(q => q.hasPosInBalance))
-        {
-            foreach (var parentId in quest.parents)
-            {
-                if (!byId.TryGetValue(parentId, out var parent) || !parent.hasPosInBalance)
-                    continue;
-
-                for (var y = parent.TreePos.y + 1; y < quest.TreePos.y; y++)
-                    blocked.Add(new Vector2Int(parent.TreePos.x, y));
-            }
-        }
-
-        return blocked;
-    }
-
-    private static void SetPosition(QuestDef definition, Vector2Int position)
-    {
-        _posX(definition) = position.x;
-        _posY(definition) = position.y;
-    }
 
     private static void Unlink(QuestDef definition)
     {
@@ -459,6 +487,7 @@ public static class TimbnQuests
 
     internal static void StubOrphans(QuestSystemData quests)
     {
+        DropStubs();
         var stubbed = 0;
         foreach (var data in quests.questCollection.quests)
         {
@@ -468,9 +497,6 @@ public static class TimbnQuests
             var stub = CreateDefinition(data.id);
             stub.hasPosInBalance = false;
             FillBlanks(stub);
-            if (_stubs.TryGetValue(data.id, out var old))
-                old.Dispose();
-
             // Relayout below rebuilds the quest cache once for all of them.
             _stubs[data.id] = TimbnBalance.AddWithoutRefresh(stub);
             _cachedId(data) = string.Empty;
@@ -522,4 +548,29 @@ public static class TimbnQuests
 
     private static bool HiddenFor(QuestDef definition, QuestData data) =>
         definition.isHidden && data.status is not (QuestStatus.InProgress or QuestStatus.Completed);
+
+    private sealed class Registration
+    {
+        internal Registration(List<string> parents, int phase, string icon, bool continues, Func<Color>? lineColor, string owner)
+        {
+            Parents = parents;
+            Phase = phase;
+            Icon = icon;
+            Continues = continues;
+            LineColor = lineColor;
+            Owner = owner;
+        }
+
+        internal string Owner { get; }
+
+        internal List<string> Parents { get; }
+
+        internal int Phase { get; }
+
+        internal string Icon { get; }
+
+        internal bool Continues { get; }
+
+        internal Func<Color>? LineColor { get; }
+    }
 }

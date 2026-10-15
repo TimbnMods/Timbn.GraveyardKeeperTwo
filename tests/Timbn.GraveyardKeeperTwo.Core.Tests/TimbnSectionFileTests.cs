@@ -60,4 +60,75 @@ public sealed class TimbnSectionFileTests : IDisposable
 
         Assert.Empty(read);
     }
+
+    [Fact]
+    public void LoadEntryFillsTheEntryFromItsSection()
+    {
+        var sections = new JObject { ["mod.a"] = new JObject { ["Days"] = 5 } };
+        var data = new TimbnSaveData<Sample>("mod.a", null);
+
+        TimbnSectionFile.LoadEntry(sections, data, Main, "Tests");
+
+        Assert.Equal(5, data.Current.Days);
+    }
+
+    [Fact]
+    public void LoadEntryWithNoSectionStartsFresh()
+    {
+        var data = new TimbnSaveData<Sample>("mod.b", null);
+        data.Current.Days = 9;
+
+        TimbnSectionFile.LoadEntry([], data, Main, "Tests");
+
+        Assert.Equal(0, data.Current.Days);
+    }
+
+    [Fact]
+    public void KeepEntryWritesTheEntrysSection()
+    {
+        var sections = new JObject { ["mod.other"] = new JObject { ["Days"] = 1 } };
+        var data = new TimbnSaveData<Sample>("mod.a", null);
+        data.Current.Days = 7;
+
+        TimbnSectionFile.KeepEntry(sections, data, "Tests");
+
+        Assert.Equal(7, (int)sections["mod.a"]!["Days"]!);
+        Assert.Equal(1, (int)sections["mod.other"]!["Days"]!);
+    }
+
+    [Fact]
+    public void KeepEntryReplacesAnOlderSection()
+    {
+        var sections = new JObject { ["mod.a"] = new JObject { ["Days"] = 1 } };
+        var data = new TimbnSaveData<Sample>("mod.a", null);
+        data.Current.Days = 2;
+
+        TimbnSectionFile.KeepEntry(sections, data, "Tests");
+
+        Assert.Equal(2, (int)sections["mod.a"]!["Days"]!);
+    }
+
+    [Fact]
+    public void AFileWithNoModsSectionReadsAsEmpty()
+    {
+        File.WriteAllText(Main, "{ \"formatVersion\": 1 }");
+
+        Assert.Empty(TimbnSectionFile.Read(Main, Backup, _logger));
+    }
+
+    [Fact]
+    public void WriteKeepsTheFormatVersion()
+    {
+        TimbnSectionFile.Write(Main, Backup, new JObject { ["mod.a"] = new JObject() });
+
+        var root = JObject.Parse(File.ReadAllText(Main));
+
+        Assert.Equal(1, (int)root["formatVersion"]!);
+        Assert.NotNull(root["mods"]!["mod.a"]);
+    }
+
+    public sealed class Sample
+    {
+        public int Days { get; set; }
+    }
 }

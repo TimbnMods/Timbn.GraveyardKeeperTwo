@@ -2,7 +2,7 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
 /// Keeps a plugin's own data with each save. The data goes in a file next to the game's save rather than inside
-/// it, so removing the plugin never breaks a save, and Steam Cloud syncs it along with the save. Core reads the
+/// it, so removing the plugin never breaks a save. Core reads the
 /// file when a save loads, writes it each time the game saves, and deletes it with the save. Reach it through the
 /// plugin's Saves property.
 /// </summary>
@@ -45,7 +45,7 @@ public sealed class TimbnPluginSaves
     /// </example>
     /// <typeparam name="T">The plugin's save data type. It needs a public constructor with no parameters.</typeparam>
     /// <param name="loaded">
-    /// Optional. Runs with the data each time a save starts, before the plugin's GameStarted handlers, and right
+    /// Optional. Runs with the data each time a save starts, before the plugin's SaveReady handlers, and right
     /// away when the plugin registers while a save is already running.
     /// </param>
     /// <returns>The handle whose Current property holds the data for the loaded save.</returns>
@@ -88,7 +88,7 @@ public sealed class TimbnPluginSaves
     /// protected override void OnAwake()
     /// {
     ///     var welcome = Saves.RegisterGlobal<WelcomeData>();
-    ///     Events.GameStarted(() =>
+    ///     Events.SaveReady(() =>
     ///     {
     ///         if (welcome.Current.Seen)
     ///             return;

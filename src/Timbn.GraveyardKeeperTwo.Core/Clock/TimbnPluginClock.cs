@@ -22,14 +22,14 @@ public sealed class TimbnPluginClock
     /// </summary>
     /// <example>
     /// <code>
-    /// _fastTime = Clock.SetSpeed(7f);
+    /// _fastTime = Clock.MultiplyGameSpeed(7f);
     /// // later
     /// _fastTime?.Dispose();
     /// </code>
     /// </example>
     /// <param name="multiplier">How many times faster than normal time runs. 1 is normal speed.</param>
     /// <returns>A handle that puts the speed back when disposed. It is also released when the plugin unloads and on the way to the main menu.</returns>
-    public IDisposable SetSpeed(float multiplier) => _owner.SessionSubscriptions.Add(TimbnGameSpeed.Set(multiplier));
+    public IDisposable MultiplyGameSpeed(float multiplier) => _owner.SessionSubscriptions.Add(TimbnGameSpeed.Set(multiplier));
 
     /// <summary>
     /// Stops the game's clock until the returned handle is disposed, so the time of day, the weather and the
@@ -39,11 +39,11 @@ public sealed class TimbnPluginClock
     /// </summary>
     /// <example>
     /// <code>
-    /// _frozen = Clock.Pause();
+    /// _frozen = Clock.Freeze();
     /// // later
     /// _frozen?.Dispose();
     /// </code>
     /// </example>
     /// <returns>A handle that starts the clock again when disposed. It is also released when the plugin unloads and on the way to the main menu.</returns>
-    public IDisposable Pause() => _owner.SessionSubscriptions.Add(TimbnClockPause.Take());
+    public IDisposable Freeze() => _owner.SessionSubscriptions.Add(TimbnClockPause.Take());
 }

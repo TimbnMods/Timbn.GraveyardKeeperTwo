@@ -1,0 +1,52 @@
+<Project>
+
+  <!--
+    Imported into any project that references the Timbn.GraveyardKeeperTwo.Core package. Core's public API
+    exposes game types, and the game's DLLs cannot be redistributed, so they are referenced from the
+    player's own install. Set GameDir in your csproj or on the command line when the game is somewhere else.
+  -->
+  <PropertyGroup>
+    <GameDir Condition="'$(GameDir)' == ''">C:\Program Files (x86)\Steam\steamapps\common\Graveyard Keeper 2</GameDir>
+    <GameManagedDir Condition="'$(GameManagedDir)' == ''">$(GameDir)\GraveyardKeeper2_Data\Managed</GameManagedDir>
+  </PropertyGroup>
+
+  <ItemGroup Condition="Exists('$(GameManagedDir)')">
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(GameManagedDir)\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>$(GameManagedDir)\Assembly-CSharp-firstpass.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="LazyBearTechnology">
+      <HintPath>$(GameManagedDir)\LazyBearTechnology.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Sirenix.Serialization">
+      <HintPath>$(GameManagedDir)\Sirenix.Serialization.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.Addressables">
+      <HintPath>$(GameManagedDir)\Unity.Addressables.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.ResourceManager">
+      <HintPath>$(GameManagedDir)\Unity.ResourceManager.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Unity.TextMeshPro">
+      <HintPath>$(GameManagedDir)\Unity.TextMeshPro.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine.UI">
+      <HintPath>$(GameManagedDir)\UnityEngine.UI.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+  <Target Name="TimbnWarnMissingGame" BeforeTargets="ResolveAssemblyReferences" Condition="!Exists('$(GameManagedDir)')">
+    <Warning Text="Graveyard Keeper 2 was not found at $(GameDir). Set the GameDir property to your install folder." />
+  </Target>
+
+</Project>

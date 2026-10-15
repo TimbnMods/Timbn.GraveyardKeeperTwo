@@ -2,7 +2,6 @@ using System.Runtime.CompilerServices;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 
-/// <summary>Harmony patch on sleeping that raises the sleep started, refused and ended events.</summary>
 [HarmonyPatch(typeof(EnergySystem))]
 internal static class EnergySystemPatch
 {
@@ -28,6 +27,11 @@ internal static class EnergySystemPatch
         if (!__state.Value)
             TimbnPatchedEvents.RaiseSleepStarted();
     }
+
+    [HarmonyPatch(nameof(EnergySystem.StopSleeping))]
+    [HarmonyPrefix]
+    private static void StopSleepingPreFix() =>
+        TimbnQuests.OnWakingUp();
 
     [HarmonyPatch(nameof(EnergySystem.StopSleeping))]
     [HarmonyPostfix]

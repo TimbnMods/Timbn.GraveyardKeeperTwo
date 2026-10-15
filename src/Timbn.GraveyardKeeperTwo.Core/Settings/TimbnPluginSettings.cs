@@ -23,8 +23,8 @@ public sealed class TimbnPluginSettings
     /// </summary>
     /// <example>
     /// <code>
-    /// Settings.Toggle(PluginConfig.GreenThumbTalentBonus, _greenThumb.Apply, _greenThumb.Revert);
-    /// Settings.Toggle(PluginConfig.StudyTableNoStuckCrafts, StudyTableStuckCraft.ClearStuckCrafts);
+    /// Settings.Toggle(PluginConfig.StuckCarriers, stuckCarriers.Reset, stuckCarriers.Revert);
+    /// Settings.Toggle(PluginConfig.StuckResourceWorkers, Repair);
     /// </code>
     /// </example>
     /// <param name="entry">The toggle.</param>
@@ -65,7 +65,7 @@ public sealed class TimbnPluginSettings
     /// </summary>
     /// <example>
     /// <code>
-    /// Settings.While(PluginConfig.StuckCarriers, () => Events.Every(0.5f, stuckCarriers.Tick));
+    /// Settings.While(PluginConfig.StuckCarriers, () => Events.EveryRealSeconds(0.5f, stuckCarriers.Tick));
     /// </code>
     /// </example>
     /// <param name="entry">The toggle.</param>
@@ -99,7 +99,7 @@ public sealed class TimbnPluginSettings
     /// </summary>
     /// <example>
     /// <code>
-    /// Settings.Changed(PluginConfig.Volume, volume => Logger.LogInfo($"Volume is now {volume}"));
+    /// Settings.Changed(PluginConfig.TimeSpeed, speed => Logger.LogInfo($"Meditation time speed is now {speed}"));
     /// </code>
     /// </example>
     /// <param name="entry">The setting.</param>
@@ -111,11 +111,12 @@ public sealed class TimbnPluginSettings
     /// <summary>
     /// Whether a toggle is on and its feature is working, which is what <see cref="Toggle(ConfigEntry{bool}, Action, Action)"/>
     /// and <see cref="While(ConfigEntry{bool}, Func{IDisposable})"/> go by. Use it in place of the entry's Value in a
-    /// patch or a handler that reads the toggle directly.
+    /// patch or a handler that reads the toggle directly. The plugin's static IsEnabled is the master switch instead,
+    /// the plugin's own Enabled toggle and Core's.
     /// </summary>
     /// <param name="entry">The toggle.</param>
     /// <returns>True when the toggle is on and no game update has broken the feature's patches.</returns>
-    public bool IsOn(ConfigEntry<bool> entry) => entry.Value && !_owner.IsFeatureBroken(entry.Definition.Key);
+    public bool IsEnabled(ConfigEntry<bool> entry) => entry.Value && !_owner.IsFeatureBroken(entry.Definition.Key);
 
     private Func<T, bool> Working<T>(ConfigEntry<T> entry, Func<T, bool> isOn) =>
         value => !_owner.IsFeatureBroken(entry.Definition.Key) && isOn(value);

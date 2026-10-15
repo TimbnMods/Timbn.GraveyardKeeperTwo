@@ -85,15 +85,16 @@
   </Target>
 
   <!--
-    Runs after Package for a project that sets ThunderstoreDescription and writes
+    Runs after Package for a project that sets Thunderstore true and writes
     artifacts/thunderstore/<Namespace>-<Name>-<Version>.zip. The zip root holds manifest.json, the project's README.md,
     and docs/<ModName>/icon.png (256x256), next to the same plugin folder the release zip has. The Thunderstore name
-    defaults to Product with underscores for spaces. A mod that declares a Core dependency depends on Core at that
+    is Product with the spaces removed, and its description is ThunderstoreDescription when set, else Description. A mod that declares a Core dependency depends on Core at that
     floor, raised to ThunderstoreCoreFirstVersion when it is older.
   -->
-  <Target Name="PackageThunderstore" AfterTargets="Package" Condition="'$(ThunderstoreDescription)' != ''">
+  <Target Name="PackageThunderstore" AfterTargets="Package" Condition="'$(Thunderstore)' == 'true'">
     <PropertyGroup>
-      <ThunderstoreName Condition="'$(ThunderstoreName)' == ''">$(Product.Replace(' ', '_'))</ThunderstoreName>
+      <ThunderstoreName Condition="'$(ThunderstoreName)' == ''">$(Product.Replace(' ', ''))</ThunderstoreName>
+      <ThunderstoreDescription Condition="'$(ThunderstoreDescription)' == ''">$(Description)</ThunderstoreDescription>
       <_ThunderstoreStage>$(IntermediateOutputPath)thunderstore\</_ThunderstoreStage>
       <_ThunderstoreIcon>$(_RepoRoot)\docs\$(_ModName)\icon.png</_ThunderstoreIcon>
       <_ThunderstoreReadme>$(MSBuildProjectDirectory)\README.md</_ThunderstoreReadme>

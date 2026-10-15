@@ -10,6 +10,12 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 /// </summary>
 public static class TimbnConfig
 {
+    // The configuration manager finds this by its field name, so the class only has to be named like its own.
+    private sealed class HiddenEntry
+    {
+        public readonly bool? Browsable = false;
+    }
+
     /// <summary>
     /// Reloads the config file of every loaded plugin, Timbn or not. A failure in one plugin is logged and does
     /// not stop the rest. A key removed from a file keeps its current value instead of returning to its default.
@@ -47,7 +53,7 @@ public static class TimbnConfig
     /// <code>
     /// TimbnConfig.CarryOver(
     ///     config,
-    ///     (PerkTalentBonus, "GreenThumb", "TalentBonus"),
+    ///     (StuckCarriers, "Carriers", "ShowWhenStuck"),
     ///     (UnstuckKey, "Unstuck", "Key"));
     /// </code>
     /// </example>
@@ -80,7 +86,7 @@ public static class TimbnConfig
     /// </summary>
     /// <example>
     /// <code>
-    /// TimeSpeed = config.Bind("Meditation", "TimeSpeed", 7f, "How many times faster time runs while you meditate.", 1f, 50f);
+    /// TimeSpeed = config.BindRange("Meditation", "TimeSpeed", 7f, "How many times faster time runs while you meditate.", 1f, 50f);
     /// </code>
     /// </example>
     /// <param name="config">The plugin's config file.</param>
@@ -91,9 +97,27 @@ public static class TimbnConfig
     /// <param name="min">The lowest value allowed.</param>
     /// <param name="max">The highest value allowed.</param>
     /// <returns>The bound setting.</returns>
-    public static ConfigEntry<T> Bind<T>(this ConfigFile config, string section, string key, T defaultValue, string description, T min, T max)
+    public static ConfigEntry<T> BindRange<T>(this ConfigFile config, string section, string key, T defaultValue, string description, T min, T max)
         where T : IComparable =>
         config.Bind(section, key, defaultValue, new ConfigDescription(description, new AcceptableValueRange<T>(min, max)));
+
+    /// <summary>
+    /// Binds a setting that stays out of the in game configuration manager, for a switch only a developer needs, such as
+    /// turning on a plugin's debug log. It is still written to the config file and read like any other entry.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// WriteDebugLog = config.BindHidden("Debug", "WriteDebugLog", false, "Writes the debug log.");
+    /// </code>
+    /// </example>
+    /// <param name="config">The plugin's config file.</param>
+    /// <param name="section">The section it goes under.</param>
+    /// <param name="key">The setting's name.</param>
+    /// <param name="defaultValue">The value until it is changed.</param>
+    /// <param name="description">What the setting does.</param>
+    /// <returns>The bound setting.</returns>
+    public static ConfigEntry<T> BindHidden<T>(this ConfigFile config, string section, string key, T defaultValue, string description) =>
+        config.Bind(section, key, defaultValue, new ConfigDescription(description, null, new HiddenEntry()));
 
     /// <summary>Reloads the config file of one plugin, as <see cref="ReloadAll"/> does for every plugin.</summary>
     /// <param name="plugin">The plugin whose config file to re-read.</param>

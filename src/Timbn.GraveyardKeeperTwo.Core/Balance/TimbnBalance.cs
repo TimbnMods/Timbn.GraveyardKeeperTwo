@@ -4,8 +4,8 @@ using System.Collections;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Adds definitions to the game's balance tables, before or after they load, so GameBalance.Me.GetData
-/// finds them. Disposing the result removes the definition.
+/// Helpers for the game's balance tables. A plugin adds and edits definitions through its Balance property, and
+/// this class holds the static pieces around that, like checking whether the balance has loaded and swapping item icons.
 /// </summary>
 public static class TimbnBalance
 {
@@ -23,11 +23,21 @@ public static class TimbnBalance
     private static readonly Action<GameBalance> _createAutopsyCraftsCache = CacheBuilder("CreateAutopsyCraftsCache");
     private static readonly Action<GameBalance> _createCraftGroupsCache = CacheBuilder("CreateCraftGroupsCache");
     private static readonly Action<GameBalance> _createCraftInItemsCache = CacheBuilder("CreateCraftInItemsCache");
+    private static readonly Action<GameBalance> _createWorkbenchExtensionsCache = CacheBuilder("CreateWorkbenchExtensionsCache");
+    private static readonly Action<GameBalance> _createBuildCache = CacheBuilder("CreateBuildCache");
+    private static readonly Action<GameBalance> _createCustomBuildAreaCache = CacheBuilder("CreateCustomBuildAreaIdToWgoIdsCache");
+
+    private static readonly AccessTools.FieldRef<ObjectLinkedToDefinition<WGODef>, string> _worldObjectCachedId =
+        AccessTools.FieldRefAccess<ObjectLinkedToDefinition<WGODef>, string>("cachedId");
 
     private static readonly AccessTools.FieldRef<ItemDef, string> _itemCustomIcon = AccessTools.FieldRefAccess<ItemDef, string>("customIcon");
     private static readonly AccessTools.FieldRef<ItemDef, bool> _itemPerksCached = AccessTools.FieldRefAccess<ItemDef, bool>("perksCached");
 
     private static readonly List<Entry> _entries = [];
+
+    // Removed during an F6 reload and still in the game until the reloaded plugins have added theirs.
+    private static readonly List<Entry> _held = [];
+    private static bool _holding;
     private static readonly List<IEdit> _edits = [];
 
     /// <summary>The balance if the game has loaded it, or null. Unlike GameBalance.Me it never forces a load.</summary>
@@ -57,11 +67,85 @@ public static class TimbnBalance
     {
         var entry = new Entry(definition, prepare, removed);
         _entries.Add(entry);
-        if (Loaded is { } balance && Insert(balance, entry) && refresh)
-            RefreshDerivedCaches(balance, definition.GetType());
+        if (Loaded is { } balance && Insert(balance, entry))
+        {
+            if (refresh)
+                RefreshDerivedCaches(balance, definition.GetType());
+
+            RefreshLoadedObjects(definition);
+        }
 
         return new TimbnUndo(() => Remove(entry));
     }
+
+    internal static IDisposable AddCopy<T>(string templateId, string id, Action<T>? edit) where T : BalanceBaseObject, new() =>
+        AddCopy<T>(_ => templateId, id, edit is null ? null : (_, definition) => edit(definition));
+
+    // A false from accept keeps the definition out of the balance, and the caller says why.
+    internal static IDisposable AddCopy<T>(Func<GameBalance, string> templateIdOf, string id, Action<GameBalance, T>? edit, Func<GameBalance, bool>? accept = null) where T : BalanceBaseObject, new()
+    {
+        var definition = new T { id = id };
+        return Add(definition, balance =>
+        {
+            if (accept != null && !accept(balance))
+                return false;
+
+            var templateId = templateIdOf(balance);
+            var template = balance.GetDataOrNull<T>(templateId);
+            if (template == null)
+            {
+                TimbnCorePlugin.Logger.LogError($"{nameof(TimbnBalance)}|There is no {typeof(T).Name} '{templateId}' to copy for '{id}'.");
+                return false;
+            }
+
+            JsonUtility.FromJsonOverwrite(JsonUtility.ToJson(template), definition);
+            definition.id = id;
+            edit?.Invoke(balance, definition);
+            // The copy is the same object on every load and its perk cache is not serialized, so it would keep the old use effects.
+            if (definition is ItemDef item)
+                RefreshUseEffects(item);
+
+            return true;
+        }, null);
+    }
+
+    internal static IDisposable AddItem(string templateItemId, string id, string name, string description, string iconId, Action<ItemDef>? edit)
+    {
+        List<IDisposable> undo = [];
+        var texts = TimbnStationRules.Texts((id, name), (TimbnStationRules.DescriptionKey(id), description));
+        if (texts.Count > 0)
+            undo.Add(TimbnLocale.Add(texts));
+
+        undo.Add(AddCopy<ItemDef>(templateItemId, id, item =>
+        {
+            if (iconId.Length > 0)
+                SetIcon(item, iconId);
+
+            edit?.Invoke(item);
+        }));
+        return TimbnUndo.All(undo);
+    }
+
+    /// <summary>
+    /// Builds a game expression that holds a plain text value, for a field that names an id but is typed as an
+    /// expression, such as WGODef.replaceToWgoOnDie, WGODef.customAssetId or CraftDef.customCraftResultIcon. The game
+    /// stores those as pure string values, and <c>new LazyExpression("grave_top_stn_1")</c> would try to evaluate the id
+    /// as a formula and come out empty.
+    /// </summary>
+    /// <param name="value">The text, usually an id.</param>
+    /// <returns>An expression that evaluates to the text.</returns>
+    public static LazyExpression TextExpression(string value) => TimbnExpression.PureText(value);
+
+    /// <summary>
+    /// Builds a game expression from a formula the way the balance parses its own, for an expression field such as
+    /// ItemDef.onUseExpressions, ExpressionGameRes.expression or CraftDef.onCraftEndExpressions. Unlike
+    /// <c>new LazyExpression(formula)</c>, a #perk or $resource reference in it works, so
+    /// <c>TimbnBalance.Expression("20+2*$food_eng_buff")</c> reads the player's food buff.
+    /// </summary>
+    /// <param name="formula">The formula, for example <c>AddPerk("buff_talent_blue_1")</c> or <c>3+2*#perk_cook_2</c>.</param>
+    /// <returns>The expression.</returns>
+    /// <exception cref="ArgumentException">The formula is empty.</exception>
+    public static LazyExpression Expression(string formula) => TimbnExpression.Formula(formula);
 
     internal static IDisposable Edit<T>(string id, Action<T> apply, Action<T> revert, ManualLogSource logger) where T : BalanceBaseObject
     {
@@ -98,6 +182,15 @@ public static class TimbnBalance
 
     internal static void RefreshQuestCaches(GameBalance balance) => _createQuestsCache(balance);
 
+    internal static HashSet<string> AddedIds<T>() where T : BalanceBaseObject =>
+        new(_entries.Where(entry => entry.Definition is T).Select(entry => entry.Definition.id));
+
+    internal static HashSet<string> AllAddedIds() => new(_entries.Select(entry => entry.Definition.id));
+
+    /// <summary>Whether a plugin added the definition through Core, counting one held over an F6 reload.</summary>
+    internal static bool IsAdded(BalanceBaseObject definition) =>
+        _entries.Any(entry => entry.Definition == definition) || _held.Any(entry => entry.Definition == definition);
+
     /// <summary>
     /// Rebuilds the game's lookups of which station makes what and which items belong to which group, after a mod
     /// changed crafts or item groups in place, and has every station in the loaded save pick up the new crafts.
@@ -115,18 +208,22 @@ public static class TimbnBalance
         balance.craftInItemsCacheShownInTooltips.Clear();
         _createCraftInItemsCache(balance);
 
-        foreach (var wgo in TimbnWorld.All())
+        foreach (var wgo in TimbnWorld.Objects())
             wgo.CraftComponent?.ResetCraftsFromBalanceCache();
     }
 
     /// <summary>
-    /// Changes an item's icon to any sprite the game has, or one added with the plugin's Sprites.AddPng. The game
-    /// keeps the icon id in two places, so setting iconId alone leaves the old icon in some windows.
+    /// Changes an item's icon to any sprite the game has, or one added with the plugin's Sprites.AddPng. It sets the
+    /// item's iconId and also its custom icon, so the two always match.
     /// </summary>
     /// <example>
-    /// <code>
-    /// Balance.Edit&lt;ItemDef&gt;("cooked_fish", fish => TimbnBalance.SetIcon(fish, "timbn_grilled_fish"), fish => TimbnBalance.SetIcon(fish, "i_cooked_fish"));
-    /// </code>
+    /// <code><![CDATA[
+    /// var original = "";
+    /// Balance.Edit<ItemDef>(
+    ///     "fish_roach",
+    ///     fish => { original = TimbnBalance.GetIcon(fish); TimbnBalance.SetIcon(fish, "timbn_roach"); },
+    ///     fish => TimbnBalance.SetIcon(fish, original));
+    /// ]]></code>
     /// </example>
     /// <param name="item">The item to change.</param>
     /// <param name="iconId">The sprite name.</param>
@@ -137,8 +234,8 @@ public static class TimbnBalance
     }
 
     /// <summary>
-    /// Reads the id an item's icon is drawn from, the one <see cref="SetIcon"/> writes, which can differ from its
-    /// iconId. Save it before changing the icon to put it back later.
+    /// Reads an item's custom icon, or its iconId when it has none. Save it before <see cref="SetIcon"/> to put the
+    /// icon back later.
     /// </summary>
     /// <param name="item">The item.</param>
     /// <returns>The sprite name the item is drawn with.</returns>
@@ -147,10 +244,10 @@ public static class TimbnBalance
     /// <summary>
     /// Makes the game read an item's use effects again. The game remembers which buffs an item gives the first
     /// time it looks, so a change to onUseExpressions is not seen until this is called. The plugin's Balance.Edit
-    /// on an ItemDef calls it for you after apply and revert.
+    /// on an ItemDef calls it for you after apply and revert, and Balance.AddCopy and Balance.AddItem after edit.
     /// </summary>
     /// <param name="item">The item whose use effects changed.</param>
-    public static void ForgetPerks(ItemDef item) => _itemPerksCached(item) = false;
+    public static void RefreshUseEffects(ItemDef item) => _itemPerksCached(item) = false;
 
     private static Action<GameBalance> CacheBuilder(string name) =>
         AccessTools.MethodDelegate<Action<GameBalance>>(AccessTools.Method(typeof(GameBalance), name));
@@ -170,9 +267,12 @@ public static class TimbnBalance
             return false;
 
         var existing = FindById(list, definition.id);
-        if (existing != -1 && !_entries.Any(e => e != entry && e.Definition == list[existing]))
+        if (existing != -1 && !_entries.Any(e => e != entry && e.Definition == list[existing]) && !_held.Any(e => e.Definition == list[existing]))
         {
-            TimbnCorePlugin.Logger.LogError($"{nameof(TimbnBalance)}|The game already has a {definition.GetType().Name} with id '{definition.id}'.");
+            // Forgotten, not just refused, or the vanilla id would count as the mod's and its items would be taken
+            // out of every save.
+            _entries.Remove(entry);
+            TimbnCorePlugin.Logger.LogError($"{nameof(TimbnBalance)}|The game already has a {definition.GetType().Name} with id '{definition.id}', so it is not added.");
             return false;
         }
 
@@ -186,13 +286,44 @@ public static class TimbnBalance
             return true;
         }
 
+        // A reloaded plugin's copy takes the place of its held one, which then has nothing left to clean up.
+        var replaced = list[existing];
+        _held.RemoveAll(held => held.Definition == replaced);
         list[existing] = definition;
         return true;
+    }
+
+    /// <summary>
+    /// Keeps the definitions of plugins removed from now on in the game until <see cref="ReleaseHeldRemovals"/>. ScriptEngine
+    /// destroys the old plugins a frame before it adds the new ones, and the game would meet a queued craft or a placed
+    /// station with no definition in that frame.
+    /// </summary>
+    internal static void HoldRemovals() => _holding = true;
+
+    /// <summary>Removes every held definition no reloaded plugin added again, the way an unload would have.</summary>
+    internal static void ReleaseHeldRemovals()
+    {
+        _holding = false;
+        var held = _held.ToList();
+        _held.Clear();
+        foreach (var entry in held)
+            Drop(entry);
     }
 
     private static void Remove(Entry entry)
     {
         _entries.Remove(entry);
+        if (_holding)
+        {
+            _held.Add(entry);
+            return;
+        }
+
+        Drop(entry);
+    }
+
+    private static void Drop(Entry entry)
+    {
         if (Loaded is not { } balance)
             return;
 
@@ -230,9 +361,39 @@ public static class TimbnBalance
     private static void RefreshDerivedCaches(GameBalance balance, Type type)
     {
         if (type == typeof(QuestDef))
+        {
             _createQuestsCache(balance);
+        }
         else if (type == typeof(CraftDef) || type == typeof(ItemDef))
+        {
             RefreshCraftCaches();
+            // The craft window reads this for every extension row, so a craft with an extensionNeedId is missing without it.
+            if (type == typeof(CraftDef))
+                _createWorkbenchExtensionsCache(balance);
+        }
+        else if (type == typeof(WGODef))
+        {
+            _createWorkbenchExtensionsCache(balance);
+        }
+        else if (type == typeof(BuildingDef))
+        {
+            _createBuildCache(balance);
+            _createCustomBuildAreaCache(balance);
+        }
+    }
+
+    private static void RefreshLoadedObjects(BalanceBaseObject definition)
+    {
+        if (definition is not WGODef || !TimbnGame.IsInGame)
+            return;
+
+        // A world object keeps the definition object it first read until its id changes, so a station built before a
+        // hot reload would keep the old copy. Init is also where a station copies its tick length from the definition.
+        foreach (var wgo in TimbnWorld.Objects(wgo => wgo.id == definition.id).ToList())
+        {
+            _worldObjectCachedId(wgo) = "";
+            wgo.CraftComponent?.Init(wgo);
+        }
     }
 
     private interface IEdit
@@ -275,7 +436,7 @@ public static class TimbnBalance
         {
             TimbnSafe.Run(() => action(definition), logger, $"{nameof(TimbnBalance)}|{doing} {typeof(T).Name} '{id}'");
             if (definition is ItemDef item)
-                ForgetPerks(item);
+                RefreshUseEffects(item);
         }
     }
 

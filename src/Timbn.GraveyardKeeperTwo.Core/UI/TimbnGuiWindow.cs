@@ -2,12 +2,12 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
 /// An IMGUI box for a plugin's debug or cheat menu, opened and closed with a key from the plugin's config. Core
-/// draws the box, its title line with the key to close it, and a "load a save" note while no save is loaded, so
-/// the plugin only draws what goes inside. Get one from the plugin's UI.Window.
+/// draws the box, a title line that names the key to close it, and a "load a save" note while no save is loaded,
+/// so the plugin only draws what goes inside. Get one from the plugin's UI.DebugWindow.
 /// </summary>
 /// <example>
 /// <code>
-/// var menu = UI.Window("Timbn Cheats", DrawCheats, PluginConfig.ToggleMenu);
+/// var menu = UI.CreateDebugWindow("Timbn Cheats", DrawCheats, PluginConfig.ToggleMenu);
 /// menu.Area = new Rect(20, 20, 420, 640);
 /// </code>
 /// </example>
@@ -25,7 +25,7 @@ public sealed class TimbnGuiWindow
     }
 
     /// <summary>Whether the window is on screen. The toggle key flips it, and the plugin can set it too.</summary>
-    public bool Visible { get; set; }
+    public bool IsVisible { get; set; }
 
     /// <summary>
     /// Where the box is drawn and how big it is, in screen pixels. With <see cref="AnchorRight"/> the x is measured
@@ -45,12 +45,12 @@ public sealed class TimbnGuiWindow
     internal void Tick()
     {
         if (_toggle != null && _toggle.Value.IsDown())
-            Visible = !Visible;
+            IsVisible = !IsVisible;
     }
 
     internal void Draw()
     {
-        if (!Visible)
+        if (!IsVisible)
             return;
 
         var area = AnchorRight ? new Rect(Screen.width - Area.x - Area.width, Area.y, Area.width, Area.height) : Area;

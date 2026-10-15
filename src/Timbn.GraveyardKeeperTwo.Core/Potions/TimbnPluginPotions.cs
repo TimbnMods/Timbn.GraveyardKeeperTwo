@@ -21,5 +21,5 @@ public sealed class TimbnPluginPotions
     /// </summary>
     /// <param name="potion">The potion to add. Its runes must not match any other formula, or it is skipped with a warning.</param>
     /// <returns>A handle that removes the potion early when disposed. You don't need to keep it.</returns>
-    public IDisposable Register(TimbnPotion potion) => _owner.Subscriptions.Add(TimbnPotions.Register(potion));
+    public IDisposable Add(TimbnPotion potion) => _owner.Subscriptions.Add(TimbnPotions.Register(potion));
 }

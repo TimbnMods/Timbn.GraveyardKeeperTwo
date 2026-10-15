@@ -1,11 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <!--
-    Tests for the parts of Core that run without the game: holds, the subscriptions bag, the load error text,
-    the language files, the save section file, and the locale markup parser. They run locally with dotnet test.
-    No CI runs them, since the game DLLs Core compiles against cannot be redistributed. The BepInEx NuGet
-    package holds reference assemblies only, so the runtime copies come from the game's BepInEx install.
-  -->
   <Import Project="..\..\src\Directory.Build.props" />
 
   <PropertyGroup>
@@ -45,6 +39,19 @@
       <HintPath>$(GameManagedDir)\LazyBearTechnology.dll</HintPath>
       <Private>true</Private>
     </Reference>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>..\..\lib\Assembly-CSharp.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>$(GameManagedDir)\Newtonsoft.Json.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>$(GameManagedDir)\UnityEngine.CoreModule.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <None Include="$(GameManagedDir)\UnityEngine.CoreModule.dll;$(GameManagedDir)\UnityEngine.dll" CopyToOutputDirectory="PreserveNewest" Visible="false" />
   </ItemGroup>
 
   <ItemGroup>

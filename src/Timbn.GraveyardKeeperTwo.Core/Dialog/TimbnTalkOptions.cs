@@ -8,9 +8,9 @@ public sealed class TimbnTalkOptions
 
     /// <summary>
     /// Makes the talk a one-shot. Once the player starts it in a save, the NPC stops offering it in that save,
-    /// even after a reload. It is marked when the conversation starts and kept with the game's next save, so a
-    /// player who quits without saving sees it again, like the game's own progress. See
-    /// <see cref="TimbnPluginDialog.ResetOnceTalk"/> to offer it again.
+    /// even after a reload. It is marked when the conversation starts and written to disk when the game next
+    /// finishes saving, so a player who quits without saving sees it again. See
+    /// <see cref="TimbnPluginDialog.ResetTalk"/> to offer it again.
     /// </summary>
     public bool Once { get; set; }
 }
