@@ -224,13 +224,43 @@ internal static class TimbnModContent
     {
         TimbnSafe.Run(() =>
         {
-            RecountTree(save.playerData.inventory?.Data);
+            RecountMembers(save.playerData);
             foreach (var scene in save.worldData.gameSceneDataList)
             {
                 foreach (var wgo in scene.wgoDataList)
-                    RecountTree(_inventory(wgo)?.Data);
+                    RecountMembers(wgo);
+
+                foreach (var drop in scene.droppedItems)
+                    RecountTree(drop?.Item);
             }
+
+            foreach (var vendor in save.vendorSystem.vendors)
+                RecountMembers(vendor);
         }, $"{nameof(TimbnModContent)}|Recounting the inventories");
+    }
+
+    // The same members the strip walks, so the tool belt, vendor stock and anything else it edits are covered.
+    private static void RecountMembers(object? owner)
+    {
+        if (owner is null)
+            return;
+
+        foreach (var field in Members(owner.GetType()))
+        {
+            switch (field.GetValue(owner))
+            {
+                case Inventory inventory:
+                    RecountTree(inventory.Data);
+                    break;
+                case List<Item> list:
+                    foreach (var item in list)
+                        RecountTree(item);
+                    break;
+                case Item item:
+                    RecountTree(item);
+                    break;
+            }
+        }
     }
 
     private static void StripMembers(object? owner, string root, string scene, string ownerId, Func<string, bool> take, List<TimbnStrippedEntry> taken, List<Action>? undo)
