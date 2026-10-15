@@ -24,9 +24,9 @@ public sealed class TimbnPluginStations
     /// <example>
     /// A box that splits boards into sticks, worked like the sawhorse and taking a tool rack.
     /// <code><![CDATA[
+    /// var model = Models.Build("StickBox", faces => faces.Block("stick_box", x: 0, y: 0, z: 0, depth: 40));
     /// var box = Stations.Add("timbn_stick_box", "Stick Box", "A red box for splitting boards into sticks.", station => station
-    ///     .Model(bundle.Model("RedBox"), new Vector3(1f, 0.6f, 1f))
-    ///     .Site(bundle.Model("RedBoxSite"))
+    ///     .Model(model, model.Size)
     ///     .BasedOn("sawhorse")
     ///     .Icon("timbn_stick_box")
     ///     .Cost(("flitch", 2))
@@ -62,7 +62,7 @@ public sealed class TimbnPluginStations
     /// <example>
     /// <code><![CDATA[
     /// var box = Stations.Add("timbn_stick_box", station => station
-    ///     .Model(bundle.Model("RedBox"), new Vector3(1f, 0.6f, 1f))
+    ///     .Model(model, model.Size)
     ///     .BasedOn("sawhorse")
     ///     .Cost(("flitch", 2)));
     /// ]]></code>

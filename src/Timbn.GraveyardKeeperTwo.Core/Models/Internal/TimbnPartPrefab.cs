@@ -7,7 +7,7 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
 /// The template the pool copies for one mod model, standing in for the addressable prefab a world object would
-/// load. It is an inactive GameObject built in code (a bundle can't carry game scripts) with a WgoPart, the colliders
+/// load. It is an inactive GameObject built in code with a WgoPart, the colliders
 /// of its <see cref="TimbnPartShape"/>, and the model under it, plus the baked data the game reads for its footprint,
 /// dock point and chunk bounds.
 /// </summary>

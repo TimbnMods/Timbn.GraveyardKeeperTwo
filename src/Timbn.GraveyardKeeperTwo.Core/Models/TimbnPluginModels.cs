@@ -1,9 +1,9 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Adds 3D models on behalf of a plugin. It loads the plugin's asset bundle and draws the models with the game's own
+/// Adds 3D models on behalf of a plugin. It builds models from the plugin's PNGs and draws them with the game's own
 /// prop shader. Hand a model to the plugin's Stations to make a buildable station or bench extension, or to AddPart
-/// for a part hung on a grave. Everything is unloaded when the plugin unloads. Reach it through the plugin's Models
+/// for a part hung on a grave. Everything is freed when the plugin unloads. Reach it through the plugin's Models
 /// property.
 /// </summary>
 public sealed class TimbnPluginModels
@@ -16,42 +16,11 @@ public sealed class TimbnPluginModels
     }
 
     /// <summary>
-    /// Loads an asset bundle embedded in the plugin's DLL. It is read from memory, which is what works under
-    /// ScriptEngine, and unloaded when the plugin unloads, so F6 can load it again. Embed it with an EmbeddedResource
-    /// item whose LogicalName is the resource name, and build it with Unity 6000.3.9f1.
-    /// </summary>
-    /// <param name="resourceName">The embedded resource's name, for example "examples.bundle".</param>
-    /// <returns>The bundle. Get models from it with <see cref="TimbnModelBundle.Model"/>.</returns>
-    /// <exception cref="InvalidOperationException">The plugin has no such embedded resource, or the bundle could not be loaded.</exception>
-    public TimbnModelBundle LoadEmbeddedBundle(string resourceName)
-    {
-        var bundle = TimbnModels.LoadEmbeddedBundle(_owner.GetType().Assembly, resourceName);
-        _owner.Subscriptions.Add(bundle);
-        return bundle;
-    }
-
-    /// <summary>
-    /// Loads an asset bundle file shipped next to the plugin's DLL, in its folder under BepInEx/plugins or
-    /// BepInEx/scripts. Unity reads models from the file as they are needed instead of keeping a second copy in
-    /// memory, which suits large bundles. It is unloaded when the plugin unloads, so F6 can load it again. Ship it
-    /// with a None item set to CopyToOutputDirectory PreserveNewest, and build it with Unity 6000.3.9f1.
-    /// </summary>
-    /// <param name="fileName">The bundle's path relative to the plugin's folder, for example "Bundles/examples.bundle".</param>
-    /// <returns>The bundle. Get models from it with <see cref="TimbnModelBundle.Model"/>.</returns>
-    /// <exception cref="FileNotFoundException">There is no file at that path in the plugin's folder.</exception>
-    public TimbnModelBundle LoadBundle(string fileName)
-    {
-        var bundle = TimbnModels.LoadBundle(Path.Combine(_owner.Folder, fileName));
-        _owner.Subscriptions.Add(bundle);
-        return bundle;
-    }
-
-    /// <summary>
     /// Makes a model from PNGs with no 3D modeling and no Unity, drawn with the game's own prop shader so it takes
     /// the game's lighting. Each PNG is a face exactly as the player sees it (a front standing up, a top lying flat,
     /// or a block that is both), its own size is the face's size, and you only say where it stands (see
-    /// <see cref="TimbnModelFaces"/>). Hand the result to the plugin's Stations like a model from a bundle. It is
-    /// freed when the plugin unloads.
+    /// <see cref="TimbnModelFaces"/>). Hand the result to the plugin's Stations or AddPart. It is freed when the
+    /// plugin unloads.
     /// </summary>
     /// <param name="name">The model's name, for example "PcDesk".</param>
     /// <param name="build">Adds the model's faces.</param>

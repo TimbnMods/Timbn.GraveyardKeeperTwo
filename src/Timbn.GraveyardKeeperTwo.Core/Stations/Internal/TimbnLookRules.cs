@@ -77,7 +77,7 @@ internal static class TimbnLookRules
     /// <summary>
     /// How far to shift an extra model so it lines up with the base model. A model built from faces is centered on its
     /// own bounds, and every built model measures from the same corner, so the two line up once the difference between
-    /// their centers is taken out. A model from a bundle has no center and needs no shift.
+    /// their centers is taken out.
     /// </summary>
     internal static Vector3 AlignmentOffset(Vector2? overlayCenter, Vector2? baseCenter) =>
         overlayCenter is { } overlay && baseCenter is { } basis

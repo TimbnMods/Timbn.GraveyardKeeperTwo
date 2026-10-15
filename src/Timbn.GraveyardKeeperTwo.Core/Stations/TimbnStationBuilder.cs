@@ -10,9 +10,9 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 /// <example>
 /// A smoking rack that works like the kitchen oven, built in the yard for 4 boards.
 /// <code><![CDATA[
-/// var rack = Stations.Add("timbn_smoking_rack", "Red Workbench", "A plain red bench for smoking fish.", station => station
-///     .Model(bundle.Model("RedWorkbench"), new Vector3(1.5f, 0.8f, 1f))
-///     .Site(bundle.Model("RedWorkbenchSite"))
+/// var model = Models.Build("SmokingRack", faces => faces.Block("smoking_rack", x: 0, y: 0, z: 0, depth: 30));
+/// var rack = Stations.Add("timbn_smoking_rack", "Smoking Rack", "A plain rack for smoking fish.", station => station
+///     .Model(model, model.Size)
 ///     .BasedOn("kitchen_oven")
 ///     .Icon("timbn_red_workbench")
 ///     .Cost(("flitch", 4))
