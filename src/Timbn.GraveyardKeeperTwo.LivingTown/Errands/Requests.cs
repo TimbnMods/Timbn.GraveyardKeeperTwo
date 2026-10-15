@@ -77,15 +77,15 @@ internal sealed class Requests
     private static List<string> KnownDishes()
     {
         var balance = GameBalance.Me;
-        HashSet<string> dishes = [];
-        foreach (var craft in balance.craftDefs)
+        var dishes = new HashSet<string>();
+        var crafts = TimbnPlayer.KnownCrafts(
+            TimbnGameIds.Workstations.Placed.KitchenOven,
+            TimbnGameIds.Workstations.Placed.KitchenOvenT2,
+            TimbnGameIds.Workstations.Placed.KitchenTable,
+            TimbnGameIds.Workstations.Placed.KitchenTableT2);
+
+        foreach (var craft in crafts)
         {
-            if (!craft.craftsIn.Any(station => station.Contains("kitchen")))
-                continue;
-
-            if (!TimbnPlayer.HasCraft(craft.id))
-                continue;
-
             if (craft.outputItems.chanceOutputItems.Count != 1 || craft.outputItems.groupChanceOutputItems.Count != 0)
                 continue;
 
