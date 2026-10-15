@@ -161,13 +161,14 @@ public static class TimbnBalance
     {
         var edit = new DefinitionEdit<T>(id, apply, revert, logger);
         _edits.Add(edit);
-        if (Loaded is { } balance)
-            edit.Apply(balance);
+        if (Loaded is { } balance && edit.Apply(balance))
+            RefreshDerivedCaches(balance, typeof(T));
 
         return new TimbnUndo(() =>
         {
             _edits.Remove(edit);
-            edit.Revert();
+            if (edit.Revert() && Loaded is { } loaded)
+                RefreshDerivedCaches(loaded, typeof(T));
         });
     }
 
@@ -181,7 +182,7 @@ public static class TimbnBalance
     internal static void OnBalanceLoaded(GameBalance balance)
     {
         var touched = new HashSet<Type>();
-        ApplyReadyEdits(balance);
+        ApplyReadyEdits(balance, touched);
 
         var pending = _entries.ToList();
         _resolving = true;
@@ -197,7 +198,7 @@ public static class TimbnBalance
                     {
                         touched.Add(entry.Definition.GetType());
                         progress = true;
-                        ApplyReadyEdits(balance);
+                        ApplyReadyEdits(balance, touched);
                     }
                     else if (_deferred.Remove(entry.Definition))
                         waiting.Add(entry);
@@ -227,7 +228,10 @@ public static class TimbnBalance
 
         // Every edit runs before the caches are rebuilt, so a changed craft or quest shows up in them.
         foreach (var edit in _edits.ToList())
-            edit.Apply(balance);
+        {
+            if (edit.Apply(balance))
+                touched.Add(edit.DefinitionType);
+        }
 
         if (touched.Remove(typeof(ItemDef)))
             touched.Add(typeof(CraftDef));
@@ -236,10 +240,13 @@ public static class TimbnBalance
             RefreshDerivedCaches(balance, type);
     }
 
-    private static void ApplyReadyEdits(GameBalance balance)
+    private static void ApplyReadyEdits(GameBalance balance, HashSet<Type> touched)
     {
         foreach (var edit in _edits.ToList().Where(edit => edit.CanApply(balance)))
-            edit.Apply(balance);
+        {
+            if (edit.Apply(balance))
+                touched.Add(edit.DefinitionType);
+        }
     }
 
     internal static void RefreshQuestCaches(GameBalance balance) => _createQuestsCache(balance);
@@ -460,11 +467,13 @@ public static class TimbnBalance
 
     private interface IEdit
     {
+        Type DefinitionType { get; }
+
         bool CanApply(GameBalance balance);
 
-        void Apply(GameBalance balance);
+        bool Apply(GameBalance balance);
 
-        void Revert();
+        bool Revert();
     }
 
     private sealed class DefinitionEdit<T>(string id, Action<T> apply, Action<T> revert, ManualLogSource logger) : IEdit
@@ -472,30 +481,36 @@ public static class TimbnBalance
     {
         private T? _applied;
 
+        public Type DefinitionType => typeof(T);
+
         public bool CanApply(GameBalance balance) => balance.GetDataOrNull<T>(id) != null;
 
-        public void Apply(GameBalance balance)
+        public bool Apply(GameBalance balance)
         {
             var definition = balance.GetDataOrNull<T>(id);
             if (definition == null)
             {
                 logger.LogWarning($"{nameof(TimbnBalance)}|The balance has no {typeof(T).Name} '{id}' to change.");
-                return;
+                return false;
             }
 
             if (ReferenceEquals(definition, _applied))
-                return;
+                return false;
 
             _applied = definition;
             Run(apply, definition, "changing");
+            return true;
         }
 
-        public void Revert()
+        public bool Revert()
         {
             var applied = _applied;
             _applied = null;
-            if (applied != null && Loaded?.GetDataOrNull<T>(id) == applied)
-                Run(revert, applied, "restoring");
+            if (applied == null || Loaded?.GetDataOrNull<T>(id) != applied)
+                return false;
+
+            Run(revert, applied, "restoring");
+            return true;
         }
 
         private void Run(Action<T> action, T definition, string doing)
