@@ -1,9 +1,7 @@
-using System.Reflection;
-
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Loads plugin asset bundles, hands out copies of the game's prop material per texture, and keeps the parts that
+/// Hands out copies of the game's prop material per texture, and keeps the parts that
 /// serve a model as the look of a world object, keyed by the addressable the game would have loaded. A part that
 /// goes away while its objects are in the world has them released to the pool and redrawn when the same key comes
 /// back, which is how a hot reload keeps built stations visible.
@@ -17,25 +15,6 @@ internal static class TimbnModels
     private static readonly Dictionary<string, TimbnPartPrefab> _parts = [];
     private static readonly Dictionary<string, List<Wgo>> _waitingForRedraw = [];
     private static bool _warnedNoTemplate;
-
-    internal static TimbnModelBundle LoadEmbeddedBundle(Assembly assembly, string resourceName)
-    {
-        var bundle = AssetBundle.LoadFromMemory(TimbnEmbedded.Read(assembly, resourceName))
-            ?? throw new InvalidOperationException($"{resourceName} could not be loaded. Another plugin may have loaded a bundle with the same name.");
-
-        return new TimbnModelBundle(bundle);
-    }
-
-    internal static TimbnModelBundle LoadBundle(string path)
-    {
-        if (!File.Exists(path))
-            throw new FileNotFoundException($"There is no asset bundle at {path}.", path);
-
-        var bundle = AssetBundle.LoadFromFile(path)
-            ?? throw new InvalidOperationException($"{path} could not be loaded. Another plugin may have loaded a bundle with the same name.");
-
-        return new TimbnModelBundle(bundle);
-    }
 
     internal static IDisposable AddStation(string assetId, IReadOnlyList<TimbnSide<TimbnModel>> sides, float? dockDistance, bool zombieSpot = false,
         IReadOnlyList<TimbnStationOverlay>? overlays = null, IReadOnlyList<TimbnStationSlot>? slots = null) =>
@@ -153,7 +132,6 @@ internal static class TimbnModels
 
     internal static void ReleaseMaterialsOfUnloadedTextures()
     {
-        // Swept by destroyed key, since a bundle's LoadAllAssets can miss the texture a prefab's material used.
         foreach (var texture in _materials.Keys.Where(texture => texture == null).ToList())
         {
             _materials.Remove(texture, out var material);

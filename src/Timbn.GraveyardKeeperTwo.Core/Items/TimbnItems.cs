@@ -135,7 +135,7 @@ public static class TimbnItems
     /// </example>
     /// <param name="id">The item id.</param>
     /// <returns>The price, or 0 for an item the game doesn't have or sells for nothing.</returns>
-    public static int SalePrice(string id) => GameBalance.Me?.GetDataOrNull<ItemDef>(id)?.basePrice ?? 0;
+    public static int SalePrice(string id) => TimbnBalance.Loaded?.GetDataOrNull<ItemDef>(id)?.basePrice ?? 0;
 
     /// <summary>
     /// The sprite id of an item's icon, the one its inventory cell shows, for anything that takes a sprite id, such as
@@ -148,7 +148,7 @@ public static class TimbnItems
     /// </example>
     /// <param name="id">The item id.</param>
     /// <returns>The sprite id, or an empty string for an item the game doesn't have.</returns>
-    public static string IconId(string id) => GameBalance.Me?.GetDataOrNull<ItemDef>(id) is { } item ? TimbnBalance.GetIcon(item) : "";
+    public static string IconId(string id) => TimbnBalance.Loaded?.GetDataOrNull<ItemDef>(id) is { } item ? TimbnBalance.GetIcon(item) : "";
 
     /// <summary>Counts an item in the player's inventory and bags. Storage in the world does not count.</summary>
     /// <param name="id">The item id.</param>

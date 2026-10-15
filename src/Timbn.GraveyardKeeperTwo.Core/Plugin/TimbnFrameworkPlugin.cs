@@ -119,7 +119,7 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
     /// <summary>Plays the game's own music for the plugin, put back the way it was when the plugin is done.</summary>
     public TimbnPluginAudio Audio { get; }
 
-    /// <summary>Loads 3D models from the plugin's asset bundle and uses them in the world, all unloaded when this plugin unloads.</summary>
+    /// <summary>Builds 3D models from the plugin's PNGs and uses them in the world, all freed when this plugin unloads.</summary>
     public TimbnPluginModels Models { get; }
 
     /// <summary>Adds buildable workstations and bench extensions, offered at a build desk, that are removed when this plugin unloads.</summary>

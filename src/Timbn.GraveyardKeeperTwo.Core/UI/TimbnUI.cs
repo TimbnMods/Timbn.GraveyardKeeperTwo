@@ -15,14 +15,10 @@ public static class TimbnUI
     public static LazyWidgetBase? ActiveWindow => LazyWindowsStackController.ActiveWindow;
 
     /// <summary>True while the screen is fading to or from black. A hotkey or a scripted change should wait until it ends.</summary>
-    public static bool IsScreenFading
-    {
-        get
-        {
-            var fade = LazyUI.Get<UIFade>();
-            return fade != null && fade.IsFadeShowing;
-        }
-    }
+    public static bool IsScreenFading => Fade is { } fade && fade.IsFadeShowing;
+
+    // LazyUI.Get throws on its null element table until the game's UI is set up.
+    private static UIFade? Fade => LazyUI.IsInitialized ? LazyUI.Get<UIFade>() : null;
 
     /// <summary>Whether the game window on top is of the given type, such as the building window.</summary>
     /// <example>
@@ -91,21 +87,10 @@ public static class TimbnUI
         LazySingleton<UINotificator>.Instance?.ShowSimpleTextNotificationOneTime(key);
     }
 
-    /// <summary>
-    /// Fades the screen to black, runs your code while it is black, and fades back in, the way the game hides a
-    /// change such as the player sitting down or a teleport. When the game has no fade to show, or one is already
-    /// showing, the code runs straight away. Nothing owns the code, so it still runs after the plugin unloads mid
-    /// fade. Use the plugin's UI.FadeThrough for code that must not outlive the plugin or can be called off.
-    /// </summary>
-    /// <example>
-    /// <code>
-    /// TimbnUI.FadeThrough(() => TimbnPlayer.TeleportTo(campfire));
-    /// </code>
-    /// </example>
-    /// <param name="whileBlack">The code to run once the screen is black.</param>
-    public static void FadeThrough(Action whileBlack)
+    // Runs the code straight away when the game has no fade to show or one is already showing.
+    internal static void FadeThrough(Action whileBlack)
     {
-        var fade = LazyUI.Get<UIFade>();
+        var fade = Fade;
         if (fade == null || fade.IsFadeShowing)
         {
             whileBlack();

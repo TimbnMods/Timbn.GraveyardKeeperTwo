@@ -3,7 +3,7 @@ using System.Reflection;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Describes a model made from pictures instead of an asset bundle, for <see cref="TimbnPluginModels.Build"/>. Every
+/// Describes a model made from pictures, for <see cref="TimbnPluginModels.Build"/>. Every
 /// picture is exactly what the player sees, so its own size is the size of the face and you only say where it stands.
 /// The game's camera tilts forward and down and never sideways, so only two kinds of face are ever seen, one standing
 /// up toward the camera (<c>Front</c>) and one lying face up (<c>Top</c>), and a solid box is just

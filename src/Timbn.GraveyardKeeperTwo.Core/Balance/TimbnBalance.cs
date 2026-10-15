@@ -40,6 +40,10 @@ public static class TimbnBalance
     private static bool _holding;
     private static readonly List<IEdit> _edits = [];
 
+    // Copies waiting at a balance load for a template another plugin adds. Only filled while a load resolves them.
+    private static readonly HashSet<BalanceBaseObject> _deferred = [];
+    private static bool _resolving;
+
     /// <summary>The balance if the game has loaded it, or null. Unlike GameBalance.Me it never forces a load.</summary>
     public static GameBalance? Loaded => _instance();
 
@@ -92,6 +96,12 @@ public static class TimbnBalance
 
             var templateId = templateIdOf(balance);
             var template = balance.GetDataOrNull<T>(templateId);
+            if (template == null && _resolving && IsPending<T>(balance, templateId))
+            {
+                _deferred.Add(definition);
+                return false;
+            }
+
             if (template == null)
             {
                 TimbnCorePlugin.Logger.LogError($"{nameof(TimbnBalance)}|There is no {typeof(T).Name} '{templateId}' to copy for '{id}'.");
@@ -151,23 +161,76 @@ public static class TimbnBalance
     {
         var edit = new DefinitionEdit<T>(id, apply, revert, logger);
         _edits.Add(edit);
-        if (Loaded is { } balance)
-            edit.Apply(balance);
+        if (Loaded is { } balance && edit.Apply(balance))
+            RefreshDerivedCaches(balance, typeof(T));
 
         return new TimbnUndo(() =>
         {
             _edits.Remove(edit);
-            edit.Revert();
+            if (edit.Revert() && Loaded is { } loaded)
+                RefreshDerivedCaches(loaded, typeof(T));
         });
     }
 
+    // True when a registered but not yet inserted definition will provide the template.
+    private static bool IsPending<T>(GameBalance balance, string id) where T : BalanceBaseObject =>
+        _entries.Any(entry => entry.Definition is T && entry.Definition.id == id && !balance.GetDataCollection(typeof(T)).Contains(entry.Definition));
+
+    // Edits go in as soon as their definition is there, so a copy takes the edited template the way it did when
+    // plugins registered one at a time, even when it copies another plugin's definition that a third one edits. A
+    // copy of another plugin's definition waits until that one is in, whatever order they registered in.
     internal static void OnBalanceLoaded(GameBalance balance)
     {
         var touched = new HashSet<Type>();
-        foreach (var entry in _entries.ToList())
+        ApplyReadyEdits(balance, touched);
+
+        var pending = _entries.ToList();
+        _resolving = true;
+        try
         {
-            if (Insert(balance, entry))
-                touched.Add(entry.Definition.GetType());
+            while (pending.Count > 0)
+            {
+                var progress = false;
+                List<Entry> waiting = [];
+                foreach (var entry in pending)
+                {
+                    if (Insert(balance, entry))
+                    {
+                        touched.Add(entry.Definition.GetType());
+                        progress = true;
+                        ApplyReadyEdits(balance, touched);
+                    }
+                    else if (_deferred.Remove(entry.Definition))
+                        waiting.Add(entry);
+                }
+
+                if (waiting.Count == 0)
+                    break;
+
+                if (!progress)
+                {
+                    // Nothing provides these templates, so let each one report it.
+                    _resolving = false;
+                    foreach (var entry in waiting)
+                        Insert(balance, entry);
+
+                    break;
+                }
+
+                pending = waiting;
+            }
+        }
+        finally
+        {
+            _resolving = false;
+            _deferred.Clear();
+        }
+
+        // Every edit runs before the caches are rebuilt, so a changed craft or quest shows up in them.
+        foreach (var edit in _edits.ToList())
+        {
+            if (edit.Apply(balance))
+                touched.Add(edit.DefinitionType);
         }
 
         if (touched.Remove(typeof(ItemDef)))
@@ -175,9 +238,15 @@ public static class TimbnBalance
 
         foreach (var type in touched)
             RefreshDerivedCaches(balance, type);
+    }
 
-        foreach (var edit in _edits.ToList())
-            edit.Apply(balance);
+    private static void ApplyReadyEdits(GameBalance balance, HashSet<Type> touched)
+    {
+        foreach (var edit in _edits.ToList().Where(edit => edit.CanApply(balance)))
+        {
+            if (edit.Apply(balance))
+                touched.Add(edit.DefinitionType);
+        }
     }
 
     internal static void RefreshQuestCaches(GameBalance balance) => _createQuestsCache(balance);
@@ -191,12 +260,9 @@ public static class TimbnBalance
     internal static bool IsAdded(BalanceBaseObject definition) =>
         _entries.Any(entry => entry.Definition == definition) || _held.Any(entry => entry.Definition == definition);
 
-    /// <summary>
-    /// Rebuilds the game's lookups of which station makes what and which items belong to which group, after a mod
-    /// changed crafts or item groups in place, and has every station in the loaded save pick up the new crafts.
-    /// Adding a CraftDef or ItemDef with the plugin's Balance.Add already does this.
-    /// </summary>
-    public static void RefreshCraftCaches()
+    // Rebuilds which station makes what and which items belong to which group, and has every station in the loaded
+    // save pick up the new crafts.
+    internal static void RefreshCraftCaches()
     {
         if (Loaded is not { } balance)
             return;
@@ -241,13 +307,9 @@ public static class TimbnBalance
     /// <returns>The sprite name the item is drawn with.</returns>
     public static string GetIcon(ItemDef item) => _itemCustomIcon(item) is { Length: > 0 } icon ? icon : item.iconId;
 
-    /// <summary>
-    /// Makes the game read an item's use effects again. The game remembers which buffs an item gives the first
-    /// time it looks, so a change to onUseExpressions is not seen until this is called. The plugin's Balance.Edit
-    /// on an ItemDef calls it for you after apply and revert, and Balance.AddCopy and Balance.AddItem after edit.
-    /// </summary>
-    /// <param name="item">The item whose use effects changed.</param>
-    public static void RefreshUseEffects(ItemDef item) => _itemPerksCached(item) = false;
+    // The game remembers which buffs an item gives the first time it looks, so a change to onUseExpressions is not
+    // seen until this clears that.
+    internal static void RefreshUseEffects(ItemDef item) => _itemPerksCached(item) = false;
 
     private static Action<GameBalance> CacheBuilder(string name) =>
         AccessTools.MethodDelegate<Action<GameBalance>>(AccessTools.Method(typeof(GameBalance), name));
@@ -398,9 +460,13 @@ public static class TimbnBalance
 
     private interface IEdit
     {
-        void Apply(GameBalance balance);
+        Type DefinitionType { get; }
 
-        void Revert();
+        bool CanApply(GameBalance balance);
+
+        bool Apply(GameBalance balance);
+
+        bool Revert();
     }
 
     private sealed class DefinitionEdit<T>(string id, Action<T> apply, Action<T> revert, ManualLogSource logger) : IEdit
@@ -408,28 +474,36 @@ public static class TimbnBalance
     {
         private T? _applied;
 
-        public void Apply(GameBalance balance)
+        public Type DefinitionType => typeof(T);
+
+        public bool CanApply(GameBalance balance) => balance.GetDataOrNull<T>(id) != null;
+
+        public bool Apply(GameBalance balance)
         {
             var definition = balance.GetDataOrNull<T>(id);
             if (definition == null)
             {
                 logger.LogWarning($"{nameof(TimbnBalance)}|The balance has no {typeof(T).Name} '{id}' to change.");
-                return;
+                return false;
             }
 
             if (ReferenceEquals(definition, _applied))
-                return;
+                return false;
 
             _applied = definition;
             Run(apply, definition, "changing");
+            return true;
         }
 
-        public void Revert()
+        public bool Revert()
         {
             var applied = _applied;
             _applied = null;
-            if (applied != null && Loaded?.GetDataOrNull<T>(id) == applied)
-                Run(revert, applied, "restoring");
+            if (applied == null || Loaded?.GetDataOrNull<T>(id) != applied)
+                return false;
+
+            Run(revert, applied, "restoring");
+            return true;
         }
 
         private void Run(Action<T> action, T definition, string doing)

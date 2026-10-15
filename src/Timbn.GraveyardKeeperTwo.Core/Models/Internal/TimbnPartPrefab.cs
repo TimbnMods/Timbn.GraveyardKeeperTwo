@@ -1,4 +1,5 @@
 using LazyBearTechnology;
+using System.Reflection;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 
@@ -6,7 +7,7 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
 /// The template the pool copies for one mod model, standing in for the addressable prefab a world object would
-/// load. It is an inactive GameObject built in code (a bundle can't carry game scripts) with a WgoPart, the colliders
+/// load. It is an inactive GameObject built in code with a WgoPart, the colliders
 /// of its <see cref="TimbnPartShape"/>, and the model under it, plus the baked data the game reads for its footprint,
 /// dock point and chunk bounds.
 /// </summary>
@@ -376,6 +377,8 @@ internal sealed class TimbnPartPrefab : IDisposable
     private static TDelegate WgoMethod<TDelegate>(string name) where TDelegate : Delegate =>
         AccessTools.MethodDelegate<TDelegate>(AccessTools.Method(typeof(Wgo), name));
 
+    internal static readonly FieldInfo BakedDataSingleton = AccessTools.Field(typeof(LazySingletonSerializedSO<WgoPartBakedDataCollection>), "instance");
+
     private static Collider AddBox(TimbnPartBox box, Transform parent)
     {
         var child = new GameObject(box.Name) { layer = box.Layer };
@@ -387,18 +390,11 @@ internal sealed class TimbnPartPrefab : IDisposable
         return collider;
     }
 
+    // The game's singleton getter waits on Addressables, which never finishes while a plugin registers at startup, so the
+    // field is read directly. MainGame.Start fills it just before the balance loads, which is when this registers again.
     private static bool TryGetBakedData(out WgoPartBakedDataCollection collection)
     {
-        // Addressables may not be up yet when a plugin registers at startup, and the balance load registers again.
-        try
-        {
-            collection = LazySingletonSerializedSO<WgoPartBakedDataCollection>.Instance;
-        }
-        catch (Exception)
-        {
-            collection = null!;
-        }
-
+        collection = (BakedDataSingleton.GetValue(null) as WgoPartBakedDataCollection)!;
         return collection != null;
     }
 }

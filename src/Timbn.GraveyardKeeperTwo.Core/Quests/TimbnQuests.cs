@@ -131,7 +131,7 @@ public static class TimbnQuests
 
     /// <summary>Whether the quest has a real definition, the game's or a plugin's, not counting a placeholder for a saved quest whose mod is gone.</summary>
     internal static bool HasDefinition(string id) =>
-        !_stubs.ContainsKey(id) && GameBalance.Me.GetDataOrNull<QuestDef>(id) is not null;
+        !_stubs.ContainsKey(id) && TimbnBalance.Loaded?.GetDataOrNull<QuestDef>(id) is not null;
 
     private static void DropStubs()
     {
@@ -281,7 +281,7 @@ public static class TimbnQuests
         {
             foreach (var parentId in registration.Parents)
             {
-                var known = _quests.ContainsKey(parentId) || (!_stubs.ContainsKey(parentId) && GameBalance.Me?.GetDataOrNull<QuestDef>(parentId) is not null);
+                var known = _quests.ContainsKey(parentId) || (!_stubs.ContainsKey(parentId) && TimbnBalance.Loaded?.GetDataOrNull<QuestDef>(parentId) is not null);
                 if (!known && _warnedParents.Add($"{quest.id}/{parentId}"))
                     TimbnCorePlugin.Logger.LogWarning($"{nameof(TimbnQuests)}|Quest '{quest.id}' comes after '{parentId}', which is not a quest in the game or any loaded mod, so it is never offered.");
             }

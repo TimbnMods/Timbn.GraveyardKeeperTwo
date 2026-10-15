@@ -11,8 +11,9 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 /// <example>
 /// A pillar that opens a craft at the Stick Box when built next to it.
 /// <code><![CDATA[
+/// var model = Models.Build("RedPillar", faces => faces.Block("red_pillar", x: 0, y: 0, z: 0, depth: 20));
 /// Stations.AddExtension("timbn_red_magic", "Red Magic Pillar", "A humming red pillar.", pillar => pillar
-///     .Model(bundle.Model("RedPillar"), new Vector3(0.5f, 1f, 0.5f))
+///     .Model(model, model.Size)
 ///     .Icon("timbn_red_magic")
 ///     .Cost(("flitch", 2)));
 /// ]]></code>
@@ -56,7 +57,7 @@ public sealed class TimbnExtensionBuilder
 
     internal Action<WGODef>? EditExtension { get; private set; }
 
-    /// <summary>The extension's look, drawn from the plugin's asset bundle with a box shaped footprint of the given size and a solid body.</summary>
+    /// <summary>The extension's look, a model from the plugin's Models with a box shaped footprint of the given size and a solid body.</summary>
     /// <param name="model">The model, centered on the extension with its base at the ground.</param>
     /// <param name="size">Width, height and depth in world units, for example (0.5, 1, 0.5) for a pillar.</param>
     /// <exception cref="ArgumentOutOfRangeException">The size is zero or below on any axis.</exception>

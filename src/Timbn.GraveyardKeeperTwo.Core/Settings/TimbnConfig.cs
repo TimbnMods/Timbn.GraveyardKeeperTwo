@@ -1,12 +1,8 @@
-using BepInEx.Bootstrap;
-
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Re-reads the config files of loaded plugins, so a setting edited by hand takes effect without a restart. Each
-/// changed value goes through the entry's normal setter, which raises its SettingChanged event, so anything tied
-/// to it with <see cref="TimbnPluginSettings.Toggle(ConfigEntry{bool}, Action, Action)"/> applies or reverts on its
-/// own. Call these on the main thread, since the change handlers touch the game.
+/// Helpers for a plugin's config file, for binding a slider or a hidden setting in one line and carrying a
+/// player's values over when a setting is renamed or moved.
 /// </summary>
 public static class TimbnConfig
 {
@@ -14,34 +10,6 @@ public static class TimbnConfig
     private sealed class HiddenEntry
     {
         public readonly bool? Browsable = false;
-    }
-
-    /// <summary>
-    /// Reloads the config file of every loaded plugin, Timbn or not. A failure in one plugin is logged and does
-    /// not stop the rest. A key removed from a file keeps its current value instead of returning to its default.
-    /// </summary>
-    /// <example>
-    /// <code>
-    /// var reloaded = TimbnConfig.ReloadAll();
-    /// </code>
-    /// </example>
-    /// <returns>How many plugins were reloaded.</returns>
-    public static int ReloadAll()
-    {
-        var reloaded = 0;
-        var plugins = Chainloader.PluginInfos.Values
-            .Select(info => info.Instance)
-            .Where(instance => instance != null)
-            .Distinct()
-            .ToList();
-
-        foreach (var plugin in plugins)
-        {
-            if (Reload(plugin))
-                reloaded++;
-        }
-
-        return reloaded;
     }
 
     /// <summary>
@@ -118,24 +86,4 @@ public static class TimbnConfig
     /// <returns>The bound setting.</returns>
     public static ConfigEntry<T> BindHidden<T>(this ConfigFile config, string section, string key, T defaultValue, string description) =>
         config.Bind(section, key, defaultValue, new ConfigDescription(description, null, new HiddenEntry()));
-
-    /// <summary>Reloads the config file of one plugin, as <see cref="ReloadAll"/> does for every plugin.</summary>
-    /// <param name="plugin">The plugin whose config file to re-read.</param>
-    /// <returns>True when the file was read, false when it does not exist yet or could not be read.</returns>
-    public static bool Reload(BaseUnityPlugin plugin)
-    {
-        if (!File.Exists(plugin.Config.ConfigFilePath))
-            return false;
-
-        try
-        {
-            plugin.Config.Reload();
-            return true;
-        }
-        catch (Exception ex)
-        {
-            TimbnCorePlugin.Logger.LogError($"{nameof(TimbnConfig)}|Could not reload {plugin.Config.ConfigFilePath}: {ex}");
-            return false;
-        }
-    }
 }

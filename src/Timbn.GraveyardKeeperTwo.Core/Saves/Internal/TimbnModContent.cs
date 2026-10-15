@@ -27,6 +27,8 @@ internal static class TimbnModContent
 
     private static readonly AccessTools.FieldRef<WgoData, Inventory?> _inventory = AccessTools.FieldRefAccess<WgoData, Inventory?>("inventory");
 
+    private static readonly MethodInfo _calculateFillSize = AccessTools.Method(typeof(Item), "CalculateInventoryFillSize");
+
     private static readonly AccessTools.FieldRef<CraftComponent, List<CraftElementBase>> _queue =
         AccessTools.FieldRefAccess<CraftComponent, List<CraftElementBase>>(TimbnStrippedEntry.QueueMember);
 
@@ -130,6 +132,8 @@ internal static class TimbnModContent
                 $"{nameof(TimbnModContent)}|Moved {swept.Count} thing(s) with no definition out of the save into the Timbn save file " +
                 $"until their mod is back: {Describe(swept)}");
         }
+
+        RecountInventories(save);
     }
 
     internal static IDisposable StripForSave(GameSave save)
@@ -195,6 +199,70 @@ internal static class TimbnModContent
         }
     }
 
+    // The game caches an inventory's fill size and reads that many slots from its list, so a list edited by hand has to be
+    // recounted, or the inventory window throws on a slot that is no longer there.
+    private static void Recount(Item? owner)
+    {
+        if (owner is not null)
+            _calculateFillSize.Invoke(owner, null);
+    }
+
+    private static void RecountTree(Item? item)
+    {
+        if (item is null || item.InventorySize <= 0)
+            return;
+
+        foreach (var child in item.Inventory)
+            RecountTree(child);
+
+        Recount(item);
+    }
+
+    // A save written while the strip had taken mod items out of a list holds the old fill size, so every inventory is
+    // recounted on load.
+    private static void RecountInventories(GameSave save)
+    {
+        TimbnSafe.Run(() =>
+        {
+            RecountMembers(save.playerData);
+            foreach (var scene in save.worldData.gameSceneDataList)
+            {
+                foreach (var wgo in scene.wgoDataList)
+                    RecountMembers(wgo);
+
+                foreach (var drop in scene.droppedItems)
+                    RecountTree(drop?.Item);
+            }
+
+            foreach (var vendor in save.vendorSystem.vendors)
+                RecountMembers(vendor);
+        }, $"{nameof(TimbnModContent)}|Recounting the inventories");
+    }
+
+    // The same members the strip walks, so the tool belt, vendor stock and anything else it edits are covered.
+    private static void RecountMembers(object? owner)
+    {
+        if (owner is null)
+            return;
+
+        foreach (var field in Members(owner.GetType()))
+        {
+            switch (field.GetValue(owner))
+            {
+                case Inventory inventory:
+                    RecountTree(inventory.Data);
+                    break;
+                case List<Item> list:
+                    foreach (var item in list)
+                        RecountTree(item);
+                    break;
+                case Item item:
+                    RecountTree(item);
+                    break;
+            }
+        }
+    }
+
     private static void StripMembers(object? owner, string root, string scene, string ownerId, Func<string, bool> take, List<TimbnStrippedEntry> taken, List<Action>? undo)
     {
         if (owner is null)
@@ -206,10 +274,10 @@ internal static class TimbnModContent
             switch (field.GetValue(owner))
             {
                 case Inventory inventory:
-                    StripList(inventory.Data?.Inventory, entry, [], take, taken, undo);
+                    StripList(inventory.Data?.Inventory, inventory.Data, entry, [], take, taken, undo);
                     break;
                 case List<Item> list:
-                    StripList(list, entry, [], take, taken, undo);
+                    StripList(list, null, entry, [], take, taken, undo);
                     break;
                 case Item item when Takes(item, take):
                     entry.Id = item.id;
@@ -219,13 +287,13 @@ internal static class TimbnModContent
                     undo?.Add(() => field.SetValue(owner, item));
                     break;
                 case Item item:
-                    StripList(item.Inventory, entry, [], take, taken, undo);
+                    StripList(item.Inventory, item, entry, [], take, taken, undo);
                     break;
             }
         }
     }
 
-    private static void StripList(List<Item>? list, TimbnStrippedEntry place, List<int> path, Func<string, bool> take, List<TimbnStrippedEntry> taken, List<Action>? undo)
+    private static void StripList(List<Item>? list, Item? owner, TimbnStrippedEntry place, List<int> path, Func<string, bool> take, List<TimbnStrippedEntry> taken, List<Action>? undo)
     {
         if (list is null)
             return;
@@ -233,7 +301,7 @@ internal static class TimbnModContent
         for (var i = 0; i < list.Count; i++)
         {
             if (list[i] is { } item && !Takes(item, take))
-                StripList(item.Inventory, place, [.. path, i], take, taken, undo);
+                StripList(item.Inventory, item, place, [.. path, i], take, taken, undo);
         }
 
         for (var i = list.Count - 1; i >= 0; i--)
@@ -253,8 +321,13 @@ internal static class TimbnModContent
                 Blob = Pack(item),
             });
             list.RemoveAt(i);
+            Recount(owner);
             var index = i;
-            undo?.Add(() => list.Insert(Math.Min(index, list.Count), item));
+            undo?.Add(() =>
+            {
+                list.Insert(Math.Min(index, list.Count), item);
+                Recount(owner);
+            });
         }
     }
 
@@ -1084,6 +1157,7 @@ internal static class TimbnModContent
         if (list is not null && at <= list.Count && (container is null || HasRoom(container)))
         {
             list.Insert(at, item);
+            Recount(container ?? top);
             return true;
         }
 
@@ -1098,6 +1172,7 @@ internal static class TimbnModContent
         if (container is not null && HasRoom(container))
         {
             container.Inventory.Add(item);
+            Recount(container);
             TimbnCorePlugin.Logger.LogWarning($"{nameof(TimbnModContent)}|{entry.Id} went back into its container, but not to its old spot.");
             return true;
         }
@@ -1105,6 +1180,7 @@ internal static class TimbnModContent
         if (save.playerData.inventory?.Data is { } player && HasRoom(player))
         {
             player.Inventory.Add(item);
+            Recount(player);
             TimbnCorePlugin.Logger.LogWarning($"{nameof(TimbnModContent)}|{entry.Id} could not go back where it was, so it is in the player's inventory.");
             return true;
         }
@@ -1194,7 +1270,9 @@ internal static class TimbnModContent
     // Read from the cache directly, since Get logs a warning for every id it lacks.
     private static bool PartExists(string id)
     {
-        var collection = LazySingletonSerializedSO<WgoPartBakedDataCollection>.Instance;
+        if (TimbnPartPrefab.BakedDataSingleton.GetValue(null) is not WgoPartBakedDataCollection collection)
+            return false;
+
         collection.LoadCache();
         return _bakedParts(collection).ContainsKey(id);
     }
