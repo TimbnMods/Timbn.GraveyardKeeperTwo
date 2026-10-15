@@ -114,9 +114,21 @@ public static class TimbnZombies
         return true;
     }
 
+    // The game's singleton getter waits on Addressables, which never finishes while a plugin runs at startup. The field
+    // is read first, and the getter only runs once a save is loaded.
+    private static readonly FieldInfo _configSingleton = AccessTools.Field(typeof(LazySingletonSO<ZombieCustomizationConfig>), "instance");
+
+    private static ZombieCustomizationConfig? ReadConfig()
+    {
+        if (_configSingleton.GetValue(null) is ZombieCustomizationConfig loaded && loaded != null)
+            return loaded;
+
+        return TimbnGame.IsInGame ? LazySingletonSO<ZombieCustomizationConfig>.Instance : null;
+    }
+
     private static TimbnZombieSkins? ReadSkins(string dataId)
     {
-        var config = LazySingletonSO<ZombieCustomizationConfig>.Instance;
+        var config = ReadConfig();
         var rolledData = config == null ? null : Traverse.Create(config).Field("zombieRolledDatas").GetValue<IList>();
         if (rolledData == null)
             return null;
