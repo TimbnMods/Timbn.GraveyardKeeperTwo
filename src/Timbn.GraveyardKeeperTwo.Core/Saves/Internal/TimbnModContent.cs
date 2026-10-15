@@ -1194,7 +1194,9 @@ internal static class TimbnModContent
     // Read from the cache directly, since Get logs a warning for every id it lacks.
     private static bool PartExists(string id)
     {
-        var collection = LazySingletonSerializedSO<WgoPartBakedDataCollection>.Instance;
+        if (TimbnPartPrefab.BakedDataSingleton.GetValue(null) is not WgoPartBakedDataCollection collection)
+            return false;
+
         collection.LoadCache();
         return _bakedParts(collection).ContainsKey(id);
     }

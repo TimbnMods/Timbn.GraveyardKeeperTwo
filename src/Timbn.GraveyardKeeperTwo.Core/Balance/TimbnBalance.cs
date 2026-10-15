@@ -40,6 +40,10 @@ public static class TimbnBalance
     private static bool _holding;
     private static readonly List<IEdit> _edits = [];
 
+    // Copies waiting at a balance load for a template another plugin adds. Only filled while a load resolves them.
+    private static readonly HashSet<BalanceBaseObject> _deferred = [];
+    private static bool _resolving;
+
     /// <summary>The balance if the game has loaded it, or null. Unlike GameBalance.Me it never forces a load.</summary>
     public static GameBalance? Loaded => _instance();
 
@@ -92,6 +96,12 @@ public static class TimbnBalance
 
             var templateId = templateIdOf(balance);
             var template = balance.GetDataOrNull<T>(templateId);
+            if (template == null && _resolving && IsPending<T>(balance, templateId))
+            {
+                _deferred.Add(definition);
+                return false;
+            }
+
             if (template == null)
             {
                 TimbnCorePlugin.Logger.LogError($"{nameof(TimbnBalance)}|There is no {typeof(T).Name} '{templateId}' to copy for '{id}'.");
@@ -161,13 +171,58 @@ public static class TimbnBalance
         });
     }
 
+    // True when a registered but not yet inserted definition will provide the template.
+    private static bool IsPending<T>(GameBalance balance, string id) where T : BalanceBaseObject =>
+        _entries.Any(entry => entry.Definition is T && entry.Definition.id == id && !balance.GetDataCollection(typeof(T)).Contains(entry.Definition));
+
+    // Edits of the game's own definitions go first, so a copy takes the edited template the way it did when plugins
+    // registered one at a time. A copy of another plugin's definition waits until that one is in, whatever order they
+    // registered in.
     internal static void OnBalanceLoaded(GameBalance balance)
     {
         var touched = new HashSet<Type>();
-        foreach (var entry in _entries.ToList())
+        foreach (var edit in _edits.ToList().Where(edit => edit.CanApply(balance)))
+            edit.Apply(balance);
+
+        var pending = _entries.ToList();
+        _resolving = true;
+        try
         {
-            if (Insert(balance, entry))
-                touched.Add(entry.Definition.GetType());
+            while (pending.Count > 0)
+            {
+                var progress = false;
+                List<Entry> waiting = [];
+                foreach (var entry in pending)
+                {
+                    if (Insert(balance, entry))
+                    {
+                        touched.Add(entry.Definition.GetType());
+                        progress = true;
+                    }
+                    else if (_deferred.Remove(entry.Definition))
+                        waiting.Add(entry);
+                }
+
+                if (waiting.Count == 0)
+                    break;
+
+                if (!progress)
+                {
+                    // Nothing provides these templates, so let each one report it.
+                    _resolving = false;
+                    foreach (var entry in waiting)
+                        Insert(balance, entry);
+
+                    break;
+                }
+
+                pending = waiting;
+            }
+        }
+        finally
+        {
+            _resolving = false;
+            _deferred.Clear();
         }
 
         if (touched.Remove(typeof(ItemDef)))
@@ -398,6 +453,8 @@ public static class TimbnBalance
 
     private interface IEdit
     {
+        bool CanApply(GameBalance balance);
+
         void Apply(GameBalance balance);
 
         void Revert();
@@ -407,6 +464,8 @@ public static class TimbnBalance
         where T : BalanceBaseObject
     {
         private T? _applied;
+
+        public bool CanApply(GameBalance balance) => balance.GetDataOrNull<T>(id) != null;
 
         public void Apply(GameBalance balance)
         {

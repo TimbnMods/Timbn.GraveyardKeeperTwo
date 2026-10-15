@@ -19,6 +19,9 @@ internal sealed class TimbnPotionBalance : IDisposable
     private readonly List<AlchemyMixSourceDef> _mixes = [];
     private readonly List<IDisposable> _entries = [];
 
+    // The perk, item and formula stand or fall together. The perk entry runs first and decides for all three.
+    private bool _approved = true;
+
     private TimbnPotionBalance(TimbnPotion potion)
     {
         _potion = potion;
@@ -94,6 +97,13 @@ internal sealed class TimbnPotionBalance : IDisposable
 
     private bool PreparePerk(GameBalance balance)
     {
+        _approved = Validate(balance, _potion, out var reason);
+        if (!_approved)
+        {
+            Skip(reason);
+            return false;
+        }
+
         var template = FindTemplatePerk(balance);
         if (template == null)
         {
@@ -109,6 +119,9 @@ internal sealed class TimbnPotionBalance : IDisposable
 
     private bool PrepareItem(GameBalance balance)
     {
+        if (!_approved)
+            return false;
+
         var template = balance.GetDataOrNull<ItemDef>(_potion.TemplateItemId);
         if (template == null)
         {
@@ -131,6 +144,9 @@ internal sealed class TimbnPotionBalance : IDisposable
 
     private bool PrepareFormula(GameBalance balance)
     {
+        if (!_approved)
+            return false;
+
         if (FindClash(balance, _potion) is { } clash)
         {
             Skip($"Runes {_potion.Runes} already belong to {clash.id}, so no mix would brew it.");

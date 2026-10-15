@@ -108,7 +108,7 @@ public static class TimbnNpcs
     /// <param name="npcId">The NPC, from <see cref="TimbnGameIds.Npcs"/>.</param>
     /// <returns>The resource id, or null when the NPC has no reputation or the balance is not loaded.</returns>
     public static string? ReputationOf(string npcId) =>
-        GameBalance.Me?.GetDataOrNull<WGODef>(npcId)?.repResName is { Length: > 0 } reputation ? reputation : null;
+        TimbnBalance.Loaded?.GetDataOrNull<WGODef>(npcId)?.repResName is { Length: > 0 } reputation ? reputation : null;
 
     internal static WgoData? FindData(string? definitionId) =>
         TimbnGame.IsInGame && definitionId is not null

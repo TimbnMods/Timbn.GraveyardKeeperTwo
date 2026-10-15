@@ -138,9 +138,9 @@ internal sealed class TimbnPartPrefab : IDisposable
         }
     }
 
-    internal void RegisterBakedData(bool allowLoad = false)
+    internal void RegisterBakedData()
     {
-        if (!TryGetBakedData(out var collection, allowLoad))
+        if (!TryGetBakedData(out var collection))
             return;
 
         var data = new WgoPartBakedData(_assetId);
@@ -377,7 +377,7 @@ internal sealed class TimbnPartPrefab : IDisposable
     private static TDelegate WgoMethod<TDelegate>(string name) where TDelegate : Delegate =>
         AccessTools.MethodDelegate<TDelegate>(AccessTools.Method(typeof(Wgo), name));
 
-    private static readonly FieldInfo _bakedDataSingleton = AccessTools.Field(typeof(LazySingletonSerializedSO<WgoPartBakedDataCollection>), "instance");
+    internal static readonly FieldInfo BakedDataSingleton = AccessTools.Field(typeof(LazySingletonSerializedSO<WgoPartBakedDataCollection>), "instance");
 
     private static Collider AddBox(TimbnPartBox box, Transform parent)
     {
@@ -390,23 +390,11 @@ internal sealed class TimbnPartPrefab : IDisposable
         return collider;
     }
 
-    // The game's singleton getter waits on Addressables, which never finishes while a plugin registers at startup. The
-    // field is read directly instead, and the getter only runs once the balance has loaded.
-    private static bool TryGetBakedData(out WgoPartBakedDataCollection collection, bool allowLoad = false)
+    // The game's singleton getter waits on Addressables, which never finishes while a plugin registers at startup, so the
+    // field is read directly. MainGame.Start fills it just before the balance loads, which is when this registers again.
+    private static bool TryGetBakedData(out WgoPartBakedDataCollection collection)
     {
-        collection = (_bakedDataSingleton.GetValue(null) as WgoPartBakedDataCollection)!;
-        if (collection == null && allowLoad)
-        {
-            try
-            {
-                collection = LazySingletonSerializedSO<WgoPartBakedDataCollection>.Instance;
-            }
-            catch (Exception)
-            {
-                collection = null!;
-            }
-        }
-
+        collection = (BakedDataSingleton.GetValue(null) as WgoPartBakedDataCollection)!;
         return collection != null;
     }
 }
