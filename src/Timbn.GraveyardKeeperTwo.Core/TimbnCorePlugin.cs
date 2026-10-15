@@ -43,6 +43,7 @@ public sealed class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
         Events.WindowOpened(TimbnMainMenu.OnWindowOpened);
         Events.EveryRealSeconds(1f, TimbnDialog.Refresh);
         Events.EveryRealSeconds(1f, TimbnQuests.StartContinuedQuests);
+        Events.EveryRealSeconds(0.5f, TimbnQuestMarker.Tick);
         Events.Update(TimbnPotions.Tick);
         Events.Update(TimbnNpcs.Tick);
         Events.Update(TimbnPlayerGrid.Tick);
@@ -56,6 +57,7 @@ public sealed class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
             TimbnQuests.OnGameEvent,
             h => TimbnPatchedEvents.Triggered += h,
             h => TimbnPatchedEvents.Triggered -= h));
+
         var timbnCoreGlobalData = Saves.RegisterGlobal<TimbnCoreData>();
         var game = $"{Application.version} {GameBuild}";
         var started = $"Core {Version} started on Graveyard Keeper 2 {Application.version} (build {GameBuild})";

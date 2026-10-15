@@ -213,6 +213,15 @@ public static class TimbnQuests
 
     internal static void Mark(string id) => _marks?.Invoke().Add(id);
 
+    internal static void CollectMarkerNpcs(HashSet<string> into)
+    {
+        foreach (var runtime in _runtimes)
+        {
+            if ((runtime.HandInMarkerNpc ?? runtime.OfferMarkerNpc) is { } npc)
+                into.Add(npc);
+        }
+    }
+
     internal static IDisposable Track(TimbnQuestRuntime runtime)
     {
         _runtimes.Add(runtime);

@@ -37,6 +37,7 @@ internal sealed class Deliveries
             .Setup(Pick)
             .Giver(run => run.NpcId("sender"))
             .Icon("portrait_icon_hero")
+            .Marker()
             .OfferWhen(() => _plugin.Settings.IsEnabled(PluginConfig.VillagerDeliveries))
             .Description()
             .Offer(talk =>

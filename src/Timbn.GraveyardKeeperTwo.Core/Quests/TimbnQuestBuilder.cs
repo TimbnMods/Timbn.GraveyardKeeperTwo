@@ -70,6 +70,8 @@ public sealed class TimbnQuestBuilder
 
     internal bool Repeats { get; private set; }
 
+    internal bool ShowsMarker { get; private set; }
+
     internal int ExpireDays { get; private set; }
 
     internal Action<TimbnQuestRun?>? WhenCanceled { get; private set; }
@@ -156,6 +158,20 @@ public sealed class TimbnQuestBuilder
     public TimbnQuestBuilder Icon(Func<TimbnQuestRun, string> iconId)
     {
         IconOf = iconId;
+        return this;
+    }
+
+    /// <summary>
+    /// Points the player to the NPC to talk to with the HUD's point of interest marker, the one the game uses for work
+    /// spots. It marks the giver while the offer waits, then whoever takes the hand in once the player can finish, such
+    /// as the villager waiting on a dish once it is in the bag. While the NPC is off screen the marker sits at the screen
+    /// edge pointing the way, or on the door that leads to them, and once they are on screen their talk bubble shows
+    /// instead.
+    /// </summary>
+    /// <returns>This builder, for chaining.</returns>
+    public TimbnQuestBuilder Marker()
+    {
+        ShowsMarker = true;
         return this;
     }
 
@@ -745,6 +761,7 @@ public sealed class TimbnQuestBuilder
             var step = steps.Count == 0 ? new TimbnQuestBuilder(Id, GiverId, Texts) : new TimbnQuestBuilder($"{Id}_{name}", GiverId, Texts[Id]);
             step.GiverOf = GiverOf;
             step.IconOf ??= IconOf;
+            step.ShowsMarker = ShowsMarker;
             if (steps.Count > 0)
                 step.ContinuesId(steps[^1].Step.Id);
 

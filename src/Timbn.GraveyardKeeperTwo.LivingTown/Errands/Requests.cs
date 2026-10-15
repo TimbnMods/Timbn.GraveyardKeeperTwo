@@ -25,6 +25,7 @@ internal sealed class Requests
             .Setup(Pick)
             .Giver(run => run.NpcId("villager"))
             .Icon("portrait_icon_hero")
+            .Marker()
             .OfferWhen(() => _plugin.Settings.IsEnabled(PluginConfig.VillagerRequests))
             .Description()
             .Offer(talk => talk

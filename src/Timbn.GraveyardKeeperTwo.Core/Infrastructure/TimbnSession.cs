@@ -20,6 +20,7 @@ internal static class TimbnSession
     internal static void Close()
     {
         Step(() => Closing?.Invoke(), nameof(Closing));
+        Step(TimbnQuestMarker.Clear, nameof(TimbnQuestMarker));
 
         // Before TimbnGame, so a quest's OnEnd still sees the save, its run and its saved data while it undoes OnStart.
         Step(TimbnQuests.OnLeftGame, nameof(TimbnQuests));
