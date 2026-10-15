@@ -175,14 +175,13 @@ public static class TimbnBalance
     private static bool IsPending<T>(GameBalance balance, string id) where T : BalanceBaseObject =>
         _entries.Any(entry => entry.Definition is T && entry.Definition.id == id && !balance.GetDataCollection(typeof(T)).Contains(entry.Definition));
 
-    // Edits of the game's own definitions go first, so a copy takes the edited template the way it did when plugins
-    // registered one at a time. A copy of another plugin's definition waits until that one is in, whatever order they
-    // registered in.
+    // Edits go in as soon as their definition is there, so a copy takes the edited template the way it did when
+    // plugins registered one at a time, even when it copies another plugin's definition that a third one edits. A
+    // copy of another plugin's definition waits until that one is in, whatever order they registered in.
     internal static void OnBalanceLoaded(GameBalance balance)
     {
         var touched = new HashSet<Type>();
-        foreach (var edit in _edits.ToList().Where(edit => edit.CanApply(balance)))
-            edit.Apply(balance);
+        ApplyReadyEdits(balance);
 
         var pending = _entries.ToList();
         _resolving = true;
@@ -198,6 +197,7 @@ public static class TimbnBalance
                     {
                         touched.Add(entry.Definition.GetType());
                         progress = true;
+                        ApplyReadyEdits(balance);
                     }
                     else if (_deferred.Remove(entry.Definition))
                         waiting.Add(entry);
@@ -225,13 +225,20 @@ public static class TimbnBalance
             _deferred.Clear();
         }
 
+        // Every edit runs before the caches are rebuilt, so a changed craft or quest shows up in them.
+        foreach (var edit in _edits.ToList())
+            edit.Apply(balance);
+
         if (touched.Remove(typeof(ItemDef)))
             touched.Add(typeof(CraftDef));
 
         foreach (var type in touched)
             RefreshDerivedCaches(balance, type);
+    }
 
-        foreach (var edit in _edits.ToList())
+    private static void ApplyReadyEdits(GameBalance balance)
+    {
+        foreach (var edit in _edits.ToList().Where(edit => edit.CanApply(balance)))
             edit.Apply(balance);
     }
 
