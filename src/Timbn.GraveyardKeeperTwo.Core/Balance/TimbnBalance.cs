@@ -424,7 +424,7 @@ public static class TimbnBalance
     {
         if (type == typeof(QuestDef))
         {
-            _createQuestsCache(balance);
+            TimbnQuestRuntime.RefreshCaches(balance);
         }
         else if (type == typeof(CraftDef) || type == typeof(ItemDef))
         {

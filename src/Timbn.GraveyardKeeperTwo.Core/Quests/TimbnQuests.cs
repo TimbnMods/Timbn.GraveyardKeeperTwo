@@ -282,7 +282,7 @@ public static class TimbnQuests
 
         var runtimes = _runtimes.ToList();
         foreach (var runtime in runtimes)
-            TimbnSafe.Run(runtime.Write, $"{nameof(TimbnQuests)}|Setting up quest '{runtime.Id}' for the save");
+            TimbnSafe.Run(() => runtime.Write(), $"{nameof(TimbnQuests)}|Setting up quest '{runtime.Id}' for the save");
 
         TimbnQuestRuntime.RefreshCaches();
         foreach (var runtime in runtimes)
@@ -419,6 +419,10 @@ public static class TimbnQuests
         foreach (var quest in game)
             _posY(quest) = plan.Cells[quest.id].Y;
 
+        // The game quests are back where they started, so the next load can take the fast path again.
+        if (ours.Count == 0)
+            _gameY.Clear();
+
         if (cache is not null)
         {
             foreach (var (id, hidden) in plan.Hidden)
@@ -443,7 +447,7 @@ public static class TimbnQuests
             Link(quest, byId);
         }
 
-        TimbnBalance.RefreshQuestCaches(balance);
+        TimbnQuestRuntime.RefreshCaches(balance);
     }
 
     private static void Link(QuestDef quest, Dictionary<string, QuestDef> byId)
@@ -542,6 +546,10 @@ public static class TimbnQuests
             if (quests.questCollection.questsCache.TryGetValue(definition.id, out var data))
                 data.isHidden = HiddenFor(definition, data);
         }
+
+        // With no mod quests and no game quest ever moved, the layout changes nothing but still costs about 40 ms on load.
+        if (_quests.Count == 0 && _gameY.Count == 0)
+            return;
 
         if (TimbnBalance.Loaded is { } balance)
             Relayout(balance, null, quests.questCollection.questsCache);

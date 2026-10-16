@@ -137,10 +137,15 @@ public sealed class TimbnPluginQuests
             return new TimbnQuest(steps, builder.StageNames, added: false, cycle, builder.Repeats);
         }
 
-        foreach (var runtime in steps)
-            _owner.Subscriptions.Add(runtime.Register());
+        // Each step and the cycle rebuild the game's quest cache several times over, so they share one rebuild.
+        using (TimbnQuestRuntime.Batch())
+        {
+            foreach (var runtime in steps)
+                _owner.Subscriptions.Add(runtime.Register());
 
-        _owner.Subscriptions.Add(cycle.Register());
+            _owner.Subscriptions.Add(cycle.Register());
+        }
+
         return new TimbnQuest(steps, builder.StageNames, added: true, cycle, builder.Repeats);
     }
 }
