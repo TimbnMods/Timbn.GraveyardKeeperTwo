@@ -447,7 +447,7 @@ public static class TimbnQuests
             Link(quest, byId);
         }
 
-        TimbnBalance.RefreshQuestCaches(balance);
+        TimbnQuestRuntime.RefreshCaches(balance);
     }
 
     private static void Link(QuestDef quest, Dictionary<string, QuestDef> byId)

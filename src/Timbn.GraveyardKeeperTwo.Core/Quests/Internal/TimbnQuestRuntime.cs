@@ -7,6 +7,7 @@ internal sealed class TimbnQuestRuntime
 {
     private static int _batches;
     private static bool _refreshHeld;
+    private static GameBalance? _heldBalance;
 
     private readonly TimbnQuestBuilder _quest;
     private readonly Func<Color> _bubbleColor;
@@ -119,17 +120,19 @@ internal sealed class TimbnQuestRuntime
     }
 
     // The game rebuilds its whole quest cache from every quest it has (about 8 ms), so work that changes several
-    // quests at once, such as two quests running out on the same morning, holds the rebuilds and does one at the end.
-    internal static void RefreshCaches()
+    // quests at once, such as two quests running out on the same morning or one quest being added, holds the rebuilds
+    // and does one at the end. Only the dialog and the quest tree read the cache, and neither runs inside a batch.
+    internal static void RefreshCaches(GameBalance? balance = null)
     {
         if (_batches > 0)
         {
             _refreshHeld = true;
+            _heldBalance = balance ?? _heldBalance;
             return;
         }
 
-        if (TimbnBalance.Loaded is { } balance)
-            TimbnBalance.RefreshQuestCaches(balance);
+        if ((balance ?? TimbnBalance.Loaded) is { } target)
+            TimbnBalance.RefreshQuestCaches(target);
     }
 
     internal static IDisposable Batch()
@@ -140,8 +143,10 @@ internal sealed class TimbnQuestRuntime
             if (--_batches > 0 || !_refreshHeld)
                 return;
 
+            var held = _heldBalance;
             _refreshHeld = false;
-            RefreshCaches();
+            _heldBalance = null;
+            RefreshCaches(held);
         });
     }
 
