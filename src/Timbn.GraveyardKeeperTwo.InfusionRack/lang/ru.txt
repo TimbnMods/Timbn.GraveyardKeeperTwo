@@ -1,0 +1,65 @@
+# Timbn Infusion Rack text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
+# and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
+
+# The tech on the anatomy tab
+timbn_infusion_rack = Инфузионная стойка
+
+# The infusion stand, as built and as a construction site
+timbn_infusion_stand = Инфузионная подставка
+timbn_infusion_stand_place = Инфузионная подставка
+timbn_infusion_stand_place_p = Инфузионная подставка
+timbn_infusion_stand_place_p_d = Зомби лежит в этом ящике для инфузии от инфузионной машины.
+timbn_infusion_stand_infusion = Инфузия
+timbn_infusion_stand_infusion_d = Зомби на подставке проходит инфузию.
+
+# The infusion machine, as built and as a construction site
+timbn_infusion_machine = Инфузионная машина
+timbn_infusion_machine_place = Инфузионная машина
+timbn_infusion_machine_place_p = Инфузионная машина
+timbn_infusion_machine_place_p_d = Проводит инфузию каждому зомби, лежащему на подключенной к ней подставке.
+
+# What the infusion machine does with each spirit solution
+timbn_infusion_machine_red = Красный раствор духа
+timbn_infusion_machine_red_d = Насыщает каждого зомби в инфузионной машине красными очками технологий.
+timbn_infusion_machine_green = Зеленый раствор духа
+timbn_infusion_machine_green_d = Насыщает каждого зомби в инфузионной машине зелеными очками технологий.
+timbn_infusion_machine_blue = Синий раствор духа
+timbn_infusion_machine_blue_d = Насыщает каждого зомби в инфузионной машине синими очками технологий.
+
+# The spirit solutions
+timbn_spirit_solution_red = Красный раствор духа
+timbn_spirit_solution_red_d = Красный раствор для зомби. Насыщает их красными очками технологий.
+timbn_spirit_solution_green = Зеленый раствор духа
+timbn_spirit_solution_green_d = Зеленый раствор для зомби. Насыщает их зелеными очками технологий.
+timbn_spirit_solution_blue = Синий раствор духа
+timbn_spirit_solution_blue_d = Синий раствор для зомби. Насыщает их синими очками технологий.
+
+# The distillation cube recipes, one per heart, guts and brain holding white skulls
+timbn_spirit_heart_0_1_1 = Красный раствор духа
+timbn_spirit_heart_0_1_1_d = Один красный раствор за каждый белый череп на сердце.
+timbn_spirit_heart_1_1_1 = Красный раствор духа
+timbn_spirit_heart_1_1_1_d = Один красный раствор за каждый белый череп на сердце.
+timbn_spirit_heart_3_1_3 = Красный раствор духа
+timbn_spirit_heart_3_1_3_d = Один красный раствор за каждый белый череп на сердце.
+timbn_spirit_heart_1_2_2 = Красный раствор духа
+timbn_spirit_heart_1_2_2_d = Один красный раствор за каждый белый череп на сердце.
+timbn_spirit_heart_2_2_2 = Красный раствор духа
+timbn_spirit_heart_2_2_2_d = Один красный раствор за каждый белый череп на сердце.
+timbn_spirit_heart_0_3_3 = Красный раствор духа
+timbn_spirit_heart_0_3_3_d = Один красный раствор за каждый белый череп на сердце.
+timbn_spirit_guts_2_1_2 = Зеленый раствор духа
+timbn_spirit_guts_2_1_2_d = Один зеленый раствор за каждый белый череп на кишках.
+timbn_spirit_guts_2_2_2 = Зеленый раствор духа
+timbn_spirit_guts_2_2_2_d = Один зеленый раствор за каждый белый череп на кишках.
+timbn_spirit_guts_1_3_3 = Зеленый раствор духа
+timbn_spirit_guts_1_3_3_d = Один зеленый раствор за каждый белый череп на кишках.
+timbn_spirit_brain_0_1_1 = Синий раствор духа
+timbn_spirit_brain_0_1_1_d = Один синий раствор за каждый белый череп на мозге.
+timbn_spirit_brain_2_1_2 = Синий раствор духа
+timbn_spirit_brain_2_1_2_d = Один синий раствор за каждый белый череп на мозге.
+timbn_spirit_brain_3_1_3 = Синий раствор духа
+timbn_spirit_brain_3_1_3_d = Один синий раствор за каждый белый череп на мозге.
+timbn_spirit_brain_0_2_2 = Синий раствор духа
+timbn_spirit_brain_0_2_2_d = Один синий раствор за каждый белый череп на мозге.
+timbn_spirit_brain_0_3_3 = Синий раствор духа
+timbn_spirit_brain_0_3_3_d = Один синий раствор за каждый белый череп на мозге.

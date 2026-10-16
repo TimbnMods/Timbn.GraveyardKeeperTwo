@@ -66,6 +66,16 @@ internal static class TimbnCrafts
         if (craft.FinishesItself)
             def.autoFinishAutoCraft = true;
 
+        if (craft.IsHidden)
+            def.isHidden = true;
+
+        var (red, green, blue) = craft.Points ?? (0, 0, 0);
+        def.techRed = TimbnExpression.Number(red);
+        def.techGreen = TimbnExpression.Number(green);
+        def.techBlue = TimbnExpression.Number(blue);
+        def.linkedPerks = [];
+        def.onCraftEndExpressions = [];
+
         def.isAuto = TimbnCraftRules.IsAuto(StationRunsItself(balance, def.craftsIn), def.isAuto);
         craft.EditCraft?.Invoke(def);
     }

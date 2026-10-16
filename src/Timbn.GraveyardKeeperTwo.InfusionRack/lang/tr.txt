@@ -1,0 +1,65 @@
+# Timbn Infusion Rack text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
+# and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
+
+# The tech on the anatomy tab
+timbn_infusion_rack = İnfüzyon Rafı
+
+# The infusion stand, as built and as a construction site
+timbn_infusion_stand = İnfüzyon Standı
+timbn_infusion_stand_place = İnfüzyon Standı
+timbn_infusion_stand_place_p = İnfüzyon Standı
+timbn_infusion_stand_place_p_d = Bir zombi, infüzyon makinesi tarafından infüze edilmek için bu kutuda dinlenir.
+timbn_infusion_stand_infusion = İnfüzyon
+timbn_infusion_stand_infusion_d = Standdaki bir zombi infüze ediliyor.
+
+# The infusion machine, as built and as a construction site
+timbn_infusion_machine = İnfüzyon Makinesi
+timbn_infusion_machine_place = İnfüzyon Makinesi
+timbn_infusion_machine_place_p = İnfüzyon Makinesi
+timbn_infusion_machine_place_p_d = Kendisine bağlı bir standda yatan her zombiyi infüze eder.
+
+# What the infusion machine does with each spirit solution
+timbn_infusion_machine_red = Kırmızı Ruh Çözeltisi
+timbn_infusion_machine_red_d = İnfüzyon makinesindeki her zombiyi kırmızı teknoloji puanlarıyla infüze eder.
+timbn_infusion_machine_green = Yeşil Ruh Çözeltisi
+timbn_infusion_machine_green_d = İnfüzyon makinesindeki her zombiyi yeşil teknoloji puanlarıyla infüze eder.
+timbn_infusion_machine_blue = Mavi Ruh Çözeltisi
+timbn_infusion_machine_blue_d = İnfüzyon makinesindeki her zombiyi mavi teknoloji puanlarıyla infüze eder.
+
+# The spirit solutions
+timbn_spirit_solution_red = Kırmızı Ruh Çözeltisi
+timbn_spirit_solution_red_d = Kırmızı zombi çözeltisi. Onları kırmızı teknoloji puanlarıyla infüze eder.
+timbn_spirit_solution_green = Yeşil Ruh Çözeltisi
+timbn_spirit_solution_green_d = Yeşil zombi çözeltisi. Onları yeşil teknoloji puanlarıyla infüze eder.
+timbn_spirit_solution_blue = Mavi Ruh Çözeltisi
+timbn_spirit_solution_blue_d = Mavi zombi çözeltisi. Onları mavi teknoloji puanlarıyla infüze eder.
+
+# The distillation cube recipes, one per heart, guts and brain holding white skulls
+timbn_spirit_heart_0_1_1 = Kırmızı Ruh Çözeltisi
+timbn_spirit_heart_0_1_1_d = Kalpteki her beyaz kafatası için bir kırmızı çözelti.
+timbn_spirit_heart_1_1_1 = Kırmızı Ruh Çözeltisi
+timbn_spirit_heart_1_1_1_d = Kalpteki her beyaz kafatası için bir kırmızı çözelti.
+timbn_spirit_heart_3_1_3 = Kırmızı Ruh Çözeltisi
+timbn_spirit_heart_3_1_3_d = Kalpteki her beyaz kafatası için bir kırmızı çözelti.
+timbn_spirit_heart_1_2_2 = Kırmızı Ruh Çözeltisi
+timbn_spirit_heart_1_2_2_d = Kalpteki her beyaz kafatası için bir kırmızı çözelti.
+timbn_spirit_heart_2_2_2 = Kırmızı Ruh Çözeltisi
+timbn_spirit_heart_2_2_2_d = Kalpteki her beyaz kafatası için bir kırmızı çözelti.
+timbn_spirit_heart_0_3_3 = Kırmızı Ruh Çözeltisi
+timbn_spirit_heart_0_3_3_d = Kalpteki her beyaz kafatası için bir kırmızı çözelti.
+timbn_spirit_guts_2_1_2 = Yeşil Ruh Çözeltisi
+timbn_spirit_guts_2_1_2_d = Bağırsaklardaki her beyaz kafatası için bir yeşil çözelti.
+timbn_spirit_guts_2_2_2 = Yeşil Ruh Çözeltisi
+timbn_spirit_guts_2_2_2_d = Bağırsaklardaki her beyaz kafatası için bir yeşil çözelti.
+timbn_spirit_guts_1_3_3 = Yeşil Ruh Çözeltisi
+timbn_spirit_guts_1_3_3_d = Bağırsaklardaki her beyaz kafatası için bir yeşil çözelti.
+timbn_spirit_brain_0_1_1 = Mavi Ruh Çözeltisi
+timbn_spirit_brain_0_1_1_d = Beyindeki her beyaz kafatası için bir mavi çözelti.
+timbn_spirit_brain_2_1_2 = Mavi Ruh Çözeltisi
+timbn_spirit_brain_2_1_2_d = Beyindeki her beyaz kafatası için bir mavi çözelti.
+timbn_spirit_brain_3_1_3 = Mavi Ruh Çözeltisi
+timbn_spirit_brain_3_1_3_d = Beyindeki her beyaz kafatası için bir mavi çözelti.
+timbn_spirit_brain_0_2_2 = Mavi Ruh Çözeltisi
+timbn_spirit_brain_0_2_2_d = Beyindeki her beyaz kafatası için bir mavi çözelti.
+timbn_spirit_brain_0_3_3 = Mavi Ruh Çözeltisi
+timbn_spirit_brain_0_3_3_d = Beyindeki her beyaz kafatası için bir mavi çözelti.

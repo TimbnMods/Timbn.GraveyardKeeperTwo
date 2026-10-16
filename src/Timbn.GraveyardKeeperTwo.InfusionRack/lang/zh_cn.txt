@@ -1,0 +1,65 @@
+# Timbn Infusion Rack text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
+# and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
+
+# The tech on the anatomy tab
+timbn_infusion_rack = 输液架
+
+# The infusion stand, as built and as a construction site
+timbn_infusion_stand = 输液台
+timbn_infusion_stand_place = 输液台
+timbn_infusion_stand_place_p = 输液台
+timbn_infusion_stand_place_p_d = <nobr>僵尸</nobr>躺在此箱中，由输液机为其输液。
+timbn_infusion_stand_infusion = 输液
+timbn_infusion_stand_infusion_d = 输液台上的<nobr>僵尸</nobr>正在接受输液。
+
+# The infusion machine, as built and as a construction site
+timbn_infusion_machine = 输液机
+timbn_infusion_machine_place = 输液机
+timbn_infusion_machine_place_p = 输液机
+timbn_infusion_machine_place_p_d = 为躺在与其相连的输液台上的每个<nobr>僵尸</nobr>输液。
+
+# What the infusion machine does with each spirit solution
+timbn_infusion_machine_red = 红色灵魂溶液
+timbn_infusion_machine_red_d = 为输液机中的每个<nobr>僵尸</nobr>注入红色科技点。
+timbn_infusion_machine_green = 绿色灵魂溶液
+timbn_infusion_machine_green_d = 为输液机中的每个<nobr>僵尸</nobr>注入绿色科技点。
+timbn_infusion_machine_blue = 蓝色灵魂溶液
+timbn_infusion_machine_blue_d = 为输液机中的每个<nobr>僵尸</nobr>注入蓝色科技点。
+
+# The spirit solutions
+timbn_spirit_solution_red = 红色灵魂溶液
+timbn_spirit_solution_red_d = 红色<nobr>僵尸</nobr>​<nobr>处理</nobr>​液。为它们注入红色科技点。
+timbn_spirit_solution_green = 绿色灵魂溶液
+timbn_spirit_solution_green_d = 绿色<nobr>僵尸</nobr>​<nobr>处理</nobr>​液。为它们注入绿色科技点。
+timbn_spirit_solution_blue = 蓝色灵魂溶液
+timbn_spirit_solution_blue_d = 蓝色<nobr>僵尸</nobr>​<nobr>处理</nobr>​液。为它们注入蓝色科技点。
+
+# The distillation cube recipes, one per heart, guts and brain holding white skulls
+timbn_spirit_heart_0_1_1 = 红色灵魂溶液
+timbn_spirit_heart_0_1_1_d = <nobr>心脏</nobr>上的每个白色头​骨产出一份红色溶液。
+timbn_spirit_heart_1_1_1 = 红色灵魂溶液
+timbn_spirit_heart_1_1_1_d = <nobr>心脏</nobr>上的每个白色头​骨产出一份红色溶液。
+timbn_spirit_heart_3_1_3 = 红色灵魂溶液
+timbn_spirit_heart_3_1_3_d = <nobr>心脏</nobr>上的每个白色头​骨产出一份红色溶液。
+timbn_spirit_heart_1_2_2 = 红色灵魂溶液
+timbn_spirit_heart_1_2_2_d = <nobr>心脏</nobr>上的每个白色头​骨产出一份红色溶液。
+timbn_spirit_heart_2_2_2 = 红色灵魂溶液
+timbn_spirit_heart_2_2_2_d = <nobr>心脏</nobr>上的每个白色头​骨产出一份红色溶液。
+timbn_spirit_heart_0_3_3 = 红色灵魂溶液
+timbn_spirit_heart_0_3_3_d = <nobr>心脏</nobr>上的每个白色头​骨产出一份红色溶液。
+timbn_spirit_guts_2_1_2 = 绿色灵魂溶液
+timbn_spirit_guts_2_1_2_d = <nobr>内脏</nobr>上的每个白色头​骨产出一份绿色溶液。
+timbn_spirit_guts_2_2_2 = 绿色灵魂溶液
+timbn_spirit_guts_2_2_2_d = <nobr>内脏</nobr>上的每个白色头​骨产出一份绿色溶液。
+timbn_spirit_guts_1_3_3 = 绿色灵魂溶液
+timbn_spirit_guts_1_3_3_d = <nobr>内脏</nobr>上的每个白色头​骨产出一份绿色溶液。
+timbn_spirit_brain_0_1_1 = 蓝色灵魂溶液
+timbn_spirit_brain_0_1_1_d = <nobr>大脑</nobr>上的每个白色头​骨产出一份蓝色溶液。
+timbn_spirit_brain_2_1_2 = 蓝色灵魂溶液
+timbn_spirit_brain_2_1_2_d = <nobr>大脑</nobr>上的每个白色头​骨产出一份蓝色溶液。
+timbn_spirit_brain_3_1_3 = 蓝色灵魂溶液
+timbn_spirit_brain_3_1_3_d = <nobr>大脑</nobr>上的每个白色头​骨产出一份蓝色溶液。
+timbn_spirit_brain_0_2_2 = 蓝色灵魂溶液
+timbn_spirit_brain_0_2_2_d = <nobr>大脑</nobr>上的每个白色头​骨产出一份蓝色溶液。
+timbn_spirit_brain_0_3_3 = 蓝色灵魂溶液
+timbn_spirit_brain_0_3_3_d = <nobr>大脑</nobr>上的每个白色头​骨产出一份蓝色溶液。

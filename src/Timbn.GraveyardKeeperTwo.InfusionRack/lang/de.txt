@@ -1,0 +1,65 @@
+# Timbn Infusion Rack text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
+# and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
+
+# The tech on the anatomy tab
+timbn_infusion_rack = Infusionsgestell
+
+# The infusion stand, as built and as a construction site
+timbn_infusion_stand = Infusionsständer
+timbn_infusion_stand_place = Infusionsständer
+timbn_infusion_stand_place_p = Infusionsständer
+timbn_infusion_stand_place_p_d = Ein Zombie ruht in diesem Kasten, um von der Infusionsmaschine infundiert zu werden.
+timbn_infusion_stand_infusion = Infusion
+timbn_infusion_stand_infusion_d = Ein Zombie auf dem Ständer wird infundiert.
+
+# The infusion machine, as built and as a construction site
+timbn_infusion_machine = Infusionsmaschine
+timbn_infusion_machine_place = Infusionsmaschine
+timbn_infusion_machine_place_p = Infusionsmaschine
+timbn_infusion_machine_place_p_d = Infundiert jeden Zombie, der in einem damit verbundenen Ständer liegt.
+
+# What the infusion machine does with each spirit solution
+timbn_infusion_machine_red = Rote Geistlösung
+timbn_infusion_machine_red_d = Infundiert jeden Zombie in einer Infusionsmaschine mit roten Technologiepunkten.
+timbn_infusion_machine_green = Grüne Geistlösung
+timbn_infusion_machine_green_d = Infundiert jeden Zombie in einer Infusionsmaschine mit grünen Technologiepunkten.
+timbn_infusion_machine_blue = Blaue Geistlösung
+timbn_infusion_machine_blue_d = Infundiert jeden Zombie in einer Infusionsmaschine mit blauen Technologiepunkten.
+
+# The spirit solutions
+timbn_spirit_solution_red = Rote Geistlösung
+timbn_spirit_solution_red_d = Rote Lösung für Zombies. Infundiert sie mit roten Technologiepunkten.
+timbn_spirit_solution_green = Grüne Geistlösung
+timbn_spirit_solution_green_d = Grüne Lösung für Zombies. Infundiert sie mit grünen Technologiepunkten.
+timbn_spirit_solution_blue = Blaue Geistlösung
+timbn_spirit_solution_blue_d = Blaue Lösung für Zombies. Infundiert sie mit blauen Technologiepunkten.
+
+# The distillation cube recipes, one per heart, guts and brain holding white skulls
+timbn_spirit_heart_0_1_1 = Rote Geistlösung
+timbn_spirit_heart_0_1_1_d = Eine rote Lösung für jeden weißen Schädel auf dem Herz.
+timbn_spirit_heart_1_1_1 = Rote Geistlösung
+timbn_spirit_heart_1_1_1_d = Eine rote Lösung für jeden weißen Schädel auf dem Herz.
+timbn_spirit_heart_3_1_3 = Rote Geistlösung
+timbn_spirit_heart_3_1_3_d = Eine rote Lösung für jeden weißen Schädel auf dem Herz.
+timbn_spirit_heart_1_2_2 = Rote Geistlösung
+timbn_spirit_heart_1_2_2_d = Eine rote Lösung für jeden weißen Schädel auf dem Herz.
+timbn_spirit_heart_2_2_2 = Rote Geistlösung
+timbn_spirit_heart_2_2_2_d = Eine rote Lösung für jeden weißen Schädel auf dem Herz.
+timbn_spirit_heart_0_3_3 = Rote Geistlösung
+timbn_spirit_heart_0_3_3_d = Eine rote Lösung für jeden weißen Schädel auf dem Herz.
+timbn_spirit_guts_2_1_2 = Grüne Geistlösung
+timbn_spirit_guts_2_1_2_d = Eine grüne Lösung für jeden weißen Schädel auf den Eingeweiden.
+timbn_spirit_guts_2_2_2 = Grüne Geistlösung
+timbn_spirit_guts_2_2_2_d = Eine grüne Lösung für jeden weißen Schädel auf den Eingeweiden.
+timbn_spirit_guts_1_3_3 = Grüne Geistlösung
+timbn_spirit_guts_1_3_3_d = Eine grüne Lösung für jeden weißen Schädel auf den Eingeweiden.
+timbn_spirit_brain_0_1_1 = Blaue Geistlösung
+timbn_spirit_brain_0_1_1_d = Eine blaue Lösung für jeden weißen Schädel auf dem Hirn.
+timbn_spirit_brain_2_1_2 = Blaue Geistlösung
+timbn_spirit_brain_2_1_2_d = Eine blaue Lösung für jeden weißen Schädel auf dem Hirn.
+timbn_spirit_brain_3_1_3 = Blaue Geistlösung
+timbn_spirit_brain_3_1_3_d = Eine blaue Lösung für jeden weißen Schädel auf dem Hirn.
+timbn_spirit_brain_0_2_2 = Blaue Geistlösung
+timbn_spirit_brain_0_2_2_d = Eine blaue Lösung für jeden weißen Schädel auf dem Hirn.
+timbn_spirit_brain_0_3_3 = Blaue Geistlösung
+timbn_spirit_brain_0_3_3_d = Eine blaue Lösung für jeden weißen Schädel auf dem Hirn.

@@ -76,6 +76,13 @@ public static class TimbnWorld
             : [];
 
     /// <summary>
+    /// The id of the craft at the front of a station's queue, running or waiting to start, or null when it has none,
+    /// for example to check whether a stand started with Crafts.Start is still on "timbn_infusion_stand_infusion".
+    /// </summary>
+    /// <param name="station">The station.</param>
+    public static string? RunningCraft(WgoData station) => station.CraftComponent?.CurrentCraftElement?.CraftId;
+
+    /// <summary>
     /// The zones a spot lies in, smallest first, read from the scene's data so it works for a scene that is not
     /// loaded around the player. Zones can nest, so a spot in a room is also in the building around it.
     /// </summary>

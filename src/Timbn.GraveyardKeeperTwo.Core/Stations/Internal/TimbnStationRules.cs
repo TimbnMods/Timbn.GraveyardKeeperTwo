@@ -31,8 +31,8 @@ internal static class TimbnStationRules
             ? behaviorTemplateId
             : DefaultStationTemplate;
 
-    /// <summary>The game expression that lets E put an overhead zombie in a station's slot, the corpse pallet's own check.</summary>
-    internal const string HoldPutCondition = "PlayerHasOvrhdAndCanInsert()";
+    /// <summary>The game expression that lets E put an overhead zombie in a station's slot, the corpse pallet's own check, only while no craft runs on the station.</summary>
+    internal const string HoldPutCondition = "PlayerHasOvrhdAndCanInsert() && IsNotCraftingNow()";
 
     /// <summary>
     /// What E does when it puts a zombie in, the corpse pallet's insert plus the game value its remove tool reads, so a
