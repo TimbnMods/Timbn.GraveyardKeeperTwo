@@ -234,6 +234,16 @@ internal static class TimbnDialog
     {
         ReleaseControl();
         Refresh();
+        BuildVoiceOverIndex();
+    }
+
+    // The game indexes all of its voice over clips (about 5,300) on the first line anyone says, a 46 ms stall on the
+    // session's first talk, so Core builds the index while the save loads. Kept out of a field so the unit tests,
+    // which have no audio module, never load VoiceOverPlayer.
+    private static void BuildVoiceOverIndex()
+    {
+        if (VoiceOverSettings.IsEnabled && AccessTools.Method(typeof(VoiceOverPlayer), "EnsureLocationsCache") is { } build)
+            build.Invoke(null, null);
     }
 
     internal static void OnLeftGame()
