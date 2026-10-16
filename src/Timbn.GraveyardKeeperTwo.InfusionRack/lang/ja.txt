@@ -1,0 +1,65 @@
+# Timbn Infusion Rack text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
+# and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
+
+# The tech on the anatomy tab
+timbn_infusion_rack = 注入ラック
+
+# The infusion stand, as built and as a construction site
+timbn_infusion_stand = 注入スタンド
+timbn_infusion_stand_place = 注入スタンド
+timbn_infusion_stand_place_p = 注入スタンド
+timbn_infusion_stand_place_p_d = <nobr>ゾンビ</nobr>はこの箱の中で休み、注入機から注入を受ける。
+timbn_infusion_stand_infusion = 注入
+timbn_infusion_stand_infusion_d = スタンドの上の<nobr>ゾンビ</nobr>が注入を受けている。
+
+# The infusion machine, as built and as a construction site
+timbn_infusion_machine = 注入機
+timbn_infusion_machine_place = 注入機
+timbn_infusion_machine_place_p = 注入機
+timbn_infusion_machine_place_p_d = 接続されたスタンドに横たわるすべての<nobr>ゾンビ</nobr>に注入する。
+
+# What the infusion machine does with each spirit solution
+timbn_infusion_machine_red = 赤のスピリット溶液
+timbn_infusion_machine_red_d = 注入機内のすべての<nobr>ゾンビ</nobr>に赤のテクノロジーポイントを注入する。
+timbn_infusion_machine_green = 緑のスピリット溶液
+timbn_infusion_machine_green_d = 注入機内のすべての<nobr>ゾンビ</nobr>に緑のテクノロジーポイントを注入する。
+timbn_infusion_machine_blue = 青のスピリット溶液
+timbn_infusion_machine_blue_d = 注入機内のすべての<nobr>ゾンビ</nobr>に青のテクノロジーポイントを注入する。
+
+# The spirit solutions
+timbn_spirit_solution_red = 赤のスピリット溶液
+timbn_spirit_solution_red_d = 赤の<nobr>ゾンビ用溶液</nobr>。<nobr>ゾンビ</nobr>に赤のテクノロジーポイントを注入する。
+timbn_spirit_solution_green = 緑のスピリット溶液
+timbn_spirit_solution_green_d = 緑の<nobr>ゾンビ用溶液</nobr>。<nobr>ゾンビ</nobr>に緑のテクノロジーポイントを注入する。
+timbn_spirit_solution_blue = 青のスピリット溶液
+timbn_spirit_solution_blue_d = 青の<nobr>ゾンビ用溶液</nobr>。<nobr>ゾンビ</nobr>に青のテクノロジーポイントを注入する。
+
+# The distillation cube recipes, one per heart, guts and brain holding white skulls
+timbn_spirit_heart_0_1_1 = 赤のスピリット溶液
+timbn_spirit_heart_0_1_1_d = <nobr>心臓</nobr>の白い<nobr>頭蓋骨</nobr>1つにつき、赤の溶液1つ。
+timbn_spirit_heart_1_1_1 = 赤のスピリット溶液
+timbn_spirit_heart_1_1_1_d = <nobr>心臓</nobr>の白い<nobr>頭蓋骨</nobr>1つにつき、赤の溶液1つ。
+timbn_spirit_heart_3_1_3 = 赤のスピリット溶液
+timbn_spirit_heart_3_1_3_d = <nobr>心臓</nobr>の白い<nobr>頭蓋骨</nobr>1つにつき、赤の溶液1つ。
+timbn_spirit_heart_1_2_2 = 赤のスピリット溶液
+timbn_spirit_heart_1_2_2_d = <nobr>心臓</nobr>の白い<nobr>頭蓋骨</nobr>1つにつき、赤の溶液1つ。
+timbn_spirit_heart_2_2_2 = 赤のスピリット溶液
+timbn_spirit_heart_2_2_2_d = <nobr>心臓</nobr>の白い<nobr>頭蓋骨</nobr>1つにつき、赤の溶液1つ。
+timbn_spirit_heart_0_3_3 = 赤のスピリット溶液
+timbn_spirit_heart_0_3_3_d = <nobr>心臓</nobr>の白い<nobr>頭蓋骨</nobr>1つにつき、赤の溶液1つ。
+timbn_spirit_guts_2_1_2 = 緑のスピリット溶液
+timbn_spirit_guts_2_1_2_d = <nobr>はらわた</nobr>の白い<nobr>頭蓋骨</nobr>1つにつき、緑の溶液1つ。
+timbn_spirit_guts_2_2_2 = 緑のスピリット溶液
+timbn_spirit_guts_2_2_2_d = <nobr>はらわた</nobr>の白い<nobr>頭蓋骨</nobr>1つにつき、緑の溶液1つ。
+timbn_spirit_guts_1_3_3 = 緑のスピリット溶液
+timbn_spirit_guts_1_3_3_d = <nobr>はらわた</nobr>の白い<nobr>頭蓋骨</nobr>1つにつき、緑の溶液1つ。
+timbn_spirit_brain_0_1_1 = 青のスピリット溶液
+timbn_spirit_brain_0_1_1_d = 脳の白い<nobr>頭蓋骨</nobr>1つにつき、青の溶液1つ。
+timbn_spirit_brain_2_1_2 = 青のスピリット溶液
+timbn_spirit_brain_2_1_2_d = 脳の白い<nobr>頭蓋骨</nobr>1つにつき、青の溶液1つ。
+timbn_spirit_brain_3_1_3 = 青のスピリット溶液
+timbn_spirit_brain_3_1_3_d = 脳の白い<nobr>頭蓋骨</nobr>1つにつき、青の溶液1つ。
+timbn_spirit_brain_0_2_2 = 青のスピリット溶液
+timbn_spirit_brain_0_2_2_d = 脳の白い<nobr>頭蓋骨</nobr>1つにつき、青の溶液1つ。
+timbn_spirit_brain_0_3_3 = 青のスピリット溶液
+timbn_spirit_brain_0_3_3_d = 脳の白い<nobr>頭蓋骨</nobr>1つにつき、青の溶液1つ。

@@ -1,0 +1,65 @@
+# Timbn Infusion Rack text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
+# and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
+
+# The tech on the anatomy tab
+timbn_infusion_rack = Infusion Rack
+
+# The infusion stand, as built and as a construction site
+timbn_infusion_stand = Infusion Stand
+timbn_infusion_stand_place = Infusion Stand
+timbn_infusion_stand_place_p = Infusion Stand
+timbn_infusion_stand_place_p_d = A zombie rests in this box to be infused by the infusion machine.
+timbn_infusion_stand_infusion = Infusion
+timbn_infusion_stand_infusion_d = A zombie on the stand is being infused.
+
+# The infusion machine, as built and as a construction site
+timbn_infusion_machine = Infusion Machine
+timbn_infusion_machine_place = Infusion Machine
+timbn_infusion_machine_place_p = Infusion Machine
+timbn_infusion_machine_place_p_d = Infuses every zombie lying in a stand connected to it.
+
+# What the infusion machine does with each spirit solution
+timbn_infusion_machine_red = Red Spirit Solution
+timbn_infusion_machine_red_d = Infuses every zombie in an infusion machine with red tech points.
+timbn_infusion_machine_green = Green Spirit Solution
+timbn_infusion_machine_green_d = Infuses every zombie in an infusion machine with green tech points.
+timbn_infusion_machine_blue = Blue Spirit Solution
+timbn_infusion_machine_blue_d = Infuses every zombie in an infusion machine with blue tech points.
+
+# The spirit solutions
+timbn_spirit_solution_red = Red Spirit Solution
+timbn_spirit_solution_red_d = Red solution for zombies. Infuses them with red tech points.
+timbn_spirit_solution_green = Green Spirit Solution
+timbn_spirit_solution_green_d = Green solution for zombies. Infuses them with green tech points.
+timbn_spirit_solution_blue = Blue Spirit Solution
+timbn_spirit_solution_blue_d = Blue solution for zombies. Infuses them with blue tech points.
+
+# The distillation cube recipes, one per heart, guts and brain holding white skulls
+timbn_spirit_heart_0_1_1 = Red Spirit Solution
+timbn_spirit_heart_0_1_1_d = One red solution for each white skull on the heart.
+timbn_spirit_heart_1_1_1 = Red Spirit Solution
+timbn_spirit_heart_1_1_1_d = One red solution for each white skull on the heart.
+timbn_spirit_heart_3_1_3 = Red Spirit Solution
+timbn_spirit_heart_3_1_3_d = One red solution for each white skull on the heart.
+timbn_spirit_heart_1_2_2 = Red Spirit Solution
+timbn_spirit_heart_1_2_2_d = One red solution for each white skull on the heart.
+timbn_spirit_heart_2_2_2 = Red Spirit Solution
+timbn_spirit_heart_2_2_2_d = One red solution for each white skull on the heart.
+timbn_spirit_heart_0_3_3 = Red Spirit Solution
+timbn_spirit_heart_0_3_3_d = One red solution for each white skull on the heart.
+timbn_spirit_guts_2_1_2 = Green Spirit Solution
+timbn_spirit_guts_2_1_2_d = One green solution for each white skull on the guts.
+timbn_spirit_guts_2_2_2 = Green Spirit Solution
+timbn_spirit_guts_2_2_2_d = One green solution for each white skull on the guts.
+timbn_spirit_guts_1_3_3 = Green Spirit Solution
+timbn_spirit_guts_1_3_3_d = One green solution for each white skull on the guts.
+timbn_spirit_brain_0_1_1 = Blue Spirit Solution
+timbn_spirit_brain_0_1_1_d = One blue solution for each white skull on the brain.
+timbn_spirit_brain_2_1_2 = Blue Spirit Solution
+timbn_spirit_brain_2_1_2_d = One blue solution for each white skull on the brain.
+timbn_spirit_brain_3_1_3 = Blue Spirit Solution
+timbn_spirit_brain_3_1_3_d = One blue solution for each white skull on the brain.
+timbn_spirit_brain_0_2_2 = Blue Spirit Solution
+timbn_spirit_brain_0_2_2_d = One blue solution for each white skull on the brain.
+timbn_spirit_brain_0_3_3 = Blue Spirit Solution
+timbn_spirit_brain_0_3_3_d = One blue solution for each white skull on the brain.

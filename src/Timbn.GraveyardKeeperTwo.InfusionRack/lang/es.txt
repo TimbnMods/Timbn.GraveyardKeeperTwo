@@ -1,0 +1,65 @@
+# Timbn Infusion Rack text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
+# and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
+
+# The tech on the anatomy tab
+timbn_infusion_rack = Estante de infusión
+
+# The infusion stand, as built and as a construction site
+timbn_infusion_stand = Soporte de infusión
+timbn_infusion_stand_place = Soporte de infusión
+timbn_infusion_stand_place_p = Soporte de infusión
+timbn_infusion_stand_place_p_d = Un zombi descansa en esta caja para ser infundido por la máquina de infusión.
+timbn_infusion_stand_infusion = Infusión
+timbn_infusion_stand_infusion_d = Un zombi en el soporte está siendo infundido.
+
+# The infusion machine, as built and as a construction site
+timbn_infusion_machine = Máquina de infusión
+timbn_infusion_machine_place = Máquina de infusión
+timbn_infusion_machine_place_p = Máquina de infusión
+timbn_infusion_machine_place_p_d = Infunde a cada zombi que yace en un soporte conectado a ella.
+
+# What the infusion machine does with each spirit solution
+timbn_infusion_machine_red = Solución de espíritu roja
+timbn_infusion_machine_red_d = Infunde a cada zombi en una máquina de infusión con puntos de tecnología rojos.
+timbn_infusion_machine_green = Solución de espíritu verde
+timbn_infusion_machine_green_d = Infunde a cada zombi en una máquina de infusión con puntos de tecnología verdes.
+timbn_infusion_machine_blue = Solución de espíritu azul
+timbn_infusion_machine_blue_d = Infunde a cada zombi en una máquina de infusión con puntos de tecnología azules.
+
+# The spirit solutions
+timbn_spirit_solution_red = Solución de espíritu roja
+timbn_spirit_solution_red_d = Solución roja para zombis. Los infunde con puntos de tecnología rojos.
+timbn_spirit_solution_green = Solución de espíritu verde
+timbn_spirit_solution_green_d = Solución verde para zombis. Los infunde con puntos de tecnología verdes.
+timbn_spirit_solution_blue = Solución de espíritu azul
+timbn_spirit_solution_blue_d = Solución azul para zombis. Los infunde con puntos de tecnología azules.
+
+# The distillation cube recipes, one per heart, guts and brain holding white skulls
+timbn_spirit_heart_0_1_1 = Solución de espíritu roja
+timbn_spirit_heart_0_1_1_d = Una solución roja por cada cráneo blanco en el corazón.
+timbn_spirit_heart_1_1_1 = Solución de espíritu roja
+timbn_spirit_heart_1_1_1_d = Una solución roja por cada cráneo blanco en el corazón.
+timbn_spirit_heart_3_1_3 = Solución de espíritu roja
+timbn_spirit_heart_3_1_3_d = Una solución roja por cada cráneo blanco en el corazón.
+timbn_spirit_heart_1_2_2 = Solución de espíritu roja
+timbn_spirit_heart_1_2_2_d = Una solución roja por cada cráneo blanco en el corazón.
+timbn_spirit_heart_2_2_2 = Solución de espíritu roja
+timbn_spirit_heart_2_2_2_d = Una solución roja por cada cráneo blanco en el corazón.
+timbn_spirit_heart_0_3_3 = Solución de espíritu roja
+timbn_spirit_heart_0_3_3_d = Una solución roja por cada cráneo blanco en el corazón.
+timbn_spirit_guts_2_1_2 = Solución de espíritu verde
+timbn_spirit_guts_2_1_2_d = Una solución verde por cada cráneo blanco en las entrañas.
+timbn_spirit_guts_2_2_2 = Solución de espíritu verde
+timbn_spirit_guts_2_2_2_d = Una solución verde por cada cráneo blanco en las entrañas.
+timbn_spirit_guts_1_3_3 = Solución de espíritu verde
+timbn_spirit_guts_1_3_3_d = Una solución verde por cada cráneo blanco en las entrañas.
+timbn_spirit_brain_0_1_1 = Solución de espíritu azul
+timbn_spirit_brain_0_1_1_d = Una solución azul por cada cráneo blanco en el cerebro.
+timbn_spirit_brain_2_1_2 = Solución de espíritu azul
+timbn_spirit_brain_2_1_2_d = Una solución azul por cada cráneo blanco en el cerebro.
+timbn_spirit_brain_3_1_3 = Solución de espíritu azul
+timbn_spirit_brain_3_1_3_d = Una solución azul por cada cráneo blanco en el cerebro.
+timbn_spirit_brain_0_2_2 = Solución de espíritu azul
+timbn_spirit_brain_0_2_2_d = Una solución azul por cada cráneo blanco en el cerebro.
+timbn_spirit_brain_0_3_3 = Solución de espíritu azul
+timbn_spirit_brain_0_3_3_d = Una solución azul por cada cráneo blanco en el cerebro.

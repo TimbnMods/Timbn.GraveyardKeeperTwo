@@ -1,0 +1,65 @@
+# Timbn Infusion Rack text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
+# and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
+
+# The tech on the anatomy tab
+timbn_infusion_rack = Stelaż infuzyjny
+
+# The infusion stand, as built and as a construction site
+timbn_infusion_stand = Stojak infuzyjny
+timbn_infusion_stand_place = Stojak infuzyjny
+timbn_infusion_stand_place_p = Stojak infuzyjny
+timbn_infusion_stand_place_p_d = Zombie spoczywa w tej skrzyni, aby zostać poddanym infuzji przez maszynę infuzyjną.
+timbn_infusion_stand_infusion = Infuzja
+timbn_infusion_stand_infusion_d = Zombie na stojaku jest poddawany infuzji.
+
+# The infusion machine, as built and as a construction site
+timbn_infusion_machine = Maszyna infuzyjna
+timbn_infusion_machine_place = Maszyna infuzyjna
+timbn_infusion_machine_place_p = Maszyna infuzyjna
+timbn_infusion_machine_place_p_d = Infunduje każdego zombie leżącego na połączonym z nią stojaku.
+
+# What the infusion machine does with each spirit solution
+timbn_infusion_machine_red = Czerwony roztwór ducha
+timbn_infusion_machine_red_d = Infunduje każdego zombie w maszynie infuzyjnej czerwonymi punktami technologii.
+timbn_infusion_machine_green = Zielony roztwór ducha
+timbn_infusion_machine_green_d = Infunduje każdego zombie w maszynie infuzyjnej zielonymi punktami technologii.
+timbn_infusion_machine_blue = Niebieski roztwór ducha
+timbn_infusion_machine_blue_d = Infunduje każdego zombie w maszynie infuzyjnej niebieskimi punktami technologii.
+
+# The spirit solutions
+timbn_spirit_solution_red = Czerwony roztwór ducha
+timbn_spirit_solution_red_d = Czerwony roztwór dla zombie. Infunduje je czerwonymi punktami technologii.
+timbn_spirit_solution_green = Zielony roztwór ducha
+timbn_spirit_solution_green_d = Zielony roztwór dla zombie. Infunduje je zielonymi punktami technologii.
+timbn_spirit_solution_blue = Niebieski roztwór ducha
+timbn_spirit_solution_blue_d = Niebieski roztwór dla zombie. Infunduje je niebieskimi punktami technologii.
+
+# The distillation cube recipes, one per heart, guts and brain holding white skulls
+timbn_spirit_heart_0_1_1 = Czerwony roztwór ducha
+timbn_spirit_heart_0_1_1_d = Jeden czerwony roztwór za każdą białą czaszkę na sercu.
+timbn_spirit_heart_1_1_1 = Czerwony roztwór ducha
+timbn_spirit_heart_1_1_1_d = Jeden czerwony roztwór za każdą białą czaszkę na sercu.
+timbn_spirit_heart_3_1_3 = Czerwony roztwór ducha
+timbn_spirit_heart_3_1_3_d = Jeden czerwony roztwór za każdą białą czaszkę na sercu.
+timbn_spirit_heart_1_2_2 = Czerwony roztwór ducha
+timbn_spirit_heart_1_2_2_d = Jeden czerwony roztwór za każdą białą czaszkę na sercu.
+timbn_spirit_heart_2_2_2 = Czerwony roztwór ducha
+timbn_spirit_heart_2_2_2_d = Jeden czerwony roztwór za każdą białą czaszkę na sercu.
+timbn_spirit_heart_0_3_3 = Czerwony roztwór ducha
+timbn_spirit_heart_0_3_3_d = Jeden czerwony roztwór za każdą białą czaszkę na sercu.
+timbn_spirit_guts_2_1_2 = Zielony roztwór ducha
+timbn_spirit_guts_2_1_2_d = Jeden zielony roztwór za każdą białą czaszkę na flakach.
+timbn_spirit_guts_2_2_2 = Zielony roztwór ducha
+timbn_spirit_guts_2_2_2_d = Jeden zielony roztwór za każdą białą czaszkę na flakach.
+timbn_spirit_guts_1_3_3 = Zielony roztwór ducha
+timbn_spirit_guts_1_3_3_d = Jeden zielony roztwór za każdą białą czaszkę na flakach.
+timbn_spirit_brain_0_1_1 = Niebieski roztwór ducha
+timbn_spirit_brain_0_1_1_d = Jeden niebieski roztwór za każdą białą czaszkę na mózgu.
+timbn_spirit_brain_2_1_2 = Niebieski roztwór ducha
+timbn_spirit_brain_2_1_2_d = Jeden niebieski roztwór za każdą białą czaszkę na mózgu.
+timbn_spirit_brain_3_1_3 = Niebieski roztwór ducha
+timbn_spirit_brain_3_1_3_d = Jeden niebieski roztwór za każdą białą czaszkę na mózgu.
+timbn_spirit_brain_0_2_2 = Niebieski roztwór ducha
+timbn_spirit_brain_0_2_2_d = Jeden niebieski roztwór za każdą białą czaszkę na mózgu.
+timbn_spirit_brain_0_3_3 = Niebieski roztwór ducha
+timbn_spirit_brain_0_3_3_d = Jeden niebieski roztwór za każdą białą czaszkę na mózgu.

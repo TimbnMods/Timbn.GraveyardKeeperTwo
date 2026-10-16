@@ -1,0 +1,65 @@
+# Timbn Infusion Rack text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
+# and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
+
+# The tech on the anatomy tab
+timbn_infusion_rack = 주입 거치대
+
+# The infusion stand, as built and as a construction site
+timbn_infusion_stand = 주입대
+timbn_infusion_stand_place = 주입대
+timbn_infusion_stand_place_p = 주입대
+timbn_infusion_stand_place_p_d = 좀비가 주입 기계로 주입받기 위해 이 상자에서 휴식을 취합니다.
+timbn_infusion_stand_infusion = 주입
+timbn_infusion_stand_infusion_d = 주입대에 있는 좀비가 주입받고 있습니다.
+
+# The infusion machine, as built and as a construction site
+timbn_infusion_machine = 주입 기계
+timbn_infusion_machine_place = 주입 기계
+timbn_infusion_machine_place_p = 주입 기계
+timbn_infusion_machine_place_p_d = 연결된 주입대에 누워 있는 모든 좀비에게 주입합니다.
+
+# What the infusion machine does with each spirit solution
+timbn_infusion_machine_red = 빨간색 영혼 용액
+timbn_infusion_machine_red_d = 주입 기계에 있는 모든 좀비에게 빨간색 기술 점수를 주입합니다.
+timbn_infusion_machine_green = 초록색 영혼 용액
+timbn_infusion_machine_green_d = 주입 기계에 있는 모든 좀비에게 초록색 기술 점수를 주입합니다.
+timbn_infusion_machine_blue = 파란색 영혼 용액
+timbn_infusion_machine_blue_d = 주입 기계에 있는 모든 좀비에게 파란색 기술 점수를 주입합니다.
+
+# The spirit solutions
+timbn_spirit_solution_red = 빨간색 영혼 용액
+timbn_spirit_solution_red_d = 빨간색 좀비 처리용 용액입니다. 좀비에게 빨간색 기술 점수를 주입합니다.
+timbn_spirit_solution_green = 초록색 영혼 용액
+timbn_spirit_solution_green_d = 초록색 좀비 처리용 용액입니다. 좀비에게 초록색 기술 점수를 주입합니다.
+timbn_spirit_solution_blue = 파란색 영혼 용액
+timbn_spirit_solution_blue_d = 파란색 좀비 처리용 용액입니다. 좀비에게 파란색 기술 점수를 주입합니다.
+
+# The distillation cube recipes, one per heart, guts and brain holding white skulls
+timbn_spirit_heart_0_1_1 = 빨간색 영혼 용액
+timbn_spirit_heart_0_1_1_d = 심장의 하얀색 두개골 하나당 빨간색 용액 하나.
+timbn_spirit_heart_1_1_1 = 빨간색 영혼 용액
+timbn_spirit_heart_1_1_1_d = 심장의 하얀색 두개골 하나당 빨간색 용액 하나.
+timbn_spirit_heart_3_1_3 = 빨간색 영혼 용액
+timbn_spirit_heart_3_1_3_d = 심장의 하얀색 두개골 하나당 빨간색 용액 하나.
+timbn_spirit_heart_1_2_2 = 빨간색 영혼 용액
+timbn_spirit_heart_1_2_2_d = 심장의 하얀색 두개골 하나당 빨간색 용액 하나.
+timbn_spirit_heart_2_2_2 = 빨간색 영혼 용액
+timbn_spirit_heart_2_2_2_d = 심장의 하얀색 두개골 하나당 빨간색 용액 하나.
+timbn_spirit_heart_0_3_3 = 빨간색 영혼 용액
+timbn_spirit_heart_0_3_3_d = 심장의 하얀색 두개골 하나당 빨간색 용액 하나.
+timbn_spirit_guts_2_1_2 = 초록색 영혼 용액
+timbn_spirit_guts_2_1_2_d = 내장의 하얀색 두개골 하나당 초록색 용액 하나.
+timbn_spirit_guts_2_2_2 = 초록색 영혼 용액
+timbn_spirit_guts_2_2_2_d = 내장의 하얀색 두개골 하나당 초록색 용액 하나.
+timbn_spirit_guts_1_3_3 = 초록색 영혼 용액
+timbn_spirit_guts_1_3_3_d = 내장의 하얀색 두개골 하나당 초록색 용액 하나.
+timbn_spirit_brain_0_1_1 = 파란색 영혼 용액
+timbn_spirit_brain_0_1_1_d = 뇌의 하얀색 두개골 하나당 파란색 용액 하나.
+timbn_spirit_brain_2_1_2 = 파란색 영혼 용액
+timbn_spirit_brain_2_1_2_d = 뇌의 하얀색 두개골 하나당 파란색 용액 하나.
+timbn_spirit_brain_3_1_3 = 파란색 영혼 용액
+timbn_spirit_brain_3_1_3_d = 뇌의 하얀색 두개골 하나당 파란색 용액 하나.
+timbn_spirit_brain_0_2_2 = 파란색 영혼 용액
+timbn_spirit_brain_0_2_2_d = 뇌의 하얀색 두개골 하나당 파란색 용액 하나.
+timbn_spirit_brain_0_3_3 = 파란색 영혼 용액
+timbn_spirit_brain_0_3_3_d = 뇌의 하얀색 두개골 하나당 파란색 용액 하나.
