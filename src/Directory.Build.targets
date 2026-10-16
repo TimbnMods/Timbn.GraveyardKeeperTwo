@@ -42,7 +42,7 @@
   </Target>
 
   <!--
-    Builds a release zip for one plugin: artifacts/<ProjectName>-<Version>.zip, holding the plugin folder
+    Builds a release zip for one plugin: artifacts/nexus/<ProjectName>-<Version>.zip, holding the plugin folder
     exactly as it deploys, its XML doc file when the project generates one, the repo's LICENSE renamed to LICENSE.txt,
     and the project's README.md. A patcher's folder sits under BepInEx/patchers in the zip, so it is extracted
     into the game folder and mod managers deploy it as a patcher instead of dropping it into plugins. Opt in
@@ -55,7 +55,7 @@
       <_PackageStage>$(IntermediateOutputPath)package\</_PackageStage>
       <_PackageRoot>$(_PackageStage)$(MSBuildProjectName)\</_PackageRoot>
       <_PackageRoot Condition="'$(BepInExPatcher)' == 'true'">$(_PackageStage)BepInEx\patchers\$(MSBuildProjectName)\</_PackageRoot>
-      <_PackageFile>$(_RepoRoot)\artifacts\$(MSBuildProjectName)-$(Version).zip</_PackageFile>
+      <_PackageFile>$(_RepoRoot)\artifacts\nexus\$(MSBuildProjectName)-$(Version).zip</_PackageFile>
     </PropertyGroup>
     <ItemGroup>
       <_PackageContent Include="@(None->WithMetadataValue('CopyToOutputDirectory', 'PreserveNewest'))" />
@@ -79,7 +79,7 @@
       SourceFiles="$(_RepoRoot)\LICENSE"
       DestinationFiles="$(_PackageRoot)LICENSE.txt"
       Condition="Exists('$(_RepoRoot)\LICENSE')" />
-    <MakeDir Directories="$(_RepoRoot)\artifacts" />
+    <MakeDir Directories="$(_RepoRoot)\artifacts\nexus" />
     <ZipDirectory SourceDirectory="$(_PackageStage)" DestinationFile="$(_PackageFile)" Overwrite="true" />
     <Message Importance="high" Text="Packaged $(_PackageFile)" />
   </Target>
