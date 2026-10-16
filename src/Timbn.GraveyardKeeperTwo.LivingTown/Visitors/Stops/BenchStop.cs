@@ -53,7 +53,7 @@ internal sealed class BenchStop : IGraveyardStop
         }
 
         var plots = TimbnWorld.Objects(wgo => wgo.id.StartsWith(_plotPrefix)).ToList();
-        List<(WgoData Bench, Direction Facing, List<(Vector3 Seat, Vector3 Edge)> Seats)> open = [];
+        var open = new List<(WgoData Bench, Direction Facing, List<(Vector3 Seat, Vector3 Edge)> Seats)>();
         foreach (var bench in benches)
         {
             if (Facing(bench, plots) is not { } facing)
