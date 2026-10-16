@@ -7,10 +7,7 @@ internal enum TechColor
     Blue
 }
 
-/// <summary>
-/// The solutions the distillation cube makes, which infuse zombies with tech points. They are copied from the game's embalm item for its
-/// look and stacking but are not embalms, so the embalming table never offers them.
-/// </summary>
+// Copied from the game's embalm for its look and stacking, but not an embalm, so the embalming table never offers it.
 internal static class SpiritSolution
 {
     private const string _itemTemplate = "embalm_white:1";

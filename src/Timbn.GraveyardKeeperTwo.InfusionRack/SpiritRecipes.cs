@@ -1,10 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.InfusionRack;
 
-/// <summary>
-/// Spirit solution recipes on the game's distillation cube, one per heart, guts and brain holding white skulls. Each
-/// takes the organ, fire and one alchemy flask, runs as long as the cube's fragrance and makes one solution for each white
-/// skull, in the color whose rune only that organ carries.
-/// </summary>
+// One recipe per organ, and its solution takes the color of the rune only that organ carries.
 internal static class SpiritRecipes
 {
     private const string _cube = "distillation_cube";

@@ -1,6 +1,5 @@
 namespace Timbn.GraveyardKeeperTwo.InfusionRack;
 
-/// <summary>The Infusion Rack tech, right after Body Places II on the anatomy tab, which unlocks everything the mod adds.</summary>
 internal static class InfusionTech
 {
     public const string Id = "timbn_infusion_rack";

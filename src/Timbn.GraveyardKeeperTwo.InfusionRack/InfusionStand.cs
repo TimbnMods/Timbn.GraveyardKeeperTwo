@@ -1,5 +1,3 @@
-using LazyBearTechnology;
-
 namespace Timbn.GraveyardKeeperTwo.InfusionRack;
 
 internal static class InfusionStand
@@ -16,7 +14,6 @@ internal static class InfusionStand
     // Has no needs and no output.
     private const string _template = "pocket_extract_item_craft";
     private const int _infusionTicks = 600;
-    private const string _removalLock = "lock_building_removal";
 
     public static void Register(TimbnFrameworkPlugin plugin)
     {
@@ -48,7 +45,7 @@ internal static class InfusionStand
                 // Taking the zombie out puts the lines out, appended to the game's own take.
                 def.customInteraction2.execution.Add(SetFlag(0));
                 // An empty stand runs the infusion too, which is what keeps a zombie from being put in halfway.
-                def.customInteraction.condition = LazyExpressionBase.ParseExpression<LazyExpression>("PlayerHasOvrhdAndCanInsert() && IsNotCraftingNow()");
+                def.customInteraction.condition = TimbnBalance.Expression("PlayerHasOvrhdAndCanInsert() && IsNotCraftingNow()");
             })
             .BuildsInSlot(SlotId)
             .BuiltAt(TimbnGameIds.BuildDesks.Morgue)
@@ -73,46 +70,31 @@ internal static class InfusionStand
             }));
     }
 
-    /// <summary>Puts a stand's lines out, for a stand the infusion ended on with no zombie in it.</summary>
     public static void ClearGlow(WgoData stand) => stand.SetGameRes(_infusedFlag, 0);
 
-    /// <summary>Unlocks and puts out the lines on any stand with no zombie in it, which a save that lost its zombie while the mod was away can hold.</summary>
+    // A save that lost its zombie while the mod was away can hold a lit stand with nothing in it.
+    // Core already unlocks the stand and frees its slot.
     private static void RepairEmptyStands()
     {
         foreach (var stand in TimbnWorld.FindAll(StationId))
         {
-            if (TimbnZombies.AtStation(stand) != null)
-                continue;
-
-            if (stand.GetGameRes(_removalLock) != 0)
-                stand.SetGameRes(_removalLock, 0);
-
-            // A zombie handed back while the mod was away left the slot looking full, so nothing could be put in.
-            var inventory = stand.Inventory.Data;
-            if (inventory.InventoryCount == 0 && inventory.InventoryFillSize != 0)
-                HarmonyLib.AccessTools.Method(typeof(Item), "CalculateInventoryFillSize").Invoke(inventory, null);
-
-            if (stand.CraftComponent.CurrentCraftElement?.Def?.id != InfusionId)
+            if (TimbnZombies.AtStation(stand) == null && stand.CraftComponent.CurrentCraftElement?.Def?.id != InfusionId)
                 ClearGlow(stand);
         }
     }
 
     private static LazyExpression SetFlag(int value) =>
-        LazyExpressionBase.ParseExpression<LazyExpression>($"SetWGOPar(\"{_infusedFlag}\", {value})");
+        TimbnBalance.Expression($"SetWGOPar(\"{_infusedFlag}\", {value})");
 
-    /// <summary>Every stand in the machine's slots.</summary>
     public static IEnumerable<WgoData> StandsOf(WgoData machine) =>
         TimbnWorld.Extensions(machine).Where(stand => stand.id == StationId);
 
-    /// <summary>Every stand of the machine with an infusion running, which is where the machine's infusion holds a zombie.</summary>
     public static IEnumerable<WgoData> InfusionStands(WgoData machine) =>
         StandsOf(machine).Where(stand => stand.CraftComponent.CurrentCraftElement?.Def?.id == InfusionId);
 
-    /// <summary>Every stand of the machine holding a zombie that isn't already being infused.</summary>
     public static IEnumerable<WgoData> OccupiedStands(WgoData machine) =>
         StandsOf(machine).Where(stand => TimbnZombies.AtStation(stand) != null && stand.CraftComponent.CurrentCraftElement?.Def?.id != InfusionId);
 
-    /// <summary>Every stand of the machine with no infusion running, empty or not.</summary>
     public static IEnumerable<WgoData> IdleStands(WgoData machine) =>
         StandsOf(machine).Where(stand => stand.CraftComponent.CurrentCraftElement?.Def?.id != InfusionId);
 }
