@@ -308,6 +308,36 @@ public static class TimbnWorld
         return view ? view : null;
     }
 
+    /// <summary>
+    /// A point the game placed in a scene, the spots its people walk to and stand at, such as donkey_04 on the road by
+    /// the graveyard. A point has a position, a facing and an enabled flag, and its id is the same string the Npcs
+    /// module takes. The ids are listed in info_dump's points catalog.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var road = TimbnWorld.Point("donkey_04")?.Position;
+    /// </code>
+    /// </example>
+    /// <param name="id">The point's id.</param>
+    /// <returns>The point, or null when no point has that id or at the main menu.</returns>
+    public static GDPointData? Point(string id) =>
+        TimbnGame.IsInGame ? MainGame.WorldData.gdPointsData.GetGDPointDataById(id) : null;
+
+    /// <summary>
+    /// Every point carrying a custom tag, for a set of spots the game marks the same way, such as the two seats each
+    /// church pew adds with the tag parishioner_bench_point. Disabled points are included, so check Enabled when that
+    /// matters.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var seats = TimbnWorld.PointsWithTag("parishioner_bench_point").Where(seat => seat.Enabled);
+    /// </code>
+    /// </example>
+    /// <param name="customTag">The tag, as the game spells it.</param>
+    /// <returns>The points, empty when none carry the tag or at the main menu.</returns>
+    public static GDPointData[] PointsWithTag(string customTag) =>
+        TimbnGame.IsInGame ? [.. MainGame.WorldData.gdPointsData.GetGDPointsDataByCustomTag(customTag) ?? []] : [];
+
     /// <summary>The distance between two spots as seen from above, ignoring height.</summary>
     /// <param name="first">One spot.</param>
     /// <param name="second">The other spot.</param>

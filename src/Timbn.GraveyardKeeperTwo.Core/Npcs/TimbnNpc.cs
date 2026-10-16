@@ -150,7 +150,7 @@ public sealed class TimbnNpc : IDisposable
         if (IsGone)
             return false;
 
-        if (TimbnNpcs.Point(pointId) is not { } target)
+        if (TimbnWorld.Point(pointId) is not { } target)
         {
             Log($"no point {pointId}, not walking");
             return false;
@@ -208,7 +208,7 @@ public sealed class TimbnNpc : IDisposable
     /// <returns>False when the point is missing or the person is gone.</returns>
     public bool Teleport(string pointId)
     {
-        if (IsGone || TimbnNpcs.Point(pointId) is not { } point)
+        if (IsGone || TimbnWorld.Point(pointId) is not { } point)
             return false;
 
         KeepBaseGamePlace();
@@ -701,7 +701,7 @@ public sealed class TimbnNpc : IDisposable
 
     private bool Leg(string pointId, TimbnWalk walk, Action then, Action? failed, Func<bool>? fromOriginAgain)
     {
-        if (TimbnNpcs.Point(pointId) is { } point)
+        if (TimbnWorld.Point(pointId) is { } point)
             return Leg(point, walk, then, failed, fromOriginAgain);
 
         Log($"no point {pointId} to pass through, not walking");

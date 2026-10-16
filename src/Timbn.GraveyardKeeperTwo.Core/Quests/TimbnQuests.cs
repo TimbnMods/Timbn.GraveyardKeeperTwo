@@ -213,6 +213,15 @@ public static class TimbnQuests
 
     internal static void Mark(string id) => _marks?.Invoke().Add(id);
 
+    internal static void CollectMarkerNpcs(Dictionary<string, Color> into)
+    {
+        foreach (var runtime in _runtimes)
+        {
+            if ((runtime.HandInMarkerNpc ?? runtime.OfferMarkerNpc) is { } npc && !into.ContainsKey(npc))
+                into[npc] = runtime.MarkerColor;
+        }
+    }
+
     internal static IDisposable Track(TimbnQuestRuntime runtime)
     {
         _runtimes.Add(runtime);
@@ -260,17 +269,32 @@ public static class TimbnQuests
     internal static void OnGameStarted()
     {
         WarnAboutParents();
-        foreach (var runtime in _runtimes.ToList())
-            TimbnSafe.Run(runtime.Apply, $"{nameof(TimbnQuests)}|Setting up quest '{runtime.Id}' for the save");
-
+        // The game rebuilds its quest cache from every quest it has, so every run is put back and every step written
+        // before the one rebuild, instead of a rebuild per quest.
         foreach (var cycle in _cycles.ToList())
-            TimbnSafe.Run(cycle.OnGameStarted, $"{nameof(TimbnQuests)}|Setting up the run of quest '{cycle.Id}' for the save");
+        {
+            TimbnSafe.Run(() =>
+            {
+                if (cycle.Restore())
+                    cycle.RewriteTexts();
+            }, $"{nameof(TimbnQuests)}|Setting up the run of quest '{cycle.Id}' for the save");
+        }
 
+        var runtimes = _runtimes.ToList();
+        foreach (var runtime in runtimes)
+            TimbnSafe.Run(runtime.Write, $"{nameof(TimbnQuests)}|Setting up quest '{runtime.Id}' for the save");
+
+        TimbnQuestRuntime.RefreshCaches();
+        foreach (var runtime in runtimes)
+            TimbnSafe.Run(runtime.ActivateIfStarted, $"{nameof(TimbnQuests)}|Starting quest '{runtime.Id}' for the save");
+
+        TimbnDialog.Refresh();
         StartContinuedQuests();
     }
 
     internal static void OnNewDay()
     {
+        using var batch = TimbnQuestRuntime.Batch();
         foreach (var cycle in _cycles.ToList())
             TimbnSafe.Run(cycle.OnNewDay, $"{nameof(TimbnQuests)}|Checking the run of quest '{cycle.Id}' on a new day");
     }

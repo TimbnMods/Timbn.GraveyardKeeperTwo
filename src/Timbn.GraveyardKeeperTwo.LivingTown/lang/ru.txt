@@ -1,0 +1,48 @@
+# Timbn Living Town text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
+# and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
+
+# Shown when you try to trade with Herm outside his opening hours
+timbn_living_town_herm_closed = Прости, на сегодня я закрыт. Заходи утром.
+
+# The hint over the cat on the boxes by Linda's club
+timbn_living_town_pet = Погладить
+
+# Where the person a request or errand is about lives, as in "a friend of mine in town"
+timbn_living_town_where_village = в деревне
+timbn_living_town_where_town = в городе
+
+# Shown when you took a neighbor's parcel but didn't deliver it within the week
+timbn_living_town_errand_lapsed = Ты так и не доставил посылку, поэтому заплатил соседу за нее.
+
+# A Neighbor's Craving, the cooking request. {dish} is the dish and {where} where the person lives.
+timbn_living_town_request = Прихоть соседа
+quest_open_timbn_living_town_request_d = Приготовить {dish} тому {where}, кто об этом попросил.
+quest_closed_timbn_living_town_request_d = Приготовить {dish} тому {where}, кто об этом попросил.
+timbn_living_town_request_offer_ask = Мне так хочется {dish}. Не приготовишь мне немного?
+timbn_living_town_request_accept = Я приготовлю.
+timbn_living_town_request_accept_thanks = Спасибо, буду ждать.
+timbn_living_town_request_decline = Не сейчас.
+timbn_living_town_request_talk_ask = Ты принес {dish}?
+timbn_living_town_request_talk_accept = Вот, держи.
+timbn_living_town_request_talk_accept_thanks = Вкусно, спасибо!
+timbn_living_town_request_talk_decline = Еще нет.
+
+# An Errand for a Neighbor, the delivery. {parcel} is the item and {where} where the friend lives.
+timbn_living_town_delivery = Поручение соседа
+quest_open_timbn_living_town_delivery_d = Отнести {parcel} другу {where}. У тебя есть неделя на доставку.
+quest_closed_timbn_living_town_delivery_d = Отнести {parcel} другу {where}. У тебя есть неделя на доставку.
+timbn_living_town_delivery_offer_ask_keepsake = У меня есть подарок для друга {where}, но я не могу отлучиться. Не отнесешь?
+timbn_living_town_delivery_offer_ask_vegetables = Мой сад дал больше, чем я могу съесть. Не отнесешь этот ящик овощей моему другу {where}?
+timbn_living_town_delivery_offer_ask_potion = Мой друг {where} приболел. Не отнесешь ему это лекарство?
+timbn_living_town_delivery_accept = Я отнесу.
+timbn_living_town_delivery_accept_thanks = Спасибо, я твой должник.
+timbn_living_town_delivery_decline = Не сейчас.
+timbn_living_town_delivery_delivering_keepsake = У меня для тебя подарок.
+timbn_living_town_delivery_delivering_vegetables = У меня для тебя ящик овощей.
+timbn_living_town_delivery_delivering_potion = У меня для тебя лекарство.
+# The answer that hands the parcel over, which shows one of the three lines above. Keep it as it is.
+timbn_living_town_delivery_talk_accept = {delivering}
+timbn_living_town_delivery_talk_accept_thanks_keepsake = Как мило! Передай от меня спасибо.
+timbn_living_town_delivery_talk_accept_thanks_vegetables = Все такое свежее, спасибо!
+timbn_living_town_delivery_talk_accept_thanks_potion = Как раз то, что нужно, спасибо!
+timbn_living_town_delivery_talk_decline = Еще нет.

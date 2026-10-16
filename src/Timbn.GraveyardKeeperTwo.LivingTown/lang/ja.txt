@@ -1,0 +1,48 @@
+# Timbn Living Town text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
+# and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
+
+# Shown when you try to trade with Herm outside his opening hours
+timbn_living_town_herm_closed = すまない、今日の営業は終わりだ。朝にまた来てくれ。
+
+# The hint over the cat on the boxes by Linda's club
+timbn_living_town_pet = なでる
+
+# Where the person a request or errand is about lives, as in "a friend of mine in town"
+timbn_living_town_where_village = 村
+timbn_living_town_where_town = 町
+
+# Shown when you took a neighbor's parcel but didn't deliver it within the week
+timbn_living_town_errand_lapsed = 小包を届けなかったため、近所の人に代金を支払った。
+
+# A Neighbor's Craving, the cooking request. {dish} is the dish and {where} where the person lives.
+timbn_living_town_request = ご近所さんの好物
+quest_open_timbn_living_town_request_d = それを頼んできた{where}の人に{dish}を作る。
+quest_closed_timbn_living_town_request_d = それを頼んできた{where}の人に{dish}を作る。
+timbn_living_town_request_offer_ask = 無性に{dish}が食べたくてね。作ってくれないか？
+timbn_living_town_request_accept = 作ろう。
+timbn_living_town_request_accept_thanks = ありがたい、待っているよ。
+timbn_living_town_request_decline = 今は無理だ。
+timbn_living_town_request_talk_ask = {dish}を持ってきてくれたかい？
+timbn_living_town_request_talk_accept = どうぞ。
+timbn_living_town_request_talk_accept_thanks = おいしい、ありがとう！
+timbn_living_town_request_talk_decline = まだだ。
+
+# An Errand for a Neighbor, the delivery. {parcel} is the item and {where} where the friend lives.
+timbn_living_town_delivery = ご近所さんのお使い
+quest_open_timbn_living_town_delivery_d = {where}の友人に{parcel}を届ける。期限は1週間だ。
+quest_closed_timbn_living_town_delivery_d = {where}の友人に{parcel}を届ける。期限は1週間だ。
+timbn_living_town_delivery_offer_ask_keepsake = {where}の友人に贈り物を届けたいんだが、手が離せなくてね。持って行ってくれないか？
+timbn_living_town_delivery_offer_ask_vegetables = 庭で食べきれないほど野菜が採れてね。{where}の友人にこの野菜の箱を届けてくれないか？
+timbn_living_town_delivery_offer_ask_potion = {where}の友人が体調を崩していてね。この薬を届けてくれないか？
+timbn_living_town_delivery_accept = 引き受けよう。
+timbn_living_town_delivery_accept_thanks = ありがとう、恩に着るよ。
+timbn_living_town_delivery_decline = 今は無理だ。
+timbn_living_town_delivery_delivering_keepsake = 贈り物を届けに来た。
+timbn_living_town_delivery_delivering_vegetables = 野菜の箱を届けに来た。
+timbn_living_town_delivery_delivering_potion = 薬を届けに来た。
+# The answer that hands the parcel over, which shows one of the three lines above. Keep it as it is.
+timbn_living_town_delivery_talk_accept = {delivering}
+timbn_living_town_delivery_talk_accept_thanks_keepsake = 気が利くな！礼を言っておいてくれ。
+timbn_living_town_delivery_talk_accept_thanks_vegetables = 新鮮でいいな、ありがとう！
+timbn_living_town_delivery_talk_accept_thanks_potion = まさにこれが必要だったんだ、助かるよ。
+timbn_living_town_delivery_talk_decline = まだだ。

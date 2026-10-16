@@ -4,6 +4,9 @@ internal static class TimbnSprites
 {
     private const float _pixelsPerUnit = 50f;
     private const int _canvasSize = 48;
+    private const float _coloredSaturation = 0.25f;
+    private const int _hueBins = 36;
+    private const float _hueRange = 25f / 360f;
 
     private static readonly Dictionary<string, List<Sprite>> _sprites = [];
 
@@ -32,22 +35,96 @@ internal static class TimbnSprites
 
     internal static void AddTinted(string name, Sprite source, Color tint)
     {
+        var texture = ReadCopy(name, source);
+        var pixels = texture.GetPixels();
+        for (var i = 0; i < pixels.Length; i++)
+            pixels[i] = new Color(pixels[i].r * tint.r, pixels[i].g * tint.g, pixels[i].b * tint.b, pixels[i].a);
+
+        AddCopy(name, source, texture, pixels);
+    }
+
+    // Tinting muddies colored art like the game's quest marker, so this repaints only the art's main color (the tile
+    // behind the marker's magnifying glass) and keeps its shading. Other colors, white, gray and black stay as they are.
+    internal static void AddRecolored(string name, Sprite source, Color color)
+    {
+        var texture = ReadCopy(name, source);
+        var pixels = texture.GetPixels();
+        Color.RGBToHSV(color, out var hue, out var saturation, out var value);
+        var main = MainHue(pixels);
+        var brightest = 0f;
+        foreach (var pixel in pixels)
+        {
+            if (IsMainColor(pixel, main, out var v))
+                brightest = Mathf.Max(brightest, v);
+        }
+
+        for (var i = 0; i < pixels.Length; i++)
+        {
+            if (brightest == 0f || !IsMainColor(pixels[i], main, out var v))
+                continue;
+
+            var recolored = Color.HSVToRGB(hue, saturation, Mathf.Clamp01(value * v / brightest));
+            recolored.a = pixels[i].a;
+            pixels[i] = recolored;
+        }
+
+        AddCopy(name, source, texture, pixels);
+    }
+
+    private static float MainHue(Color[] pixels)
+    {
+        var bins = new int[_hueBins];
+        foreach (var pixel in pixels)
+        {
+            Color.RGBToHSV(pixel, out var h, out var s, out _);
+            if (pixel.a > 0f && s >= _coloredSaturation)
+                bins[Mathf.Min((int)(h * _hueBins), _hueBins - 1)]++;
+        }
+
+        var best = 0;
+        for (var i = 1; i < _hueBins; i++)
+        {
+            if (bins[i] > bins[best])
+                best = i;
+        }
+
+        return (best + 0.5f) / _hueBins;
+    }
+
+    private static bool IsMainColor(Color pixel, float main, out float value)
+    {
+        Color.RGBToHSV(pixel, out var h, out var s, out value);
+        var distance = Mathf.Abs(h - main);
+        return pixel.a > 0f && s >= _coloredSaturation && Mathf.Min(distance, 1f - distance) <= _hueRange;
+    }
+
+    // Copies the whole sprite rect, padding included, since the game sizes its images to the full rect and a copy of
+    // only the drawn pixels gets stretched to fill it.
+    private static Texture2D ReadCopy(string name, Sprite source)
+    {
         var rect = source.textureRect;
-        var width = (int)rect.width;
-        var height = (int)rect.height;
+        var x = Mathf.FloorToInt(rect.x);
+        var y = Mathf.FloorToInt(rect.y);
+        var width = Mathf.Min(Mathf.CeilToInt(rect.xMax), source.texture.width) - x;
+        var height = Mathf.Min(Mathf.CeilToInt(rect.yMax), source.texture.height) - y;
+        var canvasWidth = Mathf.Max(Mathf.RoundToInt(source.rect.width), width);
+        var canvasHeight = Mathf.Max(Mathf.RoundToInt(source.rect.height), height);
+        var offsetX = Mathf.Clamp(Mathf.FloorToInt(source.textureRectOffset.x), 0, canvasWidth - width);
+        var offsetY = Mathf.Clamp(Mathf.FloorToInt(source.textureRectOffset.y), 0, canvasHeight - height);
         var target = RenderTexture.GetTemporary(source.texture.width, source.texture.height, 0, RenderTextureFormat.ARGB32);
         var previous = RenderTexture.active;
-        var texture = new Texture2D(width, height, TextureFormat.RGBA32, false)
+        var texture = new Texture2D(canvasWidth, canvasHeight, TextureFormat.RGBA32, false)
         {
             name = name,
             filterMode = source.texture.filterMode,
             wrapMode = TextureWrapMode.Clamp,
         };
+        texture.SetPixels32(new Color32[canvasWidth * canvasHeight]);
         try
         {
             Graphics.Blit(source.texture, target);
             RenderTexture.active = target;
-            texture.ReadPixels(new Rect(rect.x, rect.y, width, height), 0, 0);
+            texture.ReadPixels(new Rect(x, y, width, height), offsetX, offsetY);
         }
         finally
         {
@@ -55,13 +132,14 @@ internal static class TimbnSprites
             RenderTexture.ReleaseTemporary(target);
         }
 
-        var pixels = texture.GetPixels();
-        for (var i = 0; i < pixels.Length; i++)
-            pixels[i] = new Color(pixels[i].r * tint.r, pixels[i].g * tint.g, pixels[i].b * tint.b, pixels[i].a);
+        return texture;
+    }
 
+    private static void AddCopy(string name, Sprite source, Texture2D texture, Color[] pixels)
+    {
         texture.SetPixels(pixels);
         texture.Apply(false, true);
-        Register(name, Sprite.Create(texture, new Rect(0, 0, width, height), new Vector2(source.pivot.x / width, source.pivot.y / height), source.pixelsPerUnit));
+        Register(name, Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(source.pivot.x / texture.width, source.pivot.y / texture.height), source.pixelsPerUnit));
     }
 
     private static IDisposable Register(string name, Sprite sprite)

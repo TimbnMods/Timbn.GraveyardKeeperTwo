@@ -1,3 +1,6 @@
+using Cysharp.Threading.Tasks;
+using LazyBearTechnology;
+
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
@@ -65,12 +68,11 @@ public static class TimbnNpcs
         if (!TimbnGame.IsInGame || MainGame.Instance.GameSave.npcLifeSimulatorData.GetGroupById(groupId) is not { } group)
             return [];
 
-        return group.Wgos
+        return [.. group.Wgos
             .Select(uid => MainGame.WorldData.GetWgoData(uid))
             .Where(data => data != null && data.CustomTag != SpawnTag)
             .Select(data => data!.MovableObjectId)
-            .OrderBy(id => id, StringComparer.Ordinal)
-            .ToList();
+            .OrderBy(id => id, StringComparer.Ordinal)];
     }
 
     /// <summary>
@@ -85,7 +87,7 @@ public static class TimbnNpcs
     /// </example>
     /// <param name="pointId">The point's id.</param>
     /// <returns>The point's facing, or null.</returns>
-    public static Direction? FacingAt(string pointId) => Point(pointId)?.Direction;
+    public static Direction? FacingAt(string pointId) => TimbnWorld.Point(pointId)?.Direction;
 
     /// <summary>
     /// Whether a point is free for anyone, meaning it exists, is switched on, nobody claimed it and nobody stands on it.
@@ -120,9 +122,6 @@ public static class TimbnNpcs
             ? MainGame.WorldData.Cache.wgoDataByUidCache.Values.Where(data => data.MovementComponent != null)
             : [];
 
-    internal static GDPointData? Point(string pointId) =>
-        TimbnGame.IsInGame ? MainGame.WorldData.gdPointsData.GetGDPointDataById(pointId) : null;
-
     internal static GDPointData? NearestPoint(Vector3 position)
     {
         if (!TimbnGame.IsInGame || TimbnWorld.Pathfinding is not { } pathfinding || pathfinding.data.FindGraphOfType(typeof(GDPointGraph)) is not { } graph)
@@ -137,7 +136,7 @@ public static class TimbnNpcs
     internal static List<GDPointData>? RoutePoints(Vector3 from, string toPointId, out float length)
     {
         length = 0f;
-        if (NearestPoint(from) is not { } start || Point(toPointId) is not { } target)
+        if (NearestPoint(from) is not { } start || TimbnWorld.Point(toPointId) is not { } target)
             return null;
 
         if ((IsOnGraph(target) ? target : NearestPoint(target.Position)) is not { } goal)
@@ -151,7 +150,7 @@ public static class TimbnNpcs
 
     internal static string? WhyBlocked(string pointId, WgoData? npc = null)
     {
-        var point = Point(pointId);
+        var point = TimbnWorld.Point(pointId);
         var scheduled = point == null ? null : SchedulePoint(pointId);
         return _claims.WhyBlocked(
             pointId,
@@ -237,6 +236,27 @@ public static class TimbnNpcs
         var groupIsOut = group.Wgos.Any(uid => uid != npc.UniqueId && MainGame.WorldData.GetWgoData(uid) is { } member && !string.IsNullOrEmpty(member.occupiedPointOfInterest));
         if (groupIsOut)
             MainGame.Instance.npcLifeSimulator.RollActivityForWgo(npc.UniqueId, group, 0f);
+    }
+
+    // The game loads a person's prefab with a blocking Addressables load the first time one is added, so this asks
+    // its part pool to load them in the background and keep one spare of each, the way the PS4 build warms a save.
+    internal static void Preload(IEnumerable<string> npcIds, int copies, ManualLogSource logger)
+    {
+        if (!TimbnGame.IsInGame || copies < 1)
+            return;
+
+        var counts = new Dictionary<string, int>();
+        foreach (var npcId in npcIds)
+        {
+            if (GameBalance.Me.GetDataOrNull<WGODef>(npcId) is { } definition)
+                counts[WgoPartPool.GetAddressableKey(definition.ResolveAssetId(npcId))] = copies;
+        }
+
+        LazySingleton<WgoPartPool>.Instance.EnsureIdleCountsAsync(counts).Forget(exception =>
+        {
+            if (exception is not OperationCanceledException)
+                logger.LogWarning($"Could not preload {counts.Count} kind(s) of people. {exception.Message}");
+        });
     }
 
     internal static void TrackSpawned(TimbnNpc npc) => _spawned.Add(npc);

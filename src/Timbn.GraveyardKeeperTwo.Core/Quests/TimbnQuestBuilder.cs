@@ -70,6 +70,10 @@ public sealed class TimbnQuestBuilder
 
     internal bool Repeats { get; private set; }
 
+    internal Func<bool>? OfferMarkerWhen { get; private set; }
+
+    internal Func<bool>? HandInMarkerWhen { get; private set; }
+
     internal int ExpireDays { get; private set; }
 
     internal Action<TimbnQuestRun?>? WhenCanceled { get; private set; }
@@ -156,6 +160,29 @@ public sealed class TimbnQuestBuilder
     public TimbnQuestBuilder Icon(Func<TimbnQuestRun, string> iconId)
     {
         IconOf = iconId;
+        return this;
+    }
+
+    /// <summary>
+    /// Points the player to the NPC to talk to with the HUD's point of interest marker, the one the game uses for work
+    /// spots. It marks the giver while the offer waits, then whoever takes the hand in once the player can finish, such
+    /// as the villager waiting on a dish once it is in the bag. While the NPC is off screen the marker sits at the screen
+    /// edge pointing the way, or on the door that leads to them, and once they are on screen their talk bubble shows
+    /// instead. Each half can be switched on its own, such as from a setting, and both are read every time the marker
+    /// updates, so a change applies straight away.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// .Marker(offer: () => Settings.IsEnabled(PluginConfig.OfferMarkers), handIn: () => Settings.IsEnabled(PluginConfig.HandInMarkers))
+    /// </code>
+    /// </example>
+    /// <param name="offer">Whether the giver is marked while the offer waits, always when left out.</param>
+    /// <param name="handIn">Whether the NPC taking the hand in is marked once the player can finish, always when left out.</param>
+    /// <returns>This builder, for chaining.</returns>
+    public TimbnQuestBuilder Marker(Func<bool>? offer = null, Func<bool>? handIn = null)
+    {
+        OfferMarkerWhen = offer ?? (() => true);
+        HandInMarkerWhen = handIn ?? (() => true);
         return this;
     }
 
@@ -745,6 +772,8 @@ public sealed class TimbnQuestBuilder
             var step = steps.Count == 0 ? new TimbnQuestBuilder(Id, GiverId, Texts) : new TimbnQuestBuilder($"{Id}_{name}", GiverId, Texts[Id]);
             step.GiverOf = GiverOf;
             step.IconOf ??= IconOf;
+            step.OfferMarkerWhen = OfferMarkerWhen;
+            step.HandInMarkerWhen = HandInMarkerWhen;
             if (steps.Count > 0)
                 step.ContinuesId(steps[^1].Step.Id);
 

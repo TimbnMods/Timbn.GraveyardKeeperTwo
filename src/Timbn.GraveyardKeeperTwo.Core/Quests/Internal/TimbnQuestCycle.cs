@@ -113,6 +113,7 @@ internal sealed class TimbnQuestCycle
             TimbnSafe.Run(() => canceled(run), $"{nameof(TimbnQuests)}|OnCancel of quest '{Id}'");
         }
 
+        using var batch = TimbnQuestRuntime.Batch();
         TimbnQuests.SetRun(Id, null);
         ResetSteps();
         Changed();
@@ -125,12 +126,20 @@ internal sealed class TimbnQuestCycle
             return;
 
         Log("is done and starts over.");
+        using var batch = TimbnQuestRuntime.Batch();
         TimbnQuests.SetRun(Id, null);
         ResetSteps();
         Changed();
     }
 
     internal void OnGameStarted()
+    {
+        if (Restore())
+            Changed();
+    }
+
+    // Puts the run back for the loaded save. False when it had to cancel, which already rewrote everything.
+    internal bool Restore()
     {
         if (_quest.Repeats && _steps[^1].Status == QuestStatus.Completed)
         {
@@ -142,11 +151,13 @@ internal sealed class TimbnQuestCycle
         if (HasSetup && Run is null && _steps.Exists(step => step.Status == QuestStatus.InProgress))
         {
             Cancel("its run data is missing from the Timbn save file");
-            return;
+            return false;
         }
 
-        Changed();
+        return true;
     }
+
+    internal void RewriteTexts() => TimbnLocale.Rewrite(_keys);
 
     internal void OnNewDay()
     {
@@ -154,17 +165,23 @@ internal sealed class TimbnQuestCycle
             Cancel($"ran out after {_quest.ExpireDays} days");
     }
 
+    // Each step's reset rewrites its quest and nothing is in progress after, so the cache is rebuilt once at the end.
     private void ResetSteps()
     {
+        using var batch = TimbnQuestRuntime.Batch();
         for (var i = _steps.Count - 1; i >= 0; i--)
             _steps[i].Reset();
     }
 
     private void Changed()
     {
-        TimbnLocale.Rewrite(_keys);
+        RewriteTexts();
         foreach (var step in _steps)
-            step.Apply();
+            step.Write();
+
+        TimbnQuestRuntime.RefreshCaches();
+        foreach (var step in _steps)
+            step.ActivateIfStarted();
 
         TimbnDialog.Refresh();
     }

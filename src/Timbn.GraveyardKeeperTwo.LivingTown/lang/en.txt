@@ -1,0 +1,48 @@
+# Timbn Living Town text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
+# and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
+
+# Shown when you try to trade with Herm outside his opening hours
+timbn_living_town_herm_closed = Sorry, I am closed for the day. Come see me in the morning.
+
+# The hint over the cat on the boxes by Linda's club
+timbn_living_town_pet = Pet
+
+# Location where the requester or recipient lives, as in "a friend of mine in town"
+timbn_living_town_where_village = in the village
+timbn_living_town_where_town = in town
+
+# Shown when you took a neighbor's parcel but didn't deliver it within the week
+timbn_living_town_errand_lapsed = You never delivered the parcel, so you paid the neighbor for it.
+
+# A Neighbor's Craving cooking request. {dish} is the requested item and {where} is where the requester lives.
+timbn_living_town_request = A Neighbor's Craving
+quest_open_timbn_living_town_request_d = Cook {dish} for the person {where} who asked for it.
+quest_closed_timbn_living_town_request_d = Cook {dish} for the person {where} who asked for it.
+timbn_living_town_request_offer_ask = I've a craving for {dish}. Could you cook me some?
+timbn_living_town_request_accept = I'll cook it.
+timbn_living_town_request_accept_thanks = Bless you, I'll be waiting.
+timbn_living_town_request_decline = Not now.
+timbn_living_town_request_talk_ask = Did you bring my {dish}?
+timbn_living_town_request_talk_accept = Here you go.
+timbn_living_town_request_talk_accept_thanks = Delicious, thank you!
+timbn_living_town_request_talk_decline = Not yet.
+
+# An Errand for a Neighbor delivery quest. {parcel} is the item and {where} is where the recipient lives.
+timbn_living_town_delivery = An Errand for a Neighbor
+quest_open_timbn_living_town_delivery_d = Take {parcel} to a friend {where}. You have a week to deliver it.
+quest_closed_timbn_living_town_delivery_d = Take {parcel} to a friend {where}. You have a week to deliver it.
+timbn_living_town_delivery_offer_ask_keepsake = I have a gift for a friend {where}, but I can't get away. Would you take it over?
+timbn_living_town_delivery_offer_ask_vegetables = My garden gave more than I can eat. Would you take this box of vegetables to a friend of mine {where}?
+timbn_living_town_delivery_offer_ask_potion = A friend of mine {where} has been unwell. Would you bring them this medication?
+timbn_living_town_delivery_accept = I'll take it.
+timbn_living_town_delivery_accept_thanks = Thank you, I'm in your debt.
+timbn_living_town_delivery_decline = Not now.
+timbn_living_town_delivery_delivering_keepsake = I have a gift delivery for you.
+timbn_living_town_delivery_delivering_vegetables = I have a box of vegetables for you.
+timbn_living_town_delivery_delivering_potion = I have some medication for you.
+# Dialogue option for handing over the parcel, displaying one of the lines above. Keep key placeholder as is.
+timbn_living_town_delivery_talk_accept = {delivering}
+timbn_living_town_delivery_talk_accept_thanks_keepsake = How thoughtful! Thank them for me.
+timbn_living_town_delivery_talk_accept_thanks_vegetables = Lovely and fresh, thank you!
+timbn_living_town_delivery_talk_accept_thanks_potion = Just what I needed, bless you.
+timbn_living_town_delivery_talk_decline = Not yet.

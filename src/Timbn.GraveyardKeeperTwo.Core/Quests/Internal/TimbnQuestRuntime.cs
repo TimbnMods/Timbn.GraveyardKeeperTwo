@@ -5,6 +5,9 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 /// <summary>Runs one built quest in the loaded save, with its definition, talks and rewards.</summary>
 internal sealed class TimbnQuestRuntime
 {
+    private static int _batches;
+    private static bool _refreshHeld;
+
     private readonly TimbnQuestBuilder _quest;
     private readonly Func<Color> _bubbleColor;
     private readonly string _owner;
@@ -45,6 +48,12 @@ internal sealed class TimbnQuestRuntime
         _quest.TalkNpcOf is { } npc ? FromRun(npc, "talk NPC")
         : _quest.TalkNpc.Length > 0 ? _quest.TalkNpc
         : GiverNow;
+
+    internal string? HandInMarkerNpc => _quest.HandInMarkerWhen?.Invoke() == true && _quest.TalkOf is not null && IsTalkReady() ? TalkNpcNow : null;
+
+    internal Color MarkerColor => _bubbleColor();
+
+    internal string? OfferMarkerNpc => _quest.OfferMarkerWhen?.Invoke() == true && _quest.OfferTalk is not null && IsOfferable() ? GiverNow : null;
 
     private TimbnWants Needs => _quest.NeedsFor(Run);
 
@@ -104,6 +113,46 @@ internal sealed class TimbnQuestRuntime
 
     internal void Apply()
     {
+        Write();
+        RefreshCaches();
+        ActivateIfStarted();
+    }
+
+    // The game rebuilds its whole quest cache from every quest it has (about 8 ms), so work that changes several
+    // quests at once, such as two quests running out on the same morning, holds the rebuilds and does one at the end.
+    internal static void RefreshCaches()
+    {
+        if (_batches > 0)
+        {
+            _refreshHeld = true;
+            return;
+        }
+
+        if (TimbnBalance.Loaded is { } balance)
+            TimbnBalance.RefreshQuestCaches(balance);
+    }
+
+    internal static IDisposable Batch()
+    {
+        _batches++;
+        return new TimbnUndo(() =>
+        {
+            if (--_batches > 0 || !_refreshHeld)
+                return;
+
+            _refreshHeld = false;
+            RefreshCaches();
+        });
+    }
+
+    internal void ActivateIfStarted()
+    {
+        if (Status == QuestStatus.InProgress)
+            Activate();
+    }
+
+    internal void Write()
+    {
         var check = _definition.finishCheck;
         var talkNpc = TalkNpcNow;
         var needs = Needs;
@@ -117,11 +166,6 @@ internal sealed class TimbnQuestRuntime
             _definition.iconId = iconId;
 
         _definition.repVisualisationRes = RewardLine(talkNpc);
-        if (TimbnBalance.Loaded is { } balance)
-            TimbnBalance.RefreshQuestCaches(balance);
-
-        if (Status == QuestStatus.InProgress)
-            Activate();
     }
 
     private void Activate()

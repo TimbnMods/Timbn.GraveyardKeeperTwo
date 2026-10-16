@@ -1,0 +1,48 @@
+# Timbn Living Town text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
+# and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
+
+# Shown when you try to trade with Herm outside his opening hours
+timbn_living_town_herm_closed = 抱歉，今天已经打烊了。明早再来找我吧。
+
+# The hint over the cat on the boxes by Linda's club
+timbn_living_town_pet = 抚摸
+
+# Where the person a request or errand is about lives, as in "a friend of mine in town"
+timbn_living_town_where_village = 在村庄
+timbn_living_town_where_town = 在小镇
+
+# Shown when you took a neighbor's parcel but didn't deliver it within the week
+timbn_living_town_errand_lapsed = 你一直没有送达包裹，所以赔钱给了邻居。
+
+# A Neighbor's Craving, the cooking request. {dish} is the dish and {where} where the person lives.
+timbn_living_town_request = 邻居的口腹之欲
+quest_open_timbn_living_town_request_d = 为{where}提出请求的人烹饪{dish}。
+quest_closed_timbn_living_town_request_d = 为{where}提出请求的人烹饪{dish}。
+timbn_living_town_request_offer_ask = 我特别想吃{dish}。你能帮我做点吗？
+timbn_living_town_request_accept = 我来做。
+timbn_living_town_request_accept_thanks = 愿神保佑你，我等着你。
+timbn_living_town_request_decline = 现在不行。
+timbn_living_town_request_talk_ask = 你带来我的{dish}了吗？
+timbn_living_town_request_talk_accept = 给你。
+timbn_living_town_request_talk_accept_thanks = 真美味，谢谢你！
+timbn_living_town_request_talk_decline = 还没有。
+
+# An Errand for a Neighbor, the delivery. {parcel} is the item and {where} where the friend lives.
+timbn_living_town_delivery = 替邻居跑腿
+quest_open_timbn_living_town_delivery_d = 把{parcel}送给一位{where}的朋友。你有一周时间送达。
+quest_closed_timbn_living_town_delivery_d = 把{parcel}送给一位{where}的朋友。你有一周时间送达。
+timbn_living_town_delivery_offer_ask_keepsake = 我有一份礼物想送给一位{where}的朋友，但我走不开。你能帮忙送过去吗？
+timbn_living_town_delivery_offer_ask_vegetables = 我的花园收成多得吃不完。你能把这箱蔬菜送给我一位{where}的朋友吗？
+timbn_living_town_delivery_offer_ask_potion = 我有一位{where}的朋友身体不太舒服。你能把这药带给他吗？
+timbn_living_town_delivery_accept = 我来送。
+timbn_living_town_delivery_accept_thanks = 谢谢你，我欠你一个人情。
+timbn_living_town_delivery_decline = 现在不行。
+timbn_living_town_delivery_delivering_keepsake = 我有一份礼物要送给你。
+timbn_living_town_delivery_delivering_vegetables = 我有一箱蔬菜要送给你。
+timbn_living_town_delivery_delivering_potion = 我有些药要送给你。
+# The answer that hands the parcel over, which shows one of the three lines above. Keep it as it is.
+timbn_living_town_delivery_talk_accept = {delivering}
+timbn_living_town_delivery_talk_accept_thanks_keepsake = 真有心！替我谢谢他们。
+timbn_living_town_delivery_talk_accept_thanks_vegetables = 真新鲜，谢谢你！
+timbn_living_town_delivery_talk_accept_thanks_potion = 正是我需要的，愿神保佑你。
+timbn_living_town_delivery_talk_decline = 还没有。

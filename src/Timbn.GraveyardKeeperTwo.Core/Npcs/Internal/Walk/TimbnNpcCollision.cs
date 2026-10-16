@@ -11,6 +11,8 @@ internal static class TimbnNpcCollision
     private const float _checkSeconds = 0.5f;
 
     private static readonly Dictionary<TimbnNpc, List<Collider>> _passing = [];
+    private static readonly List<TimbnNpc> _gone = [];
+    private static readonly List<Collider> _colliders = [];
     private static float _nextCheck;
 
     internal static void Set(TimbnNpc npc, bool collides)
@@ -51,12 +53,11 @@ internal static class TimbnNpcCollision
         if (mask == 0)
             return;
 
-        foreach (var (npc, marked) in _passing.ToList())
+        foreach (var (npc, marked) in _passing)
         {
             if (npc.IsGone)
             {
-                Restore(marked);
-                _passing.Remove(npc);
+                _gone.Add(npc);
                 continue;
             }
 
@@ -76,7 +77,8 @@ internal static class TimbnNpcCollision
             if (view == null)
                 continue;
 
-            foreach (var collider in view.GetComponentsInChildren<Collider>(true))
+            view.GetComponentsInChildren(true, _colliders);
+            foreach (var collider in _colliders)
             {
                 if (collider.isTrigger)
                     continue;
@@ -88,6 +90,12 @@ internal static class TimbnNpcCollision
                     marked.Add(collider);
             }
         }
+
+        _colliders.Clear();
+        foreach (var npc in _gone)
+            Forget(npc);
+
+        _gone.Clear();
     }
 
     private static void Restore(List<Collider> marked)
@@ -104,17 +112,23 @@ internal static class TimbnNpcCollision
     // The layers of the solid parts of the player's body, so whatever the game gives it is covered.
     private static int PlayerLayers()
     {
-        var body = UnityEngine.Object.FindFirstObjectByType<PlayerPhysicalBody>();
+        var controller = MainGame.PlayerController;
+        if (controller == null)
+            return 0;
+
+        var body = controller.PhysicalBody;
         if (body == null)
             return 0;
 
         var mask = 0;
-        foreach (var collider in body.GetComponentsInChildren<Collider>(true))
+        body.GetComponentsInChildren(true, _colliders);
+        foreach (var collider in _colliders)
         {
             if (!collider.isTrigger)
                 mask |= 1 << collider.gameObject.layer;
         }
 
+        _colliders.Clear();
         return mask;
     }
 }

@@ -69,7 +69,7 @@ public sealed class TimbnPluginNpcs
     /// <returns>The handle, or null when the point or the person is missing or at the main menu.</returns>
     public TimbnNpc? Spawn(string npcId, string pointId)
     {
-        if (TimbnNpcs.Point(pointId) is not { } point)
+        if (TimbnWorld.Point(pointId) is not { } point)
             return null;
 
         if (!MainGame.WorldData.AddWgoData(npcId, point.Position, point.GameSceneDataId, TimbnNpcs.SpawnTag, out var data) || data == null)
@@ -83,6 +83,21 @@ public sealed class TimbnPluginNpcs
             data.MovableDirection = point.Direction.ConvertToVector2XZ();
         return Track(new TimbnNpc(_owner, data, spawned: true, Forget));
     }
+
+    /// <summary>
+    /// Loads the look of some kinds of people in the background, so the first Spawn of each kind in a session doesn't
+    /// stall a frame for 10 to 30 ms while the game loads it. Call it when a save is ready, with every kind the mod
+    /// may spawn. Copies count the ones the game already shows, so a kind out in the village with copies at 1 gets
+    /// nothing ready, and a second one spawned then still stalls. Ask for 2 when the game's own may be about.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// Events.SaveReady(() => Npcs.Preload(TimbnNpcs.GroupMemberIds(TimbnGameIds.Groups.VillagersDayAll), copies: 2));
+    /// </code>
+    /// </example>
+    /// <param name="npcIds">The kinds of people, from <see cref="TimbnGameIds.Npcs"/> or <see cref="TimbnNpcs.GroupMemberIds"/>.</param>
+    /// <param name="copies">How many of each kind to have ready, counting the ones already shown.</param>
+    public void Preload(IEnumerable<string> npcIds, int copies = 1) => TimbnNpcs.Preload(npcIds, copies, _owner.PluginLogger);
 
     /// <summary>
     /// Adds one more of a kind of villager, who lives exactly like the ones the game placed. They join the same life
@@ -103,7 +118,7 @@ public sealed class TimbnPluginNpcs
             return null;
 
         if (GameBalance.Me.GetDataOrNull<WGODef>(npcId) is not { } definition || string.IsNullOrEmpty(definition.npcLifeSimGroup)
-            || TimbnNpcs.Point(definition.npcLifeSimHome) is not { } home)
+            || TimbnWorld.Point(definition.npcLifeSimHome) is not { } home)
         {
             _owner.PluginLogger.LogWarning($"{npcId} has no life simulator group or home, not adding one.");
             return null;

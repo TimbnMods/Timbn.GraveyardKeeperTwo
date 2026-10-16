@@ -312,6 +312,31 @@ public static class TimbnPlayer
     }
 
     /// <summary>
+    /// Every recipe the player can make right now, the ones the game gives from the start and the ones they have
+    /// unlocked, the same set <see cref="HasCraft"/> says yes to. Pass station ids to keep only recipes made at any of
+    /// them, or none for every station. The result is a snapshot, so call it again after the player learns something.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var dishes = TimbnPlayer.KnownCrafts(
+    ///     TimbnGameIds.Workstations.Placed.KitchenOven,
+    ///     TimbnGameIds.Workstations.Placed.KitchenTable);
+    /// </code>
+    /// </example>
+    /// <param name="stationIds">Station ids such as <see cref="TimbnGameIds.Workstations.Placed.KitchenOven"/>, or none for all.</param>
+    /// <returns>The recipes themselves, empty at the main menu.</returns>
+    public static CraftDef[] KnownCrafts(params string[] stationIds)
+    {
+        if (!TimbnGame.IsInGame || TimbnBalance.Loaded is not { } balance)
+            return [];
+
+        var unlocked = MainGame.Instance.GameSave?.knowledgeSystem?.unlockedCrafts;
+        return [.. balance.craftDefs
+            .Where(craft => stationIds.Length == 0 || craft.craftsIn.Any(stationIds.Contains))
+            .Where(craft => !craft.isNeedsUnlock || unlocked?.Contains(craft.id) == true)];
+    }
+
+    /// <summary>
     /// Unlocks a recipe for the player the way a cookbook or a study does, so its station offers it from now on. A
     /// recipe already unlocked stays as it is.
     /// </summary>

@@ -1,0 +1,48 @@
+# Timbn Living Town text. Copy this file to your game's language id (de.txt, fr.txt, pt-br.txt, ru.txt and so on)
+# and translate the text after each =. Keep the keys as they are. Anything left out shows in English.
+
+# Shown when you try to trade with Herm outside his opening hours
+timbn_living_town_herm_closed = Kusura bakma, bugünlük kapattım. Sabah yanıma gel.
+
+# The hint over the cat on the boxes by Linda's club
+timbn_living_town_pet = Sev
+
+# Where the person a request or errand is about lives, as in "a friend of mine in town"
+timbn_living_town_where_village = köyde
+timbn_living_town_where_town = kasabada
+
+# Shown when you took a neighbor's parcel but didn't deliver it within the week
+timbn_living_town_errand_lapsed = Paketi hiç teslim etmedin, bu yüzden komşuya parasını ödedin.
+
+# A Neighbor's Craving, the cooking request. {dish} is the dish and {where} where the person lives.
+timbn_living_town_request = Bir Komşunun Canı Çekti
+quest_open_timbn_living_town_request_d = {where} bunu isteyen kişi için {dish} pişir.
+quest_closed_timbn_living_town_request_d = {where} bunu isteyen kişi için {dish} pişir.
+timbn_living_town_request_offer_ask = Canım {dish} çekti. Bana biraz pişirebilir misin?
+timbn_living_town_request_accept = Pişiririm.
+timbn_living_town_request_accept_thanks = Sağ olasın, bekleyeceğim.
+timbn_living_town_request_decline = Şimdi değil.
+timbn_living_town_request_talk_ask = Bana {dish} getirdin mi?
+timbn_living_town_request_talk_accept = Buyur.
+timbn_living_town_request_talk_accept_thanks = Nefis, teşekkürler!
+timbn_living_town_request_talk_decline = Henüz değil.
+
+# An Errand for a Neighbor, the delivery. {parcel} is the item and {where} where the friend lives.
+timbn_living_town_delivery = Bir Komşu İçin Ayak İşi
+quest_open_timbn_living_town_delivery_d = {where} bir arkadaşa {parcel} götür. Teslim etmek için bir haftan var.
+quest_closed_timbn_living_town_delivery_d = {where} bir arkadaşa {parcel} götür. Teslim etmek için bir haftan var.
+timbn_living_town_delivery_offer_ask_keepsake = {where} bir arkadaşım için bir hediyem var ama ayrılamıyorum. Götürür müsün?
+timbn_living_town_delivery_offer_ask_vegetables = Bahçem yiyebileceğimden fazlasını verdi. Bu sebze kasasını {where} bir arkadaşıma götürür müsün?
+timbn_living_town_delivery_offer_ask_potion = {where} bir arkadaşım rahatsızlandı. Bu ilacı ona götürür müsün?
+timbn_living_town_delivery_accept = Alırım.
+timbn_living_town_delivery_accept_thanks = Teşekkürler, sana borçlandım.
+timbn_living_town_delivery_decline = Şimdi değil.
+timbn_living_town_delivery_delivering_keepsake = Senin için bir hediye teslimatım var.
+timbn_living_town_delivery_delivering_vegetables = Senin için bir kasa sebzem var.
+timbn_living_town_delivery_delivering_potion = Senin için biraz ilacım var.
+# The answer that hands the parcel over, which shows one of the three lines above. Keep it as it is.
+timbn_living_town_delivery_talk_accept = {delivering}
+timbn_living_town_delivery_talk_accept_thanks_keepsake = Ne kadar düşünceli! Benim için teşekkür et.
+timbn_living_town_delivery_talk_accept_thanks_vegetables = Harika ve taze, teşekkürler!
+timbn_living_town_delivery_talk_accept_thanks_potion = Tam ihtiyacım olan şey, sağ olasın.
+timbn_living_town_delivery_talk_decline = Henüz değil.
