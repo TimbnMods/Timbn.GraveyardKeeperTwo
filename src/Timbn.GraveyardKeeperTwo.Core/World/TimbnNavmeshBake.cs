@@ -21,6 +21,8 @@ internal static class TimbnNavmeshBake
     private const float _flatMatch = 0.05f;
     private const float _flatHeight = 0.1f;
     private const float _walkUnderHeight = 1f;
+    private const int _updatesPerFrame = 8;
+    private const double _checkMilliseconds = 2;
 
     private static readonly int _floorLayers = LayerMask.GetMask("Ground", "Step");
     private static readonly int _solidLayers = LayerMask.GetMask("Default", "Interactable", "Obstacle");
@@ -92,8 +94,13 @@ internal static class TimbnNavmeshBake
         List<Wgo> sources = [];
         if (_waiting.Count > 0 && TimbnWorld.TryGetNavGraph(null, out var graph))
         {
+            var budget = new TimbnFrameBudget(_checkMilliseconds);
             foreach (var pair in _waiting.ToList())
             {
+                // A view loading in queues dozens of objects at once, so the rest wait for the next frames.
+                if (updates.Count >= _updatesPerFrame || budget.IsSpent)
+                    break;
+
                 var view = pair.Value;
                 if (!view || view.Data == null)
                 {
@@ -228,12 +235,13 @@ internal static class TimbnNavmeshBake
         return nearest.node != null && nearest.position.y < point.y;
     }
 
-    private static void Rebuild(List<Bounds> updates, List<Wgo> sources)
+    private static void Rebuild(List<Bounds> requested, List<Wgo> sources)
     {
         if (TimbnWorld.Pathfinding is not { } pathfinding || _updateGraphs == null || !TimbnWorld.TryGetNavGraph(null, out var graph))
             return;
 
         var tile = graph is RecastGraph recast ? recast.cellSize * Mathf.Max(recast.tileSizeX, recast.tileSizeZ) + _margin : 0f;
+        var updates = Merged(requested, tile);
         Physics.SyncTransforms();
         List<GameObject> standIns = [];
         List<Collider> replaced = [];
@@ -298,6 +306,33 @@ internal static class TimbnNavmeshBake
             foreach (var standIn in standIns)
                 UnityEngine.Object.Destroy(standIn);
         }
+    }
+
+    // Each update rebuilds every tile it touches, so neighbors rebuild the same tiles again and one joined area is
+    // about three times cheaper. Only areas within a tile of each other join, so no far apart tiles get rebuilt.
+    private static List<Bounds> Merged(List<Bounds> areas, float tile)
+    {
+        var merged = new List<Bounds>(areas);
+        for (var index = 0; index < merged.Count; index++)
+        {
+            var near = merged[index];
+            near.Expand(tile * 2f);
+            for (var other = merged.Count - 1; other > index; other--)
+            {
+                if (!near.Intersects(merged[other]))
+                    continue;
+
+                var joined = merged[index];
+                joined.Encapsulate(merged[other]);
+                merged[index] = joined;
+                merged.RemoveAt(other);
+                near = joined;
+                near.Expand(tile * 2f);
+                other = merged.Count;
+            }
+        }
+
+        return merged;
     }
 
     private static bool IsMirrored(Transform transform)
