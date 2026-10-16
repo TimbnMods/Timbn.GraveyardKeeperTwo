@@ -9,6 +9,10 @@
     <Description>A dotnet new template for a Graveyard Keeper 2 mod built on Timbn Core. Run dotnet new gk2mod.</Description>
     <PackageTags>graveyardkeeper2;bepinex;modding;template</PackageTags>
     <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://timbnmods.github.io/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TimbnMods/Timbn.GraveyardKeeperTwo</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)..\artifacts\</PackageOutputPath>
     <TargetFramework>netstandard2.1</TargetFramework>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <IncludeContentInPack>true</IncludeContentInPack>

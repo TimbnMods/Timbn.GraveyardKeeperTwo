@@ -36,7 +36,7 @@ Every mod has a General / Enabled toggle (default true). Set it to false to turn
 
 ## Making your own mod
 
-Build on Core from the [Timbn.GraveyardKeeperTwo.Core](https://www.nuget.org/packages/Timbn.GraveyardKeeperTwo.Core) NuGet package. The quickest start is the template.
+Build on Core from the [Timbn.GraveyardKeeperTwo.Core](https://www.nuget.org/packages/Timbn.GraveyardKeeperTwo.Core) NuGet package. The quickest start is the [Timbn.GraveyardKeeperTwo.Templates](https://www.nuget.org/packages/Timbn.GraveyardKeeperTwo.Templates) template.
 
 ```cmd
 dotnet new install Timbn.GraveyardKeeperTwo.Templates

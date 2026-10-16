@@ -15,7 +15,7 @@
     <ScriptReloadable>false</ScriptReloadable>
   </PropertyGroup>
 
-  <!-- Core is the only packable project, so another mod can reference it from NuGet rather than a local build. -->
+  <!-- Core is the only packable mod, so another mod can reference it from NuGet rather than a local build. -->
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
