@@ -2,12 +2,15 @@
 
 A suite of [BepInEx](https://github.com/BepInEx/BepInEx) mods for Graveyard Keeper 2 (Lazy Bear Games). Core hosts the Timbn framework, and the other mods build on it.
 
+[![NuGet Version](https://img.shields.io/nuget/v/Timbn.GraveyardKeeperTwo.Core)](https://www.nuget.org/packages/Timbn.GraveyardKeeperTwo.Core)
+
 ## Mods
 
 | Mod | What it does |
 | --- | --- |
 | **[Core](src/Timbn.GraveyardKeeperTwo.Core/README.md)** | Shared framework the other mods depend on, which makes modding easier. |
 | **[CampfireMeditation](src/Timbn.GraveyardKeeperTwo.CampfireMeditation/README.md)** | Pass time by a campfire, like the stone garden in the first game. |
+| **[InfusionRack](src/Timbn.GraveyardKeeperTwo.InfusionRack/README.md)** | Gives your zombies tech points. Lay them in infusion stands and run Spirit Solutions made from organs on the infusion machine. |
 | **[LivingTown](src/Timbn.GraveyardKeeperTwo.LivingTown/README.md)** | Gives the village and the port a daily life, with Herm, Linda and Larry going about their day. |
 | **[QuestPacks](src/Timbn.GraveyardKeeperTwo.QuestPacks/README.md)** | Adds quests and talks written as plain JSON files, no code needed. Install it for any quest pack, or for a mod that ships one. |
 | **[VanillaTweaks](src/Timbn.GraveyardKeeperTwo.VanillaTweaks/README.md)** | Aims to fix bugs and adds light gameplay tweaks that are intended to enhance the vanilla experience without cheating. |
@@ -30,6 +33,17 @@ A suite of [BepInEx](https://github.com/BepInEx/BepInEx) mods for Graveyard Keep
 Edit the files in BepInEx/config. A config manager applies changes straight away, even in the middle of a game. Editing a file by hand needs a restart.
 
 Every mod has a General / Enabled toggle (default true). Set it to false to turn that mod off while leaving it installed. Core's toggle is the master switch, so turning Core off turns off every Timbn mod.
+
+## Making your own mod
+
+Build on Core from the [Timbn.GraveyardKeeperTwo.Core](https://www.nuget.org/packages/Timbn.GraveyardKeeperTwo.Core) NuGet package. The quickest start is the template.
+
+```cmd
+dotnet new install Timbn.GraveyardKeeperTwo.Templates
+dotnet new gk2mod -n MyMod
+```
+
+[Core's README](src/Timbn.GraveyardKeeperTwo.Core/README.md) and the [docs site](https://timbnmods.github.io/) cover the rest.
 
 ## Building from source
 
@@ -54,3 +68,11 @@ To deploy a mod to the scripts folder while the game is running:
 ```cmd
 dotnet build src/Timbn.GraveyardKeeperTwo.VanillaTweaks/Timbn.GraveyardKeeperTwo.VanillaTweaks.csproj -c Debug -p:DeployTo=scripts -p:BuildProjectReferences=false
 ```
+
+To build release zips into artifacts (Nexus and GitHub in `nexus`, plus `thunderstore` and `workshop` for the mods that ship there):
+
+```cmd
+dotnet build src/Timbn.GraveyardKeeperTwo.VanillaTweaks/Timbn.GraveyardKeeperTwo.VanillaTweaks.csproj -t:Package -c Release
+```
+
+It deploys to the game like any other build. `dotnet pack` on Core puts its NuGet package in artifacts too.

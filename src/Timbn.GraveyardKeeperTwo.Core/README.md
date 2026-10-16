@@ -2,6 +2,8 @@
 
 Timbn Core is the shared framework every Timbn mod for Graveyard Keeper 2 is built on. Install it when a Timbn mod lists it as a requirement. Modders can build on it too, see For Modders.
 
+[![NuGet Version](https://img.shields.io/nuget/v/Timbn.GraveyardKeeperTwo.Core)](https://www.nuget.org/packages/Timbn.GraveyardKeeperTwo.Core)
+
 ## Requirements
 
 - [BepInEx for Graveyard Keeper 2](https://www.nexusmods.com/graveyardkeeper2/mods/48)
