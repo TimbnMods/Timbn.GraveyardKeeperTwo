@@ -85,6 +85,21 @@ public sealed class TimbnPluginNpcs
     }
 
     /// <summary>
+    /// Loads the look of some kinds of people in the background, so the first Spawn of each kind in a session doesn't
+    /// stall a frame for 10 to 30 ms while the game loads it. Call it when a save is ready, with every kind the mod
+    /// may spawn. Copies count the ones the game already shows, so a kind out in the village with copies at 1 gets
+    /// nothing ready, and a second one spawned then still stalls. Ask for 2 when the game's own may be about.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// Events.SaveReady(() => Npcs.Preload(TimbnNpcs.GroupMemberIds(TimbnGameIds.Groups.VillagersDayAll), copies: 2));
+    /// </code>
+    /// </example>
+    /// <param name="npcIds">The kinds of people, from <see cref="TimbnGameIds.Npcs"/> or <see cref="TimbnNpcs.GroupMemberIds"/>.</param>
+    /// <param name="copies">How many of each kind to have ready, counting the ones already shown.</param>
+    public void Preload(IEnumerable<string> npcIds, int copies = 1) => TimbnNpcs.Preload(npcIds, copies, _owner.PluginLogger);
+
+    /// <summary>
     /// Adds one more of a kind of villager, who lives exactly like the ones the game placed. They join the same life
     /// simulator group, go out to its points by day and home at night. They start at their home and go straight out
     /// when the rest of their group is out. They are removed when the handle is disposed, the plugin unloads or the

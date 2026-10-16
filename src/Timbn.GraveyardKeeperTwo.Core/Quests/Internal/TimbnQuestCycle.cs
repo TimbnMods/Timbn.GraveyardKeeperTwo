@@ -132,6 +132,13 @@ internal sealed class TimbnQuestCycle
 
     internal void OnGameStarted()
     {
+        if (Restore())
+            Changed();
+    }
+
+    // Puts the run back for the loaded save. False when it had to cancel, which already rewrote everything.
+    internal bool Restore()
+    {
         if (_quest.Repeats && _steps[^1].Status == QuestStatus.Completed)
         {
             TimbnQuests.SetRun(Id, null);
@@ -142,11 +149,13 @@ internal sealed class TimbnQuestCycle
         if (HasSetup && Run is null && _steps.Exists(step => step.Status == QuestStatus.InProgress))
         {
             Cancel("its run data is missing from the Timbn save file");
-            return;
+            return false;
         }
 
-        Changed();
+        return true;
     }
+
+    internal void RewriteTexts() => TimbnLocale.Rewrite(_keys);
 
     internal void OnNewDay()
     {
@@ -162,9 +171,13 @@ internal sealed class TimbnQuestCycle
 
     private void Changed()
     {
-        TimbnLocale.Rewrite(_keys);
+        RewriteTexts();
         foreach (var step in _steps)
-            step.Apply();
+            step.Write();
+
+        TimbnQuestRuntime.RefreshCaches();
+        foreach (var step in _steps)
+            step.ActivateIfStarted();
 
         TimbnDialog.Refresh();
     }

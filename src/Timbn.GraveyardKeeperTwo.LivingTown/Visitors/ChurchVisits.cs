@@ -18,6 +18,8 @@ internal sealed class ChurchVisits
     private const float _groupSpacing = 3f;
     private const float _groupSpacingJitter = 1f;
     private const int _capacitySpare = 3;
+    private const float _preloadAt = 2 / 24f;
+    private const int _preloadCopies = 2;
 
     private static readonly string[] _homeGroups =
     [
@@ -36,7 +38,9 @@ internal sealed class ChurchVisits
     private readonly List<TimbnNpc> _visitors = [];
     private readonly System.Random _random = new();
     private readonly List<(double At, int Size)> _funeralArrivals = [];
+    private readonly List<(double At, string Kind, double LeaveAt)> _waiting = [];
     private int _crowdDay = -1;
+    private int _preloadDay = -1;
     private bool _plannedForFuneral;
     private int _toArrive;
     private int _settled;
@@ -46,7 +50,7 @@ internal sealed class ChurchVisits
     public ChurchVisits(Plugin plugin)
     {
         _plugin = plugin;
-        _funeral = new Funeral(plugin, _driver) { MoreComing = () => _toArrive > 0 };
+        _funeral = new Funeral(plugin, _driver) { MoreComing = () => _toArrive > 0 || _waiting.Count > 0 };
     }
 
     private bool IsOpen => TimbnClock.TimeOfDay >= _opens && TimbnClock.TimeOfDay < (_funeral.IsOn ? Funeral.LastArrival : _closes);
@@ -89,19 +93,40 @@ internal sealed class ChurchVisits
 
         _lastMinutes = now;
         _funeral.Check();
+
+        // A rebuilt town district brings new villagers mid session, so their looks load in the background each night,
+        // hours before anyone can visit.
+        if (_preloadDay != TimbnClock.Day && TimbnClock.TimeOfDay >= _preloadAt)
+        {
+            _preloadDay = TimbnClock.Day;
+            _plugin.Npcs.Preload(Kinds(), _preloadCopies);
+        }
+
+        // A spawn can take 10 to 30 ms the first time the game shows a villager kind, so a tick spawns at most one
+        // visitor and does nothing else. A group already on its way still finishes arriving after closing time.
+        if (_waiting.Count > 0 && now >= _waiting[0].At)
+        {
+            SpawnNext();
+            return;
+        }
+
         if (!IsOpen)
             return;
 
         if (_crowdDay != TimbnClock.Day)
+        {
             PlanCrowd();
-        else if (_funeral.IsOn && !_plannedForFuneral)
+            return;
+        }
+
+        if (_funeral.IsOn && !_plannedForFuneral)
             Replan("a funeral started after today's crowd was planned");
 
         var funeral = _funeral.IsOn;
         if (_toArrive <= 0 || (funeral ? _funeralArrivals.Count == 0 || now < _funeralArrivals[0].At : now < _nextArrival))
             return;
 
-        var kinds = _homeGroups.SelectMany(TimbnNpcs.GroupMemberIds).Distinct().OrderBy(_ => _random.Next()).ToList();
+        var kinds = Kinds().OrderBy(_ => _random.Next()).ToList();
         if (kinds.Count == 0)
         {
             _toArrive = 0;
@@ -129,19 +154,27 @@ internal sealed class ChurchVisits
             return;
         }
 
-        var arrived = Arrive(size, kinds);
-        if (arrived == 0)
-        {
-            _toArrive = 0;
-            GraveyardVisitors.Log("nobody could be added at the donkey, so nobody else comes today.");
-            return;
-        }
+        Arrive(size, kinds);
+        _toArrive -= size;
+        _settled += size;
+        SpawnNext();
+    }
 
-        _toArrive -= arrived;
-        _settled += arrived;
+    // Done while the save loads, so the first morning doesn't stall on loading each villager's look or on building
+    // the paths for the first time.
+    public void Prepare()
+    {
+        if (!VisitsOn && !_plugin.Settings.IsEnabled(PluginConfig.Funerals))
+            return;
+
+        _plugin.Npcs.Preload(Kinds(), _preloadCopies);
+        _driver.Paths.Rebuild();
+        _driver.Paths.Warm();
     }
 
     public void Replan() => Replan("the settings changed");
+
+    private static IEnumerable<string> Kinds() => _homeGroups.SelectMany(TimbnNpcs.GroupMemberIds).Distinct();
 
     private void Replan(string why)
     {
@@ -165,6 +198,7 @@ internal sealed class ChurchVisits
         }
 
         _visitors.Clear();
+        _waiting.Clear();
         _driver.Clear();
         _funeral.Clear();
     }
@@ -174,6 +208,7 @@ internal sealed class ChurchVisits
         SendAway();
         _toArrive = 0;
         _crowdDay = -1;
+        _preloadDay = -1;
     }
 
     private int TodaysCrowd()
@@ -263,38 +298,46 @@ internal sealed class ChurchVisits
         return roll < 0.6 ? 1 : roll < 0.9 ? 2 : 3;
     }
 
-    private int Arrive(int size, IReadOnlyList<string> kinds)
+    // Group members spawn a few minutes apart so they don't appear on top of each other at the road spawn point, and
+    // so each spawn gets a tick of its own.
+    private void Arrive(int size, IReadOnlyList<string> kinds)
     {
-        var leaveAt = Math.Min(TimbnClock.Minutes + _random.Next(_shortestStay, _longestStay + 1), EveryoneLeavesAt);
-        var names = new List<string>();
+        var now = TimbnClock.Minutes;
+        var leaveAt = Math.Min(now + _random.Next(_shortestStay, _longestStay + 1), EveryoneLeavesAt);
         for (var place = 0; place < size; place++)
         {
-            if (_plugin.Npcs.Spawn(kinds[place % kinds.Count], _arrive) is not { } npc)
-                break;
-
-            npc.CollidesWithPlayer = false;
-            _visitors.Add(npc);
-            var steps = new TimbnNpcSteps();
-
-            // Staggered so group members do not spawn on top of each other at the road spawn point.
-            if (place > 0)
-                steps.WaitGameMinutes(place * _groupSpacing, place * _groupSpacing + _groupSpacingJitter);
-
-            // The walk into the graveyard begins at the road waypoint and proceeds through the gate onto the interior
-            // paths in a single continuous movement.
-            var setOff = TimbnClock.Minutes;
-            steps.Walk(_road)
-                .RunCode(visitor => GraveyardVisitors.Log($"{visitor.Id} reaches {_road} {TimbnClock.Minutes - setOff:0} minutes after arriving."))
-                .Decide(visitor => _funeral.IsOn ? _funeral.Welcome(visitor, WayOut) : _driver.Welcome(visitor, leaveAt, WayOut));
-
-            npc.RunSteps(steps, () => Leave(npc));
-            names.Add(npc.Id);
+            var at = place == 0 ? now : now + place * _groupSpacing + _random.NextDouble() * _groupSpacingJitter;
+            _waiting.Add((at, kinds[place % kinds.Count], leaveAt));
         }
 
-        if (names.Count > 0)
-            GraveyardVisitors.Log($"{string.Join(" and ", names)} {(names.Count == 1 ? "arrives" : "arrive together")} at {_arrive}.");
+        _waiting.Sort((first, second) => first.At.CompareTo(second.At));
+    }
 
-        return names.Count;
+    private void SpawnNext()
+    {
+        (_, var kind, var leaveAt) = _waiting[0];
+        _waiting.RemoveAt(0);
+        if (_plugin.Npcs.Spawn(kind, _arrive) is not { } npc)
+        {
+            _waiting.Clear();
+            _toArrive = 0;
+            GraveyardVisitors.Log("nobody could be added at the donkey, so nobody else comes today.");
+            return;
+        }
+
+        npc.CollidesWithPlayer = false;
+        _visitors.Add(npc);
+
+        // The walk into the graveyard begins at the road waypoint and proceeds through the gate onto the interior
+        // paths in a single continuous movement.
+        var setOff = TimbnClock.Minutes;
+        var steps = new TimbnNpcSteps();
+        steps.Walk(_road)
+            .RunCode(visitor => GraveyardVisitors.Log($"{visitor.Id} reaches {_road} {TimbnClock.Minutes - setOff:0} minutes after arriving."))
+            .Decide(visitor => _funeral.IsOn ? _funeral.Welcome(visitor, WayOut) : _driver.Welcome(visitor, leaveAt, WayOut));
+
+        npc.RunSteps(steps, () => Leave(npc));
+        GraveyardVisitors.Log($"{npc.Id} arrives at {_arrive}.");
     }
 
     private void Leave(TimbnNpc npc)

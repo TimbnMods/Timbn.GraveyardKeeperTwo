@@ -83,7 +83,7 @@ internal static class PluginConfig
         OfferMarkers = config.Bind(
             "Requests",
             "OfferMarkers",
-            true,
+            false,
             "Shows a marker on the villager who wants to ask you for a dish or an errand, pointing the way while they're off screen.");
 
         HandInMarkers = config.Bind(

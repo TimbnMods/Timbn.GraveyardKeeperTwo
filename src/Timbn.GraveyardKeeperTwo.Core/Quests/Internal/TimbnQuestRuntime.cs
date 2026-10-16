@@ -110,6 +110,27 @@ internal sealed class TimbnQuestRuntime
 
     internal void Apply()
     {
+        Write();
+        RefreshCaches();
+        ActivateIfStarted();
+    }
+
+    // The game rebuilds its whole quest cache from every quest it has, so a cycle writes all its steps first and
+    // rebuilds once.
+    internal static void RefreshCaches()
+    {
+        if (TimbnBalance.Loaded is { } balance)
+            TimbnBalance.RefreshQuestCaches(balance);
+    }
+
+    internal void ActivateIfStarted()
+    {
+        if (Status == QuestStatus.InProgress)
+            Activate();
+    }
+
+    internal void Write()
+    {
         var check = _definition.finishCheck;
         var talkNpc = TalkNpcNow;
         var needs = Needs;
@@ -123,11 +144,6 @@ internal sealed class TimbnQuestRuntime
             _definition.iconId = iconId;
 
         _definition.repVisualisationRes = RewardLine(talkNpc);
-        if (TimbnBalance.Loaded is { } balance)
-            TimbnBalance.RefreshQuestCaches(balance);
-
-        if (Status == QuestStatus.InProgress)
-            Activate();
     }
 
     private void Activate()

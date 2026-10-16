@@ -1,3 +1,6 @@
+using Cysharp.Threading.Tasks;
+using LazyBearTechnology;
+
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
@@ -233,6 +236,27 @@ public static class TimbnNpcs
         var groupIsOut = group.Wgos.Any(uid => uid != npc.UniqueId && MainGame.WorldData.GetWgoData(uid) is { } member && !string.IsNullOrEmpty(member.occupiedPointOfInterest));
         if (groupIsOut)
             MainGame.Instance.npcLifeSimulator.RollActivityForWgo(npc.UniqueId, group, 0f);
+    }
+
+    // The game loads a person's prefab with a blocking Addressables load the first time one is added, so this asks
+    // its part pool to load them in the background and keep one spare of each, the way the PS4 build warms a save.
+    internal static void Preload(IEnumerable<string> npcIds, int copies, ManualLogSource logger)
+    {
+        if (!TimbnGame.IsInGame || copies < 1)
+            return;
+
+        var counts = new Dictionary<string, int>();
+        foreach (var npcId in npcIds)
+        {
+            if (GameBalance.Me.GetDataOrNull<WGODef>(npcId) is { } definition)
+                counts[WgoPartPool.GetAddressableKey(definition.ResolveAssetId(npcId))] = copies;
+        }
+
+        LazySingleton<WgoPartPool>.Instance.EnsureIdleCountsAsync(counts).Forget(exception =>
+        {
+            if (exception is not OperationCanceledException)
+                logger.LogWarning($"Could not preload {counts.Count} kind(s) of people. {exception.Message}");
+        });
     }
 
     internal static void TrackSpawned(TimbnNpc npc) => _spawned.Add(npc);

@@ -37,7 +37,7 @@ Timbn Living Town gives the village and the port a daily life.
 | `Crowds:Funerals` | true | Enable villagers to hold funerals for bodies you recently buried. They gather in the church, three of them speak at the choir in turn, then everyone lines up at the grave to pay their respects. Funerals are postponed on sermon day. |
 | `Requests:VillagerRequests` | true | Enable to have villagers in the village or town ask you to cook a dish you know the recipe for, and pay its sale price when you bring it. |
 | `Requests:VillagerDeliveries` | true | Enable to have villagers in the village or town give you something to take between the village and town, and the friend pays its sale price. Deliveries expire after one week. |
-| `Requests:OfferMarkers` | true | Shows a marker on the villager who wants to ask you for a dish or an errand, pointing the way while they're off screen. |
+| `Requests:OfferMarkers` | false | Shows a marker on the villager who wants to ask you for a dish or an errand, pointing the way while they're off screen. |
 | `Requests:HandInMarkers` | true | Shows a marker on the villager waiting for your dish or parcel once you have it, pointing the way while they're off screen. |
 
 ## Translating

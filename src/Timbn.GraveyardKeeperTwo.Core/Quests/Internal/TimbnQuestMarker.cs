@@ -1,3 +1,5 @@
+using LazyBearTechnology;
+
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
@@ -122,9 +124,23 @@ internal static class TimbnQuestMarker
     private static void Refresh(WgoData data)
     {
         if (_hud == null)
-            _hud = UnityEngine.Object.FindAnyObjectByType<HUD>();
+            _hud = FindHud();
 
         if (_hud != null)
             _refresh?.Invoke(_hud, data);
+    }
+
+    // The game keeps its HUD in LazyUI's lookup, which skips the 8 ms scene search FindAnyObjectByType costs. The
+    // lookup throws while the HUD isn't registered yet.
+    private static HUD? FindHud()
+    {
+        try
+        {
+            return LazyUI.Get<HUD>();
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 }

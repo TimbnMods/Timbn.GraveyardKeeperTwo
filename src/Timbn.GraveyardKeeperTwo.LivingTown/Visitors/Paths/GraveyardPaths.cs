@@ -80,6 +80,14 @@ internal sealed class GraveyardPaths
     // The route forms a continuous straight-line path through its corner waypoints, preventing navmesh wander off dirt
     // paths and eliminating corner stutter. Each corner marks the end of a segment along a path line or the short step
     // between the path and what the visitor came to see.
+    // The first route search costs about 15 ms while Mono compiles it, so one corner to corner search is run while
+    // the save loads and the first visitor's route comes back at the usual fraction of a millisecond.
+    public void Warm()
+    {
+        var bounds = TimbnWorld.GraveyardBounds;
+        Route(new Vector3(bounds.xMin, 0f, bounds.yMin), new Vector3(bounds.xMax, 0f, bounds.yMax), []);
+    }
+
     public TimbnNpcSteps Walk(TimbnNpc npc, TimbnNpcSteps steps, Vector3 to)
     {
         if (_segments.Count == 0)

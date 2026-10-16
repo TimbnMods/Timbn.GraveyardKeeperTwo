@@ -25,6 +25,7 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         Settings.While(PluginConfig.DailyRoutine, () => Npcs.Schedule(TimbnGameIds.Npcs.Astrologer, astrologer.Build()));
         Events.SaveClosed(herm.Reset);
         UI.AddObjectAction(new TimbnObjectAction("common_box_08", new Vector3(-104.36f, 0f, -338.20f), _petKey));
+        Events.SaveReady(visits.Prepare);
         Events.Update(visits.Tick);
         Events.SaveClosed(visits.Reset);
         Events.BeforeSave(visits.SendAway);
