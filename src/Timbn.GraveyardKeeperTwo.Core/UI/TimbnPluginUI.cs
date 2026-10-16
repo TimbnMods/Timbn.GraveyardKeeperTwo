@@ -77,6 +77,25 @@ public sealed class TimbnPluginUI
     }
 
     /// <summary>
+    /// Makes a text label the plugin can show over any spot in the world, drawn like a grave's quality label, such as
+    /// a name over a chest. It is hidden when the plugin unloads and on the way to the main menu, and can be shown
+    /// again afterwards. Dispose one the plugin is done with, such as one made per chest, so the plugin forgets it.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// _name = UI.CreateLabel();
+    /// _name.Show(chest.Position, "Relics");
+    /// </code>
+    /// </example>
+    /// <returns>The label, hidden until its Show is called.</returns>
+    public TimbnLabel CreateLabel()
+    {
+        var label = new TimbnLabel();
+        label.Owned = TimbnUndo.All([_owner.Events.SaveClosed(label.Hide), _owner.Subscriptions.Add(label.Hide)]);
+        return label;
+    }
+
+    /// <summary>
     /// Opens the game's chest window on a storage only the plugin knows about, such as a keg, with the player's
     /// inventory beside it so they move items in and out the usual way. The storage is a list of item ids and
     /// counts the plugin keeps, usually in its save data, and every move the player makes is written back into it
