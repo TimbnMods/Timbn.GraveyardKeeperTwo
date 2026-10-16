@@ -4,7 +4,7 @@ Timbn Infusion Rack gives your zombies tech points. Make Spirit Solutions from o
 
 ## How to use
 
-1. Buy the Infusion Rack tech on the Anatomy tab, right after Body Places II. It costs 50 red, 50 green and 20 blue, and nothing else of the mod shows up until you have it.
+1. Buy the Infusion Rack tech on the Anatomy tab, right after Body Places II. It costs 50 red, 50 green and 20 blue.
 2. At the Distillation Cube, distill a heart, guts or brain that holds white skulls with 20 fire and an Alchemy Flasks I. You get one Spirit Solution for each white skull. A heart makes a Red solution, guts make Green and a brain makes Blue.
 3. Build the Infusion Machine at the Morgue desk, then build an Infusion Stand into each of its two slots, one on each side.
 4. Lay a zombie in each stand. Press interact with a zombie over your head to put it in, and press interact with free hands to take it back out.
@@ -14,12 +14,10 @@ Timbn Infusion Rack gives your zombies tech points. Make Spirit Solutions from o
 ## Good to know
 
 - The machine only starts an infusion while a stand holds a zombie, so a solution and a crystal are never wasted on nothing.
-- A zombie put in a stand during an infusion gets nothing from it.
 - The points are the same however many zombies are in the stands.
 - You can only build one machine.
-- The machine and the stands are dismantled with the building talent. Taking the machine apart takes its stands too, and a zombie inside drops to the ground with its points.
+- Taking the machine apart takes its stands too, and a zombie inside drops to the ground.
 - A zombie in a stand is saved with your game, and an infusion running when the game saves still pays when you load.
-- If you uninstall the mod, the tech you bought is dropped and you buy it again if the mod comes back.
 
 ## Translating
 
