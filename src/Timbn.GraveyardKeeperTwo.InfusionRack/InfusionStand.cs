@@ -9,7 +9,6 @@ internal static class InfusionStand
     public static readonly Vector3 Size = new(0.64f, 0.5f, 0.9f);
     private const string _buildIcon = "infusion_stand_build";
     private const string _infusedFlag = "timbn_infusion_done";
-    private const string _resurrectionTable = "resurrection_table_1";
     private const string _buildingTalent = "talent_orange";
     // Has no needs and no output.
     private const string _template = "pocket_extract_item_craft";
@@ -34,7 +33,7 @@ internal static class InfusionStand
         var stand = plugin.Stations.Add(StationId, station => station
             .Model(open, Size)
             .Icon(_buildIcon)
-            .BasedOn(_resurrectionTable)
+            .BasedOn(TimbnGameIds.Workstations.Morgue.ResurrectionTable1)
             .HoldsZombie()
             // Dismantled under the building talent, not the resurrection table's.
             .Talent(_buildingTalent)
