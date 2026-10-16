@@ -543,6 +543,10 @@ public static class TimbnQuests
                 data.isHidden = HiddenFor(definition, data);
         }
 
+        // With no mod quests and no game quest ever moved, the layout changes nothing but still costs about 40 ms on load.
+        if (_quests.Count == 0 && _gameY.Count == 0)
+            return;
+
         if (TimbnBalance.Loaded is { } balance)
             Relayout(balance, null, quests.questCollection.questsCache);
     }
