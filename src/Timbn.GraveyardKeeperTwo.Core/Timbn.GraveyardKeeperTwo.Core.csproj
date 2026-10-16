@@ -15,12 +15,13 @@
     <ScriptReloadable>false</ScriptReloadable>
   </PropertyGroup>
 
-  <!-- Core is the only packable project, so another mod can reference it from NuGet rather than a local build. -->
+  <!-- Core is the only packable mod, so another mod can reference it from NuGet rather than a local build. -->
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <EmbedAllSources>true</EmbedAllSources>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)..\..\artifacts\</PackageOutputPath>
     <PackageId>Timbn.GraveyardKeeperTwo.Core</PackageId>
     <Title>Timbn Graveyard Keeper 2 Core</Title>
     <Authors>Timbn</Authors>
@@ -28,6 +29,8 @@
     <PackageTags>graveyardkeeper2;bepinex;modding;unity</PackageTags>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageLicenseExpression>MPL-2.0</PackageLicenseExpression>
+    <PackageProjectUrl>https://timbnmods.github.io/</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/TimbnMods/Timbn.GraveyardKeeperTwo</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>
       - Core 2.0.0 reworks the framework. Mods add quests, talks, stations, crafts, techs, items, zombie looks and NPC routines through one set of builders, and Core keeps a mod's own content out of saves so removing a mod is safe.
