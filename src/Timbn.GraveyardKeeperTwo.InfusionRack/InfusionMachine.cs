@@ -52,7 +52,7 @@ internal static class InfusionMachine
                 // An injection with no zombie lying in a stand would only waste the solution and the crystal.
                 .Requires(machine => InfusionStand.OccupiedStands(machine).Any())
                 .OnStarted(infusion => StartOnStands(plugin, infusion.Station))
-                .OnFinished(infusion => Infuse(infusion.Station, color)));
+                .OnFinished(infusion => Infuse(plugin, infusion.Station, color)));
         }
     }
 
@@ -66,7 +66,7 @@ internal static class InfusionMachine
         }
     }
 
-    private static void Infuse(WgoData machine, TechColor color)
+    private static void Infuse(TimbnFrameworkPlugin plugin, WgoData machine, TechColor color)
     {
         // Read from the stands, not remembered, so an infusion that was running when the game saved still pays.
         foreach (var stand in InfusionStand.InfusionStands(machine).ToList())
@@ -74,11 +74,7 @@ internal static class InfusionMachine
             if (TimbnZombies.AtStation(stand) is { } zombie)
                 SpiritSolution.GiveTo(zombie, machine, color);
 
-            stand.CraftComponent.TryFinishCurCraft();
-
-            // The craft's end lights the lines, which an empty stand must not show.
-            if (TimbnZombies.AtStation(stand) == null)
-                InfusionStand.ClearGlow(stand);
+            plugin.Crafts.Finish(stand);
         }
     }
 }

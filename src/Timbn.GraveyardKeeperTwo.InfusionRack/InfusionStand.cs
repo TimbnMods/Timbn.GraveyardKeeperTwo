@@ -40,13 +40,8 @@ internal static class InfusionStand
             .Talent(_buildingTalent)
             .ShowWhen(TimbnLook.HoldsGroup("zombie"), lid)
             .ShowWhen(TimbnLook.Resource(_infusedFlag, TimbnComparison.GreaterOrEqual, 1), glow)
-            .Edit(def =>
-            {
-                // Taking the zombie out puts the lines out, appended to the game's own take.
-                def.customInteraction2.execution.Add(SetFlag(0));
-                // An empty stand runs the infusion too, which is what keeps a zombie from being put in halfway.
-                def.customInteraction.condition = TimbnBalance.Expression("PlayerHasOvrhdAndCanInsert() && IsNotCraftingNow()");
-            })
+            // Taking the zombie out puts the lines out, appended to the game's own take.
+            .Edit(def => def.customInteraction2.execution.Add(TimbnBalance.Expression($"SetWGOPar(\"{_infusedFlag}\", 0)")))
             .BuildsInSlot(SlotId)
             .BuiltAt(TimbnGameIds.BuildDesks.Morgue)
             .BuildTab(TimbnGameIds.BuildTabs.First)
@@ -61,16 +56,13 @@ internal static class InfusionStand
             .Mastery(1)
             .DurationTicks(_infusionTicks)
             .AutoFinish()
-            // The game draws a progress cell per tick over a crafting station unless the craft is hidden.
-            .Edit(def =>
-            {
-                def.isHidden = true;
-                def.onCraftStartExpressions.Add(SetFlag(0));
-                def.onCraftEndExpressions.Add(SetFlag(1));
-            }));
+            .Hidden()
+            .OnStarted(infusion => SetGlow(infusion.Station, 0))
+            // An empty stand runs the infusion too, and stays dark.
+            .OnFinished(infusion => SetGlow(infusion.Station, TimbnZombies.AtStation(infusion.Station) != null ? 1 : 0)));
     }
 
-    public static void ClearGlow(WgoData stand) => stand.SetGameRes(_infusedFlag, 0);
+    private static void SetGlow(WgoData stand, int value) => stand.SetGameRes(_infusedFlag, value);
 
     // A save that lost its zombie while the mod was away can hold a lit stand with nothing in it.
     // Core already unlocks the stand and frees its slot.
@@ -78,23 +70,22 @@ internal static class InfusionStand
     {
         foreach (var stand in TimbnWorld.FindAll(StationId))
         {
-            if (TimbnZombies.AtStation(stand) == null && stand.CraftComponent.CurrentCraftElement?.Def?.id != InfusionId)
-                ClearGlow(stand);
+            if (TimbnZombies.AtStation(stand) == null && !IsInfusing(stand))
+                SetGlow(stand, 0);
         }
     }
-
-    private static LazyExpression SetFlag(int value) =>
-        TimbnBalance.Expression($"SetWGOPar(\"{_infusedFlag}\", {value})");
 
     public static IEnumerable<WgoData> StandsOf(WgoData machine) =>
         TimbnWorld.Extensions(machine).Where(stand => stand.id == StationId);
 
     public static IEnumerable<WgoData> InfusionStands(WgoData machine) =>
-        StandsOf(machine).Where(stand => stand.CraftComponent.CurrentCraftElement?.Def?.id == InfusionId);
+        StandsOf(machine).Where(IsInfusing);
 
     public static IEnumerable<WgoData> OccupiedStands(WgoData machine) =>
-        StandsOf(machine).Where(stand => TimbnZombies.AtStation(stand) != null && stand.CraftComponent.CurrentCraftElement?.Def?.id != InfusionId);
+        StandsOf(machine).Where(stand => TimbnZombies.AtStation(stand) != null && !IsInfusing(stand));
 
     public static IEnumerable<WgoData> IdleStands(WgoData machine) =>
-        StandsOf(machine).Where(stand => stand.CraftComponent.CurrentCraftElement?.Def?.id != InfusionId);
+        StandsOf(machine).Where(stand => !IsInfusing(stand));
+
+    private static bool IsInfusing(WgoData stand) => TimbnWorld.RunningCraft(stand) == InfusionId;
 }

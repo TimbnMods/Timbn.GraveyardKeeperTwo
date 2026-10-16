@@ -70,8 +70,7 @@ public sealed class TimbnPluginCrafts
     /// <summary>
     /// Starts a craft at a station from code, with no craft window, the way the game's own StartCraft expression puts
     /// the berries on a bush. The craft goes in the station's queue and runs like one the player started, so a station
-    /// that already runs one starts it after. End it early with the game's
-    /// station.CraftComponent.TryFinishCurCraft(), which finishes it as if its time ran out.
+    /// that already runs one starts it after. End it early with <see cref="Finish"/>.
     /// </summary>
     /// <param name="station">The station, for example one found with <see cref="TimbnWorld.FindAll(string)"/>.</param>
     /// <param name="craftId">The craft's id. It has to be one made at that station.</param>
@@ -84,4 +83,11 @@ public sealed class TimbnPluginCrafts
         station.CraftComponent.AddToQueue(new CraftElement(craftId, 1, new CraftParamsData(craftId, station)));
         return true;
     }
+
+    /// <summary>
+    /// Finishes the craft at the front of a station's queue now, as if its time ran out, so it pays out and the next
+    /// queued craft starts. Does nothing when the station has no craft.
+    /// </summary>
+    /// <param name="station">The station.</param>
+    public void Finish(WgoData station) => station.CraftComponent.TryFinishCurCraft();
 }

@@ -44,16 +44,7 @@ internal static class SpiritRecipes
                 .Makes(solution, skulls)
                 .Mastery(1)
                 .Icon(solution)
-                .UnlockedBy(InfusionTech.Id)
-                // The fragrance's own tech points, inspiration and perks don't belong to a solution.
-                .Edit(def =>
-                {
-                    def.techRed = new LazyExpression();
-                    def.techGreen = new LazyExpression();
-                    def.techBlue = new LazyExpression();
-                    def.linkedPerks = [];
-                    def.onCraftEndExpressions = [];
-                }));
+                .UnlockedBy(InfusionTech.Id));
         }
     }
 }

@@ -5,8 +5,10 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 /// copied from one of the game's own, the woodworking bench's wooden plank unless <see cref="BasedOn"/> names another, so it
 /// starts with everything the game expects and the builder changes only what differs. What is not set stays the
 /// template's, so a craft that only calls <see cref="Needs(string, int)"/> and <see cref="Makes(string, int)"/> keeps the template's
-/// station, work time and energy. The one exception is the unlock, since a craft is open from the start whatever the
-/// template did unless <see cref="NeedsUnlock"/> or <see cref="UnlockedBy"/> is called.
+/// station, work time and energy. The exceptions are the unlock, since a craft is open from the start whatever the
+/// template did unless <see cref="NeedsUnlock"/> or <see cref="UnlockedBy"/> is called, and the template's rewards. A
+/// copy gives no tech points unless <see cref="TechPoints"/> sets them, and leaves out the template's linked perks and
+/// what it does when it finishes, such as berry_pie unlocking its next tech.
 /// </summary>
 /// <example>
 /// Four sticks from a board at the Stick Box, and a plank from sticks that needs the pillar next to it.
@@ -61,6 +63,10 @@ public sealed class TimbnCraftBuilder
     internal int? EnergyEachTick { get; private set; }
 
     internal bool FinishesItself { get; private set; }
+
+    internal bool IsHidden { get; private set; }
+
+    internal (int Red, int Green, int Blue)? Points { get; private set; }
 
     internal Action<CraftDef>? EditCraft { get; private set; }
 
@@ -218,6 +224,26 @@ public sealed class TimbnCraftBuilder
     public TimbnCraftBuilder AutoFinish()
     {
         FinishesItself = true;
+        return this;
+    }
+
+    /// <summary>
+    /// Leaves the craft out of the station's craft window and draws no progress over the station while it runs, for a
+    /// craft only code starts with Crafts.Start.
+    /// </summary>
+    public TimbnCraftBuilder Hidden()
+    {
+        IsHidden = true;
+        return this;
+    }
+
+    /// <summary>The tech points the craft pays when it finishes, none otherwise whatever the template paid.</summary>
+    /// <param name="red">Red points.</param>
+    /// <param name="green">Green points.</param>
+    /// <param name="blue">Blue points.</param>
+    public TimbnCraftBuilder TechPoints(int red, int green, int blue)
+    {
+        Points = (red, green, blue);
         return this;
     }
 
