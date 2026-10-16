@@ -3,14 +3,8 @@ namespace Timbn.GraveyardKeeperTwo.InfusionRack;
 // One recipe per organ, and its solution takes the color of the rune only that organ carries.
 internal static class SpiritRecipes
 {
-    private const string _cube = "distillation_cube";
-    // The cube's fragrance, so the time, the way it runs by itself and the rest match a recipe of the cube's own.
-    private const string _template = "fragrance";
     // The cube's own recipes burn 20 fire.
-    private const string _fire = "fire";
     private const int _firePerCraft = 20;
-    // Alchemy Flasks I, the glass the alchemy lab and flask shed work with. The solution goes in it.
-    private const string _flask = "alchemy_bottle_1";
 
     // Every heart, guts and brain holding white skulls in game 1.010, with its white skulls. Check it against the
     // item data after a game update.
@@ -38,9 +32,10 @@ internal static class SpiritRecipes
         {
             var solution = SpiritSolution.ItemId(color);
             plugin.Crafts.Add($"timbn_spirit_{organ.Replace(':', '_')}", craft => craft
-                .In(_cube)
-                .BasedOn(_template)
-                .Needs((organ, 1), (_fire, _firePerCraft), (_flask, 1))
+                .In(TimbnGameIds.Workstations.AlchemyLab.DistillationCube)
+                // The cube's fragrance, so the time, the way it runs by itself and the rest match a recipe of the cube's own.
+                .BasedOn(TimbnGameIds.Items.Fragrance)
+                .Needs((organ, 1), (TimbnGameIds.Items.Fire, _firePerCraft), (TimbnGameIds.Items.AlchemyBottle1, 1))
                 .Makes(solution, skulls)
                 .Mastery(1)
                 .Icon(solution)

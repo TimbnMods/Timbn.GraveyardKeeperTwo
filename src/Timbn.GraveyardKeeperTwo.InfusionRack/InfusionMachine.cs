@@ -4,13 +4,11 @@ internal static class InfusionMachine
 {
     public const string StationId = "timbn_infusion_machine";
     private const string _buildIcon = "infusion_machine_build";
-    // A timed station that runs by itself, with its fuel taken away.
-    private const string _oven = "kitchen_oven";
-    private const string _buildingTalent = "talent_orange";
+    private const string _skullTalent = "talent_blue";
     // Has no output, tech points or mastery above 1.
     private const string _template = "pocket_extract_item_craft";
-    private const string _blueCrystal = "crystal_goddess";
     private const int _ticks = 8;
+    private const int _mastery = 4;
 
     public static void Register(TimbnFrameworkPlugin plugin)
     {
@@ -25,9 +23,10 @@ internal static class InfusionMachine
             .Slot(InfusionStand.SlotId, new Vector3(-0.64f, 0f, 0.15f), InfusionStand.Size)
             .Slot(InfusionStand.SlotId, new Vector3(0.64f, 0f, 0.15f), InfusionStand.Size)
             .Icon(_buildIcon)
-            .BasedOn(_oven)
-            // Dismantled under the building talent, not the oven's farming talent.
-            .Talent(_buildingTalent)
+            // A timed station that runs by itself, with its fuel taken away.
+            .BasedOn(TimbnGameIds.Workstations.Placed.KitchenOven)
+            // The infusions' mastery lock is read against the skull talent, which dismantling then uses too.
+            .Talent(_skullTalent)
             .NoFuel()
             .TakesZombie(false)
             .BuiltAt(TimbnGameIds.BuildDesks.Morgue)
@@ -44,8 +43,8 @@ internal static class InfusionMachine
             plugin.Crafts.Add($"{StationId}_{lower}", craft => craft
                 .In(machine)
                 .BasedOn(_template)
-                .Needs((solution, 1), (_blueCrystal, 1))
-                .Mastery(1)
+                .Needs((solution, 1), (TimbnGameIds.Items.CrystalGoddess, 1))
+                .Mastery(_mastery)
                 .Icon(solution)
                 .DurationTicks(_ticks)
                 .AutoFinish()
