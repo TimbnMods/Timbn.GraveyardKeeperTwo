@@ -113,6 +113,7 @@ internal sealed class TimbnQuestCycle
             TimbnSafe.Run(() => canceled(run), $"{nameof(TimbnQuests)}|OnCancel of quest '{Id}'");
         }
 
+        using var batch = TimbnQuestRuntime.Batch();
         TimbnQuests.SetRun(Id, null);
         ResetSteps();
         Changed();
@@ -125,6 +126,7 @@ internal sealed class TimbnQuestCycle
             return;
 
         Log("is done and starts over.");
+        using var batch = TimbnQuestRuntime.Batch();
         TimbnQuests.SetRun(Id, null);
         ResetSteps();
         Changed();
@@ -163,8 +165,10 @@ internal sealed class TimbnQuestCycle
             Cancel($"ran out after {_quest.ExpireDays} days");
     }
 
+    // Each step's reset rewrites its quest and nothing is in progress after, so the cache is rebuilt once at the end.
     private void ResetSteps()
     {
+        using var batch = TimbnQuestRuntime.Batch();
         for (var i = _steps.Count - 1; i >= 0; i--)
             _steps[i].Reset();
     }

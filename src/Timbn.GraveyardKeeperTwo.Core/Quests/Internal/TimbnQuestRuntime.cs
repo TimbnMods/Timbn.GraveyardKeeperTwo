@@ -5,6 +5,9 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 /// <summary>Runs one built quest in the loaded save, with its definition, talks and rewards.</summary>
 internal sealed class TimbnQuestRuntime
 {
+    private static int _batches;
+    private static bool _refreshHeld;
+
     private readonly TimbnQuestBuilder _quest;
     private readonly Func<Color> _bubbleColor;
     private readonly string _owner;
@@ -115,12 +118,31 @@ internal sealed class TimbnQuestRuntime
         ActivateIfStarted();
     }
 
-    // The game rebuilds its whole quest cache from every quest it has, so a cycle writes all its steps first and
-    // rebuilds once.
+    // The game rebuilds its whole quest cache from every quest it has (about 8 ms), so work that changes several
+    // quests at once, such as two quests running out on the same morning, holds the rebuilds and does one at the end.
     internal static void RefreshCaches()
     {
+        if (_batches > 0)
+        {
+            _refreshHeld = true;
+            return;
+        }
+
         if (TimbnBalance.Loaded is { } balance)
             TimbnBalance.RefreshQuestCaches(balance);
+    }
+
+    internal static IDisposable Batch()
+    {
+        _batches++;
+        return new TimbnUndo(() =>
+        {
+            if (--_batches > 0 || !_refreshHeld)
+                return;
+
+            _refreshHeld = false;
+            RefreshCaches();
+        });
     }
 
     internal void ActivateIfStarted()

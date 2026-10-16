@@ -294,6 +294,7 @@ public static class TimbnQuests
 
     internal static void OnNewDay()
     {
+        using var batch = TimbnQuestRuntime.Batch();
         foreach (var cycle in _cycles.ToList())
             TimbnSafe.Run(cycle.OnNewDay, $"{nameof(TimbnQuests)}|Checking the run of quest '{cycle.Id}' on a new day");
     }
