@@ -22,6 +22,7 @@ internal static class TimbnNavmeshBake
     private const float _flatHeight = 0.1f;
     private const float _walkUnderHeight = 1f;
     private const int _updatesPerFrame = 8;
+    private const int _mergeTiles = 3;
     private const double _checkMilliseconds = 2;
 
     private static readonly int _floorLayers = LayerMask.GetMask("Ground", "Step");
@@ -142,6 +143,9 @@ internal static class TimbnNavmeshBake
 
         for (var index = _cleared.Count - 1; index >= 0; index--)
         {
+            if (updates.Count >= _updatesPerFrame)
+                break;
+
             if (Time.frameCount <= _cleared[index].Frame + 1)
                 continue;
 
@@ -254,17 +258,22 @@ internal static class TimbnNavmeshBake
                 sampled.Expand(new Vector3(tile * 2f + _margin * 2f, _margin * 2f, tile * 2f + _margin * 2f));
                 foreach (var collider in Physics.OverlapBox(sampled.center, sampled.extents, Quaternion.identity, _bakedLayers, QueryTriggerInteraction.Ignore))
                 {
-                    if (!handled.Add(collider))
-                        continue;
-
+                    // A big terrain collider can reach several areas, so each area gets its own sampled piece of it.
                     if (collider is MeshCollider { sharedMesh: { isReadable: false } } mesh)
                     {
                         if (SampledStandIn(mesh, sampled) is { } sampledStandIn)
                             standIns.Add(sampledStandIn);
 
-                        replaced.Add(collider);
+                        if (handled.Add(collider))
+                            replaced.Add(collider);
+
+                        continue;
                     }
-                    else if (collider is not MeshCollider && IsMirrored(collider.transform))
+
+                    if (!handled.Add(collider))
+                        continue;
+
+                    if (collider is not MeshCollider && IsMirrored(collider.transform))
                     {
                         standIns.Add(BoxStandIn(collider, collider.gameObject.layer));
                         replaced.Add(collider);
@@ -304,14 +313,22 @@ internal static class TimbnNavmeshBake
             }
 
             foreach (var standIn in standIns)
+            {
+                // Destroying the object leaves a runtime mesh behind.
+                if (standIn.TryGetComponent<MeshCollider>(out var sampled))
+                    UnityEngine.Object.Destroy(sampled.sharedMesh);
+
                 UnityEngine.Object.Destroy(standIn);
+            }
         }
     }
 
     // Each update rebuilds every tile it touches, so neighbors rebuild the same tiles again and one joined area is
-    // about three times cheaper. Only areas within a tile of each other join, so no far apart tiles get rebuilt.
+    // about three times cheaper. Only areas within a tile of each other join, and a joined area stays within a few
+    // tiles across, so a diagonal chain of objects can't grow it over tiles none of them touch.
     private static List<Bounds> Merged(List<Bounds> areas, float tile)
     {
+        var limit = tile > 0f ? tile * _mergeTiles : float.MaxValue;
         var merged = new List<Bounds>(areas);
         for (var index = 0; index < merged.Count; index++)
         {
@@ -324,6 +341,9 @@ internal static class TimbnNavmeshBake
 
                 var joined = merged[index];
                 joined.Encapsulate(merged[other]);
+                if (joined.size.x > limit || joined.size.z > limit)
+                    continue;
+
                 merged[index] = joined;
                 merged.RemoveAt(other);
                 near = joined;

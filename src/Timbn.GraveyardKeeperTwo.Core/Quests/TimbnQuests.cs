@@ -419,6 +419,10 @@ public static class TimbnQuests
         foreach (var quest in game)
             _posY(quest) = plan.Cells[quest.id].Y;
 
+        // The game quests are back where they started, so the next load can take the fast path again.
+        if (ours.Count == 0)
+            _gameY.Clear();
+
         if (cache is not null)
         {
             foreach (var (id, hidden) in plan.Hidden)
