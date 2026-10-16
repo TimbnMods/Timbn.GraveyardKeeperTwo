@@ -282,7 +282,7 @@ public static class TimbnQuests
 
         var runtimes = _runtimes.ToList();
         foreach (var runtime in runtimes)
-            TimbnSafe.Run(runtime.Write, $"{nameof(TimbnQuests)}|Setting up quest '{runtime.Id}' for the save");
+            TimbnSafe.Run(() => runtime.Write(), $"{nameof(TimbnQuests)}|Setting up quest '{runtime.Id}' for the save");
 
         TimbnQuestRuntime.RefreshCaches();
         foreach (var runtime in runtimes)

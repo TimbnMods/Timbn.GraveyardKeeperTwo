@@ -114,8 +114,9 @@ internal sealed class TimbnQuestRuntime
 
     internal void Apply()
     {
-        Write();
-        RefreshCaches();
+        if (Write())
+            RefreshCaches();
+
         ActivateIfStarted();
     }
 
@@ -156,13 +157,17 @@ internal sealed class TimbnQuestRuntime
             Activate();
     }
 
-    internal void Write()
+    // Returns whether the talk phrase changed. The game's quest cache keys quests only by phrase, id and tree spot, so
+    // nothing else written here needs the rebuild.
+    internal bool Write()
     {
         var check = _definition.finishCheck;
         var talkNpc = TalkNpcNow;
         var needs = Needs;
+        var phrase = _quest.TalkOf is null ? "" : MenuKey;
+        var phraseChanged = check.phrase != phrase;
         check.hasTrigger = false;
-        check.phrase = _quest.TalkOf is null ? "" : MenuKey;
+        check.phrase = phrase;
         check.phraseReqs = [
             .. needs.ToRequirements(ReputationFor(needs, talkNpc)),
             .. Cost.ToRequirements(null)];
@@ -171,6 +176,7 @@ internal sealed class TimbnQuestRuntime
             _definition.iconId = iconId;
 
         _definition.repVisualisationRes = RewardLine(talkNpc);
+        return phraseChanged;
     }
 
     private void Activate()

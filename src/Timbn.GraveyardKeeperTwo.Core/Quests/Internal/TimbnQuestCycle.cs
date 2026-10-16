@@ -176,10 +176,13 @@ internal sealed class TimbnQuestCycle
     private void Changed()
     {
         RewriteTexts();
+        var phraseChanged = false;
         foreach (var step in _steps)
-            step.Write();
+            phraseChanged |= step.Write();
 
-        TimbnQuestRuntime.RefreshCaches();
+        if (phraseChanged)
+            TimbnQuestRuntime.RefreshCaches();
+
         foreach (var step in _steps)
             step.ActivateIfStarted();
 
