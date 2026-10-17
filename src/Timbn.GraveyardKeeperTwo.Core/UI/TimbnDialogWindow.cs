@@ -212,7 +212,11 @@ internal sealed class TimbnDialogWindow : IDisposable
         }
 
         // The dialog hiding itself, whoever closed it, ends the prompt.
-        private void OnDisable() => _close?.Invoke();
+        private void OnDisable()
+        {
+            _close?.Invoke();
+            Restore();
+        }
 
         private void OnDestroy() => Restore();
 
