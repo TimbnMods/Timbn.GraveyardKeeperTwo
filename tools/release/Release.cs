@@ -1336,16 +1336,18 @@ class NexusUploader(string folder)
         {
             Console.WriteLine("No zip in this folder, so only the page text is updated");
         }
-        else if (mainFile != null && mainFile.Versions.Any(entry => entry["version"]?.GetValue<string>() == version))
-        {
-            Console.WriteLine($"Nexus already has {version}, so only the page text is updated");
-        }
         else
         {
-            var versionId = await UploadFile(modId, mainFile?.Id, version);
+            // A rerun finds the version already up, and still sets what a failed run may have left out.
+            var existing = mainFile?.Versions.FirstOrDefault(entry => entry["version"]?.GetValue<string>() == version);
+            if (existing != null)
+            {
+                Console.WriteLine($"Nexus already has the {version} file");
+            }
+
+            var versionId = existing != null ? Id(existing["id"]!) : await UploadFile(modId, mainFile?.Id, version);
             await SetRequirements(versionId);
-            var changelog = string.Join("\n", _release["changes"]!.AsArray().Select(change => "- " + change!.GetValue<string>()));
-            await Send(HttpMethod.Post, $"/mods/{modId}/changelogs", new JsonObject { ["version"] = version, ["changelog"] = changelog });
+            await AddChangelog(modId, version);
         }
 
         var description = File.ReadAllText(Path.Combine(folder, "pages", "nexus.bbcode"));
@@ -1479,11 +1481,40 @@ class NexusUploader(string folder)
         }
 
         fields["mod_id"] = modId;
-        var created = await Send(HttpMethod.Post, "/mod-files", fields);
-        var fileId = Id(created["data"]!["id"]!);
+        await Send(HttpMethod.Post, "/mod-files", fields);
         Console.WriteLine($"Uploaded {name} as the first main file");
-        var versions = (await Send(HttpMethod.Get, $"/mod-files/{fileId}/versions"))["data"]!["versions"]!.AsArray();
-        return Id(versions.First(entry => entry!["version"]?.GetValue<string>() == version)!["id"]!);
+
+        // The id createModFile returns isn't one the mod-files calls accept, so the new file is found from the mod's file list.
+        var newFile = await MainFile(modId) ?? throw new ReleaseException("the new main file doesn't show in the mod's file list");
+        return Id(newFile.Versions.First(entry => entry["version"]?.GetValue<string>() == version)["id"]!);
+    }
+
+    // v3 can only add changelog entries, and adding twice repeats them, so the v1 API says whether the version has one.
+    async Task AddChangelog(string modId, string version)
+    {
+        try
+        {
+            using var response = await _http.GetAsync($"https://api.nexusmods.com/v1/games/{Repo.NexusGame}/mods/{Text("nexusModId")}/changelogs.json");
+            var text = await response.Content.ReadAsStringAsync();
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new ReleaseException($"reading the changelog failed with {(int)response.StatusCode} {text}");
+            }
+
+            if (JsonNode.Parse(text) is JsonObject logs && logs.ContainsKey(version))
+            {
+                Console.WriteLine($"Nexus already has the {version} changelog");
+                return;
+            }
+
+            var changelog = string.Join("\n", _release["changes"]!.AsArray().Select(change => "- " + change!.GetValue<string>()));
+            await Send(HttpMethod.Post, $"/mods/{modId}/changelogs", new JsonObject { ["version"] = version, ["changelog"] = changelog });
+            Console.WriteLine("Added the Nexus changelog");
+        }
+        catch (ReleaseException e)
+        {
+            Console.WriteLine($"::warning::The Nexus changelog wasn't added, so add it on the website. {e.Message}");
+        }
     }
 
     // Requirements are BepInEx and, for a mod, Core at its floor. A failure here only warns, since the file is already up.
