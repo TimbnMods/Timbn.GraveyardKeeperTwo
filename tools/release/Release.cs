@@ -20,7 +20,6 @@
 using System.IO.Compression;
 using System.Net.Http.Headers;
 using System.Reflection;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
@@ -1401,24 +1400,46 @@ class NexusUploader(string folder)
         var zip = Path.Combine(folder, Text("nexusZip"));
         var bytes = await File.ReadAllBytesAsync(zip);
         var name = Path.GetFileName(zip);
-        var md5 = MD5.HashData(bytes);
-        var upload = (await Send(HttpMethod.Post, "/uploads", new JsonObject
+
+        // The single part upload's presigned URL signs a Content-Type nobody documents, so this uses the multipart
+        // flow the way Nexus-Mods/upload-action does.
+        var upload = (await Send(HttpMethod.Post, "/uploads/multipart", new JsonObject
         {
-            ["size_bytes"] = bytes.Length,
+            ["size_bytes"] = bytes.Length.ToString(),
             ["filename"] = name,
-            ["md5"] = Convert.ToHexStringLower(md5),
         }))["data"]!;
         var uploadId = Id(upload["id"]!);
-
-        using (var put = new HttpRequestMessage(HttpMethod.Put, upload["presigned_url"]!.GetValue<string>()))
+        var partSize = upload["part_size_bytes"]!.GetValueKind() == JsonValueKind.String
+            ? long.Parse(upload["part_size_bytes"]!.GetValue<string>())
+            : upload["part_size_bytes"]!.GetValue<long>();
+        var partUrls = upload["part_presigned_urls"]!.AsArray().Select(url => url!.GetValue<string>()).ToList();
+        using var storage = new HttpClient();
+        var completion = new StringBuilder("<CompleteMultipartUpload>\n");
+        for (var part = 0; part < partUrls.Count; part++)
         {
-            put.Content = new ByteArrayContent(bytes);
-            put.Content.Headers.ContentDisposition = ContentDispositionHeaderValue.Parse($"attachment; filename=\"{name}\"");
-            put.Content.Headers.ContentMD5 = md5;
-            using var stored = await new HttpClient().SendAsync(put);
-            if (!stored.IsSuccessStatusCode)
+            var offset = (int)(part * partSize);
+            var length = (int)Math.Min(partSize, bytes.Length - offset);
+            using var put = new HttpRequestMessage(HttpMethod.Put, partUrls[part]) { Content = new ByteArrayContent(bytes, offset, length) };
+            put.Content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+            using var stored = await storage.SendAsync(put);
+            var etag = stored.Headers.ETag?.Tag;
+            if (!stored.IsSuccessStatusCode || etag == null)
             {
-                throw new ReleaseException($"storing {name} failed with {(int)stored.StatusCode} {await stored.Content.ReadAsStringAsync()}");
+                throw new ReleaseException($"storing part {part + 1} of {name} failed with {(int)stored.StatusCode} {await stored.Content.ReadAsStringAsync()}");
+            }
+
+            completion.Append($"  <Part>\n    <PartNumber>{part + 1}</PartNumber>\n    <ETag>{etag}</ETag>\n  </Part>\n");
+        }
+
+        completion.Append("</CompleteMultipartUpload>");
+        using (var complete = new HttpRequestMessage(HttpMethod.Post, upload["complete_presigned_url"]!.GetValue<string>()))
+        {
+            complete.Content = new ByteArrayContent(Encoding.UTF8.GetBytes(completion.ToString()));
+            complete.Content.Headers.ContentType = new MediaTypeHeaderValue("application/xml");
+            using var completed = await storage.SendAsync(complete);
+            if (!completed.IsSuccessStatusCode)
+            {
+                throw new ReleaseException($"completing the upload of {name} failed with {(int)completed.StatusCode} {await completed.Content.ReadAsStringAsync()}");
             }
         }
 

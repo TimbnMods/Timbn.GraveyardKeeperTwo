@@ -39,7 +39,13 @@ runs:
       run: |
         set -euo pipefail
         mkdir -p "$HOME/.local/share/Steam/config"
-        base64 -d <<< "$STEAM_CONFIG_VDF" > "$HOME/.local/share/Steam/config/config.vdf"
+        # The secret may hold the file itself or its base64, and a base64 copied on Windows can carry line breaks.
+        config="$HOME/.local/share/Steam/config/config.vdf"
+        if grep -q "InstallConfigStore" <<< "$STEAM_CONFIG_VDF"; then
+          printf '%s\n' "$STEAM_CONFIG_VDF" > "$config"
+        else
+          tr -d ' \r\n' <<< "$STEAM_CONFIG_VDF" | base64 -d > "$config"
+        fi
 
         while read -r vdf; do
           [ -n "$vdf" ] || continue
