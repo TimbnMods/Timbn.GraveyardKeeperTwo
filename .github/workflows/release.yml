@@ -1,0 +1,354 @@
+# Packages every draft release that has its Release DLL attached, waits for approval, then uploads to Nexus,
+# Thunderstore and the Steam Workshop and publishes the GitHub release. Running it is the approval to package,
+# and a reviewer of the release-approval environment approves the uploads after reading the run summary.
+# Every upload job skips work that is already done, so a failed run can be rerun.
+name: Release drafts
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-drafts
+
+jobs:
+  find:
+    runs-on: ubuntu-latest
+    outputs:
+      drafts: ${{ steps.find.outputs.drafts }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.x
+
+      - name: Find drafts with their DLL attached
+        id: find
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          dotnet run tools/release/Release.cs -- list > "$RUNNER_TEMP/list.json"
+          gh api --paginate "repos/$GITHUB_REPOSITORY/releases" | jq -s '[.[][] | select(.draft)]' > "$RUNNER_TEMP/drafts.json"
+
+          # Core sorts first so the one at a time Thunderstore job uploads it before the mods that need it.
+          jq -c --slurpfile list "$RUNNER_TEMP/list.json" '
+            [.[] as $draft
+              | $list[0][] | select(.tag == $draft.tag_name) as $mod
+              | select([$draft.assets[].name] | index($mod.assets[0]))
+              | {tag: $mod.tag, project: $mod.project, mod: ($mod.mod | ascii_downcase), core: $mod.core, nuget: $mod.nuget,
+                 id: $draft.id, sha: $draft.target_commitish, assets: [$draft.assets[] | {id, name}]}]
+            | sort_by(.core | not)' "$RUNNER_TEMP/drafts.json" > "$RUNNER_TEMP/ready.json"
+
+          jq -r --slurpfile ready "$RUNNER_TEMP/ready.json" '
+            .[] | select(.tag_name as $tag | $ready[0] | map(.tag) | index($tag) | not)
+            | "Skipped \(.tag_name), which has no DLL attached or is not the current version on main"' \
+            "$RUNNER_TEMP/drafts.json" >> "$GITHUB_STEP_SUMMARY"
+
+          if [ "$(jq length "$RUNNER_TEMP/ready.json")" = 0 ]; then
+            echo "No draft is ready. Attach the Release DLL to a draft first." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          echo "drafts=$(jq -c . "$RUNNER_TEMP/ready.json")" >> "$GITHUB_OUTPUT"
+
+  package:
+    name: package ${{ matrix.tag }}
+    needs: find
+    if: needs.find.outputs.drafts != '[]'
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.find.outputs.drafts) }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ matrix.sha }}
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.x
+
+      - name: Download the attached DLL
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ASSETS: ${{ toJSON(matrix.assets) }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/dll"
+          jq -c '.[]' <<< "$ASSETS" | while read -r asset; do
+            gh api -H "Accept: application/octet-stream" "repos/$GITHUB_REPOSITORY/releases/assets/$(jq -r .id <<< "$asset")" \
+              > "$RUNNER_TEMP/dll/$(jq -r .name <<< "$asset")"
+          done
+
+      # Also checks the DLL's version matches the csproj.
+      - name: Build the packages
+        run: dotnet run tools/release/Release.cs -- "${{ matrix.project }}" --dll "$RUNNER_TEMP/dll" --sha "$(git rev-parse HEAD)"
+
+      # The DLL can't be compiled here without the game, so the package is packed around the attached one.
+      - name: Pack the NuGet package
+        if: matrix.nuget
+        run: |
+          set -euo pipefail
+          project="src/${{ matrix.project }}/${{ matrix.project }}.csproj"
+          mkdir -p "src/${{ matrix.project }}/bin/Release"
+          cp "$RUNNER_TEMP"/dll/* "src/${{ matrix.project }}/bin/Release/"
+          dotnet restore "$project"
+          dotnet pack "$project" -c Release --no-build --no-restore -p:PackageOutputPath="$GITHUB_WORKSPACE/artifacts/release/${{ matrix.project }}/nuget/"
+
+      - name: Check the tag matches the version at the draft's commit
+        run: |
+          built=$(jq -r .tag "artifacts/release/${{ matrix.project }}/release.json")
+          if [ "$built" != "${{ matrix.tag }}" ]; then
+            echo "::error::The draft is ${{ matrix.tag }} but its commit builds $built. Fix the draft's target or redraft."
+            exit 1
+          fi
+
+      - name: Show the packages in the summary
+        working-directory: artifacts/release/${{ matrix.project }}
+        run: |
+          {
+            echo "## $(jq -r '.product + " " + .version' release.json)"
+            echo
+            jq -r '"Core floor \(.coreFloor // "none"), Nexus mod \(.nexusModId // "none"), Thunderstore \(.thunderstorePackage // "none"), Workshop item \(.workshopItemId // "none")"' release.json
+            echo
+            for zip in nexus/*.zip thunderstore/*.zip; do
+              [ -f "$zip" ] || continue
+              echo "<details><summary>$(basename "$zip")</summary>"
+              echo
+              echo '```'
+              unzip -Z1 "$zip"
+              echo '```'
+              echo "</details>"
+              echo
+            done
+            for page in nexus.bbcode steam.bbcode github.md; do
+              echo "<details><summary>$page</summary>"
+              echo
+              echo '````'
+              cat "pages/$page"
+              echo '````'
+              echo "</details>"
+              echo
+            done
+            echo "<details><summary>thunderstore.md, rendered</summary>"
+            echo
+            cat pages/thunderstore.md
+            echo
+            echo "</details>"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: release-${{ matrix.mod }}
+          path: artifacts/release/${{ matrix.project }}
+          if-no-files-found: error
+
+      - name: Find the zips
+        id: zips
+        working-directory: artifacts/release/${{ matrix.project }}
+        run: |
+          echo "nexus=$PWD/$(jq -r .nexusZip release.json)" >> "$GITHUB_OUTPUT"
+          echo "thunderstore=$(jq -r --arg dir "$PWD" 'if .thunderstoreZip then "\($dir)/\(.thunderstoreZip)" else "" end' release.json)" >> "$GITHUB_OUTPUT"
+
+      # Unzipped single file artifacts, so each package downloads from the run page as itself.
+      - uses: actions/upload-artifact@v7
+        with:
+          path: ${{ steps.zips.outputs.nexus }}
+          archive: false
+
+      - uses: actions/upload-artifact@v7
+        if: steps.zips.outputs.thunderstore != ''
+        with:
+          path: ${{ steps.zips.outputs.thunderstore }}
+          archive: false
+
+  # Holds every upload until a reviewer of the release-approval environment approves.
+  approve:
+    needs: package
+    runs-on: ubuntu-latest
+    environment: release-approval
+    steps:
+      - run: echo "Uploads approved"
+
+  nexus:
+    name: nexus ${{ matrix.tag }}
+    needs: [find, approve]
+    runs-on: ubuntu-latest
+    environment: release
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.find.outputs.drafts) }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ matrix.sha }}
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.x
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-${{ matrix.mod }}
+          path: artifacts/release/${{ matrix.project }}
+
+      - name: Upload to Nexus
+        env:
+          NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
+        run: |
+          folder="artifacts/release/${{ matrix.project }}"
+          if ! jq -e .nexusModId "$folder/release.json" > /dev/null; then
+            echo "No NexusModId, so nothing goes to Nexus"
+            exit 0
+          fi
+          dotnet run tools/release/Release.cs -- nexus "$folder"
+
+  # Trusted publishing, so nuget.org needs a policy for this repo and release.yml.
+  nuget:
+    name: nuget ${{ matrix.tag }}
+    needs: [find, approve]
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.find.outputs.drafts) }}
+    steps:
+      - uses: actions/download-artifact@v8
+        if: matrix.nuget
+        with:
+          name: release-${{ matrix.mod }}
+          path: artifacts/release/${{ matrix.project }}
+
+      - name: NuGet login
+        id: login
+        if: matrix.nuget
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push to NuGet
+        if: matrix.nuget
+        run: |
+          dotnet nuget push "artifacts/release/${{ matrix.project }}/nuget/*.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
+  # One at a time with Core first, so a mod's dependency on a new Core already exists.
+  thunderstore:
+    name: thunderstore ${{ matrix.tag }}
+    needs: [find, approve]
+    runs-on: ubuntu-latest
+    environment: release
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        include: ${{ fromJSON(needs.find.outputs.drafts) }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-${{ matrix.mod }}
+          path: artifacts/release/${{ matrix.project }}
+
+      - name: Upload to Thunderstore
+        working-directory: artifacts/release/${{ matrix.project }}
+        env:
+          TCLI_AUTH_TOKEN: ${{ secrets.THUNDERSTORE_TOKEN }}
+          # tcli targets an older .NET than the runner has.
+          DOTNET_ROLL_FORWARD: Major
+        run: |
+          set -euo pipefail
+          package=$(jq -r '.thunderstorePackage // empty' release.json)
+          if [ -z "$package" ]; then
+            echo "Not a Thunderstore mod"
+            exit 0
+          fi
+
+          version=$(jq -r .version release.json)
+          if curl -sf "https://thunderstore.io/api/experimental/package/$package/$version/" > /dev/null; then
+            echo "Thunderstore already has $package $version"
+            exit 0
+          fi
+
+          dotnet tool install -g tcli --version 0.2.4
+          cd thunderstore
+          tcli publish --file "$(basename "$(jq -r .thunderstoreZip ../release.json)")" --config-path thunderstore.toml --repository https://thunderstore.io
+
+  steam:
+    name: steam ${{ matrix.tag }}
+    needs: [find, approve]
+    runs-on: ubuntu-latest
+    environment: release
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.find.outputs.drafts) }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ matrix.sha }}
+          sparse-checkout: .github/actions
+
+      # item.vdf holds absolute paths from the package job, which used this same workspace path.
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-${{ matrix.mod }}
+          path: artifacts/release/${{ matrix.project }}
+
+      - name: Check it's a Workshop mod
+        id: vdf
+        run: |
+          vdf="$GITHUB_WORKSPACE/artifacts/release/${{ matrix.project }}/workshop/item.vdf"
+          if [ -f "$vdf" ]; then
+            echo "path=$vdf" >> "$GITHUB_OUTPUT"
+          else
+            echo "Not a Workshop mod"
+          fi
+
+      - uses: ./.github/actions/steam-workshop
+        if: steps.vdf.outputs.path != ''
+        with:
+          vdfs: ${{ steps.vdf.outputs.path }}
+          username: ${{ secrets.STEAM_USERNAME }}
+          config: ${{ secrets.STEAM_CONFIG_VDF }}
+
+  finish:
+    name: finish ${{ matrix.tag }}
+    needs: [find, nexus, nuget, thunderstore, steam]
+    if: ${{ !cancelled() && needs.nexus.result == 'success' && needs.nuget.result == 'success' && needs.thunderstore.result == 'success' && needs.steam.result == 'success' }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.find.outputs.drafts) }}
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: release-${{ matrix.mod }}
+          path: artifacts/release/${{ matrix.project }}
+
+      - name: Swap the DLL for the Nexus zip and publish the release
+        working-directory: artifacts/release/${{ matrix.project }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ASSETS: ${{ toJSON(matrix.assets) }}
+        run: |
+          set -euo pipefail
+          gh release upload "${{ matrix.tag }}" "$(jq -r .nexusZip release.json)" --clobber -R "$GITHUB_REPOSITORY"
+
+          jq -r '.[].id' <<< "$ASSETS" | while read -r asset; do
+            gh api -X DELETE "repos/$GITHUB_REPOSITORY/releases/assets/$asset"
+          done
+
+          # Only Core is marked Latest, since GitHub may not read the prefixed tags as versions.
+          # Editing a draft without tag_name resets it to untagged, so the tag and commit are always resent.
+          gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/${{ matrix.id }}" \
+            -f tag_name="${{ matrix.tag }}" -f target_commitish="${{ matrix.sha }}" -F body=@pages/github.md -F draft=false -f make_latest=${{ matrix.core && 'true' || 'false' }} > /dev/null
+          echo "Published ${{ matrix.tag }}" >> "$GITHUB_STEP_SUMMARY"

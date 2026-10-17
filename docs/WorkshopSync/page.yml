@@ -1,0 +1,53 @@
+summary: Installs the BepInEx mods you subscribe to on the Steam Workshop, so you don't have to copy each one into BepInEx by hand every time they update.
+banner: images/header.jpg
+sections:
+  - title: How It Works
+    text: |
+      Steam downloads Workshop items into its own folder, and the game never loads mods from there. Every time the game starts, before any mod loads, Workshop Sync looks through your subscribed Graveyard Keeper 2 Workshop items and installs them.
+    list:
+      - A mod you just subscribed to loads on that same start.
+      - When Steam updates a mod, the new version is installed on the next start.
+      - When you unsubscribe, the mod is removed on the next start.
+      - Workshop items that aren't BepInEx mods, like translations, are left alone.
+
+  - title: Settings
+    list:
+      - Workshop items to leave out, as ids separated by commas (`General / SkippedItems`, empty by default). The id is the number at the end of the item's Steam page address.
+
+  - title: Good To Know
+    list:
+      - Workshop mods are made by other players and can do anything any other mod can. Only subscribe to mods you trust.
+      - Workshop mods go in `BepInEx/plugins/Workshop`, which is emptied and filled again every start, so don't put anything of your own in it.
+      - A config file a Workshop mod comes with is only added when you don't have that file yet, so your own settings are never overwritten, and it stays when you unsubscribe.
+      - An update Steam downloads while the game is running applies when you restart the game.
+      - If you also installed the same mod by hand, BepInEx loads the newer version and warns about the other.
+      - Turning the mod off leaves the Workshop mods already installed as they are.
+      - It needs the Steam version of the game.
+      - Unlike the other Timbn mods, this one doesn't need Timbn Core. Workshop mods that use Timbn Core still need it installed.
+
+  - title: Requirements
+
+  - title: Installation
+    only: [nexus]
+    blocks:
+      - text: BepInEx can't come from the Workshop, so it has to be installed once by hand or with Vortex.
+      - subtitle: With Vortex
+      - olist:
+          - Install BepInEx for Graveyard Keeper 2
+          - Download with "Mod Manager Download" from the Files tab
+      - subtitle: Without Vortex
+      - olist:
+          - Install BepInEx for Graveyard Keeper 2, start the game once, and quit at the main menu
+          - Extract the Timbn.GraveyardKeeperTwo.WorkshopSync zip into your Graveyard Keeper 2 folder, so the mod lands in BepInEx/patchers (not plugins)
+      - text: When it works, BepInEx/LogOutput.log has a line like `Installed 2 Workshop mod(s)` near the top.
+
+  - title: For Mod Authors
+    blocks:
+      - text: Put your files in folders named `plugins` and `config`, at any depth in your Workshop item.
+      - list:
+          - "`plugins` is installed to `BepInEx/plugins/Workshop/<item id>`"
+          - "`config` is installed to `BepInEx/config`, only files the player doesn't have yet"
+      - text: Everything else in your item is ignored, so a readme or preview image next to them is fine. Using `BepInEx/plugins` and `BepInEx/config` matches the game folder and works as well, so players without Workshop Sync can copy it in by hand if they want.
+
+  - title: Troubleshooting
+    text: BepInEx/LogOutput.log says which Workshop items were installed, skipped, or failed. Include it when reporting a problem.

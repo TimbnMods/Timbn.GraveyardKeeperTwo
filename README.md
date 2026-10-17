@@ -8,32 +8,19 @@ A suite of [BepInEx](https://github.com/BepInEx/BepInEx) mods for Graveyard Keep
 
 | Mod | What it does |
 | --- | --- |
-| **[Core](src/Timbn.GraveyardKeeperTwo.Core/README.md)** | Shared framework the other mods depend on, which makes modding easier. |
+| **[Core](src/Timbn.GraveyardKeeperTwo.Core/README.md)** | The shared framework every other mod is built on. It also makes writing your own mod easier. |
 | **[CampfireMeditation](src/Timbn.GraveyardKeeperTwo.CampfireMeditation/README.md)** | Pass time by a campfire, like the stone garden in the first game. |
 | **[ChestLabels](src/Timbn.GraveyardKeeperTwo.ChestLabels/README.md)** | Name your chests. The name floats over the chest in the same style as grave quality. |
 | **[InfusionRack](src/Timbn.GraveyardKeeperTwo.InfusionRack/README.md)** | Gives your zombies tech points. Lay them in infusion stands and run Spirit Solutions made from organs on the infusion machine. |
 | **[LivingTown](src/Timbn.GraveyardKeeperTwo.LivingTown/README.md)** | Gives the village and the port a daily life, with Herm, Linda and Larry going about their day. |
 | **[QuestPacks](src/Timbn.GraveyardKeeperTwo.QuestPacks/README.md)** | Adds quests and talks written as plain JSON files, no code needed. Install it for any quest pack, or for a mod that ships one. |
-| **[VanillaTweaks](src/Timbn.GraveyardKeeperTwo.VanillaTweaks/README.md)** | Aims to fix bugs and adds light gameplay tweaks that are intended to enhance the vanilla experience without cheating. |
+| **[VanillaTweaks](src/Timbn.GraveyardKeeperTwo.VanillaTweaks/README.md)** | Fixes bugs and adds small conveniences that keep the vanilla game feel, with no cheats. |
 | **[WorkshopSync](src/Timbn.GraveyardKeeperTwo.WorkshopSync/README.md)** | Installs the BepInEx mods you subscribe to on the Steam Workshop. A BepInEx patcher that goes in BepInEx/patchers and does not need Core. |
 | **[ZombieCustomizer](src/Timbn.GraveyardKeeperTwo.ZombieCustomizer/README.md)** | Restyle your zombies' hairstyle, hair color and clothes color in the game's own customization window. |
 
-## Requirements
+The mods run on Graveyard Keeper 2 (Unity 6, Mono) with the x64 Mono build of BepInEx 5.4. Players install them from Nexus, Thunderstore or the Steam Workshop, and each mod's player page is written in `docs/<Mod>/page.yml`. The READMEs in this repo are for developers.
 
-- Graveyard Keeper 2 (Unity 6, Mono, 64-bit)
-- BepInEx 5.4.x, the x64 Mono build (not 6.x / IL2CPP)
-
-## Installation
-
-1. Install [BepInEx 5](https://github.com/BepInEx/BepInEx/releases) into your Graveyard Keeper 2 folder (next to GraveyardKeeper2.exe), then run the game once so it generates the BepInEx plugins and config folders.
-2. Copy the plugin folders you want into BepInEx/plugins. Core is required by all the others.
-3. Launch the game. Each configurable mod writes a file to BepInEx/config on first run.
-
-## Configuration
-
-Edit the files in BepInEx/config. A config manager applies changes straight away, even in the middle of a game. Editing a file by hand needs a restart.
-
-Every mod has a General / Enabled toggle (default true). Set it to false to turn that mod off while leaving it installed. Core's toggle is the master switch, so turning Core off turns off every Timbn mod.
+Every mod has a General / Enabled toggle. Core's toggle is the master switch, so turning Core off turns off every Timbn mod.
 
 ## Making your own mod
 
@@ -48,7 +35,7 @@ dotnet new gk2mod -n MyMod
 
 ## Building from source
 
-Requires the .NET SDK. Game DLLs are referenced from lib and from your Graveyard Keeper 2 Managed folder (via the GameDir property in src/Directory.Build.props, adjust if the game is installed elsewhere).
+Requires the .NET SDK. Game DLLs are referenced from lib and from your Graveyard Keeper 2 Managed folder (through the GameDir property in src/Directory.Build.props, so change it if the game is installed somewhere else).
 
 To deploy a mod to the plugins folder:
 
@@ -70,10 +57,19 @@ To deploy a mod to the scripts folder while the game is running:
 dotnet build src/Timbn.GraveyardKeeperTwo.VanillaTweaks/Timbn.GraveyardKeeperTwo.VanillaTweaks.csproj -c Debug -p:DeployTo=scripts -p:BuildProjectReferences=false
 ```
 
-To build release zips into artifacts (Nexus and GitHub in `nexus`, plus `thunderstore` and `workshop` for the mods that ship there):
+## Releasing
+
+A GitHub Action does the packaging and uploads, and only the DLL is built locally.
+
+1. Merging a PR that changes a mod drafts a GitHub release for it, when its `CHANGELOG.md` has a section for the csproj version and that version has no tag yet.
+2. Build the mod in Release and attach the DLL to the draft (Core also attaches its XML doc file).
+3. Run the Release drafts workflow. It packages every draft that has its DLL, shows the zips and page text in the run summary, then waits for approval.
+4. Approving uploads to Nexus, Thunderstore, the Steam Workshop and (for Core) NuGet, then publishes the GitHub release.
+
+The packaging and page rendering live in `tools/release/Release.cs`. To check a mod's zips and page text locally:
 
 ```cmd
-dotnet build src/Timbn.GraveyardKeeperTwo.VanillaTweaks/Timbn.GraveyardKeeperTwo.VanillaTweaks.csproj -t:Package -c Release
+dotnet run tools/release/Release.cs -- VanillaTweaks --dry-run
 ```
 
-It deploys to the game like any other build. `dotnet pack` on Core puts its NuGet package in artifacts too.
+The Sync pages workflow updates the Nexus and Steam page text from `page.yml` without a release.

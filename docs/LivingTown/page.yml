@@ -1,0 +1,72 @@
+summary: Herm, Linda, Larry and the astrologer keep daily routines. Villagers visit the graveyard each day (more as town gratitude grows) and hold funerals for your new graves. Neighbors ask you to cook dishes or run deliveries.
+banner: images/header.jpg
+sections:
+  - title: Daily Routines
+    list:
+      - "**Herm** keeps his stall open during the day, takes the odd walk, and spends his evenings in the tavern. He won't trade after hours."
+      - "**Linda** works the club once you've finished Safe Harbor, and after Concept for a Concert you can hear her play late at night."
+      - "**Larry** wanders around inside your house."
+      - Once you've met the astrologer in the port, he goes about his day in his tower.
+
+  - title: Graveyard Visitors
+    list:
+      - Villagers and townsfolk visit the graveyard every day, and more come as the town grows more grateful.
+      - They stroll, stop at graves and monuments, sit on benches or step into the church.
+      - You can walk straight through them, so they never block your way.
+    image: images/graveyard.jpg
+
+  - title: Funerals
+    text: The day after you fill in a new grave, villagers gather in the church for a funeral, then walk out to the grave to pay their respects.
+    image: images/church.jpg
+
+  - title: Favors
+    list:
+      - "**A Neighbor's Craving.** Now and then a neighbor asks you to cook a dish you know. Bring it to them and they pay for it."
+      - "**An Errand for a Neighbor.** Now and then someone asks you to carry a parcel to a friend, who pays you when it arrives. Deliver it in time, or you pay for it."
+    text: Favors show up in your quest log, and the villager waiting on you gets a quest marker.
+
+  - title: Settings
+    blocks:
+      - skip: [steam]
+        list:
+          - Herm, Linda, Larry and the astrologer go about their day (`People / DailyRoutine`, off puts them back in their usual spots)
+          - Herm only trades from morning until evening (`People / OpeningHours`, off lets you trade with him any time you find him)
+          - Villagers visit the graveyard each day (`Crowds / ChurchVisits`, also `GratitudePerVisitor` default 7, `MinimumChurchVisitors` default 2 and `MaximumChurchVisitors` default 30)
+          - The visitors hold a funeral for each new grave (`Crowds / Funerals`)
+          - Cooking requests (`Requests / VillagerRequests`)
+          - Deliveries (`Requests / VillagerDeliveries`)
+          - Quest markers on the villager waiting for your dish or parcel (`Requests / HandInMarkers`)
+          - Quest markers on the villager who wants to ask you a favor (`Requests / OfferMarkers`, off by default)
+      - only: [steam]
+        text: Each part can be turned off on its own in the mod's config (daily routines, opening hours, graveyard visits, funerals, cooking requests, deliveries and quest markers).
+
+  - title: Requirements
+
+  - title: Installation
+    only: [nexus]
+    blocks:
+      - subtitle: With Vortex
+      - olist:
+          - Install BepInEx for Graveyard Keeper 2
+          - Install Timbn Core
+          - Download with "Mod Manager Download" from the Files tab
+      - subtitle: Without Vortex
+      - olist:
+          - Install BepInEx for Graveyard Keeper 2, start the game once, and quit at the main menu
+          - Install Timbn Core
+          - Extract the Timbn.GraveyardKeeperTwo.LivingTown zip into BepInEx/plugins
+      - text: Timbn Core and Timbn Living Town show at the bottom right of the main menu once they're installed.
+
+  - title: Installation
+    only: [steam]
+    olist:
+      - Install BepInEx for Graveyard Keeper 2 and Timbn Workshop Sync
+      - Subscribe to Timbn Core and to this item
+      - Start the game. Timbn Core and Timbn Living Town show at the bottom right of the main menu once they're installed.
+
+  - title: Translating
+    skip: [steam]
+    text: Every line the mod shows is in `lang/en.txt` inside its folder. Copy it to your game's language, such as `lang/de.txt`, `lang/fr.txt` or `lang/pt-br.txt`, and translate the text after each `=`. Anything left out shows in English.
+
+  - title: Troubleshooting
+    text: If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and BepInEx/LogOutput.log says which part failed. Include the startup line from that log when reporting a problem.

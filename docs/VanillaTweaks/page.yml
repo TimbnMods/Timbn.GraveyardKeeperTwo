@@ -1,0 +1,76 @@
+summary: Fixes bugs and soft locks and adds a few light tweaks that make the vanilla game nicer without cheating. Almost every fix and tweak can be turned off on its own in the config.
+banner: images/header.jpg
+sections:
+  - title: Lost Tech Points
+    text: A tech point stuck behind a wall where it can't reach you is now pulled to you after a moment.
+
+  - title: Priest Perk Rounding
+    text: The Priest perk no longer rounds faith down at some parishioner counts.
+
+  - title: Stuck Supply Zombies
+    text: A Zombie Supplier with nowhere to put its item walks back to its station and shows the no storage icon until there is room.
+
+  - title: Zombies Stuck Swinging
+    text: Lumberjack, miner, clay and sand zombies no longer swing forever after their stand is dismantled, even in older saves.
+
+  - title: Conveyor Loop Crash
+    text: Conveyor belts in certain loops no longer crash the game. A notice appears when a loop like that is found, with yellow arrows tracing it and a red square on the belt to remove.
+    image: images/conveyor-loop.jpg
+
+  - title: Choir and Organ Built Too Early
+    fixed:
+      status: partly
+      note: Still needed for saves where one was already built early
+    text: Building the church choir or organ before you're asked no longer locks the quest line.
+
+  - title: Stations Against a Wall
+    text: Workstations up against a fence or wall can be dismantled again.
+
+  - title: Out of Boards
+    text: If you have fewer than two boards and no sawhorse or circular saw, Larry offers you two.
+    image: images/larry-boards.jpg
+
+  - title: Lost Story Items
+    text: If you lose the Inquisitor's medallion before opening the tower prison bars, talk to Larry and he gives it back.
+
+  - title: Unstuck Hotkey
+    text: Press `Ctrl+U` to move to the nearest open ground. Change or clear the key with `Tweaks / UnstuckKey`, and set how far it may move you with `Tweaks / UnstuckRange`.
+
+  - title: Move Identical From Bags
+    text: The chest window's move identical button also takes matching items out of your bags. Turn it off with `Tweaks / MoveIdenticalFromBags`.
+
+  - title: Items Sort Into Bags
+    text: Items you pick up, craft, buy or take from a chest go straight into the bag made for them, like fish and bait into a fishing bag or seeds into a farming bag. Universal bags work as before. Turn it off with `Tweaks / SortIntoBags`.
+
+  - title: Bed Saving When Rested
+    text: Save from the bed even when you aren't tired enough to sleep. It's off by default, so turn on `Tweaks / BedSaveWhenRested` to use it.
+
+  - title: Higher Tech Point Cap
+    text: Raise the 999 cap on red, green and blue tech points with `Tweaks / TechPointCap` (up to 999999). It's off by default.
+
+  - title: Requirements
+
+  - title: Installation
+    only: [nexus]
+    blocks:
+      - subtitle: With Vortex
+      - olist:
+          - Install BepInEx for Graveyard Keeper 2
+          - Install Timbn Core
+          - Download with "Mod Manager Download" from the Files tab
+      - subtitle: Without Vortex
+      - olist:
+          - Install BepInEx for Graveyard Keeper 2, start the game once, and quit at the main menu
+          - Install Timbn Core
+          - Extract the Timbn.GraveyardKeeperTwo.VanillaTweaks zip into BepInEx/plugins
+      - text: Timbn Core and Timbn Vanilla Tweaks show at the bottom right of the main menu once they're installed.
+
+  - title: Installation
+    only: [steam]
+    olist:
+      - Install BepInEx for Graveyard Keeper 2 and Timbn Workshop Sync
+      - Subscribe to Timbn Core and to this item
+      - Start the game. Timbn Core and Timbn Vanilla Tweaks show at the bottom right of the main menu once they're installed.
+
+  - title: Troubleshooting
+    text: If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and BepInEx/LogOutput.log says which part failed. Include the startup line from that log when reporting a problem.

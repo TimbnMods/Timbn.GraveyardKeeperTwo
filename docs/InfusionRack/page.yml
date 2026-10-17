@@ -1,0 +1,48 @@
+summary: Distill organs into Spirit Solutions, lay your zombies in infusion stands and infuse them to give them red, green or blue tech points.
+banner: images/header.jpg
+sections:
+  - title: How It Works
+    olist:
+      - Buy the **Infusion Rack** tech on the Anatomy tab, right after Body Places II. It costs 50 red, 50 green and 20 blue.
+      - At the Distillation Cube, distill a heart, guts or brain that has white skulls, using 20 fire and Alchemy Flasks I. You get one Spirit Solution per white skull. A heart makes a Red Spirit Solution, guts make Green and a brain makes Blue.
+      - text: Build the Infusion Machine at the Morgue desk, then build an Infusion Stand into each of its two slots, one on each side.
+        image: images/machine.jpg
+      - Lay a zombie in each stand. Press interact while carrying a zombie to put it in, and with empty hands to take it back out.
+      - Pick Red, Green or Blue on the machine. An infusion needs one solution of that color and one Blue Crystal, and it only starts while a stand holds a zombie, so you never waste materials.
+      - When it finishes, every zombie lying in the two stands gets the tech points.
+
+  - title: Settings
+    list:
+      - How many tech points one solution gives each zombie (`Infusion Rack / PointsPerSolution`, default 50)
+
+  - title: Good To Know
+    list:
+      - A zombie in a stand is saved with your game, and an infusion running when the game saves still gives its points when you load.
+      - If you uninstall the mod, any zombies in a stand will be dropped on the floor.
+
+  - title: Requirements
+
+  - title: Installation
+    only: [nexus]
+    blocks:
+      - subtitle: With Vortex
+      - olist:
+          - Install BepInEx for Graveyard Keeper 2
+          - Install Timbn Core
+          - Download with "Mod Manager Download" from the Files tab
+      - subtitle: Without Vortex
+      - olist:
+          - Install BepInEx for Graveyard Keeper 2, start the game once, and quit at the main menu
+          - Install Timbn Core
+          - Extract the Timbn.GraveyardKeeperTwo.InfusionRack zip into BepInEx/plugins
+      - text: Timbn Core and Timbn Infusion Rack show at the bottom right of the main menu once they're installed.
+
+  - title: Installation
+    only: [steam]
+    olist:
+      - Install BepInEx for Graveyard Keeper 2 and Timbn Workshop Sync
+      - Subscribe to Timbn Core and to this item
+      - Start the game. Timbn Core and Timbn Infusion Rack show at the bottom right of the main menu once they're installed.
+
+  - title: Troubleshooting
+    text: If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and BepInEx/LogOutput.log says which part failed. Include the startup line from that log when reporting a problem.

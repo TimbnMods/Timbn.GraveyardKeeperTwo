@@ -1,0 +1,53 @@
+# Installs steamcmd, logs in with a cached config.vdf (which skips Steam Guard) and runs workshop_build_item.
+# Refresh the config secret when Steam expires the login.
+name: Steam Workshop upload
+description: Uploads item.vdf files to the Steam Workshop with steamcmd
+
+inputs:
+  vdfs:
+    description: Absolute paths to item.vdf files, one per line
+    required: true
+  username:
+    description: Steam account name
+    required: true
+  config:
+    description: Base64 of a logged in steamcmd config.vdf
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Install steamcmd
+      shell: bash
+      run: |
+        set -euo pipefail
+        sudo add-apt-repository -y multiverse
+        sudo dpkg --add-architecture i386
+        sudo apt-get update -q
+        for owner in steam steamcmd; do
+          echo "$owner steam/question select I AGREE" | sudo debconf-set-selections
+          echo "$owner steam/license note ''" | sudo debconf-set-selections
+        done
+        sudo apt-get install -y -q steamcmd
+
+    - name: Upload
+      shell: bash
+      env:
+        VDFS: ${{ inputs.vdfs }}
+        STEAM_USERNAME: ${{ inputs.username }}
+        STEAM_CONFIG_VDF: ${{ inputs.config }}
+      run: |
+        set -euo pipefail
+        mkdir -p "$HOME/.local/share/Steam/config"
+        base64 -d <<< "$STEAM_CONFIG_VDF" > "$HOME/.local/share/Steam/config/config.vdf"
+
+        while read -r vdf; do
+          [ -n "$vdf" ] || continue
+          # steamcmd must not read the loop's input.
+          /usr/games/steamcmd +login "$STEAM_USERNAME" +workshop_build_item "$vdf" +quit < /dev/null | tee "$RUNNER_TEMP/steam.log"
+          # steamcmd prints harmless "failed" lines while it starts, so only its own ERROR! lines count.
+          if grep -q "ERROR!" "$RUNNER_TEMP/steam.log" || ! grep -q "Success" "$RUNNER_TEMP/steam.log"; then
+            echo "::error::steamcmd didn't report a successful Workshop upload for $vdf"
+            exit 1
+          fi
+        done <<< "$VDFS"
