@@ -1,11 +1,15 @@
-# Drafts a GitHub release for every mod whose current version has a CHANGELOG.md section and no tag yet.
-# A draft made here triggers nothing. Attach the Release DLL to it, then run the Release drafts workflow.
+# Drafts a GitHub release for each mod the push changed, when its current version has a CHANGELOG.md section
+# and no tag yet. A draft made here triggers nothing. Attach the Release DLL to it, then run the Release drafts workflow.
 name: Draft releases
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+    inputs:
+      mods:
+        description: Mods to draft, separated by spaces (chestlabels core)
+        required: true
 
 permissions:
   contents: write
@@ -18,25 +22,45 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 10.x
 
-      - name: Draft or update a release per new version
+      - name: Draft or update a release per changed mod
         env:
           GH_TOKEN: ${{ github.token }}
+          BEFORE: ${{ github.event.before }}
+          MODS: ${{ inputs.mods }}
         run: |
           set -euo pipefail
           dotnet run tools/release/Release.cs -- list > "$RUNNER_TEMP/releases.json"
           gh api --paginate "repos/$GITHUB_REPOSITORY/releases" > "$RUNNER_TEMP/existing.json"
 
+          if [ "$GITHUB_EVENT_NAME" = push ]; then
+            # A brand new branch reports an all zero before, so fall back to the pushed commit alone.
+            if [ -z "${BEFORE//0/}" ]; then
+              BEFORE="$GITHUB_SHA~1"
+            fi
+            git diff --name-only "$BEFORE" "$GITHUB_SHA" > "$RUNNER_TEMP/changed.txt"
+          fi
+
           jq -c '.[]' "$RUNNER_TEMP/releases.json" | while read -r release; do
             project=$(jq -r .project <<< "$release")
+            mod=$(jq -r '.mod | ascii_downcase' <<< "$release")
             tag=$(jq -r .tag <<< "$release")
             title=$(jq -r .title <<< "$release")
 
+            if [ "$GITHUB_EVENT_NAME" = push ]; then
+              grep -q "^src/$project/" "$RUNNER_TEMP/changed.txt" || continue
+            else
+              [[ " ${MODS,,} " == *" $mod "* ]] || continue
+            fi
+
             if git ls-remote --exit-code --tags origin "refs/tags/$tag" > /dev/null; then
+              echo "$tag is already released" >> "$GITHUB_STEP_SUMMARY"
               continue
             fi
 
