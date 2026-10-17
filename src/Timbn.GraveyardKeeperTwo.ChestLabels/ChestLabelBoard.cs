@@ -13,7 +13,9 @@ internal sealed class ChestLabelBoard
         _data = data;
     }
 
-    public static bool IsChest(WGOInteractionHandlerBase handler) => handler is ChestInteractionHandler;
+    // Only objects with chest in the id, since the chest interaction is also used by shelves, containers and storages.
+    public static bool CanLabel(WGOInteractionHandlerBase handler, Wgo? wgo) =>
+        handler is ChestInteractionHandler && wgo != null && wgo.Id.Contains("chest", StringComparison.OrdinalIgnoreCase);
 
     public string GetText(WgoData chest) =>
         _data.Current.Labels.TryGetValue(Key(chest), out var entry) ? entry.Text : "";

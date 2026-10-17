@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Timbn.GraveyardKeeperTwo.Core</AssemblyName>
     <Product>Timbn Core</Product>
-    <Version>2.0.1</Version>
+    <Version>2.1.0</Version>
     <Thunderstore>true</Thunderstore>
     <ThunderstoreDescription>The shared framework every Timbn mod for Graveyard Keeper 2 is built on. Install it when a Timbn mod needs it. On its own it only keeps people and zombies from walking through fences, trees and rocks.</ThunderstoreDescription>
     <SteamWorkshop>true</SteamWorkshop>
@@ -33,7 +33,7 @@
     <RepositoryUrl>https://github.com/TimbnMods/Timbn.GraveyardKeeperTwo</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageReleaseNotes>
-      - Core 2.0.1 loads saves faster with quest mods installed, removes the hitches on a new day and on the first talk after loading, and spreads navmesh updates over several frames.
+      - Core 2.1.0 adds UI.CreateLabel for text over any spot in the world, and UI.ShowPrompt, UI.ShowConfirm and UI.ShowMessage for text, yes or no and message dialogs in the game's own window.
     </PackageReleaseNotes>
     <!-- Compile only. The running Core comes from the mod download, so a consumer must never copy it next to its own plugin. -->
     <BuildOutputTargetFolder>ref</BuildOutputTargetFolder>

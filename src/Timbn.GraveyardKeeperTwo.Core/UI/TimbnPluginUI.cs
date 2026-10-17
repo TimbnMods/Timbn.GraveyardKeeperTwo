@@ -115,6 +115,63 @@ public sealed class TimbnPluginUI
         _owner.SessionSubscriptions.Add(TimbnStorageWindow.Open(contents, titleKey, slots, itemIds, _owner.PluginLogger));
 
     /// <summary>
+    /// Asks the player for one line of text in the game's own dialog window, with the text field under the header and
+    /// OK and Cancel buttons, such as to name a chest. Typing never sets off the game's hotkeys, the keeper is held and
+    /// the game pauses the way it does for any dialog. Saving with empty text still calls the handler, so a plugin can
+    /// treat it as a removal. Only one plugin dialog is open at a time, and opening another closes the first without
+    /// calling any handler. Nothing opens while another of the game's dialogs is showing.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// UI.ShowPrompt("Chest Label", Data.Current.Labels[id], text => Data.Current.Labels[id] = text, "Type a name");
+    /// </code>
+    /// </example>
+    /// <param name="title">The window's header, already in the player's language.</param>
+    /// <param name="current">The text the field starts with.</param>
+    /// <param name="onSave">Gets the typed text when the player presses OK or Enter.</param>
+    /// <param name="placeholder">The hint shown in the empty field.</param>
+    /// <param name="onCancel">Runs when the player backs out with Cancel, the close button or Esc.</param>
+    /// <returns>A handle that closes the window without calling any handler when disposed. It is also closed when the plugin unloads and on the way to the main menu. You don't need to keep it.</returns>
+    public IDisposable ShowPrompt(string title, string current, Action<string> onSave, string placeholder = "", Action? onCancel = null) =>
+        _owner.SessionSubscriptions.Add(TimbnDialogWindow.Prompt(title, current, placeholder, onSave, onCancel, _owner.PluginLogger));
+
+    /// <summary>
+    /// Asks the player a yes or no question in the game's own dialog window, such as before something that cannot be
+    /// undone. The keeper is held and the game pauses the way it does for any dialog. Only one plugin dialog is open at
+    /// a time, and opening another closes the first without calling any handler. Nothing opens while another of the
+    /// game's dialogs is showing.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// UI.ShowConfirm("Empty the keg?", "The beer inside is lost.", EmptyKeg);
+    /// </code>
+    /// </example>
+    /// <param name="title">The window's header, already in the player's language.</param>
+    /// <param name="message">The question, already in the player's language.</param>
+    /// <param name="onYes">Runs when the player answers Yes.</param>
+    /// <param name="onNo">Runs when the player answers No, uses the close button or presses Esc.</param>
+    /// <returns>A handle that closes the window without calling any handler when disposed. It is also closed when the plugin unloads and on the way to the main menu. You don't need to keep it.</returns>
+    public IDisposable ShowConfirm(string title, string message, Action onYes, Action? onNo = null) =>
+        _owner.SessionSubscriptions.Add(TimbnDialogWindow.Confirm(title, message, onYes, onNo, _owner.PluginLogger));
+
+    /// <summary>
+    /// Tells the player something in the game's own dialog window, with one OK button. The keeper is held and the game
+    /// pauses the way it does for any dialog. Only one plugin dialog is open at a time, and opening another closes the
+    /// first without calling any handler. Nothing opens while another of the game's dialogs is showing.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// UI.ShowMessage("Closing time", "The tavern is shut for the night.");
+    /// </code>
+    /// </example>
+    /// <param name="title">The window's header, already in the player's language.</param>
+    /// <param name="message">The text, already in the player's language.</param>
+    /// <param name="onOk">Runs when the player presses OK, uses the close button or presses Esc.</param>
+    /// <returns>A handle that closes the window without calling any handler when disposed. It is also closed when the plugin unloads and on the way to the main menu. You don't need to keep it.</returns>
+    public IDisposable ShowMessage(string title, string message, Action? onOk = null) =>
+        _owner.SessionSubscriptions.Add(TimbnDialogWindow.Message(title, message, onOk, _owner.PluginLogger));
+
+    /// <summary>
     /// Adds something the player can do beside an object in the world that the game gives no interaction for. See
     /// <see cref="TimbnObjectAction"/>. The hint, the walk and the held controls are taken down when the handle is
     /// disposed, the plugin unloads or the player returns to the main menu.

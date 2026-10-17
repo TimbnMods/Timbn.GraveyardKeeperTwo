@@ -7,5 +7,3 @@ timbn_chest_labels_label = Label
 # The naming window
 timbn_chest_labels_title = Chest Label
 timbn_chest_labels_placeholder = Type a name
-timbn_chest_labels_save = Save
-timbn_chest_labels_cancel = Cancel

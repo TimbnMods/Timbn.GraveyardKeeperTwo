@@ -1,3 +1,5 @@
+using LazyBearTechnology;
+
 namespace Timbn.GraveyardKeeperTwo.ChestLabels.Patches;
 
 // Chests use the base class for F, so the checks for a chest happen here.
@@ -6,9 +8,9 @@ internal static class WGOInteractionHandlerBasePatch
 {
     [HarmonyPatch(nameof(WGOInteractionHandlerBase.HasInteraction2))]
     [HarmonyPostfix]
-    private static void HasInteraction2PostFix(WGOInteractionHandlerBase __instance, ref bool __result)
+    private static void HasInteraction2PostFix(WGOInteractionHandlerBase __instance, Wgo ___assignedWgo, ref bool __result)
     {
-        if (ChestLabelBoard.IsChest(__instance))
+        if (ChestLabelBoard.CanLabel(__instance, ___assignedWgo))
             __result = true;
     }
 
@@ -16,10 +18,15 @@ internal static class WGOInteractionHandlerBasePatch
     [HarmonyPrefix]
     private static bool Interact2PreFix(WGOInteractionHandlerBase __instance, Wgo ___assignedWgo, ref bool __result)
     {
-        if (!ChestLabelBoard.IsChest(__instance) || Plugin.Instance is not { } plugin)
+        if (!ChestLabelBoard.CanLabel(__instance, ___assignedWgo) || Plugin.Instance is not { } plugin)
             return true;
 
-        plugin.Window.OpenFor(___assignedWgo.Data);
+        var chest = ___assignedWgo.Data;
+        plugin.UI.ShowPrompt(
+            LLBase.L("timbn_chest_labels_title"),
+            plugin.Board.GetText(chest),
+            text => plugin.Board.SetText(chest, text),
+            LLBase.L("timbn_chest_labels_placeholder"));
         __result = true;
         return false;
     }
