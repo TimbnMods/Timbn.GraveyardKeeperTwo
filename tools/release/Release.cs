@@ -4,8 +4,11 @@
 //        dotnet run tools/release/Release.cs -- notes <mod>
 // list prints, as JSON, every project whose CHANGELOG.md has a section for its current version.
 // notes prints the GitHub release body for a project's current version.
+//        dotnet run tools/release/Release.cs -- pages <mod> [--out <folder>] [--sha <commit>]
+// pages writes only the page text, release.json and a text only item.vdf, with no DLL needed.
 //        dotnet run tools/release/Release.cs -- nexus <release folder>
 // nexus uploads a built release folder to its Nexus page, with the key in NEXUS_API_KEY.
+// A folder from pages has no zip, so only the page text is updated.
 // <mod> is the project name with or without the Timbn.GraveyardKeeperTwo. prefix, in any case (chestlabels, Core).
 // --dll is the folder holding the built DLL, bin/Release of the project by default.
 // --out is where everything is written, artifacts/release by default.
@@ -42,7 +45,7 @@ try
     }
     else
     {
-        var options = Options.Parse(args);
+        var options = args is ["pages", ..] ? Options.Parse(args[1..]) with { PagesOnly = true } : Options.Parse(args);
         var mod = ModInfo.Load(repo, options.Mod);
         var page = PageParser.Load(Path.Combine(mod.DocsDir, "page.yml"));
         var release = new ReleaseBuilder(repo, mod, page, options);
@@ -110,6 +113,8 @@ static class Commands
 
 record Options(string Mod, string? DllDir, string? OutDir, string? Sha, bool DryRun)
 {
+    public bool PagesOnly { get; init; }
+
     public static Options Parse(string[] args)
     {
         string? mod = null, dll = null, output = null, sha = null;
@@ -815,7 +820,7 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
 
     public void Run()
     {
-        if (!options.DryRun && options.Sha == null)
+        if (!options.DryRun && !options.PagesOnly && options.Sha == null)
         {
             throw new ReleaseException("a real run needs --sha, the release commit");
         }
@@ -823,7 +828,11 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
         var sha = options.Sha ?? Repo.Run("git", repo, "rev-parse", "HEAD").Trim();
         var dllDir = Path.GetFullPath(options.DllDir ?? Path.Combine(mod.ProjectDir, "bin", "Release"));
         var dll = Path.Combine(dllDir, mod.AssemblyName + ".dll");
-        CheckDll(dll);
+        if (!options.PagesOnly)
+        {
+            CheckDll(dll);
+        }
+
         CheckImages();
 
         if (Directory.Exists(_outDir))
@@ -832,7 +841,8 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
         }
 
         Directory.CreateDirectory(_outDir);
-        var changes = Changelog.Read(Path.Combine(mod.ProjectDir, "CHANGELOG.md"), mod.Version);
+        var changelog = Path.Combine(mod.ProjectDir, "CHANGELOG.md");
+        var changes = options.PagesOnly ? Changelog.TryRead(changelog, mod.Version) ?? [] : Changelog.Read(changelog, mod.Version);
         string ImageUrl(string path) => $"https://raw.githubusercontent.com/{Repo.GitHubRepo}/{sha}/docs/{mod.ModName}/{path}";
         var title = page.Name ?? mod.Product;
         var pages = new Dictionary<Site, string>
@@ -854,13 +864,24 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
         Write(Path.Combine(pagesDir, "thunderstore.md"), pages[Site.Thunderstore]);
         Write(Path.Combine(pagesDir, "github.md"), pages[Site.GitHub]);
 
+        if (options.PagesOnly)
+        {
+            WriteReleaseJson(sha, changes, null, null, mod.Workshop ? WriteWorkshop(null, pages[Site.Steam], changes) : null);
+            Finish();
+            return;
+        }
+
         var plugin = StagePlugin(dll);
         var nexusZip = WriteNexusZip(plugin);
         var thunderstoreZip = mod.Thunderstore ? WriteThunderstore(plugin, pages[Site.Thunderstore]) : null;
         var workshopDir = mod.Workshop ? WriteWorkshop(plugin, pages[Site.Steam], changes) : null;
         WriteReleaseJson(sha, changes, nexusZip, thunderstoreZip, workshopDir);
         Directory.Delete(plugin, true);
+        Finish();
+    }
 
+    void Finish()
+    {
         Console.WriteLine($"{mod.Product} {mod.Version} written to {_outDir}");
         foreach (var warning in _warnings)
         {
@@ -1095,12 +1116,13 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
 
     static string TomlString(string value) => "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
 
-    string WriteWorkshop(string plugin, string description, List<string> changes)
+    // With no plugin folder the item.vdf only sets the title and description, which updates the page text alone.
+    string WriteWorkshop(string? plugin, string description, List<string> changes)
     {
         var itemId = mod.WorkshopItemId;
         if (itemId == null)
         {
-            if (!options.DryRun)
+            if (!options.DryRun || plugin == null)
             {
                 throw new ReleaseException("the Workshop item has to be made once by hand before its id goes in WorkshopItemId");
             }
@@ -1110,6 +1132,25 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
         }
 
         var dir = Path.Combine(_outDir, "workshop");
+        // Valve's KeyValues reader caps a value at 4096 bytes and may not read \" escapes. Check both on the first upload.
+        var descriptionBytes = Encoding.UTF8.GetByteCount(description);
+        if (descriptionBytes > 4096)
+        {
+            _warnings.Add($"the Steam description is {descriptionBytes} bytes, and steamcmd may cut item.vdf values at 4096");
+        }
+
+        if (plugin == null)
+        {
+            var text = new StringBuilder("\"workshopitem\"\n{\n")
+                .Append($"\t\"appid\"\t\t\"{Repo.SteamAppId}\"\n")
+                .Append($"\t\"publishedfileid\"\t\t{VdfString(itemId)}\n")
+                .Append($"\t\"title\"\t\t{VdfString(mod.Product)}\n")
+                .Append($"\t\"description\"\t\t{VdfString(description.TrimEnd())}\n")
+                .Append("}\n");
+            Write(Path.Combine(dir, "item.vdf"), text.ToString());
+            return dir;
+        }
+
         var folder = mod.IsPatcher ? "patchers" : "plugins";
         var content = Path.Combine(dir, "content", "BepInEx", folder, mod.ProjectName);
         CopyDirectory(plugin, content);
@@ -1123,13 +1164,6 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
         }
 
         changeNote.Append("[/list]");
-        // Valve's KeyValues reader caps a value at 4096 bytes and may not read \" escapes. Check both on the first upload.
-        var descriptionBytes = Encoding.UTF8.GetByteCount(description);
-        if (descriptionBytes > 4096)
-        {
-            _warnings.Add($"the Steam description is {descriptionBytes} bytes, and steamcmd may cut item.vdf values at 4096");
-        }
-
         var vdf = new StringBuilder("\"workshopitem\"\n{\n")
             .Append($"\t\"appid\"\t\t\"{Repo.SteamAppId}\"\n")
             .Append($"\t\"publishedfileid\"\t\t{VdfString(itemId)}\n")
@@ -1152,7 +1186,7 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
         return File.Exists(icon) ? icon : throw new ReleaseException($"{site} needs a 256x256 icon at {icon}");
     }
 
-    void WriteReleaseJson(string sha, List<string> changes, string nexusZip, string? thunderstoreZip, string? workshopDir)
+    void WriteReleaseJson(string sha, List<string> changes, string? nexusZip, string? thunderstoreZip, string? workshopDir)
     {
         var fileDescription = $"Tested on Graveyard Keeper 2 {mod.GameVersion} (build {mod.GameBuild}).";
         if (mod.CoreFloor != null)
@@ -1174,7 +1208,7 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
             ["nexusModId"] = mod.NexusModId,
             ["coreNexusModId"] = mod.CoreFloor == null ? null : mod.Core!.NexusModId,
             ["nexusFileDescription"] = fileDescription,
-            ["nexusZip"] = Path.GetRelativePath(_outDir, nexusZip).Replace('\\', '/'),
+            ["nexusZip"] = nexusZip == null ? null : Path.GetRelativePath(_outDir, nexusZip).Replace('\\', '/'),
             ["thunderstorePackage"] = thunderstoreZip == null ? null : $"{mod.Shared["ThunderstoreNamespace"]}/{mod.ThunderstoreName}",
             ["thunderstoreZip"] = thunderstoreZip == null ? null : Path.GetRelativePath(_outDir, thunderstoreZip).Replace('\\', '/'),
             ["workshopItemId"] = mod.WorkshopItemId,
@@ -1294,7 +1328,11 @@ class NexusUploader(string folder)
         var version = Text("version");
         var modId = await GlobalModId(Text("nexusModId"));
         var mainFile = await MainFile(modId);
-        if (mainFile != null && mainFile.Versions.Any(entry => entry["version"]?.GetValue<string>() == version))
+        if (_release["nexusZip"] == null)
+        {
+            Console.WriteLine("No zip in this folder, so only the page text is updated");
+        }
+        else if (mainFile != null && mainFile.Versions.Any(entry => entry["version"]?.GetValue<string>() == version))
         {
             Console.WriteLine($"Nexus already has {version}, so only the page text is updated");
         }

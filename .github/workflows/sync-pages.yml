@@ -1,0 +1,126 @@
+# Updates the Nexus and Steam Workshop page text of the named mods from their page.yml on main, without a release.
+# Thunderstore keeps the text of its last version until the next release, since a published version can't change.
+# A reviewer of the release-approval environment approves after reading the rendered text in the run summary.
+name: Sync pages
+
+on:
+  workflow_dispatch:
+    inputs:
+      mods:
+        description: Mods to sync, separated by spaces (chestlabels core)
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-pages
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.x
+
+      - name: Render the pages
+        env:
+          MODS: ${{ inputs.mods }}
+        run: |
+          set -euo pipefail
+          for mod in $MODS; do
+            dotnet run tools/release/Release.cs -- pages "$mod"
+          done
+
+      - name: Show the pages in the summary
+        run: |
+          for folder in artifacts/release/*/; do
+            {
+              echo "## $(jq -r .product "$folder/release.json")"
+              echo
+              for page in nexus.bbcode steam.bbcode; do
+                echo "<details><summary>$page</summary>"
+                echo
+                echo '````'
+                cat "$folder/pages/$page"
+                echo '````'
+                echo "</details>"
+                echo
+              done
+            } >> "$GITHUB_STEP_SUMMARY"
+          done
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: pages
+          path: artifacts/release
+          if-no-files-found: error
+
+  approve:
+    needs: render
+    runs-on: ubuntu-latest
+    environment: release-approval
+    steps:
+      - run: echo "Page sync approved"
+
+  nexus:
+    needs: approve
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.x
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: pages
+          path: artifacts/release
+
+      # Each folder has no zip, so the nexus command only updates the description and summary.
+      - name: Update the Nexus pages
+        env:
+          NEXUS_API_KEY: ${{ secrets.NEXUS_API_KEY }}
+        run: |
+          set -euo pipefail
+          for folder in artifacts/release/*/; do
+            if jq -e .nexusModId "$folder/release.json" > /dev/null; then
+              dotnet run tools/release/Release.cs -- nexus "$folder"
+            fi
+          done
+
+  steam:
+    needs: approve
+    runs-on: ubuntu-latest
+    environment: release
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          sparse-checkout: .github/actions
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: pages
+          path: artifacts/release
+
+      # Each item.vdf holds only the title and description, so the files on Steam stay as they are.
+      - name: Find the Workshop items
+        id: items
+        run: |
+          {
+            echo "vdfs<<EOF"
+            find "$GITHUB_WORKSPACE/artifacts/release" -name item.vdf
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: ./.github/actions/steam-workshop
+        if: steps.items.outputs.vdfs != ''
+        with:
+          vdfs: ${{ steps.items.outputs.vdfs }}
+          username: ${{ secrets.STEAM_USERNAME }}
+          config: ${{ secrets.STEAM_CONFIG_VDF }}

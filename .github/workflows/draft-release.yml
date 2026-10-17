@@ -78,7 +78,7 @@ jobs:
 
             if [ -n "$draft" ]; then
               gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/$draft" \
-                -f target_commitish="$target" -f name="$title" -F body=@"$RUNNER_TEMP/notes.md" > /dev/null
+                -f tag_name="$tag" -f target_commitish="$target" -f name="$title" -F body=@"$RUNNER_TEMP/notes.md" > /dev/null
               echo "Updated the $tag draft" >> "$GITHUB_STEP_SUMMARY"
             else
               gh release create "$tag" --draft --target "$target" --title "$title" --notes-file "$RUNNER_TEMP/notes.md"
