@@ -45,7 +45,8 @@ runs:
           [ -n "$vdf" ] || continue
           # steamcmd must not read the loop's input.
           /usr/games/steamcmd +login "$STEAM_USERNAME" +workshop_build_item "$vdf" +quit < /dev/null | tee "$RUNNER_TEMP/steam.log"
-          if grep -qiE "error|failed" "$RUNNER_TEMP/steam.log" || ! grep -q "Success" "$RUNNER_TEMP/steam.log"; then
+          # steamcmd prints harmless "failed" lines while it starts, so only its own ERROR! lines count.
+          if grep -q "ERROR!" "$RUNNER_TEMP/steam.log" || ! grep -q "Success" "$RUNNER_TEMP/steam.log"; then
             echo "::error::steamcmd didn't report a successful Workshop upload for $vdf"
             exit 1
           fi

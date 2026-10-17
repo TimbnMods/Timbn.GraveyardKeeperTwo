@@ -3,32 +3,27 @@ banner: images/header.jpg
 sections:
   - title: Daily Routines
     list:
-      - "**Herm** opens his stall in the morning and now and then wanders off for a short walk to the pond, a bench or a chat with the guard. When it rains he stays at his stall. He closes in the evening and goes to sit in the tavern, then heads home at 22:00. Outside his opening hours he won't trade and tells you to come back in the morning."
-      - "**Linda** works from 8:00 once you've finished Safe Harbor, going between the tables. From 15:00 she waits by the entrance and now and then goes to see the cat, and you can pet the cat too. From 18:00 she's back inside until she goes to bed at 2:00. Once you've finished Concept for a Concert she spends the hours after midnight on the stage, and you hear her violin while you're in the club."
+      - "**Herm** keeps his stall open during the day, takes the odd walk, and spends his evenings in the tavern. He won't trade after hours."
+      - "**Linda** works the club once you've finished Safe Harbor, and after Concept for a Concert you can hear her play late at night."
       - "**Larry** wanders around inside your house."
-      - Once you've met the astrologer in the port, he now and then reads the necronomicon or looks over his pieces in his tower.
+      - Once you've met the astrologer in the port, he goes about his day in his tower.
 
   - title: Graveyard Visitors
     list:
-      - Each day from 6:00 villagers and townsfolk come to visit the graveyard, with more arriving as the town grows more grateful, and a town district joins in once people live there.
-      - More people come on Wrath, the sermon day, and rain keeps some of them home.
-      - Each one strolls, stops at a grave, monument, columbarium, crypt or flower bed, sits on a bench, or goes into the church to stand by a pew (except on Wrath).
+      - Villagers and townsfolk visit the graveyard every day, and more come as the town grows more grateful.
+      - They stroll, stop at graves and monuments, sit on benches or step into the church.
       - You can walk straight through them, so they never block your way.
-      - Visitors leave when you save.
     image: images/graveyard.jpg
 
   - title: Funerals
-    list:
-      - Funerals happen the day after you fill in a new grave, except on Wrath.
-      - At least 5 villagers come between 6:00 and 9:00, whatever the weather, and gather in the church. A church with few pews fits fewer villagers.
-      - By noon the first three speak one after another, then everyone follows them out and lines up on the path to the grave, and each one looks at it for a few minutes before going home.
+    text: The day after you fill in a new grave, villagers gather in the church for a funeral, then walk out to the grave to pay their respects.
     image: images/church.jpg
 
   - title: Favors
     list:
-      - "**A Neighbor's Craving.** About once a week someone in the village or in a part of town where people live again asks you to cook a dish you know the recipe for. Bring it to them and they pay its sale price. A request nobody cooks for within a week is dropped."
-      - "**An Errand for a Neighbor.** About once a week someone gives you a keepsake, a box of vegetables or a healing potion to take to a friend in the village or a part of town where people live again. The friend pays the item's sale price and shows a speech bubble while you carry it. Nobody waits longer than a week, and if you don't deliver in time, you pay for it."
-    text: Favors show as a single entry in your quest log. The villager waiting for your dish or parcel gets the game's quest marker while they are off screen.
+      - "**A Neighbor's Craving.** Now and then a neighbor asks you to cook a dish you know. Bring it to them and they pay for it."
+      - "**An Errand for a Neighbor.** Now and then someone asks you to carry a parcel to a friend, who pays you when it arrives. Deliver it in time, or you pay for it."
+    text: Favors show up in your quest log, and the villager waiting on you gets a quest marker.
 
   - title: Settings
     blocks:

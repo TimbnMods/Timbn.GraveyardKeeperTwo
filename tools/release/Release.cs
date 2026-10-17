@@ -483,8 +483,9 @@ static class PageParser
         "subtitle" => new SubtitleBlock(filter, ((YamlScalarNode)value).Value!),
         "image" => new ImageBlock(filter, ((YamlScalarNode)value).Value!),
         "list" or "olist" => new ListBlock(filter, kind == "olist", [.. ((YamlSequenceNode)value).Children.Select(ParseItem)]),
+        // A spoiler is a mapping already, so it can carry its own only and skip.
         "spoiler" => new SpoilerBlock(
-            filter,
+            filter == SiteFilter.All ? ParseFilter((YamlMappingNode)value) : filter,
             Scalar((YamlMappingNode)value, "title") ?? throw new ReleaseException($"a spoiler in {section} has no title"),
             Scalar((YamlMappingNode)value, "text") ?? throw new ReleaseException($"a spoiler in {section} has no text")),
         _ => throw new ReleaseException($"{section} has an unknown block {kind}"),
