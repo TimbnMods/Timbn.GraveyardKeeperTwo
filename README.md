@@ -10,6 +10,7 @@ A suite of [BepInEx](https://github.com/BepInEx/BepInEx) mods for Graveyard Keep
 | --- | --- |
 | **[Core](src/Timbn.GraveyardKeeperTwo.Core/README.md)** | Shared framework the other mods depend on, which makes modding easier. |
 | **[CampfireMeditation](src/Timbn.GraveyardKeeperTwo.CampfireMeditation/README.md)** | Pass time by a campfire, like the stone garden in the first game. |
+| **[ChestLabels](src/Timbn.GraveyardKeeperTwo.ChestLabels/README.md)** | Name your chests. The name floats over the chest in the same style as grave quality. |
 | **[InfusionRack](src/Timbn.GraveyardKeeperTwo.InfusionRack/README.md)** | Gives your zombies tech points. Lay them in infusion stands and run Spirit Solutions made from organs on the infusion machine. |
 | **[LivingTown](src/Timbn.GraveyardKeeperTwo.LivingTown/README.md)** | Gives the village and the port a daily life, with Herm, Linda and Larry going about their day. |
 | **[QuestPacks](src/Timbn.GraveyardKeeperTwo.QuestPacks/README.md)** | Adds quests and talks written as plain JSON files, no code needed. Install it for any quest pack, or for a mod that ships one. |

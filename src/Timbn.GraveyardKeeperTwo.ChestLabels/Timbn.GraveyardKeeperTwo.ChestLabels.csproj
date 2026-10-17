@@ -4,6 +4,9 @@
     <AssemblyName>Timbn.GraveyardKeeperTwo.ChestLabels</AssemblyName>
     <Product>Timbn Chest Labels</Product>
     <Version>1.0.0</Version>
+    <Thunderstore>true</Thunderstore>
+    <Description>Name your chests. Press the Work key at a chest and type a label, and it shows over the chest in the same style as grave quality.</Description>
+    <SteamWorkshop>true</SteamWorkshop>
   </PropertyGroup>
 
   <!-- Lands in BepInEx/scripts by default so F6 reloads it. Pass -p:DeployTo=plugins to load it at startup instead. -->
