@@ -42,7 +42,7 @@ jobs:
             [.[] as $draft
               | $list[0][] | select(.tag == $draft.tag_name) as $mod
               | select([$draft.assets[].name] | index($mod.assets[0]))
-              | {tag: $mod.tag, project: $mod.project, mod: ($mod.mod | ascii_downcase), core: $mod.core,
+              | {tag: $mod.tag, project: $mod.project, mod: ($mod.mod | ascii_downcase), core: $mod.core, nuget: $mod.nuget,
                  id: $draft.id, sha: $draft.target_commitish, assets: [$draft.assets[] | {id, name}]}]
             | sort_by(.core | not)' "$RUNNER_TEMP/drafts.json" > "$RUNNER_TEMP/ready.json"
 
@@ -90,6 +90,17 @@ jobs:
       # Also checks the DLL's version matches the csproj.
       - name: Build the packages
         run: dotnet run tools/release/Release.cs -- "${{ matrix.project }}" --dll "$RUNNER_TEMP/dll" --sha "$(git rev-parse HEAD)"
+
+      # The DLL can't be compiled here without the game, so the package is packed around the attached one.
+      - name: Pack the NuGet package
+        if: matrix.nuget
+        run: |
+          set -euo pipefail
+          project="src/${{ matrix.project }}/${{ matrix.project }}.csproj"
+          mkdir -p "src/${{ matrix.project }}/bin/Release"
+          cp "$RUNNER_TEMP"/dll/* "src/${{ matrix.project }}/bin/Release/"
+          dotnet restore "$project"
+          dotnet pack "$project" -c Release --no-build --no-restore -p:PackageOutputPath="$GITHUB_WORKSPACE/artifacts/release/${{ matrix.project }}/nuget/"
 
       - name: Check the tag matches the version at the draft's commit
         run: |
@@ -201,6 +212,38 @@ jobs:
           fi
           dotnet run tools/release/Release.cs -- nexus "$folder"
 
+  # Trusted publishing, so nuget.org needs a policy for this repo and release.yml.
+  nuget:
+    name: nuget ${{ matrix.tag }}
+    needs: [find, approve]
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      contents: read
+      id-token: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{ fromJSON(needs.find.outputs.drafts) }}
+    steps:
+      - uses: actions/download-artifact@v8
+        if: matrix.nuget
+        with:
+          name: release-${{ matrix.mod }}
+          path: artifacts/release/${{ matrix.project }}
+
+      - name: NuGet login
+        id: login
+        if: matrix.nuget
+        uses: NuGet/login@v1
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Push to NuGet
+        if: matrix.nuget
+        run: |
+          dotnet nuget push "artifacts/release/${{ matrix.project }}/nuget/*.nupkg" --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" --source https://api.nuget.org/v3/index.json --skip-duplicate
+
   # One at a time with Core first, so a mod's dependency on a new Core already exists.
   thunderstore:
     name: thunderstore ${{ matrix.tag }}
@@ -282,8 +325,8 @@ jobs:
 
   finish:
     name: finish ${{ matrix.tag }}
-    needs: [find, nexus, thunderstore, steam]
-    if: ${{ !cancelled() && needs.nexus.result == 'success' && needs.thunderstore.result == 'success' && needs.steam.result == 'success' }}
+    needs: [find, nexus, nuget, thunderstore, steam]
+    if: ${{ !cancelled() && needs.nexus.result == 'success' && needs.nuget.result == 'success' && needs.thunderstore.result == 'success' && needs.steam.result == 'success' }}
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false

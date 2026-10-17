@@ -96,6 +96,7 @@ static class Commands
                 ["tag"] = mod.Tag,
                 ["title"] = $"{mod.Product} {mod.Version}",
                 ["core"] = mod.IsCore,
+                ["nuget"] = mod.Flag("IsPackable"),
                 ["assets"] = assets,
             });
         }
