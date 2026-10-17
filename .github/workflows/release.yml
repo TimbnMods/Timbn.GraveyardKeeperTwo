@@ -184,9 +184,8 @@ jobs:
       matrix:
         include: ${{ fromJSON(needs.find.outputs.drafts) }}
     steps:
+      # The tool comes from this run's commit, since the packages it uploads were built in the package job.
       - uses: actions/checkout@v7
-        with:
-          ref: ${{ matrix.sha }}
 
       - uses: actions/setup-dotnet@v6
         with:
@@ -272,7 +271,8 @@ jobs:
           fi
 
           version=$(jq -r .version release.json)
-          if curl -sf "https://thunderstore.io/api/experimental/package/$package/$version/" > /dev/null; then
+          # The version API lags behind a new upload, but the download link answers straight away.
+          if curl -sfI "https://thunderstore.io/package/download/$package/$version/" > /dev/null; then
             echo "Thunderstore already has $package $version"
             exit 0
           fi
@@ -293,7 +293,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
         with:
-          ref: ${{ matrix.sha }}
           sparse-checkout: .github/actions
 
       # item.vdf holds absolute paths from the package job, which used this same workspace path.
