@@ -784,17 +784,18 @@ class MarkdownRenderer(Func<string, string> imageUrl) : Renderer(Site.Thundersto
             Output.Append(marker).Append(items[i].Text).Append('\n');
             if (items[i].Image != null)
             {
-                Output.Append('\n').Append(' ', marker.Length).Append($"![]({items[i].Image})\n\n");
+                Output.Append('\n').Append(' ', marker.Length).Append($"![{Alt(items[i].Image!)}]({items[i].Image})\n\n");
             }
         }
 
         Output.Append('\n');
     }
 
-    protected override void Image(string url) => Output.Append($"![]({url})\n\n");
+    protected override void Image(string url) => Output.Append($"![{Alt(url)}]({url})\n\n");
 
-    // Thunderstore's Markdown may strip <details>, so the spoiler is a plain paragraph there.
-    protected override void Spoiler(string title, string text) => Output.Append($"**{title}**\n\n{text}\n\n");
+    static string Alt(string url) => Path.GetFileNameWithoutExtension(url).Replace('-', ' ').Replace('_', ' ');
+
+    protected override void Spoiler(string title, string text) => Output.Append($"<details><summary>{title}</summary>\n\n{text}\n\n</details>\n\n");
 
     protected override string Bold(string text) => $"**{text}**";
 
@@ -853,7 +854,7 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
         Write(Path.Combine(pagesDir, "thunderstore.md"), pages[Site.Thunderstore]);
         Write(Path.Combine(pagesDir, "github.md"), pages[Site.GitHub]);
 
-        var plugin = StagePlugin(dll, pages[Site.Thunderstore]);
+        var plugin = StagePlugin(dll);
         var nexusZip = WriteNexusZip(plugin);
         var thunderstoreZip = mod.Thunderstore ? WriteThunderstore(plugin, pages[Site.Thunderstore]) : null;
         var workshopDir = mod.Workshop ? WriteWorkshop(plugin, pages[Site.Steam], changes) : null;
@@ -976,7 +977,7 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
         return body.ToString();
     }
 
-    string StagePlugin(string dll, string readme)
+    string StagePlugin(string dll)
     {
         var stage = Path.Combine(_outDir, "plugin");
         Directory.CreateDirectory(stage);
@@ -994,7 +995,6 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
             File.Copy(file.Source, target);
         }
 
-        Write(Path.Combine(stage, "README.md"), readme);
         var license = Path.Combine(repo, "LICENSE");
         if (File.Exists(license))
         {
