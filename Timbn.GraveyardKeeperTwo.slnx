@@ -4,6 +4,7 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Timbn.GraveyardKeeperTwo.CampfireMeditation/Timbn.GraveyardKeeperTwo.CampfireMeditation.csproj" />
+    <Project Path="src/Timbn.GraveyardKeeperTwo.ChestLabels/Timbn.GraveyardKeeperTwo.ChestLabels.csproj" />
     <Project Path="src/Timbn.GraveyardKeeperTwo.InfusionRack/Timbn.GraveyardKeeperTwo.InfusionRack.csproj" />
     <Project Path="src/Timbn.GraveyardKeeperTwo.LivingTown/Timbn.GraveyardKeeperTwo.LivingTown.csproj" />
     <Project Path="src/Timbn.GraveyardKeeperTwo.Core/Timbn.GraveyardKeeperTwo.Core.csproj" />
