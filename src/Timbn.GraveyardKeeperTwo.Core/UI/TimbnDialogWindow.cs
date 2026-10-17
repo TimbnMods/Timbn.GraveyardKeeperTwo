@@ -30,6 +30,13 @@ internal sealed class TimbnDialogWindow : IDisposable
         _logger = logger;
     }
 
+    // Loads the two window prefabs a prompt needs when a save starts, so the first one does not stall a frame (about 33 ms).
+    internal static void OnGameStarted()
+    {
+        LazyUI.GetWindow<UIDialogWindow>();
+        LazyUI.GetWindow<UIBugReportWindow>();
+    }
+
     internal static IDisposable Prompt(string title, string current, string placeholder, Action<string> onSave, Action? onCancel, ManualLogSource logger)
     {
         var source = LazyUI.GetWindow<UIBugReportWindow>()?.GetComponentsInChildren<TMP_InputField>(true).FirstOrDefault(field => field.name == "Title");
@@ -56,7 +63,7 @@ internal sealed class TimbnDialogWindow : IDisposable
 
         copy.transform.SetSiblingIndex(1);
         copy.SetActive(true);
-        copy.AddComponent<Guard>().Set(dialog.Dismiss, dialog._window);
+        copy.AddComponent<Guard>().Set(dialog.Dismiss);
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)dialog._window.transform);
         return dialog;
     }
@@ -129,7 +136,7 @@ internal sealed class TimbnDialogWindow : IDisposable
         _marker = new GameObject("TimbnDialogMarker", typeof(RectTransform), typeof(LayoutElement));
         _marker.transform.SetParent(content, false);
         _marker.GetComponent<LayoutElement>().ignoreLayout = true;
-        _marker.AddComponent<Guard>().Set(Dismiss, _window);
+        _marker.AddComponent<Guard>().Set(Dismiss);
     }
 
     private void Save(Action<string> onSave)
@@ -162,16 +169,11 @@ internal sealed class TimbnDialogWindow : IDisposable
     private sealed class Guard : MonoBehaviour
     {
         private Action? _close;
-        private UIDialogWindow? _window;
         private bool _started;
         private bool _suspended;
         private bool _wasActive;
 
-        public void Set(Action close, UIDialogWindow window)
-        {
-            _close = close;
-            _window = window;
-        }
+        public void Set(Action close) => _close = close;
 
         private void LateUpdate()
         {
@@ -182,7 +184,6 @@ internal sealed class TimbnDialogWindow : IDisposable
             if (!_started)
             {
                 _started = true;
-                LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)_window!.transform);
 
                 // A gamepad cannot type, and focusing the field would switch off the input it needs to reach the buttons.
                 if (!LazyInput.IsGamepadActive)
