@@ -364,3 +364,6 @@ FodyWeavers.xsd
 
 # Game Files
 /lib
+
+# The release tool, which the Release build folder rule above would hide
+!/tools/release/
