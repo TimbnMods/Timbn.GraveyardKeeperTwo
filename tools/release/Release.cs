@@ -244,7 +244,8 @@ class ModInfo
     public string ThunderstoreName => Get("ThunderstoreName") ?? Product.Replace(" ", "");
     public string[] ThunderstoreCategories => (Get("ThunderstoreCategories") ?? "mods").Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     public string? NexusModId => Get("NexusModId");
-    public string? WorkshopItemId => Get("WorkshopItemId");
+    // 0 is the old placeholder for an item that doesn't exist yet.
+    public string? WorkshopItemId => Get("WorkshopItemId") is { } id && id != "0" ? id : null;
     public string NexusUrl => $"https://www.nexusmods.com/{Repo.NexusGame}/mods/{NexusModId}";
     public string WorkshopUrl => $"https://steamcommunity.com/sharedfiles/filedetails/?id={WorkshopItemId}";
 
@@ -1036,11 +1037,6 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
 
     string WriteThunderstore(string plugin, string readme)
     {
-        if (mod.IsPatcher)
-        {
-            throw new ReleaseException("a preloader patcher can't go to Thunderstore yet");
-        }
-
         var name = mod.ThunderstoreName;
         if (!Regex.IsMatch(name, "^[A-Za-z0-9_]+$"))
         {
@@ -1068,7 +1064,8 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
             ("CHANGELOG.md", File.ReadAllBytes(Path.Combine(mod.ProjectDir, "CHANGELOG.md"))),
             ("icon.png", File.ReadAllBytes(icon)),
         };
-        entries.AddRange(Files(plugin, mod.ProjectName));
+        // Thunderstore mod managers install a root patchers folder into BepInEx/patchers, and any other root folder into plugins.
+        entries.AddRange(Files(plugin, mod.IsPatcher ? $"patchers/{mod.ProjectName}" : mod.ProjectName));
         var zip = Path.Combine(dir, $"{mod.Shared["ThunderstoreNamespace"]}-{name}-{mod.Version}.zip");
         Zip(zip, entries);
         Write(Path.Combine(dir, "thunderstore.toml"), ThunderstoreToml(name, dependencies));
@@ -1118,12 +1115,18 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
     static string TomlString(string value) => "\"" + value.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
 
     // With no plugin folder the item.vdf only sets the title and description, which updates the page text alone.
-    string WriteWorkshop(string? plugin, string description, List<string> changes)
+    string? WriteWorkshop(string? plugin, string description, List<string> changes)
     {
         var itemId = mod.WorkshopItemId;
         if (itemId == null)
         {
-            if (!options.DryRun || plugin == null)
+            if (plugin == null)
+            {
+                _warnings.Add("no WorkshopItemId, so the Steam page is left alone");
+                return null;
+            }
+
+            if (!options.DryRun)
             {
                 throw new ReleaseException("the Workshop item has to be made once by hand before its id goes in WorkshopItemId");
             }

@@ -5,6 +5,7 @@
     <Product>Timbn Workshop Sync</Product>
     <Version>1.0.1</Version>
     <NexusModId>238</NexusModId>
+    <Thunderstore>true</Thunderstore>
   </PropertyGroup>
 
   <!-- A preloader patcher, so it deploys to BepInEx/patchers and runs before the chainloader scans plugins. -->

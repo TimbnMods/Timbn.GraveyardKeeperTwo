@@ -1,0 +1,55 @@
+summary: Restyle your zombies' hairstyle, hair color and clothes color in the same customization window you use for your own character.
+banner: images/header.jpg
+sections:
+  - title: How To Use
+    text: Inspect a zombie and click its portrait at the top of the window. The customization window opens with your zombie in the preview. It works on zombies that are standing, working, or lying on the ground.
+    image: images/customization-window.jpg
+
+  - title: What You Can Change
+    list:
+      - "**Hairstyle**. Ten heads, the same ones the game gives new zombies. Most are hairstyles with or without a beard, one is bald with a beard, and one is a hood."
+      - "**Hair color**. Five colors for the hair and beard (auburn, light brown, ash gray, blue black and red). The hood has no hair, so this does nothing on it."
+      - text: "**Clothes color**. Ten tints for the clothes, plus none (red, orange, yellow, green, teal, blue, purple, pink, gray and dark). Zombies only have one outfit in the game, so this tints it rather than swapping it, and the hands take the tint too. Each zombie keeps the color you gave it."
+        image: images/clothes-colors.jpg
+    text: Rows with nothing to choose from for a zombie, like Beard and Clothes, are grayed out.
+
+  - title: Settings
+    list:
+      - The ten clothes colors the window offers (`Clothes Colors / ClothesColor1` to `ClothesColor10`, written as RRGGBBAA hex). With Configuration Manager you can pick them with a color picker in game.
+    text: Changing a color later only changes what the window offers. Zombies keep the color they already have.
+
+  - title: Good To Know
+    list:
+      - The look is saved with your game
+      - Zombies at a mine or a garden wear their work hat while working and keep any beard and its hair color
+      - Zombies in armor keep their hairstyle and hair color
+      - A zombie you are carrying or one lying on the ground shows its hairstyle and hair color but not its clothes color, which comes back when it stands up
+      - If you uninstall the mod, hairstyles and hair colors stay but clothes colors go away
+      - Your own character's look is never changed
+
+  - title: Requirements
+
+  - title: Installation
+    only: [nexus]
+    blocks:
+      - subtitle: With Vortex
+      - olist:
+          - Install BepInEx for Graveyard Keeper 2
+          - Install Timbn Core
+          - Download with "Mod Manager Download" from the Files tab
+      - subtitle: Without Vortex
+      - olist:
+          - Install BepInEx for Graveyard Keeper 2, start the game once, and quit at the main menu
+          - Install Timbn Core
+          - Extract the Timbn.GraveyardKeeperTwo.ZombieCustomizer zip into BepInEx/plugins
+      - text: Timbn Core and Timbn Zombie Customizer show at the bottom right of the main menu when it works.
+
+  - title: Installation
+    only: [steam]
+    olist:
+      - Install BepInEx for Graveyard Keeper 2 and Timbn Workshop Sync
+      - Subscribe to Timbn Core and to this item
+      - Start the game. Timbn Core and Timbn Zombie Customizer show at the bottom right of the main menu when it works.
+
+  - title: Troubleshooting
+    text: If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and BepInEx/LogOutput.log says which part failed. Include the startup line from that log when reporting a problem.

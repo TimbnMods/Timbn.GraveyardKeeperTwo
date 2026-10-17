@@ -1,56 +1,23 @@
 # Timbn.GraveyardKeeperTwo.ZombieCustomizer
 
-Timbn Zombie Customizer lets you restyle your zombies in the same customization window you use for your own character.
+Timbn Zombie Customizer lets players restyle a zombie in the same customization window they use for the keeper. This README is for developers. The text players see on Nexus, Thunderstore and Steam comes from `docs/ZombieCustomizer/page.yml`, and what changed in each version is in `CHANGELOG.md`.
 
-## How to use
+## How it works
 
-Inspect a zombie and click its portrait at the top of the window. The customization window opens with your zombie in the preview. It works on zombies that are standing, working, or lying on the ground.
+- `UIZombieWorkerWindowPatch` has `RestyleButton` lay a clear button over the zombie's portrait (`workerIcon`) in its inspect window. Clicking it closes that window and opens `UICustomizationWindow` through `ZombieCustomization.Open`.
+- `UICustomizationWindowPatch` hooks `Open`, `OnApplyPressed` and `Close`. While a zombie session is open, `ZombieCustomization` rebinds the hair, body and head color switchers to Core's `TimbnZombies.Looks()` pool, binds the first body color switcher to the clothes tint, and grays out the beard and other color rows.
+- The preview reuses the keeper's `CustomizationCharacter` with a zombie skin preset from `ZombieSkinHelper`. It borrows a zombie head's color swap shader so the hair isn't raw magenta, and everything it changed is put back when the window closes, which then reopens the inspect window.
+- Apply runs the game's `ZombieSkinHelper.ApplySkinToZombieWgoData` and redraws the zombie with `TimbnZombies.Redraw` instead of letting the window restyle the keeper.
+- `ZombieTint` tints the `bdy`, `arm` and `leg` sprites, since zombies have only one outfit. Core's `Events.ZombieViewReady` repaints a zombie whenever its view is built, and `Events.SaveReady` and `SaveClosed` paint or reset every zombie.
 
-## What you can change
+## Config
 
-### Hairstyle
+- `ClothesColor1` to `ClothesColor10` in `Clothes Colors` are the tints offered after none. Changing one doesn't recolor zombies already styled, since each keeps its own color.
 
-Ten heads, the same ones the game gives new zombies. Most are hairstyles with or without a beard, one is bald with a beard, and one is a hood.
+## Save data
 
-### Hair color
+The head, body and hair color go in the zombie's own game res values (`zombie_head_id`, `zombie_body_id`, `zombie_head_lut`, `zombie_body_lut`), the same ones the game sets, so they stay if the mod is removed. The tint is a hex string under `timbn_zombie_tint` in the zombie's `GameResStr`, which the game keeps but ignores without the mod.
 
-Five colors for the hair and beard: auburn, light brown, ash gray, blue black and red. The hood has no hair, so this does nothing on it.
+## Building
 
-### Clothes color
-
-Ten tints for the clothes, plus none. By default they are red, orange, yellow, green, teal, blue, purple, pink, gray and dark, and you can change any of them in the config. Zombies only have one outfit in the game, so this tints it rather than swapping it, and the hands take the tint too. Each zombie keeps the color you gave it, so changing a color in the config later only changes what the window offers.
-
-Rows that have nothing to choose from for a zombie, like Beard and Clothes, are grayed out.
-
-## Good to know
-
-- The look is saved with your game.
-- Zombies at a mine or a garden wear their work hat while working and keep any beard and its hair color.
-- Zombies in armor keep their hairstyle and hair color.
-- A zombie you are carrying or one lying on the ground shows its hairstyle and hair color but not its clothes color. The color comes back when it stands up.
-- If you uninstall the mod, hairstyles and hair colors stay but clothes colors go away.
-- Your own character's look is never changed.
-
-## Requirements
-
-- Timbn Core 2.0.0 or newer
-
-## Configuration
-
-`BepInEx/config/Timbn.GraveyardKeeperTwo.ZombieCustomizer.cfg`
-
-Colors are written as RRGGBBAA hex. With Configuration Manager installed you can pick them with a color picker in game, and the next time you open the window it uses the new colors.
-
-| Section | Entry | Default |
-| --- | --- | --- |
-| General | Enabled | true |
-| Clothes Colors | ClothesColor1 | FF8C8CFF (red) |
-| Clothes Colors | ClothesColor2 | FFBF73FF (orange) |
-| Clothes Colors | ClothesColor3 | FFFF8CFF (yellow) |
-| Clothes Colors | ClothesColor4 | 99FF99FF (green) |
-| Clothes Colors | ClothesColor5 | 8CFFFFFF (teal) |
-| Clothes Colors | ClothesColor6 | 99B2FFFF (blue) |
-| Clothes Colors | ClothesColor7 | CC99FFFF (purple) |
-| Clothes Colors | ClothesColor8 | FFA6D9FF (pink) |
-| Clothes Colors | ClothesColor9 | B2B2B2FF (gray) |
-| Clothes Colors | ClothesColor10 | 737380FF (dark) |
+It needs Timbn Core 2.0.0 or newer. A build deploys to `BepInEx/scripts` so F6 reloads it, and `-p:DeployTo=plugins` loads it at startup instead. It references `UnityEngine.UI` and `Sirenix.Serialization` from the game's Managed folder as well.

@@ -4,6 +4,7 @@
     <AssemblyName>Timbn.GraveyardKeeperTwo.ZombieCustomizer</AssemblyName>
     <Product>Timbn Zombie Customizer</Product>
     <Version>1.1.0</Version>
+    <NexusModId>126</NexusModId>
     <Thunderstore>true</Thunderstore>
     <Description>Restyle your zombies in the game's own customization window. Click the portrait in a zombie's inspect window to pick its hairstyle, hair color and clothes color.</Description>
     <SteamWorkshop>true</SteamWorkshop>

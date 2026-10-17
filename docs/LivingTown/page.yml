@@ -1,0 +1,75 @@
+summary: Herm, Linda, Larry and the astrologer keep daily routines. Villagers visit the graveyard each day (more as town gratitude grows) and hold funerals for your new graves. Neighbors ask you to cook dishes or run deliveries.
+banner: images/header.jpg
+sections:
+  - title: Daily Routines
+    list:
+      - "**Herm** opens his stall in the morning and now and then wanders off for a short walk to the pond, a bench or a chat with the guard. When it rains he stays at his stall. He closes in the evening and goes to sit in the tavern, then heads home at 22:00. Outside his opening hours he won't trade and tells you to come back in the morning."
+      - "**Linda** works from 8:00 once you've finished Safe Harbor, going between the tables. From 15:00 she waits by the entrance and now and then goes to see the cat, and you can pet the cat too. From 18:00 she's back inside until she goes to bed at 2:00. Once you've finished Concept for a Concert she spends the hours after midnight on the stage, and you hear her violin while you're in the club."
+      - "**Larry** wanders around inside your house."
+      - Once you've met the astrologer in the port, he now and then reads the necronomicon or looks over his pieces in his tower.
+
+  - title: Graveyard Visitors
+    list:
+      - Each day from 6:00 villagers and townsfolk come to visit the graveyard, more the more grateful the town is, and a town district joins in once people live there.
+      - More people come on Wrath, the sermon day, and rain keeps some of them home.
+      - Each one strolls, stops at a grave, monument, columbarium, crypt or flower bed, sits on a bench, or goes into the church to stand by a pew (except on Wrath).
+      - You can walk straight through them, so they never block your way.
+      - Saving sends away the ones who are there, so they are never written into your save.
+    image: images/graveyard.jpg
+
+  - title: Funerals
+    list:
+      - Funerals happen the day after you fill in a new grave, except on Wrath.
+      - At least 5 villagers come between 6:00 and 9:00, whatever the weather, and gather in the church. A church with few pews holds fewer.
+      - By noon the first three speak one after another, then everyone follows them out and lines up on the path to the grave, and each one looks at it for a few minutes before going home.
+    image: images/church.jpg
+
+  - title: Favors
+    list:
+      - "**A Neighbor's Craving.** About once a week someone in the village or in a part of town where people live again asks you to cook a dish you know the recipe for. Bring it to them and they pay its sale price. A request nobody cooks for within a week is dropped."
+      - "**An Errand for a Neighbor.** About once a week someone gives you a keepsake, a box of vegetables or a healing potion to take to a friend between the village and a part of town where people live again. The friend pays the item's sale price and the one it's for shows a speech bubble while you carry it. Nobody waits longer than a week, and a parcel you took and didn't deliver in time is paid for out of your pocket."
+    text: Each favor adds one entry to your quest log and reuses it for every request. The villager waiting for your dish or parcel gets the game's quest marker while they are off screen.
+
+  - title: Settings
+    blocks:
+      - skip: [steam]
+        list:
+          - Herm, Linda, Larry and the astrologer go about their day (`People / DailyRoutine`, off puts them back in their usual spots)
+          - Herm only trades from 6:00 until 19:12 (`People / OpeningHours`, off lets you trade with him any time you find him)
+          - Villagers visit the graveyard each day (`Crowds / ChurchVisits`, also `GratitudePerVisitor` default 7, `MinimumChurchVisitors` default 2 and `MaximumChurchVisitors` default 30)
+          - The visitors hold a funeral for each new grave (`Crowds / Funerals`)
+          - Cooking requests and deliveries (`Requests / VillagerRequests` and `Requests / VillagerDeliveries`)
+          - Quest markers on the villager waiting for your dish or parcel (`Requests / HandInMarkers`, and `Requests / OfferMarkers`, off by default, marks the villager who wants to ask you)
+      - only: [steam]
+        text: Each part can be turned off on its own in the mod's config (daily routines, opening hours, graveyard visits, funerals, cooking requests, deliveries and quest markers).
+
+  - title: Requirements
+
+  - title: Installation
+    only: [nexus]
+    blocks:
+      - subtitle: With Vortex
+      - olist:
+          - Install BepInEx for Graveyard Keeper 2
+          - Install Timbn Core
+          - Download with "Mod Manager Download" from the Files tab
+      - subtitle: Without Vortex
+      - olist:
+          - Install BepInEx for Graveyard Keeper 2, start the game once, and quit at the main menu
+          - Install Timbn Core
+          - Extract the Timbn.GraveyardKeeperTwo.LivingTown zip into BepInEx/plugins
+      - text: Timbn Core and Timbn Living Town show at the bottom right of the main menu when it works.
+
+  - title: Installation
+    only: [steam]
+    olist:
+      - Install BepInEx for Graveyard Keeper 2 and Timbn Workshop Sync
+      - Subscribe to Timbn Core and to this item
+      - Start the game. Timbn Core and Timbn Living Town show at the bottom right of the main menu when it works.
+
+  - title: Translating
+    skip: [steam]
+    text: Every line the mod shows is in `lang/en.txt` inside its folder. Copy it to your game's language, such as `lang/de.txt`, `lang/fr.txt` or `lang/pt-br.txt`, and translate the text after each `=`. Anything left out shows in English.
+
+  - title: Troubleshooting
+    text: If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and BepInEx/LogOutput.log says which part failed. Include the startup line from that log when reporting a problem.
