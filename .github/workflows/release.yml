@@ -337,12 +337,19 @@ jobs:
         working-directory: artifacts/release/${{ matrix.project }}
         env:
           GH_TOKEN: ${{ github.token }}
-          ASSETS: ${{ toJSON(matrix.assets) }}
         run: |
           set -euo pipefail
-          gh release upload "${{ matrix.tag }}" "$(jq -r .nexusZip release.json)" --clobber -R "$GITHUB_REPOSITORY"
+          # gh release upload looks a draft up by tag and gets a 403 with this token, so the asset goes up by release id.
+          zip=$(jq -r .nexusZip release.json)
+          name=$(basename "$zip")
+          old=$(gh api "repos/$GITHUB_REPOSITORY/releases/${{ matrix.id }}/assets" --jq ".[] | select(.name == \"$name\") | .id")
+          if [ -n "$old" ]; then
+            gh api -X DELETE "repos/$GITHUB_REPOSITORY/releases/assets/$old"
+          fi
+          curl -sSf -X POST -H "Authorization: Bearer $GH_TOKEN" -H "Content-Type: application/zip" --data-binary @"$zip" \
+            "https://uploads.github.com/repos/$GITHUB_REPOSITORY/releases/${{ matrix.id }}/assets?name=$name" > /dev/null
 
-          jq -r '.[].id' <<< "$ASSETS" | while read -r asset; do
+          gh api "repos/$GITHUB_REPOSITORY/releases/${{ matrix.id }}/assets" --jq '.[] | select(.name | test("\\.(dll|xml)$")) | .id' | while read -r asset; do
             gh api -X DELETE "repos/$GITHUB_REPOSITORY/releases/assets/$asset"
           done
 
