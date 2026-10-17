@@ -25,7 +25,7 @@ internal static class WGOInteractionHandlerBasePatch
         plugin.UI.ShowPrompt(
             LLBase.L("timbn_chest_labels_title"),
             plugin.Board.GetText(chest),
-            text => plugin.Board.SetText(chest, text),
+            text => plugin.Board.SetText(___assignedWgo, text),
             LLBase.L("timbn_chest_labels_placeholder"));
         __result = true;
         return false;

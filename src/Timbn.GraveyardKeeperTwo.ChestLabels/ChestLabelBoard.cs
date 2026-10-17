@@ -1,16 +1,20 @@
+using LazyBearTechnology;
+
 namespace Timbn.GraveyardKeeperTwo.ChestLabels;
 
-/// <summary>Keeps one label over each chest that has a saved name, shown while the chest is in the scene the keeper is in.</summary>
+/// <summary>
+/// Keeps the saved name of each chest and adds it to the chest's own bubble, so the game stacks it with the Open and
+/// Label hints the way it stacks a grave's quality label.
+/// </summary>
 internal sealed class ChestLabelBoard
 {
-    private readonly Plugin _plugin;
     private readonly TimbnSaveData<ChestLabelData> _data;
-    private readonly Dictionary<string, TimbnLabel> _labels = [];
+    private readonly Dictionary<Guid, string> _texts = [];
 
-    public ChestLabelBoard(Plugin plugin, TimbnSaveData<ChestLabelData> data)
+    public ChestLabelBoard(TimbnSaveData<ChestLabelData> data)
     {
-        _plugin = plugin;
         _data = data;
+        Rebuild();
     }
 
     // Only objects with chest in the id, since the chest interaction is also used by shelves, containers and storages.
@@ -18,85 +22,46 @@ internal sealed class ChestLabelBoard
         handler is ChestInteractionHandler && wgo != null && wgo.Id.Contains("chest", StringComparison.OrdinalIgnoreCase);
 
     public string GetText(WgoData chest) =>
-        _data.Current.Labels.TryGetValue(Key(chest), out var entry) ? entry.Text : "";
+        _data.Current.Labels.TryGetValue(Key(chest.UniqueId), out var entry) ? entry.Text : "";
 
-    public void SetText(WgoData chest, string text)
+    public void SetText(Wgo chest, string text)
     {
-        var key = Key(chest);
+        var key = Key(chest.Data.UniqueId);
         text = text.Trim();
         if (text.Length == 0)
-        {
             _data.Current.Labels.Remove(key);
-            Drop(key);
-        }
         else
-        {
             _data.Current.Labels[key] = new ChestLabelEntry { Text = text };
-        }
 
-        Refresh();
+        Rebuild();
+        UIObjectBubbleManager.Instance?.Display(chest);
     }
 
     public void ChestRemoved(SGuid id)
     {
-        var key = id.ToString();
-        if (_data.Current.Labels.Remove(key))
-            Drop(key);
+        if (_data.Current.Labels.Remove(Key(id)))
+            Rebuild();
     }
 
-    public void Refresh()
+    // Runs for every object the game draws a bubble for, so it only looks up a Guid and never builds a string.
+    public void AddLabel(Wgo chest, List<LazyWidgetDataBase> widgets)
     {
-        if (!TimbnGame.IsInGame || MainGame.WorldData == null)
+        if (_texts.Count == 0 || chest.Data == null || chest.Data.IsHidden)
             return;
 
-        var zone = TimbnPlayer.Zone;
-        foreach (var key in _data.Current.Labels.Keys.ToList())
+        if (_texts.TryGetValue(chest.Data.UniqueId.Guid, out var text))
+            widgets.Insert(0, new UIQualityTooltipWidgetData("", text));
+    }
+
+    public void Rebuild()
+    {
+        _texts.Clear();
+        foreach (var (key, entry) in _data.Current.Labels)
         {
-            var chest = MainGame.WorldData.GetWgoData(SGuid.Parse(key));
-            if (chest == null)
-            {
-                Drop(key);
-                continue;
-            }
-
-            if (chest.IsHidden || zone == null || chest.WorldZoneData != zone)
-            {
-                Hide(key);
-                continue;
-            }
-
-            if (!_labels.TryGetValue(key, out var label))
-            {
-                label = _plugin.UI.CreateLabel();
-                _labels[key] = label;
-            }
-
-            label.Show(chest.Position, _data.Current.Labels[key].Text);
+            if (Guid.TryParse(key, out var id))
+                _texts[id] = entry.Text;
         }
-
-        foreach (var key in _labels.Keys.Where(key => !_data.Current.Labels.ContainsKey(key)).ToList())
-            Drop(key);
     }
 
-    public void Clear()
-    {
-        foreach (var label in _labels.Values)
-            label.Dispose();
-
-        _labels.Clear();
-    }
-
-    private static string Key(WgoData chest) => chest.UniqueId.ToString();
-
-    private void Hide(string key)
-    {
-        if (_labels.TryGetValue(key, out var label))
-            label.Hide();
-    }
-
-    private void Drop(string key)
-    {
-        if (_labels.Remove(key, out var label))
-            label.Dispose();
-    }
+    private static string Key(SGuid id) => id.ToString();
 }

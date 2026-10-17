@@ -8,10 +8,7 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
 
     protected override void OnAwake()
     {
-        var data = Saves.Register<ChestLabelData>();
-        Board = new ChestLabelBoard(this, data);
-        Events.SaveReady(Board.Refresh);
-        Events.SaveClosed(Board.Clear);
-        Events.EveryRealSeconds(0.5f, Board.Refresh);
+        var data = Saves.Register<ChestLabelData>(_ => Board?.Rebuild());
+        Board = new ChestLabelBoard(data);
     }
 }
