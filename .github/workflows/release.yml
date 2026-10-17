@@ -6,9 +6,6 @@ name: Release drafts
 
 on:
   workflow_dispatch:
-  # Temporary, so a push to this branch tests finding and packaging. Remove before merging.
-  push:
-    branches: [tools/release-automation]
 
 permissions:
   contents: write
@@ -172,7 +169,6 @@ jobs:
   # Holds every upload until a reviewer of the release-approval environment approves.
   approve:
     needs: package
-    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     environment: release-approval
     steps:
