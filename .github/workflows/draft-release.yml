@@ -1,0 +1,54 @@
+# Drafts a GitHub release for every mod whose current version has a CHANGELOG.md section and no tag yet.
+# A draft made here triggers nothing. Attach the Release DLL to it, then run the Release drafts workflow.
+name: Draft releases
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: draft-releases
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.x
+
+      - name: Draft or update a release per new version
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          dotnet run tools/release/Release.cs -- list > "$RUNNER_TEMP/releases.json"
+          gh api --paginate "repos/$GITHUB_REPOSITORY/releases" > "$RUNNER_TEMP/existing.json"
+
+          jq -c '.[]' "$RUNNER_TEMP/releases.json" | while read -r release; do
+            project=$(jq -r .project <<< "$release")
+            tag=$(jq -r .tag <<< "$release")
+            title=$(jq -r .title <<< "$release")
+
+            if git ls-remote --exit-code --tags origin "refs/tags/$tag" > /dev/null; then
+              continue
+            fi
+
+            dotnet run tools/release/Release.cs -- notes "$project" > "$RUNNER_TEMP/notes.md"
+            draft=$(jq -s --arg tag "$tag" '[.[][] | select(.draft and .tag_name == $tag)][0].id // empty' "$RUNNER_TEMP/existing.json")
+
+            if [ -n "$draft" ]; then
+              gh api -X PATCH "repos/$GITHUB_REPOSITORY/releases/$draft" \
+                -f target_commitish="$GITHUB_SHA" -f name="$title" -F body=@"$RUNNER_TEMP/notes.md" > /dev/null
+              echo "Updated the $tag draft" >> "$GITHUB_STEP_SUMMARY"
+            else
+              gh release create "$tag" --draft --target "$GITHUB_SHA" --title "$title" --notes-file "$RUNNER_TEMP/notes.md"
+              echo "Drafted $tag" >> "$GITHUB_STEP_SUMMARY"
+            fi
+          done

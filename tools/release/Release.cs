@@ -1,5 +1,11 @@
 // Builds one mod's release packages and page text from its csproj, docs/<Mod>/page.yml and CHANGELOG.md.
 // usage: dotnet run tools/release/Release.cs -- <mod> [--dll <folder>] [--out <folder>] [--sha <commit>] [--dry-run]
+//        dotnet run tools/release/Release.cs -- list
+//        dotnet run tools/release/Release.cs -- notes <mod>
+// list prints, as JSON, every project whose CHANGELOG.md has a section for its current version.
+// notes prints the GitHub release body for a project's current version.
+//        dotnet run tools/release/Release.cs -- nexus <release folder>
+// nexus uploads a built release folder to its Nexus page, with the key in NEXUS_API_KEY.
 // <mod> is the project name with or without the Timbn.GraveyardKeeperTwo. prefix, in any case (chestlabels, Core).
 // --dll is the folder holding the built DLL, bin/Release of the project by default.
 // --out is where everything is written, artifacts/release by default.
@@ -9,21 +15,39 @@
 #:property PublishAot=false
 
 using System.IO.Compression;
+using System.Net.Http.Headers;
 using System.Reflection;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using YamlDotNet.RepresentationModel;
 
 try
 {
-    var options = Options.Parse(args);
     var repo = Repo.Find();
-    var mod = ModInfo.Load(repo, options);
-    var page = PageParser.Load(Path.Combine(mod.DocsDir, "page.yml"));
-    var release = new ReleaseBuilder(repo, mod, page, options);
-    release.Run();
+    if (args is ["list"])
+    {
+        Commands.List(repo);
+    }
+    else if (args is ["notes", var name])
+    {
+        Commands.Notes(repo, name);
+    }
+    else if (args is ["nexus", var folder])
+    {
+        await new NexusUploader(folder).Run();
+    }
+    else
+    {
+        var options = Options.Parse(args);
+        var mod = ModInfo.Load(repo, options.Mod);
+        var page = PageParser.Load(Path.Combine(mod.DocsDir, "page.yml"));
+        var release = new ReleaseBuilder(repo, mod, page, options);
+        release.Run();
+    }
 }
 catch (ReleaseException e)
 {
@@ -34,6 +58,55 @@ catch (ReleaseException e)
 return 0;
 
 class ReleaseException(string message) : Exception(message);
+
+static class Commands
+{
+    public static void List(string repo)
+    {
+        var releases = new List<Dictionary<string, object>>();
+        foreach (var dir in Directory.GetDirectories(Path.Combine(repo, "src"), Repo.ProjectPrefix + "*").Order(StringComparer.Ordinal))
+        {
+            var name = Path.GetFileName(dir);
+            if (!File.Exists(Path.Combine(dir, name + ".csproj")))
+            {
+                continue;
+            }
+
+            var mod = ModInfo.Load(repo, name);
+            if (Changelog.TryRead(Path.Combine(mod.ProjectDir, "CHANGELOG.md"), mod.Version) == null)
+            {
+                continue;
+            }
+
+            var assets = new List<string> { mod.AssemblyName + ".dll" };
+            if (mod.Flag("GenerateDocumentationFile"))
+            {
+                assets.Add(mod.AssemblyName + ".xml");
+            }
+
+            releases.Add(new()
+            {
+                ["project"] = mod.ProjectName,
+                ["mod"] = mod.ModName,
+                ["product"] = mod.Product,
+                ["version"] = mod.Version,
+                ["tag"] = mod.Tag,
+                ["title"] = $"{mod.Product} {mod.Version}",
+                ["core"] = mod.IsCore,
+                ["assets"] = assets,
+            });
+        }
+
+        Console.WriteLine(JsonSerializer.Serialize(releases));
+    }
+
+    public static void Notes(string repo, string name)
+    {
+        var mod = ModInfo.Load(repo, name);
+        var changes = Changelog.Read(Path.Combine(mod.ProjectDir, "CHANGELOG.md"), mod.Version);
+        Console.Write(ReleaseBuilder.GitHubBody(mod, changes));
+    }
+}
 
 record Options(string Mod, string? DllDir, string? OutDir, string? Sha, bool DryRun)
 {
@@ -161,6 +234,7 @@ class ModInfo
     public bool IsPatcher => Flag("BepInExPatcher");
     public bool Thunderstore => Flag("Thunderstore");
     public bool Workshop => Flag("SteamWorkshop") || Get("WorkshopItemId") != null;
+    public string Tag => $"{ModName.ToLowerInvariant()}/v{Version}";
     public string ThunderstoreName => Get("ThunderstoreName") ?? Product.Replace(" ", "");
     public string ThunderstoreCategory => Get("ThunderstoreCategory") ?? "mods";
     public string? NexusModId => Get("NexusModId");
@@ -172,14 +246,14 @@ class ModInfo
 
     public bool Flag(string name) => string.Equals(Get(name), "true", StringComparison.OrdinalIgnoreCase);
 
-    public static ModInfo Load(string repo, Options options)
+    public static ModInfo Load(string repo, string name)
     {
         var src = Path.Combine(repo, "src");
-        var wanted = options.Mod.StartsWith(Repo.ProjectPrefix, StringComparison.OrdinalIgnoreCase) ? options.Mod[Repo.ProjectPrefix.Length..] : options.Mod;
+        var wanted = name.StartsWith(Repo.ProjectPrefix, StringComparison.OrdinalIgnoreCase) ? name[Repo.ProjectPrefix.Length..] : name;
         var match = Directory.GetDirectories(src, Repo.ProjectPrefix + "*")
             .Select(Path.GetFileName)
             .FirstOrDefault(name => string.Equals(name![Repo.ProjectPrefix.Length..], wanted, StringComparison.OrdinalIgnoreCase))
-            ?? throw new ReleaseException($"no project in src matches {options.Mod}");
+            ?? throw new ReleaseException($"no project in src matches {name}");
         var shared = ReadProperties(Path.Combine(src, "Directory.Build.props"));
         var core = LoadProject(repo, shared, Repo.ProjectPrefix + "Core", null, null);
         var workshopSync = LoadProject(repo, shared, Repo.ProjectPrefix + "WorkshopSync", null, null);
@@ -765,7 +839,7 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
             [Site.Nexus] = new NexusRenderer(ImageUrl).Render(title, page, NexusRequirements()),
             [Site.Steam] = new SteamRenderer(ImageUrl).Render(title, page, SteamRequirements()),
             [Site.Thunderstore] = new MarkdownRenderer(ImageUrl).Render(title, page, ThunderstoreRequirements()),
-            [Site.GitHub] = GitHubBody(changes),
+            [Site.GitHub] = GitHubBody(mod, changes),
         };
         if (pages[Site.Steam].Length > _steamDescriptionLimit)
         {
@@ -883,7 +957,7 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
 
     static string ThunderstoreUrl(string owner, string name) => $"https://thunderstore.io/c/{Repo.ThunderstoreCommunity}/p/{owner}/{name}/";
 
-    string GitHubBody(List<string> changes)
+    public static string GitHubBody(ModInfo mod, List<string> changes)
     {
         var body = new StringBuilder()
             .Append($"## Game Version\n\n{mod.GameVersion}\n\n")
@@ -1039,7 +1113,9 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
         var folder = mod.IsPatcher ? "patchers" : "plugins";
         var content = Path.Combine(dir, "content", "BepInEx", folder, mod.ProjectName);
         CopyDirectory(plugin, content);
-        var icon = RequireIcon("Steam");
+        // The preview sits inside the Workshop folder so the upload job has everything in one artifact.
+        var icon = Path.Combine(dir, "preview.png");
+        File.Copy(RequireIcon("Steam"), icon);
         var changeNote = new StringBuilder("[list]\n");
         foreach (var change in changes)
         {
@@ -1047,6 +1123,13 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
         }
 
         changeNote.Append("[/list]");
+        // Valve's KeyValues reader caps a value at 4096 bytes and may not read \" escapes. Check both on the first upload.
+        var descriptionBytes = Encoding.UTF8.GetByteCount(description);
+        if (descriptionBytes > 4096)
+        {
+            _warnings.Add($"the Steam description is {descriptionBytes} bytes, and steamcmd may cut item.vdf values at 4096");
+        }
+
         var vdf = new StringBuilder("\"workshopitem\"\n{\n")
             .Append($"\t\"appid\"\t\t\"{Repo.SteamAppId}\"\n")
             .Append($"\t\"publishedfileid\"\t\t{VdfString(itemId)}\n")
@@ -1082,15 +1165,17 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
             ["project"] = mod.ProjectName,
             ["product"] = mod.Product,
             ["version"] = mod.Version,
-            ["tag"] = $"{mod.ModName.ToLowerInvariant()}/v{mod.Version}",
+            ["tag"] = mod.Tag,
             ["sha"] = sha,
             ["summary"] = page.Summary,
             ["coreFloor"] = mod.CoreFloor,
             ["gameVersion"] = mod.GameVersion,
             ["gameBuild"] = mod.GameBuild,
             ["nexusModId"] = mod.NexusModId,
+            ["coreNexusModId"] = mod.CoreFloor == null ? null : mod.Core!.NexusModId,
             ["nexusFileDescription"] = fileDescription,
             ["nexusZip"] = Path.GetRelativePath(_outDir, nexusZip).Replace('\\', '/'),
+            ["thunderstorePackage"] = thunderstoreZip == null ? null : $"{mod.Shared["ThunderstoreNamespace"]}/{mod.ThunderstoreName}",
             ["thunderstoreZip"] = thunderstoreZip == null ? null : Path.GetRelativePath(_outDir, thunderstoreZip).Replace('\\', '/'),
             ["workshopItemId"] = mod.WorkshopItemId,
             ["workshopVdf"] = workshopDir == null ? null : Path.GetRelativePath(_outDir, Path.Combine(workshopDir, "item.vdf")).Replace('\\', '/'),
@@ -1149,6 +1234,16 @@ static class Changelog
             throw new ReleaseException($"no changelog at {path}");
         }
 
+        return TryRead(path, version) ?? throw new ReleaseException($"{Path.GetFileName(path)} has no bullets under ## {version}");
+    }
+
+    public static List<string>? TryRead(string path, string version)
+    {
+        if (!File.Exists(path))
+        {
+            return null;
+        }
+
         var changes = new List<string>();
         var inVersion = false;
         foreach (var line in File.ReadAllLines(path))
@@ -1172,6 +1267,213 @@ static class Changelog
             }
         }
 
-        return changes.Count > 0 ? changes : throw new ReleaseException($"{Path.GetFileName(path)} has no bullets under ## {version}");
+        return changes.Count > 0 ? changes : null;
+    }
+}
+
+// Most of these v3 calls are marked Experimental by Nexus, so expect to adjust them as the API changes.
+class NexusUploader(string folder)
+{
+    const string _api = "https://api.nexusmods.com/v3";
+
+    readonly HttpClient _http = new();
+    readonly JsonObject _release = JsonNode.Parse(File.ReadAllText(Path.Combine(folder, "release.json")))!.AsObject();
+
+    string Text(string key) => _release[key]?.GetValue<string>() ?? throw new ReleaseException($"release.json has no {key}");
+
+    public async Task Run()
+    {
+        var key = Environment.GetEnvironmentVariable("NEXUS_API_KEY");
+        if (string.IsNullOrEmpty(key))
+        {
+            throw new ReleaseException("NEXUS_API_KEY isn't set");
+        }
+        _http.DefaultRequestHeaders.Add("apikey", key);
+        _http.DefaultRequestHeaders.UserAgent.ParseAdd("TimbnRelease/1.0");
+
+        var version = Text("version");
+        var modId = await GlobalModId(Text("nexusModId"));
+        var mainFile = await MainFile(modId);
+        if (mainFile != null && mainFile.Versions.Any(entry => entry["version"]?.GetValue<string>() == version))
+        {
+            Console.WriteLine($"Nexus already has {version}, so only the page text is updated");
+        }
+        else
+        {
+            var versionId = await UploadFile(modId, mainFile?.Id, version);
+            await SetRequirements(versionId);
+            var changelog = string.Join("\n", _release["changes"]!.AsArray().Select(change => "- " + change!.GetValue<string>()));
+            await Send(HttpMethod.Post, $"/mods/{modId}/changelogs", new JsonObject { ["version"] = version, ["changelog"] = changelog });
+        }
+
+        var description = File.ReadAllText(Path.Combine(folder, "pages", "nexus.bbcode"));
+        await Send(HttpMethod.Patch, $"/mods/{modId}", new JsonObject { ["summary"] = Text("summary"), ["description"] = description });
+        Console.WriteLine("Updated the Nexus page text");
+
+        var status = await Status(modId);
+        if (status != "published")
+        {
+            Console.WriteLine($"::warning::The Nexus page is {status}, so the files and text are up but players can't see them. Publish it on the website.");
+        }
+    }
+
+    async Task<string> GlobalModId(string gameScopedId)
+    {
+        var mod = await Send(HttpMethod.Get, $"/games/{Repo.NexusGame}/mods/{gameScopedId}");
+        return Id(mod["data"]!["id"]!);
+    }
+
+    async Task<string?> Status(string modId)
+    {
+        var batch = await Send(HttpMethod.Post, "/mods/batch", new JsonObject { ["mod_ids"] = new JsonArray(modId) });
+        return batch["data"]?["mods"]?.AsArray().FirstOrDefault()?["status"]?.GetValue<string>();
+    }
+
+    record ModFile(string Id, List<JsonNode> Versions);
+
+    // The files list carries no category, so the main file is the one whose versions say main.
+    async Task<ModFile?> MainFile(string modId)
+    {
+        var files = await Send(HttpMethod.Get, $"/mods/{modId}/files");
+        foreach (var file in files["data"]!["mod_files"]!.AsArray())
+        {
+            if (file!["is_active"]?.GetValue<bool>() == false)
+            {
+                continue;
+            }
+
+            var id = Id(file["id"]!);
+            var versions = (await Send(HttpMethod.Get, $"/mod-files/{id}/versions"))["data"]!["versions"]!.AsArray().Select(entry => entry!).ToList();
+            if (versions.Any(entry => entry["category"]?.GetValue<string>() == "main"))
+            {
+                return new ModFile(id, versions);
+            }
+        }
+
+        return null;
+    }
+
+    async Task<string> UploadFile(string modId, string? mainFileId, string version)
+    {
+        var zip = Path.Combine(folder, Text("nexusZip"));
+        var bytes = await File.ReadAllBytesAsync(zip);
+        var name = Path.GetFileName(zip);
+        var md5 = MD5.HashData(bytes);
+        var upload = (await Send(HttpMethod.Post, "/uploads", new JsonObject
+        {
+            ["size_bytes"] = bytes.Length,
+            ["filename"] = name,
+            ["md5"] = Convert.ToHexStringLower(md5),
+        }))["data"]!;
+        var uploadId = Id(upload["id"]!);
+
+        using (var put = new HttpRequestMessage(HttpMethod.Put, upload["presigned_url"]!.GetValue<string>()))
+        {
+            put.Content = new ByteArrayContent(bytes);
+            put.Content.Headers.ContentDisposition = ContentDispositionHeaderValue.Parse($"attachment; filename=\"{name}\"");
+            put.Content.Headers.ContentMD5 = md5;
+            using var stored = await new HttpClient().SendAsync(put);
+            if (!stored.IsSuccessStatusCode)
+            {
+                throw new ReleaseException($"storing {name} failed with {(int)stored.StatusCode} {await stored.Content.ReadAsStringAsync()}");
+            }
+        }
+
+        await Send(HttpMethod.Post, $"/uploads/{uploadId}/finalise");
+        for (var attempt = 0; ; attempt++)
+        {
+            var state = (await Send(HttpMethod.Get, $"/uploads/{uploadId}"))["data"]!["state"]!.GetValue<string>();
+            if (state == "available")
+            {
+                break;
+            }
+
+            if (attempt == 60)
+            {
+                throw new ReleaseException($"the upload stayed {state} for five minutes");
+            }
+
+            await Task.Delay(TimeSpan.FromSeconds(5));
+        }
+
+        var fields = new JsonObject
+        {
+            ["upload_id"] = uploadId,
+            ["name"] = Text("product"),
+            ["version"] = version,
+            ["file_category"] = "main",
+            ["description"] = Text("nexusFileDescription"),
+            ["update_mod_version"] = true,
+            ["show_requirements_pop_up"] = true,
+        };
+        if (mainFileId != null)
+        {
+            fields["archive_existing_file"] = true;
+            var added = await Send(HttpMethod.Post, $"/mod-files/{mainFileId}/versions", fields);
+            Console.WriteLine($"Uploaded {name} as a new version of the main file");
+            return Id(added["data"]!["version"]!["id"]!);
+        }
+
+        fields["mod_id"] = modId;
+        var created = await Send(HttpMethod.Post, "/mod-files", fields);
+        var fileId = Id(created["data"]!["id"]!);
+        Console.WriteLine($"Uploaded {name} as the first main file");
+        var versions = (await Send(HttpMethod.Get, $"/mod-files/{fileId}/versions"))["data"]!["versions"]!.AsArray();
+        return Id(versions.First(entry => entry!["version"]?.GetValue<string>() == version)!["id"]!);
+    }
+
+    // Requirements are BepInEx and, for a mod, Core at its floor. A failure here only warns, since the file is already up.
+    async Task SetRequirements(string versionId)
+    {
+        try
+        {
+            var definitions = new JsonArray();
+            var bepInEx = await MainFile(await GlobalModId(Repo.NexusBepInExId));
+            if (bepInEx != null)
+            {
+                definitions.Add(Range(bepInEx.Versions.MinBy(entry => entry["uploaded_at"]?.GetValue<string>())!));
+            }
+
+            var floor = _release["coreFloor"]?.GetValue<string>();
+            if (floor != null)
+            {
+                var core = await MainFile(await GlobalModId(Text("coreNexusModId")));
+                var atFloor = core?.Versions.FirstOrDefault(entry => entry["version"]?.GetValue<string>() == floor)
+                    ?? throw new ReleaseException($"Core's main file on Nexus has no version {floor}. Release Core first.");
+                definitions.Add(Range(atFloor));
+            }
+
+            await Send(HttpMethod.Put, $"/mod-file-versions/{versionId}/dependencies/ranges", new JsonObject { ["dependency_definitions"] = definitions });
+            Console.WriteLine("Set the Nexus requirements");
+        }
+        catch (ReleaseException e)
+        {
+            Console.WriteLine($"::warning::Nexus requirements weren't set, so set them on the website. {e.Message}");
+        }
+    }
+
+    static JsonObject Range(JsonNode version) => new()
+    {
+        ["ranges"] = new JsonArray(new JsonObject { ["min_version_id"] = Id(version["id"]!), ["max_version_id"] = null }),
+    };
+
+    static string Id(JsonNode node) => node.GetValueKind() == JsonValueKind.Number ? node.GetValue<long>().ToString() : node.GetValue<string>();
+
+    async Task<JsonNode> Send(HttpMethod method, string path, JsonObject? body = null)
+    {
+        using var request = new HttpRequestMessage(method, _api + path);
+        if (body != null)
+        {
+            request.Content = new StringContent(body.ToJsonString(), Encoding.UTF8, "application/json");
+        }
+
+        using var response = await _http.SendAsync(request);
+        var text = await response.Content.ReadAsStringAsync();
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new ReleaseException($"Nexus {method} {path} failed with {(int)response.StatusCode} {text}");
+        }
+
+        return string.IsNullOrWhiteSpace(text) ? new JsonObject() : JsonNode.Parse(text)!;
     }
 }
