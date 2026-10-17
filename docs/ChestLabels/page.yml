@@ -1,5 +1,5 @@
 summary: Name your chests. The name floats over the chest in the same style as grave quality, so you can tell your chests apart at a glance.
-banner: images/header.png
+banner: images/header.jpg
 sections:
   - title: How It Works
     olist:
@@ -7,13 +7,12 @@ sections:
       - Press it and type a name, then press OK or Enter.
       - The name now shows over that chest whenever you're nearby.
       - Press `Label` again to change the name. Save it empty to remove it.
-    image: images/yard.jpg
 
   - title: Good To Know
     list:
       - You can color a name with a color tag, such as `<color=#c77dff>Relics</color>`
       - text: You can put one of the game's icons in a name with a sprite tag, such as `<sprite name="gear">Iron`
-        image: images/chest-labels.jpg
+        image: images/chest-labels.png
       - Names are saved with your game and come back when you load.
       - Taking a chest apart forgets its name.
       - If you uninstall the mod, your chests stay as they are, just without names.
