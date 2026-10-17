@@ -18,10 +18,4 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         Events.SaveClosed(Window.Close);
         Events.EveryRealSeconds(0.5f, Board.Refresh);
     }
-
-    protected override void OnUnload()
-    {
-        Board.Clear();
-        Window.Close();
-    }
 }

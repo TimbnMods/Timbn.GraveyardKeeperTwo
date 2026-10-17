@@ -16,6 +16,7 @@ internal sealed class LabelWindow
     private GameObject? _root;
     private IDisposable? _control;
     private IDisposable? _freeze;
+    private bool? _inputWasActive;
 
     public LabelWindow(Plugin plugin)
     {
@@ -75,10 +76,16 @@ internal sealed class LabelWindow
         buttons.FirstOrDefault(button => button.name == "Cancel")?.Draw(
             new UIDialogWindowData.ButtonData(Close, LLBase.L("timbn_chest_labels_cancel"), null, false, GameKey.Back));
 
-        root.AddComponent<InputGuard>().Set(input, Close);
+        root.AddComponent<InputGuard>().Set(() =>
+        {
+            if (_root == root)
+                Close();
+        });
         _root = root;
         _control = _plugin.Player.TakeControl();
         _freeze = _plugin.Clock.Freeze();
+        _inputWasActive = LazyInput.IsInputActive();
+        LazyInput.SetInputActivity(false);
         root.SetActive(true);
         LayoutRebuilder.ForceRebuildLayoutImmediate((RectTransform)root.transform);
         _plugin.StartCoroutine(Focus(root, input));
@@ -86,14 +93,22 @@ internal sealed class LabelWindow
 
     public void Close()
     {
+        if (_inputWasActive is { } wasActive)
+        {
+            _inputWasActive = null;
+            LazyInput.SetInputActivity(wasActive);
+        }
+
         _freeze?.Dispose();
         _control?.Dispose();
         _freeze = null;
         _control = null;
         if (_root != null)
-            UnityEngine.Object.Destroy(_root);
-
-        _root = null;
+        {
+            var root = _root;
+            _root = null;
+            UnityEngine.Object.Destroy(root);
+        }
     }
 
     // The prefab's gamepad navigation points at fields of the component that was removed.
@@ -119,47 +134,18 @@ internal sealed class LabelWindow
         }
     }
 
-    // Typing must not trigger the game's hotkeys, so keyboard input is switched off while the field has focus.
     private sealed class InputGuard : MonoBehaviour
     {
-        private TMP_InputField? _field;
-        private Action? _cancel;
-        private bool _suspended;
-        private bool _wasActive;
+        private Action? _close;
 
-        public void Set(TMP_InputField field, Action cancel)
-        {
-            _field = field;
-            _cancel = cancel;
-        }
+        public void Set(Action close) => _close = close;
 
         private void LateUpdate()
         {
-            var focused = _field != null && _field.isFocused;
-            if (focused && !_suspended)
-            {
-                _wasActive = LazyInput.IsInputActive();
-                LazyInput.SetInputActivity(false);
-                _suspended = true;
-            }
-            else if (!focused && _suspended)
-            {
-                Restore();
-            }
-
-            if (focused && Input.GetKeyDown(KeyCode.Escape))
-                _cancel?.Invoke();
+            if (Input.GetKeyDown(KeyCode.Escape))
+                _close?.Invoke();
         }
 
-        private void OnDestroy() => Restore();
-
-        private void Restore()
-        {
-            if (!_suspended)
-                return;
-
-            LazyInput.SetInputActivity(_wasActive);
-            _suspended = false;
-        }
+        private void OnDestroy() => _close?.Invoke();
     }
 }

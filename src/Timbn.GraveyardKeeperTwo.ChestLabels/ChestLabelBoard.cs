@@ -6,7 +6,6 @@ internal sealed class ChestLabelBoard
     private readonly Plugin _plugin;
     private readonly TimbnSaveData<ChestLabelData> _data;
     private readonly Dictionary<string, TimbnLabel> _labels = [];
-    private readonly HashSet<string> _maybeGone = [];
 
     public ChestLabelBoard(Plugin plugin, TimbnSaveData<ChestLabelData> data)
     {
@@ -36,12 +35,11 @@ internal sealed class ChestLabelBoard
         Refresh();
     }
 
-    // A chest taken out of the world may only be changing into another one, so it is checked again on the next refresh.
-    public void ChestRemoved(WgoData chest)
+    public void ChestRemoved(SGuid id)
     {
-        var key = Key(chest);
-        if (_data.Current.Labels.ContainsKey(key))
-            _maybeGone.Add(key);
+        var key = id.ToString();
+        if (_data.Current.Labels.Remove(key))
+            Drop(key);
     }
 
     public void Refresh()
@@ -49,20 +47,16 @@ internal sealed class ChestLabelBoard
         if (!TimbnGame.IsInGame || MainGame.WorldData == null)
             return;
 
-        var zone = MainGame.PlayerData?.CurrentWorldZoneData;
+        var zone = TimbnPlayer.Zone;
         foreach (var key in _data.Current.Labels.Keys.ToList())
         {
             var chest = MainGame.WorldData.GetWgoData(SGuid.Parse(key));
             if (chest == null)
             {
-                if (_maybeGone.Remove(key))
-                    _data.Current.Labels.Remove(key);
-
                 Drop(key);
                 continue;
             }
 
-            _maybeGone.Remove(key);
             if (chest.IsHidden || zone == null || chest.WorldZoneData != zone)
             {
                 Hide(key);
@@ -88,7 +82,6 @@ internal sealed class ChestLabelBoard
             label.Dispose();
 
         _labels.Clear();
-        _maybeGone.Clear();
     }
 
     private static string Key(WgoData chest) => chest.UniqueId.ToString();
