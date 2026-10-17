@@ -5,7 +5,7 @@
     <Product>Timbn Core</Product>
     <Version>2.1.0</Version>
     <Thunderstore>true</Thunderstore>
-    <ThunderstoreCategory>libraries</ThunderstoreCategory>
+    <ThunderstoreCategories>mods;libraries</ThunderstoreCategories>
     <ThunderstoreDescription>The shared framework every Timbn mod for Graveyard Keeper 2 is built on. Install it when a Timbn mod needs it. On its own it only keeps people and zombies from walking through fences, trees and rocks.</ThunderstoreDescription>
     <SteamWorkshop>true</SteamWorkshop>
     <WorkshopItemId>3810064587</WorkshopItemId>

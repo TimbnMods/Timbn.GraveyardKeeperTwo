@@ -236,7 +236,7 @@ class ModInfo
     public bool Workshop => Flag("SteamWorkshop") || Get("WorkshopItemId") != null;
     public string Tag => $"{ModName.ToLowerInvariant()}/v{Version}";
     public string ThunderstoreName => Get("ThunderstoreName") ?? Product.Replace(" ", "");
-    public string ThunderstoreCategory => Get("ThunderstoreCategory") ?? "mods";
+    public string[] ThunderstoreCategories => (Get("ThunderstoreCategories") ?? "mods").Split(';', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
     public string? NexusModId => Get("NexusModId");
     public string? WorkshopItemId => Get("WorkshopItemId");
     public string NexusUrl => $"https://www.nexusmods.com/{Repo.NexusGame}/mods/{NexusModId}";
@@ -1089,7 +1089,7 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
             .Append("[publish]\nrepository = \"https://thunderstore.io\"\n")
             .Append($"communities = [{TomlString(Repo.ThunderstoreCommunity)}]\n\n")
             .Append("[publish.categories]\n")
-            .Append($"{Repo.ThunderstoreCommunity} = [{TomlString(mod.ThunderstoreCategory)}]\n");
+            .Append($"{Repo.ThunderstoreCommunity} = [{string.Join(", ", mod.ThunderstoreCategories.Select(TomlString))}]\n");
         return toml.ToString();
     }
 
