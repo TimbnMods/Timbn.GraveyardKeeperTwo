@@ -14,7 +14,7 @@ sections:
     text: Lumberjack, miner, clay and sand zombies no longer swing forever after their stand is dismantled, even in older saves.
 
   - title: Conveyor Loop Crash
-    text: Conveyor belts in certain loops no longer crash the game. A notice appears when such a loop is found, with yellow arrows tracing it and a red square on the belt to remove.
+    text: Conveyor belts in certain loops no longer crash the game. A notice appears when a loop like that is found, with yellow arrows tracing it and a red square on the belt to remove.
     image: images/conveyor-loop.jpg
 
   - title: Choir and Organ Built Too Early
@@ -31,7 +31,7 @@ sections:
     image: images/larry-boards.jpg
 
   - title: Lost Story Items
-    text: If you lose the Inquisitor's medallion before opening the tower prison bars, Larry has found it and gives it back.
+    text: If you lose the Inquisitor's medallion before opening the tower prison bars, talk to Larry and he gives it back.
 
   - title: Unstuck Hotkey
     text: Press `Ctrl+U` to move to the nearest open ground. Change or clear the key with `Tweaks / UnstuckKey`, and set how far it may move you with `Tweaks / UnstuckRange`.
@@ -63,14 +63,14 @@ sections:
           - Install BepInEx for Graveyard Keeper 2, start the game once, and quit at the main menu
           - Install Timbn Core
           - Extract the Timbn.GraveyardKeeperTwo.VanillaTweaks zip into BepInEx/plugins
-      - text: Timbn Core and Timbn Vanilla Tweaks show at the bottom right of the main menu when it works.
+      - text: Timbn Core and Timbn Vanilla Tweaks show at the bottom right of the main menu once they're installed.
 
   - title: Installation
     only: [steam]
     olist:
       - Install BepInEx for Graveyard Keeper 2 and Timbn Workshop Sync
       - Subscribe to Timbn Core and to this item
-      - Start the game. Timbn Core and Timbn Vanilla Tweaks show at the bottom right of the main menu when it works.
+      - Start the game. Timbn Core and Timbn Vanilla Tweaks show at the bottom right of the main menu once they're installed.
 
   - title: Troubleshooting
     text: If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and BepInEx/LogOutput.log says which part failed. Include the startup line from that log when reporting a problem.

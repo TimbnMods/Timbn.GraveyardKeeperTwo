@@ -7,10 +7,10 @@
 
 ## 2.0.1
 
-- Loading a save is quicker, since the quest tree is no longer rebuilt when nothing changed it.
+- Saves load faster.
 - No more stutter when many objects change at once, such as arriving somewhere new. Walkable area updates are spread over several frames.
 - Fixed gaps in the walkable area where big objects like a riverbank cross two areas.
-- Fixed a hitch when a new day starts and quests roll.
+- Fixed a stutter at the start of a new day.
 - Fixed a hitch on the first talk after loading.
 
 ## 2.0.0

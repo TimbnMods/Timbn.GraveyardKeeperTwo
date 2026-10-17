@@ -8,7 +8,7 @@ Timbn Chest Labels lets players name their chests, and the name floats over the 
 - `WGOInteractionHandlerBasePatch` turns on the second interaction (`HasInteraction2`) for chests, and `Interact2` opens Core's `UI.ShowPrompt` to type the name.
 - Only objects whose id contains `chest` can be labeled, since `ChestInteractionHandler` also runs shelves, containers and storages.
 - `WgoPatch` puts the name at the top of the chest's bubble as a `UIQualityTooltipWidgetData`, the widget a grave's quality uses, so the game stacks it with the hints. `UIQualityTooltipWidgetPatch` hides that widget's empty icon slot.
-- `WorldDataPatch` forgets a name when its chest is taken apart. Changing an object's id removes it and adds it straight back with its craft kept, so that case is skipped.
+- `WorldDataPatch` clears a name when its chest is taken apart. Changing an object's id removes it and adds it straight back with its craft kept, so that case is skipped.
 
 ## Save data
 

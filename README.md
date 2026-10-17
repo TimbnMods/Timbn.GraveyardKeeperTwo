@@ -8,17 +8,17 @@ A suite of [BepInEx](https://github.com/BepInEx/BepInEx) mods for Graveyard Keep
 
 | Mod | What it does |
 | --- | --- |
-| **[Core](src/Timbn.GraveyardKeeperTwo.Core/README.md)** | Shared framework the other mods depend on, which makes modding easier. |
+| **[Core](src/Timbn.GraveyardKeeperTwo.Core/README.md)** | The shared framework every other mod is built on. It also makes writing your own mod easier. |
 | **[CampfireMeditation](src/Timbn.GraveyardKeeperTwo.CampfireMeditation/README.md)** | Pass time by a campfire, like the stone garden in the first game. |
 | **[ChestLabels](src/Timbn.GraveyardKeeperTwo.ChestLabels/README.md)** | Name your chests. The name floats over the chest in the same style as grave quality. |
 | **[InfusionRack](src/Timbn.GraveyardKeeperTwo.InfusionRack/README.md)** | Gives your zombies tech points. Lay them in infusion stands and run Spirit Solutions made from organs on the infusion machine. |
 | **[LivingTown](src/Timbn.GraveyardKeeperTwo.LivingTown/README.md)** | Gives the village and the port a daily life, with Herm, Linda and Larry going about their day. |
 | **[QuestPacks](src/Timbn.GraveyardKeeperTwo.QuestPacks/README.md)** | Adds quests and talks written as plain JSON files, no code needed. Install it for any quest pack, or for a mod that ships one. |
-| **[VanillaTweaks](src/Timbn.GraveyardKeeperTwo.VanillaTweaks/README.md)** | Aims to fix bugs and adds light gameplay tweaks that are intended to enhance the vanilla experience without cheating. |
+| **[VanillaTweaks](src/Timbn.GraveyardKeeperTwo.VanillaTweaks/README.md)** | Fixes bugs and adds small conveniences that keep the vanilla game feel, with no cheats. |
 | **[WorkshopSync](src/Timbn.GraveyardKeeperTwo.WorkshopSync/README.md)** | Installs the BepInEx mods you subscribe to on the Steam Workshop. A BepInEx patcher that goes in BepInEx/patchers and does not need Core. |
 | **[ZombieCustomizer](src/Timbn.GraveyardKeeperTwo.ZombieCustomizer/README.md)** | Restyle your zombies' hairstyle, hair color and clothes color in the game's own customization window. |
 
-The mods target Graveyard Keeper 2 (Unity 6, Mono, 64-bit) on BepInEx 5.4.x, the x64 Mono build. Players install them from Nexus, Thunderstore or the Steam Workshop, and each mod's player page is written in `docs/<Mod>/page.yml`. The READMEs in this repo are for developers.
+The mods run on Graveyard Keeper 2 (Unity 6, Mono) with the x64 Mono build of BepInEx 5.4. Players install them from Nexus, Thunderstore or the Steam Workshop, and each mod's player page is written in `docs/<Mod>/page.yml`. The READMEs in this repo are for developers.
 
 Every mod has a General / Enabled toggle. Core's toggle is the master switch, so turning Core off turns off every Timbn mod.
 
@@ -35,7 +35,7 @@ dotnet new gk2mod -n MyMod
 
 ## Building from source
 
-Requires the .NET SDK. Game DLLs are referenced from lib and from your Graveyard Keeper 2 Managed folder (via the GameDir property in src/Directory.Build.props, adjust if the game is installed elsewhere).
+Requires the .NET SDK. Game DLLs are referenced from lib and from your Graveyard Keeper 2 Managed folder (through the GameDir property in src/Directory.Build.props, so change it if the game is installed somewhere else).
 
 To deploy a mod to the plugins folder:
 

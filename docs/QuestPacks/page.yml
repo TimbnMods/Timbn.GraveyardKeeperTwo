@@ -4,8 +4,8 @@ sections:
   - title: How It Works
     list:
       - A quest pack is a folder anywhere in `BepInEx/plugins` with a `pack.json` and a `quests` folder. Its quests show up in the game like any other.
-      - A mod can ship a `quests` folder next to its DLL, and those quests come and go with the mod.
-      - Edit a standalone pack while the game runs, and it's read again the next time you're back on the main menu.
+      - A mod can ship a `quests` folder alongside it, and those quests come and go with the mod.
+      - Edit a pack you installed on its own while the game runs, and it's read again the next time you're back on the main menu.
       - Mistakes in a pack file are written to the log, and the rest of the pack still loads.
 
   - title: Settings
@@ -27,14 +27,14 @@ sections:
           - Install BepInEx for Graveyard Keeper 2, start the game once, and quit at the main menu
           - Install Timbn Core
           - Extract the Timbn.GraveyardKeeperTwo.QuestPacks zip into BepInEx/plugins
-      - text: Timbn Core and Timbn Quest Packs show at the bottom right of the main menu when it works.
+      - text: Timbn Core and Timbn Quest Packs show at the bottom right of the main menu once they're installed.
 
   - title: Installation
     only: [steam]
     olist:
       - Install BepInEx for Graveyard Keeper 2 and Timbn Workshop Sync
       - Subscribe to Timbn Core and to this item
-      - Start the game. Timbn Core and Timbn Quest Packs show at the bottom right of the main menu when it works.
+      - Start the game. Timbn Core and Timbn Quest Packs show at the bottom right of the main menu once they're installed.
 
   - title: Troubleshooting
     text: If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and BepInEx/LogOutput.log says which part failed. Include the startup line from that log when reporting a problem.

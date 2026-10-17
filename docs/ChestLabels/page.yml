@@ -14,7 +14,7 @@ sections:
       - text: You can put one of the game's icons in a name with a sprite tag, such as `<sprite name="gear">Iron`
         image: images/chest-labels.png
       - Names are saved with your game and come back when you load.
-      - Taking a chest apart forgets its name.
+      - Taking a chest apart loses its name.
       - If you uninstall the mod, your chests stay as they are, just without names.
     spoiler:
       title: Every icon name
@@ -36,14 +36,14 @@ sections:
           - Install BepInEx for Graveyard Keeper 2, start the game once, and quit at the main menu
           - Install Timbn Core
           - Extract the Timbn.GraveyardKeeperTwo.ChestLabels zip into BepInEx/plugins
-      - text: Timbn Core and Timbn Chest Labels show at the bottom right of the main menu when it works.
+      - text: Timbn Core and Timbn Chest Labels show at the bottom right of the main menu once they're installed.
 
   - title: Installation
     only: [steam]
     olist:
       - Install BepInEx for Graveyard Keeper 2 and Timbn Workshop Sync
       - Subscribe to Timbn Core and to this item
-      - Start the game. Timbn Core and Timbn Chest Labels show at the bottom right of the main menu when it works.
+      - Start the game. Timbn Core and Timbn Chest Labels show at the bottom right of the main menu once they're installed.
 
   - title: Troubleshooting
     text: If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and BepInEx/LogOutput.log says which part failed. Include the startup line from that log when reporting a problem.

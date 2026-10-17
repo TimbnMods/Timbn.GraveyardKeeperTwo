@@ -1,4 +1,4 @@
-summary: Installs the BepInEx mods you subscribe to on the Steam Workshop, so you don't have to copy each one into BepInEx by hand and again after every update.
+summary: Installs the BepInEx mods you subscribe to on the Steam Workshop, so you don't have to copy each one into BepInEx by hand every time they update.
 banner: images/header.jpg
 sections:
   - title: How It Works
@@ -23,7 +23,7 @@ sections:
       - If you also installed the same mod by hand, BepInEx loads the newer version and warns about the other.
       - Turning the mod off leaves the Workshop mods already installed as they are.
       - It needs the Steam version of the game.
-      - Unlike the other Timbn mods, this one doesn't need Timbn Core. Workshop mods that do need it still need it installed.
+      - Unlike the other Timbn mods, this one doesn't need Timbn Core. Workshop mods that use Timbn Core still need it installed.
 
   - title: Requirements
 

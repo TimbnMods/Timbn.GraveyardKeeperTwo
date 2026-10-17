@@ -15,13 +15,13 @@ sections:
 
   - title: Settings
     list:
-      - The ten clothes colors the window offers (`Clothes Colors / ClothesColor1` to `ClothesColor10`, written as RRGGBBAA hex). With Configuration Manager you can pick them with a color picker in game.
+      - The ten clothes colors the window offers (`Clothes Colors / ClothesColor1` to `ClothesColor10`, written as RRGGBBAA hex). With Configuration Manager you can choose them with its in game color picker.
     text: Changing a color later only changes what the window offers. Zombies keep the color they already have.
 
   - title: Good To Know
     list:
       - The look is saved with your game
-      - Zombies at a mine or a garden wear their work hat while working and keep any beard and its hair color
+      - Zombies at a mine or a garden wear their work hat while working and keep their beard and hair color
       - Zombies in armor keep their hairstyle and hair color
       - A zombie you are carrying or one lying on the ground shows its hairstyle and hair color but not its clothes color, which comes back when it stands up
       - If you uninstall the mod, hairstyles and hair colors stay but clothes colors go away
@@ -42,14 +42,14 @@ sections:
           - Install BepInEx for Graveyard Keeper 2, start the game once, and quit at the main menu
           - Install Timbn Core
           - Extract the Timbn.GraveyardKeeperTwo.ZombieCustomizer zip into BepInEx/plugins
-      - text: Timbn Core and Timbn Zombie Customizer show at the bottom right of the main menu when it works.
+      - text: Timbn Core and Timbn Zombie Customizer show at the bottom right of the main menu once they're installed.
 
   - title: Installation
     only: [steam]
     olist:
       - Install BepInEx for Graveyard Keeper 2 and Timbn Workshop Sync
       - Subscribe to Timbn Core and to this item
-      - Start the game. Timbn Core and Timbn Zombie Customizer show at the bottom right of the main menu when it works.
+      - Start the game. Timbn Core and Timbn Zombie Customizer show at the bottom right of the main menu once they're installed.
 
   - title: Troubleshooting
     text: If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and BepInEx/LogOutput.log says which part failed. Include the startup line from that log when reporting a problem.

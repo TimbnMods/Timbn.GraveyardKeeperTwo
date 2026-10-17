@@ -13,14 +13,14 @@ sections:
       - olist:
           - Install BepInEx for Graveyard Keeper 2, start the game once, and quit at the main menu
           - Extract the Timbn.GraveyardKeeperTwo.Core zip into BepInEx/plugins
-      - text: Timbn Core shows at the bottom right of the main menu when it works, along with any other Timbn mods.
+      - text: Once it's installed, Timbn Core shows at the bottom right of the main menu, along with any other Timbn mods.
 
   - title: Installation
     only: [steam]
     olist:
       - Install BepInEx for Graveyard Keeper 2 and Timbn Workshop Sync
       - Subscribe to this item
-      - Start the game. Timbn Core shows at the bottom right of the main menu when it works.
+      - Start the game. Timbn Core shows at the bottom right of the main menu once it's installed.
 
   - title: For Modders
     text: Start with the [Timbn.GraveyardKeeperTwo.Templates](https://www.nuget.org/packages/Timbn.GraveyardKeeperTwo.Templates) template, or add the [Timbn.GraveyardKeeperTwo.Core](https://www.nuget.org/packages/Timbn.GraveyardKeeperTwo.Core) NuGet package to your project. The [API docs](https://timbnmods.github.io/) and the [source](https://github.com/TimbnMods/Timbn.GraveyardKeeperTwo) are on GitHub.

@@ -46,14 +46,14 @@ sections:
           - Install BepInEx for Graveyard Keeper 2, start the game once, and quit at the main menu
           - Install Timbn Core
           - Extract the Timbn.GraveyardKeeperTwo.CampfireMeditation zip into BepInEx/plugins
-      - text: Timbn Core and Timbn Campfire Meditation show at the bottom right of the main menu when it works.
+      - text: Timbn Core and Timbn Campfire Meditation show at the bottom right of the main menu once they're installed.
 
   - title: Installation
     only: [steam]
     olist:
       - Install BepInEx for Graveyard Keeper 2 and Timbn Workshop Sync
       - Subscribe to Timbn Core and to this item
-      - Start the game. Timbn Core and Timbn Campfire Meditation show at the bottom right of the main menu when it works.
+      - Start the game. Timbn Core and Timbn Campfire Meditation show at the bottom right of the main menu once they're installed.
 
   - title: Translating
     text: Every line the mod shows is in `lang/en.txt` inside its folder. Copy it to your game's language, such as `lang/de.txt`, `lang/fr.txt` or `lang/pt-br.txt`, and translate the text after each `=`. Anything left out shows in English.
