@@ -21,11 +21,9 @@ quest_closed_timbn_living_town_request_d = 为{where}提出请求的人烹饪{di
 timbn_living_town_request_offer_ask = 我特别想吃{dish}。你能帮我做点吗？
 timbn_living_town_request_accept = 我来做。
 timbn_living_town_request_accept_thanks = 愿神保佑你，我等着你。
-timbn_living_town_request_decline = 现在不行。
 timbn_living_town_request_talk_ask = 你带来我的{dish}了吗？
 timbn_living_town_request_talk_accept = 给你。
 timbn_living_town_request_talk_accept_thanks = 真美味，谢谢你！
-timbn_living_town_request_talk_decline = 还没有。
 
 # An Errand for a Neighbor, the delivery. {parcel} is the item and {where} where the friend lives.
 timbn_living_town_delivery = 替邻居跑腿
@@ -34,9 +32,7 @@ quest_closed_timbn_living_town_delivery_d = 把{parcel}送给一位{where}的朋
 timbn_living_town_delivery_offer_ask_keepsake = 我有一份礼物想送给一位{where}的朋友，但我走不开。你能帮忙送过去吗？
 timbn_living_town_delivery_offer_ask_vegetables = 我的花园收成多得吃不完。你能把这箱蔬菜送给我一位{where}的朋友吗？
 timbn_living_town_delivery_offer_ask_potion = 我有一位{where}的朋友身体不太舒服。你能把这药带给他吗？
-timbn_living_town_delivery_accept = 我来送。
 timbn_living_town_delivery_accept_thanks = 谢谢你，我欠你一个人情。
-timbn_living_town_delivery_decline = 现在不行。
 timbn_living_town_delivery_delivering_keepsake = 我有一份礼物要送给你。
 timbn_living_town_delivery_delivering_vegetables = 我有一箱蔬菜要送给你。
 timbn_living_town_delivery_delivering_potion = 我有些药要送给你。
@@ -45,4 +41,3 @@ timbn_living_town_delivery_talk_accept = {delivering}
 timbn_living_town_delivery_talk_accept_thanks_keepsake = 真有心！替我谢谢他们。
 timbn_living_town_delivery_talk_accept_thanks_vegetables = 真新鲜，谢谢你！
 timbn_living_town_delivery_talk_accept_thanks_potion = 正是我需要的，愿神保佑你。
-timbn_living_town_delivery_talk_decline = 还没有。

@@ -21,11 +21,9 @@ quest_closed_timbn_living_town_request_d = {where} 부탁한 사람에게 {dish}
 timbn_living_town_request_offer_ask = {dish}이(가) 너무 먹고 싶어요. 좀 만들어 주시겠어요?
 timbn_living_town_request_accept = 요리해 드릴게요.
 timbn_living_town_request_accept_thanks = 고마워요, 기다리고 있을게요.
-timbn_living_town_request_decline = 지금은 안 돼요.
 timbn_living_town_request_talk_ask = 제 {dish} 가져왔어요?
 timbn_living_town_request_talk_accept = 여기 있어요.
 timbn_living_town_request_talk_accept_thanks = 맛있네요, 고마워요!
-timbn_living_town_request_talk_decline = 아직이요.
 
 # An Errand for a Neighbor, the delivery. {parcel} is the item and {where} where the friend lives.
 timbn_living_town_delivery = 이웃의 심부름
@@ -34,9 +32,7 @@ quest_closed_timbn_living_town_delivery_d = {where} 친구에게 {parcel} 가져
 timbn_living_town_delivery_offer_ask_keepsake = {where} 친구에게 줄 선물이 있는데, 자리를 비울 수가 없어서요. 대신 가져다주시겠어요?
 timbn_living_town_delivery_offer_ask_vegetables = 정원에서 다 먹지 못할 만큼 많이 나왔어요. {where} 제 친구에게 이 채소 상자를 가져다주시겠어요?
 timbn_living_town_delivery_offer_ask_potion = {where} 제 친구가 몸이 안 좋아서요. 이 약을 좀 가져다주시겠어요?
-timbn_living_town_delivery_accept = 제가 가져다드릴게요.
 timbn_living_town_delivery_accept_thanks = 고마워요, 신세를 졌네요.
-timbn_living_town_delivery_decline = 지금은 안 돼요.
 timbn_living_town_delivery_delivering_keepsake = 전해드릴 선물이 있어요.
 timbn_living_town_delivery_delivering_vegetables = 전해드릴 채소 상자가 있어요.
 timbn_living_town_delivery_delivering_potion = 전해드릴 약이 있어요.
@@ -45,4 +41,3 @@ timbn_living_town_delivery_talk_accept = {delivering}
 timbn_living_town_delivery_talk_accept_thanks_keepsake = 정말 사려 깊네요! 제 대신 고맙다고 전해 주세요.
 timbn_living_town_delivery_talk_accept_thanks_vegetables = 정말 싱싱하네요, 고마워요!
 timbn_living_town_delivery_talk_accept_thanks_potion = 딱 필요했던 거예요, 정말 고마워요.
-timbn_living_town_delivery_talk_decline = 아직이요.

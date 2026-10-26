@@ -48,8 +48,8 @@ internal sealed class Deliveries
                     talk.When(() => IsParcel(parcel), then => then.Line($"ask_{parcel.Kind}"));
 
                 talk
-                    .Accept(then => then.RunCode(HandOver).Line("thanks"))
-                    .Decline();
+                    .Accept(TimbnGameIds.Texts.DefaultSure, then => then.RunCode(HandOver).Line("thanks"))
+                    .Decline(TimbnGameIds.Texts.DefaultMainNotRightNow);
             })
             .TalksWith(run => run.NpcId("recipient"))
             .Cost((cost, run) => cost.Item(run.Item("parcel")))
@@ -60,7 +60,7 @@ internal sealed class Deliveries
                     foreach (var parcel in _parcels)
                         then.When(() => IsParcel(parcel), thanks => thanks.Line($"thanks_{parcel.Kind}"));
                 })
-                .Decline())
+                .Decline(TimbnGameIds.Texts.DefaultNope))
             .OnCancel(PayForParcel));
 
         _plugin.Events.NewDayStarted(_ =>
@@ -112,7 +112,7 @@ internal sealed class Deliveries
     private void HandOver()
     {
         if (_errand.CurrentRun is { } run)
-            TimbnItems.GiveToPlayer(new Item(run.Item("parcel"), 1));
+            TimbnPlayer.GiveItem(new Item(run.Item("parcel"), 1));
     }
 
     private void PayForParcel(TimbnQuestRun? run)

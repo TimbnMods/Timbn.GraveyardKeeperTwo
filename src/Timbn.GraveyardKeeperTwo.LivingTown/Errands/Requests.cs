@@ -33,13 +33,13 @@ internal sealed class Requests
             .Offer(talk => talk
                 .Line("ask")
                 .Accept(then => then.Line("thanks"))
-                .Decline())
+                .Decline(TimbnGameIds.Texts.DefaultMainNotRightNow))
             .Cost((cost, run) => cost.Item(run.Item("dish")))
             .Reward((reward, run) => reward.Money(TimbnItems.SalePrice(run.Item("dish"))))
             .Talk(talk => talk
                 .Line("ask")
                 .Accept(then => then.Line("thanks"))
-                .Decline()));
+                .Decline(TimbnGameIds.Texts.DefaultNope)));
 
         _plugin.Events.NewDayStarted(_ =>
         {

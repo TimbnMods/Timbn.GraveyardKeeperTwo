@@ -21,11 +21,9 @@ quest_closed_timbn_living_town_request_d = Cuisine {dish} pour la personne {wher
 timbn_living_town_request_offer_ask = J'ai une envie de {dish}. Tu pourrais m'en cuisiner ?
 timbn_living_town_request_accept = Je vais le cuisiner.
 timbn_living_town_request_accept_thanks = Dieu te bénisse, j'attendrai.
-timbn_living_town_request_decline = Pas maintenant.
 timbn_living_town_request_talk_ask = Tu as apporté mon {dish} ?
 timbn_living_town_request_talk_accept = Tiens, voilà.
 timbn_living_town_request_talk_accept_thanks = Délicieux, merci !
-timbn_living_town_request_talk_decline = Pas encore.
 
 # An Errand for a Neighbor, the delivery. {parcel} is the item and {where} where the friend lives.
 timbn_living_town_delivery = Une course pour un voisin
@@ -34,9 +32,7 @@ quest_closed_timbn_living_town_delivery_d = Apporte {parcel} à un ami {where}. 
 timbn_living_town_delivery_offer_ask_keepsake = J'ai un cadeau pour un ami {where}, mais je ne peux pas m'absenter. Tu pourrais le lui apporter ?
 timbn_living_town_delivery_offer_ask_vegetables = Mon jardin a donné plus que je ne peux en manger. Tu pourrais apporter cette caisse de légumes à un de mes amis {where} ?
 timbn_living_town_delivery_offer_ask_potion = Un de mes amis {where} ne va pas bien. Tu pourrais lui apporter ce médicament ?
-timbn_living_town_delivery_accept = Je le prends.
 timbn_living_town_delivery_accept_thanks = Merci, je te suis redevable.
-timbn_living_town_delivery_decline = Pas maintenant.
 timbn_living_town_delivery_delivering_keepsake = J'ai un cadeau à te livrer.
 timbn_living_town_delivery_delivering_vegetables = J'ai une caisse de légumes pour toi.
 timbn_living_town_delivery_delivering_potion = J'ai des médicaments pour toi.
@@ -45,4 +41,3 @@ timbn_living_town_delivery_talk_accept = {delivering}
 timbn_living_town_delivery_talk_accept_thanks_keepsake = Quelle attention ! Remercie-le de ma part.
 timbn_living_town_delivery_talk_accept_thanks_vegetables = C'est bien frais, merci !
 timbn_living_town_delivery_talk_accept_thanks_potion = Exactement ce dont j'avais besoin, Dieu te bénisse.
-timbn_living_town_delivery_talk_decline = Pas encore.

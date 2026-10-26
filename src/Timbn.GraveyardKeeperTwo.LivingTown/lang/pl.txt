@@ -21,11 +21,9 @@ quest_closed_timbn_living_town_request_d = Ugotuj {dish} dla osoby {where}, któ
 timbn_living_town_request_offer_ask = Mam ochotę na {dish}. Mógłbyś mi trochę ugotować?
 timbn_living_town_request_accept = Ugotuję to.
 timbn_living_town_request_accept_thanks = Bóg zapłać, będę czekać.
-timbn_living_town_request_decline = Nie teraz.
 timbn_living_town_request_talk_ask = Przyniosłeś mi {dish}?
 timbn_living_town_request_talk_accept = Proszę.
 timbn_living_town_request_talk_accept_thanks = Pyszne, dziękuję!
-timbn_living_town_request_talk_decline = Jeszcze nie.
 
 # An Errand for a Neighbor, the delivery. {parcel} is the item and {where} where the friend lives.
 timbn_living_town_delivery = Sprawunek dla sąsiada
@@ -34,9 +32,7 @@ quest_closed_timbn_living_town_delivery_d = Zanieś {parcel} do przyjaciela {whe
 timbn_living_town_delivery_offer_ask_keepsake = Mam prezent dla przyjaciela {where}, ale nie mogę się wyrwać. Mógłbyś go zanieść?
 timbn_living_town_delivery_offer_ask_vegetables = Mój ogród dał więcej, niż mogę zjeść. Mógłbyś zanieść tę skrzynkę warzyw do mojego przyjaciela {where}?
 timbn_living_town_delivery_offer_ask_potion = Mój przyjaciel {where} źle się czuje. Mógłbyś zanieść mu to lekarstwo?
-timbn_living_town_delivery_accept = Wezmę to.
 timbn_living_town_delivery_accept_thanks = Dziękuję, mam u ciebie dług wdzięczności.
-timbn_living_town_delivery_decline = Nie teraz.
 timbn_living_town_delivery_delivering_keepsake = Mam dla ciebie przesyłkę z prezentem.
 timbn_living_town_delivery_delivering_vegetables = Mam dla ciebie skrzynkę warzyw.
 timbn_living_town_delivery_delivering_potion = Mam dla ciebie lekarstwo.
@@ -45,4 +41,3 @@ timbn_living_town_delivery_talk_accept = {delivering}
 timbn_living_town_delivery_talk_accept_thanks_keepsake = Jak miło! Podziękuj im ode mnie.
 timbn_living_town_delivery_talk_accept_thanks_vegetables = Piękne i świeże, dziękuję!
 timbn_living_town_delivery_talk_accept_thanks_potion = Tego mi było trzeba, bóg zapłać.
-timbn_living_town_delivery_talk_decline = Jeszcze nie.

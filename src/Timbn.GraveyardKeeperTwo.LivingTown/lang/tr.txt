@@ -21,11 +21,9 @@ quest_closed_timbn_living_town_request_d = {where} bunu isteyen kişi için {dis
 timbn_living_town_request_offer_ask = Canım {dish} çekti. Bana biraz pişirebilir misin?
 timbn_living_town_request_accept = Pişiririm.
 timbn_living_town_request_accept_thanks = Sağ olasın, bekleyeceğim.
-timbn_living_town_request_decline = Şimdi değil.
 timbn_living_town_request_talk_ask = Bana {dish} getirdin mi?
 timbn_living_town_request_talk_accept = Buyur.
 timbn_living_town_request_talk_accept_thanks = Nefis, teşekkürler!
-timbn_living_town_request_talk_decline = Henüz değil.
 
 # An Errand for a Neighbor, the delivery. {parcel} is the item and {where} where the friend lives.
 timbn_living_town_delivery = Bir Komşu İçin Ayak İşi
@@ -34,9 +32,7 @@ quest_closed_timbn_living_town_delivery_d = {where} bir arkadaşa {parcel} göt�
 timbn_living_town_delivery_offer_ask_keepsake = {where} bir arkadaşım için bir hediyem var ama ayrılamıyorum. Götürür müsün?
 timbn_living_town_delivery_offer_ask_vegetables = Bahçem yiyebileceğimden fazlasını verdi. Bu sebze kasasını {where} bir arkadaşıma götürür müsün?
 timbn_living_town_delivery_offer_ask_potion = {where} bir arkadaşım rahatsızlandı. Bu ilacı ona götürür müsün?
-timbn_living_town_delivery_accept = Alırım.
 timbn_living_town_delivery_accept_thanks = Teşekkürler, sana borçlandım.
-timbn_living_town_delivery_decline = Şimdi değil.
 timbn_living_town_delivery_delivering_keepsake = Senin için bir hediye teslimatım var.
 timbn_living_town_delivery_delivering_vegetables = Senin için bir kasa sebzem var.
 timbn_living_town_delivery_delivering_potion = Senin için biraz ilacım var.
@@ -45,4 +41,3 @@ timbn_living_town_delivery_talk_accept = {delivering}
 timbn_living_town_delivery_talk_accept_thanks_keepsake = Ne kadar düşünceli! Benim için teşekkür et.
 timbn_living_town_delivery_talk_accept_thanks_vegetables = Harika ve taze, teşekkürler!
 timbn_living_town_delivery_talk_accept_thanks_potion = Tam ihtiyacım olan şey, sağ olasın.
-timbn_living_town_delivery_talk_decline = Henüz değil.
