@@ -1,6 +1,7 @@
 # Timbn.GraveyardKeeperTwo.LivingTown
 
 Timbn Living Town gives the village and the port a daily life, with NPC routines, graveyard visitors, funerals and villager errands. This README is for developers. The text players see on Nexus, Thunderstore and Steam comes from `docs/LivingTown/page.yml`, and what changed in each version is in `CHANGELOG.md`.
+
 ## How it works
 
 The mod has no Harmony patches. `Plugin.OnAwake` wires every part to Core's events and settings, and the code sits in feature folders under one namespace.
@@ -8,7 +9,7 @@ The mod has no Harmony patches. `Plugin.OnAwake` wires every part to Core's even
 ### Routines
 
 - `HermDay`, `LindaDay`, `LarryDay` and `AstrologerDay` each build a `TimbnNpcDay` that `Npcs.Schedule` runs while `DailyRoutine` is on. Linda's and the astrologer's days wait on a finished quest (`OnlyWhile`).
-- `LindaDay.Tick` plays the violin music while she is on the stage at night. The cat by the club is a `TimbnObjectAction` on `common_box_08`.
+- `LindaDay.Tick` plays the violin music while she is on the stage at night. `ClubCat` lets the keeper pet the cat on the crate by the club, an interaction spot that walks them over and holds them there for a few minutes.
 - `VendorHours` holds Herm's hours (6:00, 19:12 to match the game's stalls, 22:00). `Npcs.CloseTradeWhen` uses it to close his trade while `OpeningHours` is on.
 
 ### Visitors
@@ -20,7 +21,7 @@ The mod has no Harmony patches. `Plugin.OnAwake` wires every part to Core's even
 
 ### Funerals
 
-- `Funeral` is owned by `ChurchVisits` and runs from its tick, so it works with `ChurchVisits` off. The 2:00 check compares `TimbnWorld.GravesWithBodies()` to the known graves and holds a funeral for a new one.
+- `Funeral` is owned by `ChurchVisits` and runs from its tick, so funerals still run when the `ChurchVisits` setting is off. The 2:00 check compares `TimbnWorld.GravesWithBodies()` to the known graves and holds a funeral for a new one.
 - The first three mourners speak at the choir in turn, then everyone lines up along `GraveyardPaths.PointAlong` toward the grave. A grave gets at most two tries (`FuneralData.TriedGraves`).
 
 ### Errands
@@ -30,7 +31,7 @@ The mod has no Harmony patches. `Plugin.OnAwake` wires every part to Core's even
 
 ## Config
 
-- `People` `DailyRoutine` turns the four NPC days on, and off puts them back in their usual spots.
+- `People` `DailyRoutine` turns the four NPC days on, and turning it off puts them back in their usual spots.
 - `People` `OpeningHours` closes Herm's trade outside his hours.
 - `Crowds` `ChurchVisits` turns the daily graveyard visitors on.
 - `Crowds` `GratitudePerVisitor` is town gratitude per visitor (default 7).
@@ -50,4 +51,4 @@ Every line the mod adds is in `lang/en.txt`. Copy it to the game's language id, 
 
 ## Building
 
-It needs Timbn Core 2.0.0 or newer. A build deploys to `BepInEx/scripts` so F6 reloads it, and `-p:DeployTo=plugins` loads it at startup instead.
+It needs Timbn Core 2.2.0 or newer. A build deploys to `BepInEx/scripts` so F6 reloads it, and `-p:DeployTo=plugins` loads it at startup instead.

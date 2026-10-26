@@ -1,3 +1,5 @@
+using LazyBearTechnology;
+
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
@@ -34,6 +36,26 @@ public sealed class TimbnPluginText
     /// <param name="texts">Text by key.</param>
     /// <returns>A handle that removes the keys early when disposed. You don't need to keep it.</returns>
     public IDisposable Add(IReadOnlyDictionary<string, string> texts) => _owner.Subscriptions.Add(TimbnLocale.Add(texts));
+
+    /// <summary>Looks up a localization key in the player's language, the text a plugin passes to the game's windows and hints. A key nothing defines comes back as the key itself.</summary>
+    /// <param name="key">The key the text was added or shipped under, such as "timbn_chest_labels_title".</param>
+    public string Get(string key) => LLBase.L(key);
+
+    /// <summary>
+    /// A label that shows a localization key's text in the player's language, looked up again every time it is read, so a
+    /// language change shows at once. Pass it wherever Core takes a label as text or a callback, such as an interaction.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// Interactions.Register(spot).AddPrimary(Text.Key("my_mod_hide"), Hide);
+    /// </code>
+    /// </example>
+    /// <param name="key">The key the text was added or shipped under.</param>
+    public TimbnBinding<string> Key(string key) => new(() => LLBase.L(key));
+
+    /// <summary>Whether a localization key has text in the player's language, so a plugin can fall back to its own text when it does not.</summary>
+    /// <param name="key">The key the text was added or shipped under.</param>
+    public bool Has(string key) => LLBase.HasL(key);
 
     internal void AddLanguageFilesIfPresent()
     {

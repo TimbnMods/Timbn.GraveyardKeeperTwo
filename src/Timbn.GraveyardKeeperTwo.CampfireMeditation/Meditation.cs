@@ -5,16 +5,15 @@ namespace Timbn.GraveyardKeeperTwo.CampfireMeditation;
 internal sealed class Meditation
 {
     private const string _meditateKey = "timbn_campfire_meditate";
-    private const string _getUpKey = "timbn_campfire_get_up";
-    private const string _insanity = "insanity";
-    private const float _hintHeight = 1.2f;
+
+    // The campfire in the garden at the keeper's home, the only one there is to meditate at.
+    private static readonly Vector3 _fire = new(-5.22f, 6.00f, 29.40f);
 
     private readonly TimbnFrameworkPlugin _plugin;
-    private readonly Campfires _campfires = new();
-    private readonly TimbnInteractionHint _hint;
+    private readonly TimbnInteractionSpot _spot;
     private IDisposable? _control;
+    private IDisposable? _keyHints;
     private IDisposable? _fastTime;
-    private Vector3 _fire;
     private bool _meditating;
     private bool _applied;
     private IDisposable? _fade;
@@ -24,16 +23,15 @@ internal sealed class Meditation
     public Meditation(TimbnFrameworkPlugin plugin)
     {
         _plugin = plugin;
-        _hint = plugin.UI.CreateHint();
+        _spot = plugin.Interactions.Register(_fire).AddPrimary(() => CanSitDown() ? plugin.Text.Get(_meditateKey) : string.Empty, SitDown);
     }
 
-    private static PlayerController? Player => MainGame.Instance != null ? MainGame.PlayerController : null;
     public void Tick()
     {
+        _spot.Radius = PluginConfig.Radius.Value;
         if (!TimbnGame.IsInGame || MainGame.PlayerController == null)
         {
             Stop();
-            _hint.Hide();
             return;
         }
 
@@ -43,27 +41,17 @@ internal sealed class Meditation
         if (_meditating && TimbnPlayer.IsTired && CanGetUp())
             GetUp();
 
-        if (_meditating)
-            KeepMeditating();
-
-        if (_meditating ? !CanGetUp() : !CanSitDown())
-        {
-            _hint.Hide();
-            return;
-        }
-
-        _hint.Show(_fire + Vector3.up * _hintHeight, LLBase.L(_meditating ? _getUpKey : _meditateKey));
-        if (!GameKey.Interaction.IsDownInGame())
+        if (!_meditating)
             return;
 
-        if (_meditating)
+        KeepMeditating();
+        if (CanGetUp() && GameKey.Back.IsDownInGame())
             GetUp();
-        else
-            SitDown();
     }
 
     public void Stop()
     {
+        HideKeyHints();
         _fade?.Dispose();
         _fade = null;
         if (_meditating || _applied)
@@ -75,18 +63,12 @@ internal sealed class Meditation
     private static bool CanGetUp() =>
         !TimbnUI.IsScreenFading && TimbnInput.HotkeysEnabled;
 
-    private bool CanSitDown() =>
-        !TimbnUI.IsScreenFading
-        && TimbnInput.PlayerHasControl
-        && !TimbnInput.GameHasInteraction
-        && !TimbnPlayer.IsTired
-        && FindFire();
-
-    private bool FindFire() => _campfires.TryFindNear(TimbnPlayer.Position, out _fire);
+    private bool CanSitDown() => !_meditating && !TimbnPlayer.IsTired;
 
     private void SitDown()
     {
         _meditating = true;
+        _keyHints = _plugin.UI.ShowKeyHints(new TimbnKeyHint(GameKey.Back, _plugin.Text.Key(TimbnGameIds.Texts.HintExit)));
         _control?.Dispose();
         _control = _plugin.Player.TakeControl();
         _lastTimeOfDay = TimbnClock.TimeOfDay;
@@ -98,24 +80,18 @@ internal sealed class Meditation
     private void GetUp()
     {
         _meditating = false;
+        HideKeyHints();
         _fade?.Dispose();
         _fade = _plugin.UI.FadeThrough(Restore);
     }
 
     private void Begin()
     {
-        var player = Player;
-        if (player == null)
+        if (!TimbnPlayer.Face(_fire))
             return;
 
         _applied = true;
         MeditationLighting.Begin();
-        var position = player.transform.position;
-        var toFire = new Vector2(_fire.x - position.x, _fire.z - position.z);
-        if (toFire.sqrMagnitude > 0.0001f)
-            player.PhysicalBody.SetFacingDirection(toFire.normalized);
-
-        player.PhysicalBody.SetDirectionLock(false);
         _fastTime?.Dispose();
         _fastTime = _plugin.Clock.MultiplyGameSpeed(PluginConfig.TimeSpeed.Value);
         Plugin.Logger.LogInfo($"Meditating by the fire at {_fire} in {TimbnPlayer.ZoneId ?? "no zone"}, time at x{PluginConfig.TimeSpeed.Value:0.#}.");
@@ -123,10 +99,6 @@ internal sealed class Meditation
 
     private void Restore()
     {
-        var player = Player;
-        if (player != null)
-            player.PhysicalBody.SetDirectionLock(true);
-
         _control?.Dispose();
         _control = null;
         _fastTime?.Dispose();
@@ -147,25 +119,21 @@ internal sealed class Meditation
         if (!_applied || passed <= 0f)
             return;
 
-        var energy = PlayerEnergyGameResSystem.GetSystem();
-        if (energy != null && !energy.HasMax())
-            energy.Add(passed * PluginConfig.EnergyPerDay.Value);
-
+        TimbnPlayer.AddEnergy(passed * PluginConfig.EnergyPerDay.Value);
         CalmDown(passed);
     }
 
     private void CalmDown(float passed)
     {
-        var insanity = PlayerInsanityGameResSystem.GetSystem();
         var left = PluginConfig.MaxInsanity.Value - _insanityRemoved;
-        if (insanity == null || left <= 0f)
-            return;
+        var amount = Mathf.Min(passed * PluginConfig.InsanityPerDay.Value, left, TimbnPlayer.Insanity);
+        if (amount > 0f && TimbnPlayer.AddInsanity(-amount))
+            _insanityRemoved += amount;
+    }
 
-        var amount = Mathf.Min(passed * PluginConfig.InsanityPerDay.Value, left, TimbnPlayer.GetResource(_insanity));
-        if (amount <= 0f)
-            return;
-
-        insanity.Add(-amount);
-        _insanityRemoved += amount;
+    private void HideKeyHints()
+    {
+        _keyHints?.Dispose();
+        _keyHints = null;
     }
 }

@@ -43,7 +43,7 @@ internal sealed class UnreachableDismantle
 
     public bool TryGetDropPosition(WgoData data, out Vector3 position)
     {
-        position = MainGame.PlayerData.position.Value;
+        position = TimbnPlayer.Position;
         return _on && data == _station && IsMarkedForDismantle(data);
     }
 

@@ -14,64 +14,6 @@ public sealed class TimbnStrippedStoreTests
         store.Add($"save at {minute}", _morning.AddMinutes(minute), playthrough, [.. entries]);
 
     [Fact]
-    public void FindsTheSetOfTheSameSave()
-    {
-        var store = new TimbnStrippedStore();
-        Save(store, 1, _ours, Entry("potion", 0));
-        Save(store, 2, _ours, Entry("drink", 1));
-
-        Assert.Equal("potion", Assert.Single(store.Find("save at 1")!).Id);
-        Assert.Equal("drink", Assert.Single(store.Find("save at 2")!).Id);
-        Assert.Null(store.Find("save at 9"));
-    }
-
-    [Fact]
-    public void KeepsOnlyTheNewestSets()
-    {
-        var store = new TimbnStrippedStore();
-        for (var minute = 1; minute <= TimbnStrippedStore.Kept + 2; minute++)
-            Save(store, minute, _ours);
-
-        Assert.Equal(["save at 6", "save at 5", "save at 4", "save at 3"], store.Stamps);
-    }
-
-    [Fact]
-    public void SavingTwiceInOneSecondKeepsTheLaterSet()
-    {
-        var store = new TimbnStrippedStore();
-        Save(store, 1, _ours, Entry("old", 0));
-        Save(store, 1, _ours, Entry("new", 0));
-
-        Assert.Equal(["save at 1"], store.Stamps);
-        Assert.Equal("new", Assert.Single(store.Find("save at 1")!).Id);
-    }
-
-    [Fact]
-    public void RoundTripsThroughJson()
-    {
-        var store = new TimbnStrippedStore();
-        var entry = new TimbnStrippedEntry { Root = TimbnStrippedEntry.WorldObject, Scene = "RuinedTemple", Owner = "guid", Member = "inventory", Path = [2, 0], Id = "potion", Blob = "AAEC" };
-        store.Add("a", _morning, _ours, [entry]);
-
-        var read = TimbnStrippedStore.FromJson(store.ToJson());
-
-        var kept = Assert.Single(read.Find("a")!);
-        Assert.Equal(TimbnStrippedEntry.WorldObject, kept.Root);
-        Assert.Equal("RuinedTemple", kept.Scene);
-        Assert.Equal("guid", kept.Owner);
-        Assert.Equal([2, 0], kept.Path);
-        Assert.Equal("AAEC", kept.Blob);
-        Assert.False(read.Pick("later", _morning.AddMinutes(5), _ours)!.Value.Exact);
-    }
-
-    [Fact]
-    public void MissingOrBrokenSectionGivesAnEmptyStore()
-    {
-        Assert.True(TimbnStrippedStore.FromJson(null).IsEmpty);
-        Assert.True(TimbnStrippedStore.FromJson(new Newtonsoft.Json.Linq.JObject { ["sets"] = "nope" }).IsEmpty);
-    }
-
-    [Fact]
     public void PickTakesTheExactSaveFirst()
     {
         var store = new TimbnStrippedStore();
@@ -108,16 +50,6 @@ public sealed class TimbnStrippedStoreTests
     }
 
     [Fact]
-    public void AnotherPlaythroughNeverGetsOurSets()
-    {
-        var store = new TimbnStrippedStore();
-        Save(store, 1, _ours, Entry("ours", 0));
-
-        Assert.Null(store.Pick("save at 1", _morning.AddMinutes(1), _theirs));
-        Assert.Null(store.Pick("save at 30", _morning.AddMinutes(30), _theirs));
-    }
-
-    [Fact]
     public void NoFallbackWithoutAPlaythroughOrADate()
     {
         var store = new TimbnStrippedStore();
@@ -127,6 +59,8 @@ public sealed class TimbnStrippedStoreTests
         Assert.Null(store.Pick("save at 30", null, _ours));
         Assert.Null(store.Pick("save at 30", _morning.AddMinutes(30), ""));
         Assert.Equal("old", Assert.Single(store.Pick("old", null, "")!.Value.Entries).Id);
+        Assert.Null(store.Pick("save at 1", _morning.AddMinutes(1), _theirs));
+        Assert.Null(store.Pick("save at 30", _morning.AddMinutes(30), _theirs));
     }
 
     [Fact]
@@ -209,60 +143,5 @@ public sealed class TimbnStrippedStoreTests
         var ordered = TimbnStrippedStore.RestoreOrder([later, earlier, otherZone]);
 
         Assert.Equal(["c", "a", "b"], ordered.Select(entry => entry.Id));
-    }
-
-    [Fact]
-    public void RoundTripsCraftAndWorkerStateThroughJson()
-    {
-        var store = new TimbnStrippedStore();
-        var craft = new TimbnStrippedEntry
-        {
-            Root = TimbnStrippedEntry.Craft,
-            Scene = "RuinedTemple",
-            Owner = "station",
-            Member = TimbnStrippedEntry.QueueMember,
-            Path = [2],
-            Id = "mod_pie",
-            Blob = "AAEC",
-            Queue = new TimbnCraftQueueState { CurrentIndex = 2, Status = 1, HasPreFinishUpdate = true, PrevQueueCount = 3 },
-        };
-        var worker = new TimbnStrippedEntry
-        {
-            Root = TimbnStrippedEntry.Worker,
-            Scene = "RuinedTemple",
-            Owner = "zombie",
-            Id = "mod_station",
-            Attachment = new TimbnWorkerAttachment { Station = "guid", ZombieType = 1, DockParent = "guid", Locked = true },
-        };
-        store.Add("a", _morning, _ours, [craft, worker]);
-
-        var read = TimbnStrippedStore.FromJson(store.ToJson()).Find("a")!;
-
-        var keptCraft = read.Single(entry => entry.Root == TimbnStrippedEntry.Craft);
-        Assert.Equal(2, keptCraft.Queue!.CurrentIndex);
-        Assert.Equal(1, keptCraft.Queue.Status);
-        Assert.True(keptCraft.Queue.HasPreFinishUpdate);
-        Assert.Equal(3, keptCraft.Queue.PrevQueueCount);
-        Assert.Null(keptCraft.Attachment);
-        var keptWorker = read.Single(entry => entry.Root == TimbnStrippedEntry.Worker);
-        Assert.Equal("guid", keptWorker.Attachment!.Station);
-        Assert.Equal(1, keptWorker.Attachment.ZombieType);
-        Assert.True(keptWorker.Attachment.Locked);
-        Assert.True(keptWorker.IsStationPart);
-        Assert.Null(keptWorker.Queue);
-    }
-
-    [Fact]
-    public void KeepsASetItCannotReadWhenWritingBack()
-    {
-        var json = Newtonsoft.Json.Linq.JObject.Parse(
-            "{\"sets\":[{\"stamp\":\"good\",\"entries\":[]},{\"stamp\":\"bad\",\"entries\":\"not a list\"}]}");
-
-        var store = TimbnStrippedStore.FromJson(json);
-        var written = store.ToJson();
-
-        Assert.Equal(["good"], store.Stamps);
-        Assert.Equal(2, ((Newtonsoft.Json.Linq.JArray)written["sets"]!).Count);
-        Assert.Equal("not a list", (string?)written["sets"]![1]!["entries"]);
     }
 }

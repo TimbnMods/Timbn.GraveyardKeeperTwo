@@ -10,7 +10,7 @@ To start fast, install the [`Timbn.GraveyardKeeperTwo.Templates`](https://www.nu
 
 ```csharp
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-[BepInDependency(TimbnCorePlugin.Guid, "2.0.0")]
+[BepInDependency(TimbnCorePlugin.Guid, "2.2.0")]
 public class Plugin : TimbnFrameworkPlugin<Plugin>
 {
     protected override void OnAwake()
@@ -20,7 +20,7 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
 }
 ```
 
-The plugin class's properties are how you add things to the game. `Quests.Add` adds quests with offers, hand ins and stages that chain like the game's own, `Dialog.AddTalk` gives an NPC a conversation, and `Npcs.Schedule` and `Npcs.Find` give people a day of their own or walk them somewhere for a quest, along the paths, over the walkable ground, or in a straight line for a short step. `Stations.Add` puts a new workstation with your own 3D model on a build desk, and `Crafts.Add` adds a recipe at any station, yours or the game's, with their names in your lang files or in the call. `UnlockedBy` has a tech unlock a station or a recipe, `Techs.Add` puts a new tech of your own on the tech tree, and `Mastery` sets the tool level a recipe needs. `Models` loads your asset bundle for those and for extra parts like a headstone. `Audio.PlayMusic` plays one of the game's music tracks and `Audio.PlaySound` one of its sounds, such as `item_use_drink`. There are also events, settings, potions, text, sprites, balance changes and save data. People, groups, their events and their animations come from `TimbnGameIds.Npcs`, `.Groups`, `.NpcEvents` and `.NpcAnimations`, and `TimbnGameIds` also names the game's items, sounds, music, techs, perks, buffs, build desks and workstations. Everything a mod adds is taken out again when it unloads. Items, buffs, recipes and stations a mod adds are kept out of the game's save file and come back when the save loads, so removing the mod later leaves a save that still loads.
+Everything Core offers, with guides and the API reference, is on the [docs site](https://timbnmods.github.io/).
 
 ## License
 

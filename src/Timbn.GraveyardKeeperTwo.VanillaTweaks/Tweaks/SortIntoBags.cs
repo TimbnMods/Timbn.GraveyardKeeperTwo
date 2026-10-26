@@ -1,21 +1,21 @@
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
 
-internal static class SortIntoBags
+internal sealed class SortIntoBags
 {
     private const string _universalBagGroup = "u_bag";
 
-    private static bool _movingFromChest;
+    private bool _movingFromChest;
 
-    public static void BeginMove(Inventory from, Inventory to) =>
+    public void BeginMove(Inventory from, Inventory to) =>
         _movingFromChest = PluginConfig.SortIntoBags.Value
             && IsPlayerInventory(to.Data)
             && !IsPlayerInventory(from.Data)
             && from.Data is { IsBag: false }
             && from != MainGame.PlayerData.toolBeltInventory;
 
-    public static void EndMove() => _movingFromChest = false;
+    public void EndMove() => _movingFromChest = false;
 
-    public static bool TreatAsPickup(Item inventory) => _movingFromChest && IsPlayerInventory(inventory);
+    public bool TreatAsPickup(Item inventory) => _movingFromChest && IsPlayerInventory(inventory);
 
     public static bool TryFill(Item inventory, Item sourceItem, Item? ignoredBag, bool ignoreAllBags, out List<Item> addedItems)
     {

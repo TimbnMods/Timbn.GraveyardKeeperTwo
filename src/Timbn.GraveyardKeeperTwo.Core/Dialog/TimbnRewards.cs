@@ -126,7 +126,7 @@ public sealed class TimbnRewards
             MainGame.PlayerData.AddRes(LazyConsts.MONEY_KEY, MoneyTotal);
 
         foreach (var item in _items)
-            TimbnItems.GiveToPlayer(new Item(item.itemId, item.count));
+            TimbnPlayer.GiveItem(new Item(item.itemId, item.count), notify: false);
 
         foreach (var resource in _resources)
             MainGame.PlayerData.AddRes(resource.type, resource.value);

@@ -44,7 +44,7 @@ internal sealed class TimbnPackRules
             case "questStarted":
                 {
                     var id = _questId(Required(token, name, argument));
-                    return () => TimbnQuests.StatusOf(id) is QuestStatus.InProgress or QuestStatus.Completed;
+                    return () => TimbnQuests.HasStarted(id);
                 }
 
             case "questCompleted":
@@ -56,14 +56,14 @@ internal sealed class TimbnPackRules
             case "questNotStarted":
                 {
                     var id = _questId(Required(token, name, argument));
-                    return () => TimbnQuests.StatusOf(id) is not (QuestStatus.InProgress or QuestStatus.Completed);
+                    return () => !TimbnQuests.HasStarted(id);
                 }
 
             case "carries":
                 {
                     var item = Required(token, name, argument);
                     var count = Count(number);
-                    return () => TimbnItems.CountOnPlayer(item) >= count;
+                    return () => TimbnPlayer.CountItem(item) >= count;
                 }
 
             case "owns":
@@ -153,7 +153,7 @@ internal sealed class TimbnPackRules
                 {
                     var item = Required(token, name, argument);
                     var count = Count(number);
-                    return () => TimbnItems.GiveToPlayer(new Item(item, count));
+                    return () => TimbnPlayer.GiveItem(new Item(item, count));
                 }
 
             case "run":
@@ -166,7 +166,7 @@ internal sealed class TimbnPackRules
                 {
                     var item = Required(token, name, argument);
                     var count = Count(number);
-                    return () => TimbnItems.TakeFromPlayer(item, count);
+                    return () => TimbnPlayer.TakeItem(item, count);
                 }
 
             case "addResource":
@@ -197,7 +197,7 @@ internal sealed class TimbnPackRules
         var argument = split > 0 ? text[(split + 1)..] : "";
         return (split > 0 ? text[..split] : text) switch
         {
-            "itemCount" when argument.Length > 0 => (Func<object>)(() => TimbnItems.CountOnPlayer(argument)),
+            "itemCount" when argument.Length > 0 => (Func<object>)(() => TimbnPlayer.CountItem(argument)),
             "ownedCount" when argument.Length > 0 => (Func<object>)(() => TimbnItems.CountAnywhere(argument)),
             "resource" when argument.Length > 0 => (Func<object>)(() => TimbnPlayer.GetResource(argument)),
             _ => text,

@@ -6,4 +6,9 @@ timbn_chest_labels_label = ラベル
 
 # The naming window
 timbn_chest_labels_title = 宝箱のラベル
-timbn_chest_labels_placeholder = 名前を入力
+
+# The label sizes in the naming window
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.Small = 小
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.DefaultSize = 標準
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.Large = 大
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.ExtraLarge = 特大

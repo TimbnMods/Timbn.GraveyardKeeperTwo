@@ -6,4 +6,9 @@ timbn_chest_labels_label = Etiket
 
 # The naming window
 timbn_chest_labels_title = Sandık Etiketi
-timbn_chest_labels_placeholder = Bir isim yazın
+
+# The label sizes in the naming window
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.Small = Küçük
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.DefaultSize = Varsayılan
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.Large = Büyük
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.ExtraLarge = Çok büyük

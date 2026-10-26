@@ -14,6 +14,8 @@ internal static class TimbnPatchedEvents
 
     internal static event Action<WgoPart, ZombieWgoData>? ZombieViewReady;
 
+    internal static event Action<WgoData>? WorldObjectRemoved;
+
     internal static void RaiseSleepStarted() => SleepStarted?.Invoke();
 
     internal static void RaiseSleepEnded() => SleepEnded?.Invoke();
@@ -25,4 +27,6 @@ internal static class TimbnPatchedEvents
     internal static void RaiseBalanceLoaded(GameBalance balance) => BalanceLoaded?.Invoke(balance);
 
     internal static void RaiseZombieViewReady(WgoPart part, ZombieWgoData zombie) => ZombieViewReady?.Invoke(part, zombie);
+
+    internal static void RaiseWorldObjectRemoved(WgoData data) => WorldObjectRemoved?.Invoke(data);
 }

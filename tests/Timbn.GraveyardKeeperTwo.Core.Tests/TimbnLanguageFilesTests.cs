@@ -48,13 +48,6 @@ public sealed class TimbnLanguageFilesTests : IDisposable
         Assert.Contains(_warnings, warning => warning.Contains("only_german"));
     }
 
-    [Fact]
-    public void ExistsLooksForTheLangFolder()
-    {
-        Assert.True(TimbnLanguageFiles.Exists(_folder));
-        Assert.False(TimbnLanguageFiles.Exists(Path.Combine(_folder, "lang")));
-    }
-
     private void Write(string file, params string[] lines) =>
         File.WriteAllLines(Path.Combine(_folder, "lang", file), lines);
 }

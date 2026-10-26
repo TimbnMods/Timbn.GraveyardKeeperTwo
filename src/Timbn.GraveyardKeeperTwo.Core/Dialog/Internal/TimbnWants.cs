@@ -88,7 +88,7 @@ internal sealed class TimbnWants
     internal void Refund()
     {
         foreach (var item in _costItems)
-            TimbnItems.GiveToPlayer(new Item(item.itemId, item.count));
+            TimbnPlayer.GiveItem(new Item(item.itemId, item.count), notify: false);
 
         foreach (var resource in _costResources)
             MainGame.PlayerData.AddRes(resource.type, resource.value);

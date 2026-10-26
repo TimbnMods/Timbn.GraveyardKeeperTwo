@@ -1,11 +1,40 @@
 # Changelog
 
+## 1.13.0
+
+- Now runs on Timbn Core 2.2.0.
+- The Mods window shows an About card for this mod, with a description and links to its pages, and lists it under Timbn Mods.
+
 ## 1.12.0
 
 - Now runs on Timbn Core 2.0.0.
 - Larry's offer of spare boards and of the lost Inquisitor's medallion is now a proper conversation you can accept or turn down.
 - The boards offer shows up when you have fewer than two boards and no sawhorse or circular saw. The medallion offer only shows up if you lose the medallion before opening the tower prison bars.
 - A Zombie Supplier with nowhere to put its item walks back to its station and shows the no storage icon, instead of standing still.
+
+## 1.11.0
+
+- The lost battle rewards fix is gone, since the game's 1.010 update fixed it.
+
+## 1.10.0
+
+- The bait in bags fix is gone, since the game's 1.009.1 update fixed it.
+
+## 1.9.0
+
+- The Green Thumb, Master Brewer and Sommelier fix is gone, since the game's 1.008 update fixed those perks.
+
+## 1.8.0
+
+- Settings changed in a config manager apply straight away, even in the middle of a game.
+
+## 1.7.2
+
+- A conveyor loop that feeds into another loop no longer closes the game a few seconds after loading. A notice and markers on the belts show where the loop is and which belt to remove.
+
+## 1.7.1
+
+- The Master Brewer and Sommelier perks now work too, adding brewing and wine making mastery like Green Thumb does for farming.
 
 ## 1.7.0
 

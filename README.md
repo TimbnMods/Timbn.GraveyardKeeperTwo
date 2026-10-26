@@ -20,7 +20,7 @@ A suite of [BepInEx](https://github.com/BepInEx/BepInEx) mods for Graveyard Keep
 
 The mods run on Graveyard Keeper 2 (Unity 6, Mono) with the x64 Mono build of BepInEx 5.4. Players install them from Nexus, Thunderstore or the Steam Workshop, and each mod's player page is written in `docs/<Mod>/page.yml`. The READMEs in this repo are for developers.
 
-Every mod has a General / Enabled toggle. Core's toggle is the master switch, so turning Core off turns off every Timbn mod.
+Every mod has a General / Enabled toggle, except Timbn Core, which is always on.
 
 ## Making your own mod
 

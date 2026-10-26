@@ -31,7 +31,7 @@ internal static class TechPointCap
                 }
 
                 original = definition.max;
-                definition.max = new LazyExpression(cap.ToString(CultureInfo.InvariantCulture));
+                definition.max = TimbnBalance.Expression(cap.ToString(CultureInfo.InvariantCulture));
                 Plugin.Logger.LogInfo($"{id} now caps at {cap}.");
             },
             definition =>

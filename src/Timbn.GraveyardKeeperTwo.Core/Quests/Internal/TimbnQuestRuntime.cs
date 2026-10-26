@@ -18,6 +18,14 @@ internal sealed class TimbnQuestRuntime
     private readonly HashSet<string> _warned = [];
     private bool _active;
 
+    // A marker condition that throws is left off from then on, so the marker tick logs it once instead of every frame.
+    // Each marker has its own flag, so the hand in bubble still shows when only the offer condition is broken.
+    private bool _offerMarkerBroken;
+    private bool _handInMarkerBroken;
+
+    // The same for a ReadyWhen condition, which runs every second.
+    private bool _readyBroken;
+
     internal TimbnQuestRuntime(TimbnQuestBuilder quest, Func<Color> bubbleColor, string owner = "", TimbnQuestCycle? cycle = null)
     {
         _quest = quest;
@@ -50,11 +58,23 @@ internal sealed class TimbnQuestRuntime
         : _quest.TalkNpc.Length > 0 ? _quest.TalkNpc
         : GiverNow;
 
-    internal string? HandInMarkerNpc => _quest.HandInMarkerWhen?.Invoke() == true && _quest.TalkOf is not null && IsTalkReady() ? TalkNpcNow : null;
+    internal string? HandInMarkerNpc => MarkerAllows(_quest.HandInMarkerWhen, "hand in", ref _handInMarkerBroken) && _quest.TalkOf is not null && IsTalkReady() ? TalkNpcNow : null;
 
     internal Color MarkerColor => _bubbleColor();
 
-    internal string? OfferMarkerNpc => _quest.OfferMarkerWhen?.Invoke() == true && _quest.OfferTalk is not null && IsOfferable() ? GiverNow : null;
+    internal string? OfferMarkerNpc => MarkerAllows(_quest.OfferMarkerWhen, "offer", ref _offerMarkerBroken) && _quest.OfferTalk is not null && IsOfferable() ? GiverNow : null;
+
+    private bool MarkerAllows(Func<bool>? when, string which, ref bool broken)
+    {
+        if (when is null || broken)
+            return false;
+
+        var allowed = false;
+        if (!TimbnSafe.Run(() => allowed = when(), $"{nameof(TimbnQuestRuntime)}|Quest {_quest.Id} {which} marker condition"))
+            broken = true;
+
+        return allowed;
+    }
 
     private TimbnWants Needs => _quest.NeedsFor(Run);
 
@@ -247,6 +267,18 @@ internal sealed class TimbnQuestRuntime
 
         Log("completed by the mod's code.");
         return Finish(paidByAnswer: false);
+    }
+
+    internal void CheckReadyWhen()
+    {
+        if (_quest.ReadyCondition is not { } condition || _readyBroken || Status != QuestStatus.InProgress || TimbnQuests.IsMarked(Id))
+            return;
+
+        var ready = false;
+        if (!TimbnSafe.Run(() => ready = condition(), $"{nameof(TimbnQuestRuntime)}|Quest {Id} ReadyWhen"))
+            _readyBroken = true;
+        else if (ready)
+            Ready();
     }
 
     internal bool Ready()

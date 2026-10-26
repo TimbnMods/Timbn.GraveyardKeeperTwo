@@ -6,4 +6,9 @@ timbn_chest_labels_label = Beschriften
 
 # The naming window
 timbn_chest_labels_title = Kistenbeschriftung
-timbn_chest_labels_placeholder = Namen eingeben
+
+# The label sizes in the naming window
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.Small = Klein
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.DefaultSize = Standard
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.Large = Groß
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.ExtraLarge = Sehr groß

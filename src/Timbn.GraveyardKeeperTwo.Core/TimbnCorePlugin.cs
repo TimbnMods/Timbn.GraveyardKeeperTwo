@@ -30,6 +30,18 @@ public sealed class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
 
     private bool _loadErrorsChecked;
 
+    protected override void BindConfig(ConfigFile config) => TimbnModsWindowHost.Bind(config);
+
+    protected override TimbnModInfo ModInfo => new()
+    {
+        Description = "The shared framework the Timbn mods are built on. It adds nothing to the game by itself.",
+        Author = "Timbn",
+        NexusLink = "https://www.nexusmods.com/graveyardkeeper2/mods/84",
+        SteamWorkshopLink = "https://steamcommunity.com/sharedfiles/filedetails/?id=3810064587",
+        ThunderstoreLink = "https://thunderstore.io/c/graveyard-keeper-2/p/Timbn/TimbnCore/",
+        WebsiteLink = "https://timbnmods.github.io/",
+    };
+
     protected override void OnAwake()
     {
         TimbnExpression.CompileNow = true;
@@ -41,12 +53,19 @@ public sealed class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
         Subscriptions.Add(TimbnGameEvents.On(TimbnGlobalSaves.Flush, h => Application.quitting += h, h => Application.quitting -= h));
         Subscriptions.Add(TimbnGameEvents.On<GameBalance>(_ => TimbnModels.OnBalanceLoaded(), h => TimbnPatchedEvents.BalanceLoaded += h, h => TimbnPatchedEvents.BalanceLoaded -= h));
         Events.WindowOpened(TimbnMainMenu.OnWindowOpened);
+        TimbnModsWindowHost.Start(this);
+        Subscriptions.Add(TimbnMainMenu.AddLine($"{Metadata.Name}: ", Metadata.Version.ToString()));
         Events.EveryRealSeconds(1f, TimbnDialog.Refresh);
+        Events.SaveReady(TimbnMoveBuildingsLink.Check);
         Events.EveryRealSeconds(1f, TimbnQuests.StartContinuedQuests);
+        Events.EveryRealSeconds(1f, TimbnQuests.CheckReadyWhen);
         Events.EveryRealSeconds(0.5f, TimbnQuestMarker.Tick);
         Events.Update(TimbnPotions.Tick);
         Events.Update(TimbnNpcs.Tick);
         Events.Update(TimbnPlayerGrid.Tick);
+        Events.Update(TimbnInteractionSpots.Tick);
+        Events.Update(TimbnKeyHints.Tick);
+        Events.Update(TimbnPlayerAnimation.Tick);
         Events.FixedUpdate(TimbnPlayerWalk.FixedTick);
         var saved = Saves.Register<TimbnCoreSaveData>();
         TimbnDialog.UseSeenTalks(() => saved.Current.SeenTalks);
@@ -102,5 +121,13 @@ public sealed class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
 
     private void OnGUI() => TimbnGui.Draw();
 
-    protected override void OnUnload() => TimbnSession.ReleaseHolds();
+    protected override void OnUnload()
+    {
+        TimbnSession.ReleaseHolds();
+        TimbnSettingsPages.Clear();
+        TimbnModInfos.Clear();
+        TimbnGroupPages.Clear();
+        TimbnMoveBuildingsLink.Detach();
+        TimbnPageWindow.DestroyInstance();
+    }
 }

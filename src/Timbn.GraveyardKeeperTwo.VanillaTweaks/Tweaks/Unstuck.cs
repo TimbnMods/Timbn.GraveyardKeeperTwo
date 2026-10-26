@@ -8,8 +8,6 @@ internal static class Unstuck
     private const float _clearance = 0.3f;
     private const int _blockingLayers = 257;
     private const float _fallbackDistance = 1f;
-    private const int _worldZoneLayers = 131072;
-    private static readonly RaycastHit[] _zoneHits = new RaycastHit[15];
 
     public static bool Run(float range)
     {
@@ -70,24 +68,7 @@ internal static class Unstuck
     private static bool SharesZone(HashSet<string> zones, Vector3 position) =>
         zones.Count == 0 || zones.Overlaps(WorldZonesAt(position));
 
-    private static HashSet<string> WorldZonesAt(Vector3 position)
-    {
-        var ray = new Ray(position + Vector3.up * 50f, Vector3.down);
-        var count = Physics.RaycastNonAlloc(ray, _zoneHits, 100f, _worldZoneLayers, QueryTriggerInteraction.Collide);
-        HashSet<string> zones = [];
-        for (var i = 0; i < count; i++)
-        {
-            var collider = _zoneHits[i].collider;
-            var zone = collider.GetComponent<WorldZone>();
-            if (zone == null && collider.transform.parent != null)
-                zone = collider.transform.parent.GetComponent<WorldZone>();
-
-            if (zone != null)
-                zones.Add(zone.Id);
-        }
-
-        return zones;
-    }
+    private static HashSet<string> WorldZonesAt(Vector3 position) => [.. TimbnWorld.ZonesAt(position).Select(zone => zone.id)];
 
     private static bool IsBlocked(Vector3 position)
     {

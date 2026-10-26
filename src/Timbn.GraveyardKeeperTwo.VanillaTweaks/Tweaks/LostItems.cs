@@ -28,7 +28,7 @@ internal static class LostItems
             TimbnGameIds.Items.IntroPrisonMedallion,
             1,
             () => PluginConfig.LostQuestItems.Value,
-            () => TimbnQuests.StatusOf("1_intro_prison_find_key") is QuestStatus.InProgress or QuestStatus.Completed
+            () => TimbnQuests.HasStarted("1_intro_prison_find_key")
                 && TimbnQuests.StatusOf("22_doctor_tower_door") is not QuestStatus.Completed,
             new Lines(
                 "Have you seen an Inquisitor's medallion anywhere?",

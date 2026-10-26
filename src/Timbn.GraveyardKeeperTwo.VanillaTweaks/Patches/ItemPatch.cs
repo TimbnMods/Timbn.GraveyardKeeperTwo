@@ -21,7 +21,7 @@ internal static class ItemPatch
         out List<Item>? __state)
     {
         __state = null;
-        if (SortIntoBags.TreatAsPickup(__instance))
+        if (Plugin.Instance?.BagSorting.TreatAsPickup(__instance) == true)
             ignoreAllBags = false;
 
         if (!SortIntoBags.TryFill(__instance, sourceItem, ignoredBag, ignoreAllBags, out var bagged))

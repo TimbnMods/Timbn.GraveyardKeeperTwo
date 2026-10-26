@@ -32,7 +32,7 @@ public abstract class TimbnTalk<TSelf>
     /// </summary>
     /// <example>
     /// <code><![CDATA[
-    /// Func<object> carried = () => TimbnItems.CountOnPlayer("flitch");
+    /// Func<object> carried = () => TimbnPlayer.CountItem("flitch");
     /// talk.Say("You have %1 boards.", carried);
     /// ]]></code>
     /// </example>
@@ -158,7 +158,7 @@ public abstract class TimbnTalk<TSelf>
 
     /// <summary>
     /// Takes an item from the player's inventory and bags, as many as they have up to the count. Check first with
-    /// <see cref="When(Func{bool}, Action{TimbnLines}, Action{TimbnLines})"/> and TimbnItems.CountOnPlayer when the player has to have enough.
+    /// <see cref="When(Func{bool}, Action{TimbnLines}, Action{TimbnLines})"/> and TimbnPlayer.CountItem when the player has to have enough.
     /// </summary>
     /// <param name="itemId">The item id, such as flitch.</param>
     /// <param name="count">How many to take.</param>
@@ -383,6 +383,9 @@ internal sealed class TimbnScript
 
     internal void Rename(TimbnLineKey line, string name)
     {
+        if (TimbnGameTexts.IsKey(line.Value))
+            return;
+
         var key = KeyFor(name);
         var text = Texts[line.Value];
         Named(key, text);
@@ -395,6 +398,9 @@ internal sealed class TimbnScript
 
     internal string Named(string key, string text)
     {
+        if (TimbnGameTexts.IsKey(text))
+            return text;
+
         if (Texts.ContainsKey(key))
             throw new InvalidOperationException($"The key '{key}' is made twice. Give each talk and quest its own id.");
 

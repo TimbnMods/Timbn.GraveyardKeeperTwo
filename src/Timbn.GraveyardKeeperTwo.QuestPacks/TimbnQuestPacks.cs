@@ -18,7 +18,6 @@ internal static class TimbnQuestPacks
     private const int _maxPopupLines = 6;
 
     private static readonly Regex _notId = new("[^a-z0-9_]");
-    private static readonly List<ReadyCheck> _readyChecks = [];
     private static IDisposable? _standalone;
     private static string _signature = "";
 
@@ -120,24 +119,6 @@ internal static class TimbnQuestPacks
         }
     }
 
-    internal static void CheckReady()
-    {
-        foreach (var check in _readyChecks.ToList())
-        {
-            var id = check.Runtime.Id;
-            if (TimbnQuests.StatusOf(id) != QuestStatus.InProgress || TimbnQuests.IsMarked(id))
-                continue;
-
-            TimbnSafe.Run(
-                () =>
-                {
-                    if (check.IsReady())
-                        check.Runtime.Ready();
-                },
-                $"{nameof(TimbnQuestPacks)}|The readyWhen of quest '{id}'");
-        }
-    }
-
     private static IDisposable Load(string folder, string shown, string packId, string owner, Func<Color> color, bool loadLanguage, List<string> problems)
     {
         TimbnSubscriptions parts = new(Plugin.Logger);
@@ -183,8 +164,6 @@ internal static class TimbnQuestPacks
             {
                 var runtime = new TimbnQuestRuntime(step, color, owner);
                 parts.Add(runtime.Register());
-                if (content.ReadyWhen.TryGetValue(step.Id, out var isReady))
-                    parts.Add(AddReadyCheck(new ReadyCheck(runtime, isReady)));
             }
             catch (Exception ex)
             {
@@ -230,12 +209,6 @@ internal static class TimbnQuestPacks
         }
 
         return names;
-    }
-
-    private static IDisposable AddReadyCheck(ReadyCheck check)
-    {
-        _readyChecks.Add(check);
-        return new TimbnUndo(() => _readyChecks.Remove(check));
     }
 
     private static IDisposable Report(List<string> problems)
@@ -284,17 +257,4 @@ internal static class TimbnQuestPacks
         folder.StartsWith(Paths.PluginPath, StringComparison.OrdinalIgnoreCase)
             ? folder[Paths.PluginPath.Length..].TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar).Replace('\\', '/')
             : Path.GetFileName(folder);
-
-    private sealed class ReadyCheck
-    {
-        internal ReadyCheck(TimbnQuestRuntime runtime, Func<bool> isReady)
-        {
-            Runtime = runtime;
-            IsReady = isReady;
-        }
-
-        internal TimbnQuestRuntime Runtime { get; }
-
-        internal Func<bool> IsReady { get; }
-    }
 }

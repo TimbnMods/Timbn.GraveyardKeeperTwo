@@ -20,10 +20,9 @@ internal static class StuckResourceWorkers
         if (!PluginConfig.StuckResourceWorkers.Value)
             return;
 
-        var pointIds = new HashSet<string>(MainGame.WorldData.gdPointsData.Points.Select(p => p.Id));
         foreach (var station in _stations)
         {
-            var builder = MainGame.WorldData.GetWgoData(station.BuilderId);
+            var builder = TimbnWorld.Find(station.BuilderId);
             if (builder == null)
                 continue;
 
@@ -38,7 +37,7 @@ internal static class StuckResourceWorkers
             }
 
             List<string> points = [];
-            while (pointIds.Contains($"{station.Prefix}_zombie_{points.Count + 1}"))
+            while (TimbnWorld.Point($"{station.Prefix}_zombie_{points.Count + 1}") != null)
                 points.Add($"{station.Prefix}_zombie_{points.Count + 1}");
 
             foreach (var point in points.Where(p => builder.GetGameResInt(p) == 1 && !held.Contains(p)))
@@ -68,7 +67,7 @@ internal static class StuckResourceWorkers
         var point = zombie.GameResStr.Get(station.PointKey);
         if (IsHolding(zombie, station))
         {
-            MainGame.WorldData.GetWgoData(station.BuilderId)?.SetGameRes(point, 0);
+            TimbnWorld.Find(station.BuilderId)?.SetGameRes(point, 0);
             Plugin.Logger.LogInfo($"Freed work spot {point} as its zombie left the {station.StandId}.");
         }
 

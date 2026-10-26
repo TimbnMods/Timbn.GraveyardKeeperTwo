@@ -42,7 +42,7 @@ public sealed class TimbnPluginDialog
     /// Larry asks for wine while the player is carrying some, and a tip he gives once per save in a bubble color of
     /// its own.
     /// <code><![CDATA[
-    /// Dialog.AddTalk(TimbnGameIds.Npcs.Larry, "my_larry_wine", () => TimbnItems.CountOnPlayer("grape_wine:1") > 0, lines => lines
+    /// Dialog.AddTalk(TimbnGameIds.Npcs.Larry, "my_larry_wine", () => TimbnPlayer.CountItem("grape_wine:1") > 0, lines => lines
     ///     .Say("Is that wine you're carrying?")
     ///     .Ask(ask => ask
     ///         .Answer("Have a bottle.", then => then.Say("Lovely."), cost: cost => cost.Item("grape_wine:1"))
@@ -82,7 +82,7 @@ public sealed class TimbnPluginDialog
     /// <code><![CDATA[
     /// Dialog.AddDynamicTalk(TimbnGameIds.Npcs.Larry, "my_larry_boards", () => true, lines =>
     /// {
-    ///     var boards = TimbnItems.CountOnPlayer("flitch");
+    ///     var boards = TimbnPlayer.CountItem("flitch");
     ///     if (boards == 0)
     ///         lines.Say("No boards? Go chop some trees.").Named("none");
     ///     else

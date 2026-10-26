@@ -6,4 +6,9 @@ timbn_chest_labels_label = 标签
 
 # The naming window
 timbn_chest_labels_title = 箱子标签
-timbn_chest_labels_placeholder = 输入名称
+
+# The label sizes in the naming window
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.Small = 小
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.DefaultSize = 默认
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.Large = 大
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.ExtraLarge = 特大

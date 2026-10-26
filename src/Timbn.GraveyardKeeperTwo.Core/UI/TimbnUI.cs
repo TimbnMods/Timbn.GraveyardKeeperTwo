@@ -87,6 +87,34 @@ public static class TimbnUI
         LazySingleton<UINotificator>.Instance?.ShowSimpleTextNotificationOneTime(key);
     }
 
+    /// <summary>
+    /// Fades the screen to black, shows a line of text in the game's own title style, and fades back, the way the game
+    /// introduces a new day or a place. It does nothing while another fade is showing. The text is looked up by its
+    /// localization key, so add it with Text.Add or a lang file.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// TimbnUI.FadeText("my_mod_three_days_later", onTextShown: () => SkipDays(3));
+    /// </code>
+    /// </example>
+    /// <param name="key">The text's localization key.</param>
+    /// <param name="onTextShown">Runs once the text has faded out and the screen is still black, which is the moment to change the world.</param>
+    /// <remarks>It is a short fade.</remarks>
+    /// <param name="onDone">Runs when the screen is back.</param>
+    public static void FadeText(string key, Action? onTextShown = null, Action? onDone = null)
+    {
+        if (!TimbnGame.IsInGame || !LazyUI.IsInitialized || LazyUI.Get<UIFadeWithText>() is not { } fade || fade.IsFadeShowing)
+            return;
+
+        TimbnLocale.WarnIfMissing(key);
+
+        // The game runs these inside its tween, and a throw there stops the fade back, which leaves the screen black.
+        fade.ScreenTextFade(
+            key,
+            onTextShown: onTextShown == null ? null : () => TimbnSafe.Run(onTextShown, TimbnCorePlugin.Logger, $"{nameof(TimbnUI)}.{nameof(FadeText)}|The text shown handler"),
+            onScreenFadeOut: onDone == null ? null : () => TimbnSafe.Run(onDone, TimbnCorePlugin.Logger, $"{nameof(TimbnUI)}.{nameof(FadeText)}|The done handler"));
+    }
+
     // Runs the code straight away when the game has no fade to show or one is already showing.
     internal static void FadeThrough(Action whileBlack)
     {

@@ -74,14 +74,13 @@ internal static class TimbnMainMenu
 
     internal static void OnUpdate()
     {
-        if (_popups.Count == 0 || _menu == null || !_menu.IsShownAndTop)
+        // The popup waits in the queue until the game has made the window the page copies, so it is not lost to an early frame.
+        if (_popups.Count == 0 || _menu == null || !_menu.IsShownAndTop || !TimbnPageWindow.CanShow)
             return;
 
         var popup = _popups[0];
         _popups.RemoveAt(0);
-        var dialog = LazyUI.GetWindow<UIDialogWindow>();
-        var ok = new UIDialogWindowData.ButtonData(dialog.Close, LLBase.L("btn_ok"), null, replaceForGamepad: true, GameKey.Select);
-        dialog.Open(new UIDialogWindowData(popup.Header, popup.Text, ok));
+        TimbnPrompts.Message(popup.Header, popup.Text, null, TimbnCorePlugin.Instance!.PluginLogger);
     }
 
     private sealed class Line

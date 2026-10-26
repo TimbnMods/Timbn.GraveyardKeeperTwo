@@ -96,7 +96,7 @@ public sealed class TimbnPluginBalance
     /// LazyExpression original = null!;
     /// Settings.While(PluginConfig.TechPointCap, cap => cap > 999, () => Balance.Edit<GameResSystemDef>(
     ///     "tech_red",
-    ///     resource => { original = resource.max; resource.max = new LazyExpression("5000"); },
+    ///     resource => { original = resource.max; resource.max = TimbnBalance.Expression("5000"); },
     ///     resource => resource.max = original));
     /// ]]></code>
     /// </example>

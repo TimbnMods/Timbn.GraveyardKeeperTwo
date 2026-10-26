@@ -10,10 +10,6 @@ internal static class TimbnZombieSpotRules
     /// <summary>The GD point id the game's station, porter station and conveyor station handlers look up.</summary>
     internal const string PointId = "zombie_porter_station_gd_point";
 
-    // Not known whether the game flips a baked GD point's position for a mirrored facing the way it flips a dock point's,
-    // so a mirrored facing bakes the position it ends up at until a game check says otherwise.
-    internal const bool GameFlipsMirroredPoints = false;
-
     /// <summary>The way a zombie standing at a facing's dock spot looks, back at the station, so the opposite of the facing.</summary>
     internal static Direction DirectionFor(TimbnFacing facing) => facing switch
     {
@@ -22,17 +18,6 @@ internal static class TimbnZombieSpotRules
         TimbnFacing.Left => Direction.Right,
         _ => Direction.Left,
     };
-
-    /// <summary>
-    /// Where a facing's point is baked, relative to the station. The point stands at the facing's own dock spot. When the
-    /// game would flip a mirrored facing's baked point by itself, that facing bakes the spot of the one it flips instead,
-    /// the way a mirrored dock point is baked.
-    /// </summary>
-    /// <param name="ownDock">The dock spot of the facing being baked.</param>
-    /// <param name="sourceDock">The dock spot of the facing it flips, or null when it isn't mirrored.</param>
-    /// <param name="gameFlips">Whether the game flips a mirrored facing's baked point.</param>
-    internal static Vector3 LocalPosition(Vector3 ownDock, Vector3? sourceDock, bool gameFlips) =>
-        gameFlips && sourceDock is { } source ? source : ownDock;
 
     /// <summary>
     /// Whether a zombie seated at this station, which the game treats as a caretaker waiting on it, should be kept from

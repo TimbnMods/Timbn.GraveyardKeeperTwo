@@ -20,4 +20,4 @@ The head, body and hair color go in the zombie's own game res values (`zombie_he
 
 ## Building
 
-It needs Timbn Core 2.0.0 or newer. A build deploys to `BepInEx/scripts` so F6 reloads it, and `-p:DeployTo=plugins` loads it at startup instead. It references `UnityEngine.UI` and `Sirenix.Serialization` from the game's Managed folder as well.
+It needs Timbn Core 2.2.0 or newer. A build deploys to `BepInEx/scripts` so F6 reloads it, and `-p:DeployTo=plugins` loads it at startup instead. It references `UnityEngine.UI` and `Sirenix.Serialization` from the game's Managed folder as well.

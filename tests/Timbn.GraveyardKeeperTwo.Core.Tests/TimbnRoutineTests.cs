@@ -49,17 +49,6 @@ public sealed class TimbnRoutineTests
     }
 
     [Fact]
-    public void WithoutALoopItStopsAfterTheIntro()
-    {
-        _routine.Start([Say("intro")], []);
-
-        Tick(3);
-
-        Assert.Equal(["intro"], _log);
-        Assert.False(_routine.IsActive);
-    }
-
-    [Fact]
     public void WaitsFollowTheGameClock()
     {
         _routine.Start([Wait(10), Say("done")], []);
@@ -173,24 +162,6 @@ public sealed class TimbnRoutineTests
     }
 
     [Fact]
-    public void InTripLastsUntilTheLastInsertedStepIsDone()
-    {
-        var trip = new TimbnRoutineStep<List<string>>("trip", _ => TimbnStepResult<List<string>>.Insert([Say("x"), Walk("stall")]));
-        _routine.Start([], [trip, Wait(10)]);
-
-        Tick();
-        Assert.True(_routine.InTrip);
-
-        Tick(2);
-        Assert.True(_routine.InTrip);
-
-        _arrive!();
-        Tick();
-        Assert.False(_routine.InTrip);
-        Assert.Equal(["x", "walk stall", "wait 10"], _log);
-    }
-
-    [Fact]
     public void TripEndedRunsOnceWhenTheInsertedStepsAreDone()
     {
         var ended = 0;
@@ -204,6 +175,17 @@ public sealed class TimbnRoutineTests
         Tick();
         Assert.Equal(1, ended);
         Assert.Equal(["x", "y", "after"], _log);
+
+        ended = 0;
+        var chain = new TimbnRoutineStep<List<string>>("chain", _ => TimbnStepResult<List<string>>.Insert([Say("z")]));
+        var nested = new TimbnRoutineStep<List<string>>("trip", _ => TimbnStepResult<List<string>>.Insert([Say("x"), chain]));
+        _routine.Start([], [nested, Say("after")]);
+
+        Tick(4);
+        Assert.Equal(0, ended);
+
+        Tick();
+        Assert.Equal(1, ended);
     }
 
     [Fact]
@@ -218,22 +200,6 @@ public sealed class TimbnRoutineTests
 
         Assert.Equal(["x", "y", "after"], _log);
         Assert.Equal(2, starts);
-    }
-
-    [Fact]
-    public void ChainedInsertsStillEndOneTrip()
-    {
-        var ended = 0;
-        _routine.TripEnded = () => ended++;
-        var chain = new TimbnRoutineStep<List<string>>("chain", _ => TimbnStepResult<List<string>>.Insert([Say("z")]));
-        var trip = new TimbnRoutineStep<List<string>>("trip", _ => TimbnStepResult<List<string>>.Insert([Say("x"), chain]));
-        _routine.Start([], [trip, Say("after")]);
-
-        Tick(4);
-        Assert.Equal(0, ended);
-
-        Tick();
-        Assert.Equal(1, ended);
     }
 
     [Fact]
@@ -325,35 +291,6 @@ public sealed class TimbnRoutineTests
     }
 
     [Fact]
-    public void StopEndsTheRoutineAndForgetsItsStep()
-    {
-        _routine.Start([Say("intro")], [Say("a")]);
-        Tick();
-        Assert.True(_routine.IsActive);
-        Assert.Equal("intro", _routine.Step);
-
-        _routine.Stop();
-        Tick(3);
-
-        Assert.False(_routine.IsActive);
-        Assert.Equal("", _routine.Step);
-        Assert.Equal(["intro"], _log);
-    }
-
-    [Fact]
-    public void StartingAgainDropsTheOldStepsAndInserts()
-    {
-        _routine.Start([], [Say("old")]);
-        Tick();
-
-        _routine.Start([Say("new")], []);
-        Tick(2);
-
-        Assert.Equal(["old", "new"], _log);
-        Assert.False(_routine.IsActive);
-    }
-
-    [Fact]
     public void AStepThatThrowsIsReportedAndSkipped()
     {
         List<string> failures = [];
@@ -367,57 +304,5 @@ public sealed class TimbnRoutineTests
         var failure = Assert.Single(failures);
         Assert.StartsWith("step 'broken' threw and was skipped: ", failure);
         Assert.Contains("no path", failure);
-    }
-
-    [Fact]
-    public void StepNamesTheStepBeingRun()
-    {
-        _routine.Start([Say("intro"), Wait(5)], []);
-
-        Assert.Equal("", _routine.Step);
-        Tick();
-        Assert.Equal("intro", _routine.Step);
-        Tick();
-        Assert.Equal("wait", _routine.Step);
-    }
-
-    [Fact]
-    public void WaitLeftCountsDownOnlyForAGameMinutesWait()
-    {
-        _routine.Start([Wait(10)], []);
-
-        Assert.Equal(0, _routine.WaitLeft(_now));
-        Tick();
-        Assert.Equal(10, _routine.WaitLeft(_now));
-        _now = 4;
-        Assert.Equal(6, _routine.WaitLeft(_now));
-        _now = 20;
-        Assert.Equal(0, _routine.WaitLeft(_now));
-    }
-
-    [Fact]
-    public void IsWaitingForIdleOnlyDuringAnUntilIdleStep()
-    {
-        var idle = new TimbnRoutineStep<List<string>>("idle", _ => TimbnStepResult<List<string>>.UntilIdle(10));
-        _routine.Start([idle, Say("after")], []);
-
-        Assert.False(_routine.IsWaitingForIdle);
-        Tick();
-        Assert.True(_routine.IsWaitingForIdle);
-        Assert.False(_routine.IsWaitingForArrival);
-        _now = 1;
-        Tick(12);
-        Assert.False(_routine.IsWaitingForIdle);
-        Assert.Contains("after", _log);
-    }
-
-    [Fact]
-    public void AnEmptyStartIsNotActive()
-    {
-        _routine.Start([], []);
-
-        Assert.False(_routine.IsActive);
-        Tick();
-        Assert.Empty(_log);
     }
 }

@@ -21,11 +21,9 @@ quest_closed_timbn_living_town_request_d = Cozinhe {dish} para a pessoa {where} 
 timbn_living_town_request_offer_ask = Estou com vontade de {dish}. Poderia cozinhar para mim?
 timbn_living_town_request_accept = Eu cozinho.
 timbn_living_town_request_accept_thanks = Deus te abençoe, ficarei esperando.
-timbn_living_town_request_decline = Agora não.
 timbn_living_town_request_talk_ask = Trouxe {dish}?
 timbn_living_town_request_talk_accept = Aqui está.
 timbn_living_town_request_talk_accept_thanks = Delicioso, obrigado!
-timbn_living_town_request_talk_decline = Ainda não.
 
 # An Errand for a Neighbor, the delivery. {parcel} is the item and {where} where the friend lives.
 timbn_living_town_delivery = Um Favor para um Vizinho
@@ -34,9 +32,7 @@ quest_closed_timbn_living_town_delivery_d = Leve {parcel} para um amigo {where}.
 timbn_living_town_delivery_offer_ask_keepsake = Tenho um presente para um amigo {where}, mas não posso sair daqui. Poderia levar até lá?
 timbn_living_town_delivery_offer_ask_vegetables = Meu jardim deu mais do que posso comer. Poderia levar esta caixa de vegetais para um amigo meu {where}?
 timbn_living_town_delivery_offer_ask_potion = Um amigo meu {where} não tem passado bem. Poderia levar este remédio para ele?
-timbn_living_town_delivery_accept = Eu levo.
 timbn_living_town_delivery_accept_thanks = Obrigado, estou em dívida com você.
-timbn_living_town_delivery_decline = Agora não.
 timbn_living_town_delivery_delivering_keepsake = Tenho uma entrega de presente para você.
 timbn_living_town_delivery_delivering_vegetables = Tenho uma caixa de vegetais para você.
 timbn_living_town_delivery_delivering_potion = Tenho um remédio para você.
@@ -45,4 +41,3 @@ timbn_living_town_delivery_talk_accept = {delivering}
 timbn_living_town_delivery_talk_accept_thanks_keepsake = Que gentileza! Agradeça por mim.
 timbn_living_town_delivery_talk_accept_thanks_vegetables = Lindos e frescos, obrigado!
 timbn_living_town_delivery_talk_accept_thanks_potion = Era exatamente o que eu precisava, Deus te abençoe.
-timbn_living_town_delivery_talk_decline = Ainda não.

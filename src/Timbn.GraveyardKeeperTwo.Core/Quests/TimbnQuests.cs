@@ -153,13 +153,25 @@ public static class TimbnQuests
     /// </summary>
     /// <example>
     /// <code><![CDATA[
-    /// .OfferWhen(() => TimbnQuests.StatusOf("6_intro_guards_burial") is QuestStatus.InProgress or QuestStatus.Completed)
+    /// .OfferWhen(() => TimbnQuests.StatusOf("6_intro_guards_burial") == QuestStatus.Available)
     /// ]]></code>
     /// </example>
     /// <param name="id">The quest id.</param>
     /// <returns>The status, or null.</returns>
     public static QuestStatus? StatusOf(string id) =>
         LoadedQuests?.questCollection.questsCache.TryGetValue(id, out var data) == true ? data.status : null;
+
+    /// <summary>
+    /// Whether the player has started a quest in the loaded save, the game's own quests included, so it is in progress or
+    /// done. False when no save is loaded or it has no such quest.
+    /// </summary>
+    /// <example>
+    /// <code><![CDATA[
+    /// .OfferWhen(() => TimbnQuests.HasStarted("6_intro_guards_burial"))
+    /// ]]></code>
+    /// </example>
+    /// <param name="id">The quest id.</param>
+    public static bool HasStarted(string id) => StatusOf(id) is QuestStatus.InProgress or QuestStatus.Completed;
 
     /// <summary>
     /// Fires one of the game's story triggers, the signals its quests and cutscenes wait on, as if the player had
@@ -339,6 +351,12 @@ public static class TimbnQuests
     {
         foreach (var runtime in _runtimes.ToList())
             TimbnSafe.Run(runtime.StartWithContinued, $"{nameof(TimbnQuests)}|Starting quest '{runtime.Id}' after the one it continues");
+    }
+
+    internal static void CheckReadyWhen()
+    {
+        foreach (var runtime in _runtimes.ToList())
+            runtime.CheckReadyWhen();
     }
 
     internal static void OnGameEvent(GlobalEventsSystem.Event.Type type, string id)

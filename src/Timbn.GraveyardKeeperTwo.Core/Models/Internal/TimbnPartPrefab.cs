@@ -245,13 +245,12 @@ internal sealed class TimbnPartPrefab : IDisposable
             if (side.Shape.DockPoint is not { } own)
                 continue;
 
-            var source = side.MirrorOf is { } flipped ? _sides.First(candidate => candidate.Facing == flipped).Shape.DockPoint : null;
             var spot = new WgoPartBakedData.GDPointBakedData
             {
                 id = TimbnZombieSpotRules.PointId,
                 customTag = "",
                 direction = TimbnZombieSpotRules.DirectionFor(side.Facing),
-                localPosition = TimbnZombieSpotRules.LocalPosition(own, source, TimbnZombieSpotRules.GameFlipsMirroredPoints),
+                localPosition = own,
                 transitToGdPointId = "",
                 worldIdToTransit = "",
                 enabled = true,

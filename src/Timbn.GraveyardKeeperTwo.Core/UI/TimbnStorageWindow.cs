@@ -9,9 +9,11 @@ internal static class TimbnStorageWindow
     private static readonly AccessTools.FieldRef<WgoData, Inventory>? _inventory =
         TimbnReflection.TryField<WgoData, Inventory>("inventory");
 
-    internal static IDisposable Open(IDictionary<string, int> contents, string titleKey, int slots, IReadOnlyCollection<string> itemIds, ManualLogSource logger)
+    internal static IDisposable Open(IDictionary<string, int> contents, string titleKey, int slots, IReadOnlyCollection<string> itemIds, ManualLogSource logger, Action? closed = null)
     {
-        if (!TimbnGame.IsInGame || _inventory is null || MainGame.PlayerController == null)
+        // One chest window at a time, so a second open would take the first one's window and strand its closed handler.
+        var window = LazyUI.IsInitialized ? LazyUI.GetWindow<UIChestWindow>() : null;
+        if (!TimbnGame.IsInGame || _inventory is null || MainGame.PlayerController == null || window == null || window.IsShown)
             return TimbnUndo.None;
 
         WhiteListItemFilter? filter = null;
@@ -25,8 +27,15 @@ internal static class TimbnStorageWindow
         Dictionary<string, int> leftOver = [];
         foreach (var (id, count) in contents.ToList())
         {
-            if (count <= 0 || GameBalance.Me.GetDataOrNull<ItemDef>(id) is null)
+            if (count <= 0)
                 continue;
+
+            // An id the game has no item for cannot go in the window, so it is kept aside and written back as it was.
+            if (GameBalance.Me.GetDataOrNull<ItemDef>(id) is null)
+            {
+                leftOver[id] = count;
+                continue;
+            }
 
             var fits = Math.Min(count, inventory.Data.CanAddItemCountToInventory(new Item(id, count), count));
             if (fits > 0)
@@ -64,11 +73,11 @@ internal static class TimbnStorageWindow
             WriteBack();
             inventory.OnItemsAdd -= WriteBack;
             inventory.OnItemsRemove -= WriteBack;
+            closed?.Invoke();
         }
 
         inventory.OnItemsAdd += WriteBack;
         inventory.OnItemsRemove += WriteBack;
-        var window = LazyUI.GetWindow<UIChestWindow>();
         window.Open(new UIBaseChestWindowData(MainGame.PlayerData.inventory, null, chest), _ => Closed());
         logger.LogDebug($"{nameof(TimbnPluginUI)}.{nameof(TimbnPluginUI.OpenStorage)}|Opened {titleKey} with {string.Join(", ", contents.Select(pair => $"{pair.Value} {pair.Key}"))}.");
         return new TimbnUndo(() =>

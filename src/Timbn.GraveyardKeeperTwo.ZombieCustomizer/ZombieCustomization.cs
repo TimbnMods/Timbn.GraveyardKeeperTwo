@@ -70,7 +70,7 @@ internal sealed class ZombieCustomization
         if (view != null)
             ZombieTint.Paint(view, session.Tint);
 
-        Plugin.Logger.LogMessage($"Restyled {LLBase.L(zombie.Name)} to body {session.Body}, head {session.Head}, "
+        Plugin.Logger.LogMessage($"Restyled {Plugin.Instance?.Text.Get(zombie.Name)} to body {session.Body}, head {session.Head}, "
             + $"colors {Describe(session.BodyColor)} and {Describe(session.HeadColor)}, clothes tint {ZombieTint.Describe(session.Tint)}.");
         window.Close();
         return true;

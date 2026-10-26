@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Timbn.GraveyardKeeperTwo.InfusionRack</AssemblyName>
     <Product>Timbn Infusion Rack</Product>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <WorkshopItemId>3821083540</WorkshopItemId>
     <NexusModId>395</NexusModId>
     <Thunderstore>true</Thunderstore>

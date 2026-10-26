@@ -31,6 +31,8 @@ internal sealed class TimbnPlayerSlide : IDisposable
 
     internal Action? Ended { get; set; }
 
+    internal bool Arrived { get; private set; }
+
     internal static TimbnPlayerSlide Start(Vector3 position, Action? arrived, ManualLogSource logger, bool overNavmesh = false, float pace = StepPace)
     {
         var slide = new TimbnPlayerSlide(arrived, logger);
@@ -52,6 +54,7 @@ internal sealed class TimbnPlayerSlide : IDisposable
         }
 
         _current = slide;
+        TimbnPlayerControl.ReleaseFacing(player);
         var scene = MainGame.PlayerData.currentGameSceneId;
         var type = overNavmesh ? MovementType.Recast : MovementType.Direct;
         movement.StartPath(position, scene, scene, type, pace, onFinish: slide._finish, customSeeker: player.PlayerLocalAreaMovement.Seeker);
@@ -103,11 +106,15 @@ internal sealed class TimbnPlayerSlide : IDisposable
             return;
 
         _current = null;
-        End();
         var player = TimbnGame.IsInGame ? MainGame.PlayerController : null;
-        if (player != null && player.MovementComponent.Completion == MovementComponent.CompletionState.Fail)
+        Arrived = player != null && player.MovementComponent.Completion != MovementComponent.CompletionState.Fail;
+        End();
+        if (!Arrived)
         {
-            _logger.LogWarning($"{nameof(TimbnPlayerSlide)}|The slide could not reach its spot, so it does not call back.");
+            // A player gone with the save is no failure of the slide, so only a spot the navmesh could not reach is logged.
+            if (player != null)
+                _logger.LogWarning($"{nameof(TimbnPlayerSlide)}|The slide could not reach its spot, so it does not call back.");
+
             return;
         }
 

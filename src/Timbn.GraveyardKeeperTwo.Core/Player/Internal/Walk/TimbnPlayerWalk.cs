@@ -96,6 +96,8 @@ internal sealed class TimbnPlayerWalk : IDisposable
 
     internal Action? Ended { get; set; }
 
+    internal bool Arrived { get; private set; }
+
     private string Where => $"{nameof(TimbnPluginPlayer)}.{nameof(TimbnPluginPlayer.WalkTo)}|({_target.x:0.00}, {_target.z:0.00})";
 
     /// <summary>
@@ -131,9 +133,10 @@ internal sealed class TimbnPlayerWalk : IDisposable
             replaced.End();
 
         _latest = walk;
+        TimbnPlayerControl.ReleaseFacing(player);
 
         // Any plugin hold counts, since the game may still hold control for a closing window when the walk starts.
-        walk._held = TimbnControl.HasPluginHolds;
+        walk._held = TimbnPlayerControl.HasPluginHolds;
         walk._scene = MainGame.PlayerData.currentGameSceneId;
         walk._requestedAt = Time.realtimeSinceStartup;
         walk._requestedFrame = Time.frameCount;
@@ -154,7 +157,7 @@ internal sealed class TimbnPlayerWalk : IDisposable
     internal static void Steer(PlayerPhysicalBody body, ref Vector2 direction)
     {
         var walk = _current;
-        if (walk == null || walk._route == null || _driving || TimbnControl.IsHeldByPlugins)
+        if (walk == null || walk._route == null || _driving || TimbnPlayerControl.IsHeldByPlugins)
             return;
 
         var player = MainGame.PlayerController;
@@ -183,13 +186,13 @@ internal sealed class TimbnPlayerWalk : IDisposable
             return;
 
         var player = TimbnGame.IsInGame ? MainGame.PlayerController : null;
-        if (player == null || TimbnControl.IsTakenByGame([]))
+        if (player == null || TimbnPlayerControl.IsTakenByGame([]))
         {
             walk.End();
             return;
         }
 
-        if (!TimbnControl.IsHeldByPlugins)
+        if (!TimbnPlayerControl.IsHeldByPlugins)
         {
             walk.Unfreeze(false);
             return;
@@ -843,7 +846,7 @@ internal sealed class TimbnPlayerWalk : IDisposable
     {
         if (unfrozen)
         {
-            _unfrozen ??= TimbnControl.LetMove();
+            _unfrozen ??= TimbnPlayerControl.LetMove();
             return;
         }
 
@@ -857,6 +860,7 @@ internal sealed class TimbnPlayerWalk : IDisposable
         var walked = _length + _progress;
         var pace = seconds > 0f ? $", {walked / seconds:0.00} units a second" : "";
         _logger.LogInfo($"{Where} Arrived, {walked:0.0} units in {seconds:0.0} seconds over {_legs} legs{pace}.");
+        Arrived = true;
         End();
         if (_arrived != null)
             TimbnSafe.Run(_arrived, _logger, $"{nameof(TimbnPluginPlayer)}.{nameof(TimbnPluginPlayer.WalkTo)}|{TimbnSafe.Describe(_arrived)}");

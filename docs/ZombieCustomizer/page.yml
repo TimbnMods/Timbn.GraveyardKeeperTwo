@@ -42,14 +42,14 @@ sections:
           - Install BepInEx for Graveyard Keeper 2, start the game once, and quit at the main menu
           - Install Timbn Core
           - Extract the Timbn.GraveyardKeeperTwo.ZombieCustomizer zip into BepInEx/plugins
-      - text: Timbn Core and Timbn Zombie Customizer show at the bottom right of the main menu once they're installed.
+      - text: Start the game and open Mod Settings on the main menu. The mod is listed there under Timbn Mods.
 
   - title: Installation
     only: [steam]
     olist:
       - Install BepInEx for Graveyard Keeper 2 and Timbn Workshop Sync
       - Subscribe to Timbn Core and to this item
-      - Start the game. Timbn Core and Timbn Zombie Customizer show at the bottom right of the main menu once they're installed.
+      - Start the game and open Mod Settings on the main menu. The mod is listed there under Timbn Mods.
 
   - title: Troubleshooting
     text: If a game update changes something a Timbn mod relies on, that mod stays off instead of running half broken, and BepInEx/LogOutput.log says which part failed. Include the startup line from that log when reporting a problem.

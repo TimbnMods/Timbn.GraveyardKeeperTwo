@@ -172,25 +172,120 @@ public static class TimbnPlayer
     /// </example>
     public static float Energy => GetResource(LazyConsts.ENERGY_KEY);
 
+    /// <summary>
+    /// Gives the player energy, or takes it with a negative amount, the way the game's own crafting and sleep do. The game's
+    /// rules apply, so energy stops at its maximum and taking it while tired adds insanity. It suits a little each frame,
+    /// such as resting by a fire, since it skips the resource changed event that <see cref="AddResource"/> fires (taking
+    /// energy while tired still fires it for the insanity) and does nothing while energy is full.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// TimbnPlayer.AddEnergy(Time.deltaTime * 2f);
+    /// </code>
+    /// </example>
+    /// <param name="amount">How much to add. Negative takes.</param>
+    /// <returns>False at the main menu, when there is no player.</returns>
+    public static bool AddEnergy(float amount)
+    {
+        if (!TimbnGame.IsInGame || PlayerEnergyGameResSystem.GetSystem() is not { } energy)
+            return false;
+
+        // A full bar still redraws and starts the floating number on every add, so a trickle at the top is skipped.
+        if (amount <= 0f || !energy.HasMax())
+            energy.Add(amount);
+
+        return true;
+    }
+
+    /// <summary>The player's insanity. 0 at the main menu.</summary>
+    public static float Insanity => GetResource(LazyConsts.INSANITY_KEY);
+
+    /// <summary>
+    /// Gives the player insanity, or calms them with a negative amount, the way the game's own crafting does. The game's
+    /// limits apply. Like <see cref="AddEnergy"/> it skips the resource changed event, so it suits a little each frame.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// TimbnPlayer.AddInsanity(-Time.deltaTime);
+    /// </code>
+    /// </example>
+    /// <param name="amount">How much to add. Negative takes.</param>
+    /// <returns>False at the main menu, when there is no player.</returns>
+    public static bool AddInsanity(float amount)
+    {
+        if (!TimbnGame.IsInGame || PlayerInsanityGameResSystem.GetSystem() is not { } insanity)
+            return false;
+
+        insanity.Add(amount);
+        return true;
+    }
+
     /// <summary>How many of an item the player carries in their inventory and bags. Storage in the world does not count.</summary>
     /// <param name="id">The item id.</param>
-    public static int CountItem(string id) => TimbnItems.CountOnPlayer(id);
+    public static int CountItem(string id) =>
+        TimbnGame.IsInGame ? MainGame.PlayerData.inventory.Data.GetTotalCountInInventory(id) : 0;
 
     /// <summary>Whether the player carries at least some of an item in their inventory and bags.</summary>
     /// <param name="id">The item id.</param>
     /// <param name="count">How many they need. 1 by default.</param>
-    public static bool HasItem(string id, int count = 1) => TimbnItems.CountOnPlayer(id) >= count;
+    public static bool HasItem(string id, int count = 1) => CountItem(id) >= count;
 
-    /// <summary>Puts an item in the player's inventory, dropping whatever does not fit in front of them.</summary>
+    /// <summary>
+    /// Puts an item in the player's inventory and bags, and shows the note the game shows when the player picks an item up.
+    /// Whatever does not fit drops in front of the player so nothing is lost, the way the game drops items, so a big stack
+    /// splits into several pickups.
+    /// </summary>
     /// <param name="item">The item and how many.</param>
     /// <returns>How many went into the inventory.</returns>
-    public static int GiveItem(Item item) => TimbnItems.GiveToPlayer(item);
+    public static int GiveItem(Item item) => GiveItem(item, notify: true);
 
-    /// <summary>Removes an item from the player's inventory and bags, up to the count asked for.</summary>
+    /// <summary>Puts an item in the player's inventory like <see cref="GiveItem(Item)"/>, with the pickup note only when asked for.</summary>
+    /// <param name="item">The item and how many.</param>
+    /// <param name="notify">Whether the game's pickup note shows, as it does when the player picks an item up.</param>
+    /// <returns>How many went into the inventory.</returns>
+    public static int GiveItem(Item item, bool notify)
+    {
+        if (!TimbnGame.IsInGame)
+            return 0;
+
+        var moved = new MultiInventory(MainGame.PlayerData, addCurrentPlayerWorldZone: false).AddItem(item);
+        if (moved < item.Count)
+        {
+            var rest = Item.Copy(item);
+            rest.Count = item.Count - moved;
+            var worldId = MainGame.PlayerData.currentGameSceneId;
+            var position = TimbnItems.PlayerDropPosition();
+            if (!MainGame.Instance.dropSystem.DropItem(rest, worldId, position))
+                TimbnItems.DropAt(rest, worldId, position);
+        }
+
+        if (notify && moved > 0)
+            ShowPickupNote(item.id, moved);
+
+        return moved;
+    }
+
+    private static readonly Action<UINotificator, List<Item>>? _showAdded =
+        TimbnReflection.TryDelegate<Action<UINotificator, List<Item>>>(() => AccessTools.Method(typeof(UINotificator), "HandleAddItems"), "UINotificator.HandleAddItems");
+
+    // The note the game shows at the side of the screen when the player picks an item up, with its pickup sound.
+    private static void ShowPickupNote(string id, int count)
+    {
+        if (_showAdded != null && UINotificator.Instance is { } notificator)
+            TimbnSafe.Run(() => _showAdded(notificator, [new Item(id, count)]), TimbnCorePlugin.Logger, $"{nameof(TimbnPlayer)}|The item added note");
+    }
+
+    /// <summary>
+    /// Removes an item from the player's inventory and bags, up to the count asked for. The items are gone, so check
+    /// <see cref="HasItem"/> first when the player has to have enough.
+    /// </summary>
     /// <param name="id">The item id.</param>
     /// <param name="count">How many to take.</param>
-    /// <returns>How many were taken.</returns>
-    public static int TakeItem(string id, int count) => TimbnItems.TakeFromPlayer(id, count);
+    /// <returns>How many were taken, which is less than <paramref name="count"/> when the player had fewer.</returns>
+    public static int TakeItem(string id, int count) =>
+        TimbnGame.IsInGame
+            ? new MultiInventory(MainGame.PlayerData, addCurrentPlayerWorldZone: false).RemoveItemByCount(id, count).Sum(item => item.Count)
+            : 0;
 
     /// <summary>Whether the player has the game's tired debuff. False at the main menu.</summary>
     /// <example>
@@ -286,6 +381,26 @@ public static class TimbnPlayer
     /// <returns>True when it is researched. False at the main menu.</returns>
     public static bool HasTech(string id) =>
         TimbnGame.IsInGame && MainGame.Instance.GameSave?.knowledgeSystem?.IsTechUnlocked(id) == true;
+
+    /// <summary>
+    /// Researches a technology for the player for free, the way the game does when its tech points are spent, so the
+    /// recipes, buildings, perks and other unlocks it brings come with it. A technology already researched stays as it is.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// TimbnPlayer.UnlockTech("wood_basic");
+    /// </code>
+    /// </example>
+    /// <param name="id">The technology's id, such as wood_basic.</param>
+    /// <returns>True when it was researched now. False when it already was, the game has no such technology, or at the main menu.</returns>
+    public static bool UnlockTech(string id)
+    {
+        if (!TimbnGame.IsInGame || HasTech(id) || TimbnBalance.Loaded?.GetDataOrNull<TechDef>(id) is not { } tech)
+            return false;
+
+        tech.Unlock(free: true);
+        return true;
+    }
 
     /// <summary>
     /// Whether the player can make a recipe, either one the game gives from the start or one they have unlocked, such
@@ -399,7 +514,8 @@ public static class TimbnPlayer
     public static string? ZoneId => Zone?.id;
 
     /// <summary>
-    /// Moves the player to a spot in their current scene, the way the game moves them. Pair it with
+    /// Moves the player to a spot in their current scene, the way the game moves them, and sets the lighting and weather
+    /// for where they land the way a door does, so no rain shows indoors. Pair it with
     /// <see cref="TimbnWorld.TryFindWalkable"/> so they land on open ground.
     /// </summary>
     /// <example>
@@ -416,6 +532,39 @@ public static class TimbnPlayer
             return false;
 
         MainGame.PlayerController.SetPosition(position);
+        EnvironmentEngine.Instance?.SetTimeOfDayPreset(TimbnWorld.EnvironmentAt(position));
         return true;
     }
+
+    /// <summary>
+    /// Moves the player to one of the game's points the way its doors do, into another scene when the point is in one,
+    /// with the lighting and weather for where they land. They keep the way they were facing.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// TimbnPlayer.TeleportTo("player_spawn_point_home");
+    /// </code>
+    /// </example>
+    /// <param name="pointId">The point's id, as <see cref="TimbnWorld.Point"/> takes it.</param>
+    /// <returns>False at the main menu or when no point has that id.</returns>
+    public static bool TeleportTo(string pointId) =>
+        TimbnGame.IsInGame
+        && TimbnWorld.Point(pointId) is { } point
+        && PlayerController.Teleport(new GDPointTeleportData(point, TimbnWorld.EnvironmentAt(point.Position)));
+
+    /// <summary>
+    /// Turns the player to face a spot, such as the campfire they sit at. While a plugin holds the player's control the
+    /// player keeps facing it, even as the mouse moves, until every hold has let go or a walk or slide starts. Without a
+    /// hold the player turns and then moves freely again.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// _control = Player.TakeControl();
+    /// TimbnPlayer.Face(fire);
+    /// </code>
+    /// </example>
+    /// <param name="position">The spot to face. Its height is ignored.</param>
+    /// <returns>False at the main menu, when there is no player to turn.</returns>
+    public static bool Face(Vector3 position) =>
+        TimbnGame.IsInGame && MainGame.PlayerController != null && TimbnPlayerControl.Face(MainGame.PlayerController, position);
 }
