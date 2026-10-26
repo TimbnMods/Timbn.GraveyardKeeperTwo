@@ -6,4 +6,9 @@ timbn_chest_labels_label = Etykieta
 
 # The naming window
 timbn_chest_labels_title = Etykieta skrzyni
-timbn_chest_labels_placeholder = Wpisz nazwę
+
+# The label sizes in the naming window
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.Small = Mała
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.DefaultSize = Domyślna
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.Large = Duża
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.ExtraLarge = Bardzo duża

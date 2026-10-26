@@ -6,4 +6,9 @@ timbn_chest_labels_label = Rótulo
 
 # The naming window
 timbn_chest_labels_title = Rótulo do Baú
-timbn_chest_labels_placeholder = Digite um nome
+
+# The label sizes in the naming window
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.Small = Pequeno
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.DefaultSize = Padrão
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.Large = Grande
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.ExtraLarge = Extra grande

@@ -6,4 +6,9 @@ timbn_chest_labels_label = Etiquetar
 
 # The naming window
 timbn_chest_labels_title = Etiqueta del cofre
-timbn_chest_labels_placeholder = Escribe un nombre
+
+# The label sizes in the naming window
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.Small = Pequeña
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.DefaultSize = Predeterminada
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.Large = Grande
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.ExtraLarge = Muy grande

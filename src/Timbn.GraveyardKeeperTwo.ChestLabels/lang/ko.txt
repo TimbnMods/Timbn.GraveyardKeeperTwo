@@ -6,4 +6,9 @@ timbn_chest_labels_label = 이름표
 
 # The naming window
 timbn_chest_labels_title = 상자 이름표
-timbn_chest_labels_placeholder = 이름을 입력하세요
+
+# The label sizes in the naming window
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.Small = 작게
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.DefaultSize = 기본
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.Large = 크게
+Timbn.GraveyardKeeperTwo.ChestLabels.ChestLabelSize.ExtraLarge = 매우 크게
