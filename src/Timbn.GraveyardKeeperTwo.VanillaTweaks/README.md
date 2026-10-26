@@ -31,4 +31,4 @@ Every line the mod adds is in `lang/en.txt`. Copy it to the game's language id, 
 
 ## Building
 
-It needs Timbn Core 2.0.0 or newer. A build deploys to `BepInEx/scripts` so F6 reloads it, and `-p:DeployTo=plugins` loads it at startup instead.
+It needs Timbn Core 2.2.0 or newer. A build deploys to `BepInEx/scripts` so F6 reloads it, and `-p:DeployTo=plugins` loads it at startup instead.

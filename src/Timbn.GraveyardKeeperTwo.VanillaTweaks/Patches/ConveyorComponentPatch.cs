@@ -1,5 +1,4 @@
 using System.Reflection;
-using Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
 
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks.Patches;
 
@@ -14,10 +13,13 @@ internal static class ConveyorComponentPatch
             .Where(method => method != null);
 
     [HarmonyPrefix]
-    private static bool HandleCycleDependencyPreFix(ConveyorComponent __instance, ConveyorComponent __0, out bool __state) =>
-        ConveyorLoopCrash.Enter(__instance, __0, out __state);
+    private static bool HandleCycleDependencyPreFix(ConveyorComponent __instance, ConveyorComponent __0, out bool __state)
+    {
+        __state = false;
+        return Plugin.Instance?.ConveyorLoops.Enter(__instance, __0, out __state) ?? true;
+    }
 
     [HarmonyFinalizer]
     private static void HandleCycleDependencyFinalizer(bool __state) =>
-        ConveyorLoopCrash.Exit(__state);
+        Plugin.Instance?.ConveyorLoops.Exit(__state);
 }

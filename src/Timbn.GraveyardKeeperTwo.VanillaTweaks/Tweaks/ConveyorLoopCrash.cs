@@ -1,30 +1,33 @@
 
 namespace Timbn.GraveyardKeeperTwo.VanillaTweaks.Tweaks;
 
-internal static class ConveyorLoopCrash
+internal sealed class ConveyorLoopCrash
 {
     private const float _half = 0.3f;
     private const string _alertKey = "timbn_conveyor_loop_stuck";
     private const float _expireAfter = 10f;
     private const float _tickInterval = 0.5f;
 
-    private static readonly List<ConveyorComponent> _path = [];
-    private static readonly HashSet<ConveyorComponent> _walked = [];
-    private static readonly Dictionary<SGuid, GameObject> _marked = [];
-    private static readonly HashSet<SGuid> _reported = [];
-    private static readonly Dictionary<SGuid, float> _lastCaught = [];
     private static readonly Color _red = new(1f, 0.15f, 0.1f, 1f);
     private static readonly Color _yellow = new(1f, 0.85f, 0.2f, 1f);
-    private static Material? _material;
 
-    public static void Register(TimbnFrameworkPlugin plugin)
+    private readonly List<ConveyorComponent> _path = [];
+    private readonly HashSet<ConveyorComponent> _walked = [];
+    private readonly Dictionary<SGuid, GameObject> _marked = [];
+    private readonly HashSet<SGuid> _reported = [];
+    private readonly Dictionary<SGuid, float> _lastCaught = [];
+    private Material? _material;
+
+    public static ConveyorLoopCrash Register(TimbnFrameworkPlugin plugin)
     {
-        plugin.Settings.Toggle(PluginConfig.ConveyorLoopCrash, Restore, Restore);
-        plugin.Settings.While(PluginConfig.ConveyorLoopCrash, () => plugin.Events.EveryRealSeconds(_tickInterval, Tick));
-        plugin.Events.SaveClosed(Restore);
+        var conveyorLoopCrash = new ConveyorLoopCrash();
+        plugin.Settings.Toggle(PluginConfig.ConveyorLoopCrash, conveyorLoopCrash.Restore, conveyorLoopCrash.Restore);
+        plugin.Settings.While(PluginConfig.ConveyorLoopCrash, () => plugin.Events.EveryRealSeconds(_tickInterval, conveyorLoopCrash.Tick));
+        plugin.Events.SaveClosed(conveyorLoopCrash.Restore);
+        return conveyorLoopCrash;
     }
 
-    public static bool Enter(ConveyorComponent component, ConveyorComponent cycleStart, out bool entered)
+    public bool Enter(ConveyorComponent component, ConveyorComponent cycleStart, out bool entered)
     {
         entered = false;
         if (!PluginConfig.ConveyorLoopCrash.Value)
@@ -41,7 +44,7 @@ internal static class ConveyorLoopCrash
         return true;
     }
 
-    public static void Exit(bool entered)
+    public void Exit(bool entered)
     {
         if (!entered)
             return;
@@ -51,14 +54,14 @@ internal static class ConveyorLoopCrash
             _walked.Clear();
     }
 
-    private static void Tick()
+    private void Tick()
     {
         if (!TimbnGame.IsInGame)
             return;
 
         foreach (var id in _lastCaught.Keys.ToList())
         {
-            if (Time.time - _lastCaught[id] < _expireAfter && MainGame.WorldData.GetWgoData(id) != null)
+            if (Time.time - _lastCaught[id] < _expireAfter && TimbnWorld.Find(id) != null)
                 continue;
 
             _lastCaught.Remove(id);
@@ -68,16 +71,20 @@ internal static class ConveyorLoopCrash
         }
     }
 
-    private static void Restore()
+    private void Restore()
     {
         ClearMarkers();
         _reported.Clear();
         _lastCaught.Clear();
         _path.Clear();
         _walked.Clear();
+        if (_material != null)
+            UnityEngine.Object.Destroy(_material);
+
+        _material = null;
     }
 
-    private static void ClearMarkers()
+    private void ClearMarkers()
     {
         foreach (var marker in _marked.Values)
         {
@@ -88,7 +95,7 @@ internal static class ConveyorLoopCrash
         _marked.Clear();
     }
 
-    private static void Highlight(ConveyorComponent repeated, ConveyorComponent cycleStart)
+    private void Highlight(ConveyorComponent repeated, ConveyorComponent cycleStart)
     {
         var start = _path.IndexOf(repeated);
         if (start < 0 || repeated.wasPerformedItemTransfer || repeated.ParentsData.Values.Contains(cycleStart.WgoData))
@@ -115,7 +122,7 @@ internal static class ConveyorLoopCrash
             _marked[data.UniqueId] = Mark(data.Position, ring);
     }
 
-    private static GameObject Mark(Vector3 position, List<Vector3> ring)
+    private GameObject Mark(Vector3 position, List<Vector3> ring)
     {
         var marker = new GameObject("Timbn conveyor loop marker");
         var y = position.y + 0.05f;
@@ -143,7 +150,7 @@ internal static class ConveyorLoopCrash
         return marker;
     }
 
-    private static void AddLine(GameObject parent, bool loop, Color color, float width, params Vector3[] points)
+    private void AddLine(GameObject parent, bool loop, Color color, float width, params Vector3[] points)
     {
         var line = new GameObject("line").AddComponent<LineRenderer>();
         line.transform.SetParent(parent.transform, false);
