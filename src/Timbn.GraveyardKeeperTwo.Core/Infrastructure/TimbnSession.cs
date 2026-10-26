@@ -12,7 +12,6 @@ internal static class TimbnSession
         Step(TimbnModContent.OnGameStarted, nameof(TimbnModContent));
         Step(TimbnQuests.OnGameStarted, nameof(TimbnQuests));
         Step(TimbnDialog.OnGameStarted, nameof(TimbnDialog));
-        Step(TimbnDialogWindow.OnGameStarted, nameof(TimbnDialogWindow));
         Step(() => session.Add(TimbnGameEvents.QuestStarted(TimbnQuests.OnQuestStarted)), nameof(TimbnGameEvents.QuestStarted));
         Step(() => TimbnPotions.OnGameStarted(session), nameof(TimbnPotions));
         Step(TimbnNpcs.OnGameStarted, nameof(TimbnNpcs));
@@ -39,7 +38,8 @@ internal static class TimbnSession
     internal static void ReleaseHolds()
     {
         TimbnMovement.ReleaseAll();
-        TimbnControl.ReleaseAll();
+        TimbnPlayerControl.ReleaseAll();
+        TimbnPlayerAnimation.ReleaseAll();
         TimbnGameSpeed.ReleaseAll();
         TimbnClockPause.ReleaseAll();
     }

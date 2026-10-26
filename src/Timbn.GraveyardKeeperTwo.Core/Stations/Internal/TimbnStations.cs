@@ -170,8 +170,8 @@ internal static class TimbnStations
         def.isAutoCrafter = true;
         def.inventorySize = 1;
         def.inventoryWhiteList = new WhiteListItemFilter { groupsIds = ["zombie"] };
-        def.customInteraction = HoldInteraction(TimbnStationRules.HoldPutCondition, TimbnStationRules.HoldPut, "hint_put");
-        def.customInteraction2 = HoldInteraction(TimbnStationRules.HoldTakeCondition, TimbnStationRules.HoldTake, "hint_take");
+        def.customInteraction = HoldInteraction(TimbnStationRules.HoldPutCondition, TimbnStationRules.HoldPut, TimbnGameIds.Texts.HintPut);
+        def.customInteraction2 = HoldInteraction(TimbnStationRules.HoldTakeCondition, TimbnStationRules.HoldTake, TimbnGameIds.Texts.HintTake);
     }
 
     private static CustomInteraction HoldInteraction(string condition, IEnumerable<string> execution, string hint) => new()

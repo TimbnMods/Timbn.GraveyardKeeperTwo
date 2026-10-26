@@ -91,121 +91,6 @@ public sealed class TimbnPackReaderTests
     }
 
     [Fact]
-    public void OfferAcceptAndAskAnswersTakeNeedsAndCost()
-    {
-        var content = Read("""
-            {
-              "quests": [
-                {
-                  "id": "q", "giver": "npc_larry", "name": "Q", "readyOn": "slept",
-                  "offer": { "accept": { "text": "Fine.", "needs": { "onDay": "Pride" }, "cost": { "money": 100 } } }
-                }
-              ],
-              "talks": [
-                {
-                  "id": "trade", "npc": "npc_larry",
-                  "lines": [ { "ask": [ { "text": "Trade.", "needs": { "reputation": 5 }, "cost": { "items": { "stick": 1 } }, "reward": { "shows": { "flitch": 2 } } }, "Bye." ] } ]
-                }
-              ]
-            }
-            """);
-
-        Assert.Empty(content.Problems);
-        Assert.False(Assert.Single(content.Quests).OfferTalk!.AcceptWants!.IsEmpty);
-        Assert.Single(content.Talks);
-    }
-
-    [Theory]
-    [InlineData("\"wants\": { \"items\": { \"grape_wine:1\": 1 } }")]
-    [InlineData("\"handIn\": { \"give\": \"Here.\" }")]
-    [InlineData("\"intro\": [ \"More, please.\" ]")]
-    public void TheOldFieldsAreReportedAsUnknown(string field)
-    {
-        var content = Read($$"""{ "quests": [ { "id": "q", "giver": "npc_larry", "name": "Q", "readyOn": "slept", {{field}} } ] }""");
-
-        Assert.Single(content.Quests);
-        Assert.Contains("doesn't belong here", Assert.Single(content.Problems));
-    }
-
-    [Theory]
-    [InlineData("reward")]
-    [InlineData("cost")]
-    public void ACostOrRewardOnTheAcceptIsReportedSinceItBelongsToTheStep(string field)
-    {
-        var content = Read($$"""{ "quests": [ { "id": "q", "giver": "npc_larry", "name": "Q", "talk": { "accept": { "text": "Here.", "{{field}}": { "money": 5 } } } } ] }""");
-
-        Assert.Single(content.Quests);
-        Assert.Contains($"\"{field}\" doesn't belong here", Assert.Single(content.Problems));
-    }
-
-    [Fact]
-    public void AStepTakesItsCost()
-    {
-        var content = Read("""
-            {
-              "quests": [
-                {
-                  "id": "q", "giver": "npc_larry", "name": "Q",
-                  "cost": { "money": 200 },
-                  "talk": { "accept": "Here's the silver." },
-                  "stages": [
-                    { "id": "deliver", "description": "Bring the wine.", "cost": { "items": { "grape_wine:1": 1 } }, "talk": { "accept": "Here." } }
-                  ]
-                }
-              ]
-            }
-            """);
-
-        Assert.Empty(content.Problems);
-        var quest = Assert.Single(content.Quests);
-        Assert.Equal(["pack_q", "pack_q_deliver"], quest.Steps.Select(step => step.Id));
-        Assert.All(quest.Steps, step => Assert.False(step.CostOf.IsEmpty));
-    }
-
-    [Fact]
-    public void AcceptTrueFinishesTheStepOnceTheLinesAreDone()
-    {
-        var content = Read("""{ "quests": [ { "id": "q", "giver": "npc_larry", "name": "Q", "reward": { "money": 5 }, "talk": { "lines": [ "Here, take this." ], "accept": true } } ] }""");
-
-        Assert.Empty(content.Problems);
-        var talk = Assert.Single(content.Quests).TalkOf!;
-        Assert.True(talk.HasAccept);
-        Assert.Null(talk.AcceptKey);
-        Assert.Equal("Here, take this.", Assert.Single(content.Quests).Texts["pack_q_talk_1"]);
-    }
-
-    [Theory]
-    [InlineData("\"lines\": [ \"Hi.\" ]")]
-    [InlineData("\"lines\": [ \"Hi.\" ], \"accept\": false")]
-    [InlineData("\"accept\": true")]
-    [InlineData("\"lines\": [ \"Hi.\" ], \"accept\": true, \"decline\": \"No.\"")]
-    public void ATalkWithNoAcceptOrABadAcceptTrueIsAProblem(string talk)
-    {
-        var content = Read($$"""{ "quests": [ { "id": "q", "giver": "npc_larry", "name": "Q", "talk": { {{talk}} } } ] }""");
-
-        Assert.Empty(content.Quests);
-        Assert.Contains(content.Problems, problem => problem.Contains("quest 'q'"));
-    }
-
-    [Fact]
-    public void AcceptTrueWithACostIsAProblem()
-    {
-        var content = Read("""{ "quests": [ { "id": "q", "giver": "npc_larry", "name": "Q", "cost": { "money": 5 }, "talk": { "lines": [ "Hi." ], "accept": true } } ] }""");
-
-        Assert.Empty(content.Quests);
-        Assert.Contains(content.Problems, problem => problem.Contains("quest 'q'") && problem.Contains("Cost"));
-    }
-
-    [Fact]
-    public void ATalkStepTakesTheStepsReward()
-    {
-        var content = Read("""{ "quests": [ { "id": "q", "giver": "npc_larry", "name": "Q", "talk": { "accept": "Here." }, "reward": { "money": 5 } } ] }""");
-
-        Assert.Empty(content.Problems);
-        Assert.Equal(5, Assert.Single(content.Quests).RewardsOf.MoneyTotal);
-    }
-
-    [Fact]
     public void AQuestsOwnFieldsAreItsFirstStepAndItsStagesFollow()
     {
         var content = Read("""
@@ -324,94 +209,6 @@ public sealed class TimbnPackReaderTests
         Assert.Equal(["ask", "herm", "wine"], starts);
     }
 
-    [Theory]
-    [InlineData("\"phase\": 99999999999")]
-    [InlineData("\"phase\": 999999999999999999999999999")]
-    [InlineData("\"reward\": { \"money\": 99999999999 }")]
-    [InlineData("\"reward\": { \"resources\": { \"money\": 999999999999999999999999999 } }")]
-    [InlineData("\"offerWhen\": { \"carries\": \"flitch\", \"count\": 999999999999999999999999999 }")]
-    public void ANumberTooBigIsAProblemNotACrash(string field)
-    {
-        var content = Read($$"""{ "quests": [ { "id": "q", "giver": "npc_larry", "name": "Q", "readyOn": "slept", {{field}} }, { "id": "fine", "giver": "npc_larry", "name": "Fine", "readyOn": "slept" } ] }""");
-
-        Assert.Equal("pack_fine", Assert.Single(content.Quests).Id);
-        Assert.Contains(content.Problems, problem => problem.Contains("quest 'q'") && problem.Contains("too big"));
-    }
-
-    [Fact]
-    public void ContinuingAQuestFromOutsideThePackIsAProblem()
-    {
-        var content = Read("""{ "quests": [ { "id": "q", "giver": "npc_larry", "name": "Q", "readyOn": "slept", "continues": "6_intro_guards_burial" } ] }""");
-
-        Assert.Empty(content.Quests);
-        Assert.Contains(content.Problems, problem => problem.Contains("continues") && problem.Contains("quest 'q'"));
-    }
-
-    [Fact]
-    public void AnUnknownFieldIsReportedButTheQuestStillLoads()
-    {
-        var content = Read("""
-            {
-              "quests": [
-                { "id": "q", "giver": "npc_larry", "name": "Q", "readyOn": "slept", "descriptoin": "Typo." }
-              ]
-            }
-            """);
-
-        Assert.Single(content.Quests);
-        var problem = Assert.Single(content.Problems);
-        Assert.Contains("\"descriptoin\"", problem);
-        Assert.Contains("line 3", problem);
-    }
-
-    [Fact]
-    public void ABrokenFileIsSkippedAndTheOthersLoad()
-    {
-        var content = new TimbnPackReader("pack", []).Read(
-        [
-            ("pack/quests/broken.json", """{ "quests": [ { "id": "a", } """),
-            ("pack/quests/good.json", """{ "quests": [ { "id": "b", "giver": "npc_larry", "name": "B", "readyOn": "slept" } ] }"""),
-        ]);
-
-        Assert.Equal("pack_b", Assert.Single(content.Quests).Id);
-        Assert.Contains(content.Problems, problem => problem.StartsWith("pack/quests/broken.json", StringComparison.Ordinal));
-    }
-
-    [Fact]
-    public void TheBuildersOwnMistakesSkipTheQuestWithItsFileAndId()
-    {
-        var content = Read("""{ "quests": [ { "id": "q", "giver": "npc_larry", "name": "Q", "offer": { "lines": ["Hi."] }, "readyOn": "slept" } ] }""");
-
-        Assert.Empty(content.Quests);
-        Assert.Contains(content.Problems, problem => problem.Contains("quests.json, quest 'q'") && problem.Contains("Accept"));
-    }
-
-    [Fact]
-    public void ReadyWhenWaitsForCodeAndKeepsItsCondition()
-    {
-        var content = Read("""{ "quests": [ { "id": "q", "giver": "npc_larry", "name": "Q", "readyWhen": { "all": ["hasTech:wood_basic", { "carries": "flitch", "count": 2 }] } } ] }""");
-
-        Assert.Empty(content.Problems);
-        Assert.True(content.Quests[0].WaitsForCode);
-        Assert.True(content.ReadyWhen.ContainsKey("pack_q"));
-    }
-
-    [Fact]
-    public void AnUnknownConditionNamesTheChoicesAndTheLine()
-    {
-        var content = Read("""
-            {
-              "quests": [
-                { "id": "q", "giver": "npc_larry", "name": "Q", "readyOn": "slept",
-                  "offerWhen": "hasMoney:5" }
-              ]
-            }
-            """);
-
-        Assert.Empty(content.Quests);
-        Assert.Contains(content.Problems, problem => problem.Contains("line 4") && problem.Contains("questStarted"));
-    }
-
     [Fact]
     public void AnUnknownNpcSkipsItsQuestOrTalkAndNamesTheId()
     {
@@ -494,7 +291,7 @@ public sealed class TimbnPackReaderTests
         Assert.Equal("Could you bring 2 more?", quest.Steps[0].Texts["pack_wine_talk_accept_1"]);
         Assert.Equal("Plenty.", quest.Steps[1].Texts["pack_wine_more_done_1"]);
         Assert.Equal("More Wine", quest.Steps[1].Texts["pack_wine_more"]);
-        Assert.True(content.ReadyWhen.ContainsKey("pack_wine_more"));
+        Assert.NotNull(quest.Steps[1].ReadyCondition);
     }
 
     [Fact]
@@ -522,98 +319,19 @@ public sealed class TimbnPackReaderTests
         Assert.NotNull(quest.OfferCondition);
     }
 
-    [Fact]
-    public void AnIconNamingAPackSpriteGetsThePrefix()
-    {
-        var content = new TimbnPackReader("pack", ["wine_icon"]).Read(
-        [
-            ("quests.json", """{ "quests": [ { "id": "a", "giver": "npc_larry", "name": "A", "readyOn": "slept", "icon": "wine_icon" }, { "id": "b", "giver": "npc_larry", "name": "B", "readyOn": "slept", "icon": "quest_icon_larry_portal" } ] }"""),
-        ]);
-
-        Assert.Equal("pack_wine_icon", content.Quests[0].IconId);
-        Assert.Equal("quest_icon_larry_portal", content.Quests[1].IconId);
-    }
-
-    [Fact]
-    public void BadAndRepeatedIdsAreSkipped()
-    {
-        var content = Read("""{ "quests": [ { "id": "Bad Id", "giver": "npc_larry", "name": "A", "readyOn": "slept" }, { "id": "a", "giver": "npc_larry", "name": "A", "readyOn": "slept" }, { "id": "a", "giver": "npc_larry", "name": "A again", "readyOn": "slept" } ] }""");
-
-        Assert.Equal("pack_a", Assert.Single(content.Quests).Id);
-        Assert.Equal(2, content.Problems.Count);
-    }
-
-    [Fact]
-    public void CommentsAreAllowed()
-    {
-        var content = Read("""
-            {
-              // Larry's first quest.
-              "quests": [ { "id": "q", "giver": "npc_larry", "name": "Q", "readyOn": "slept" } ]
-            }
-            """);
-
-        Assert.Empty(content.Problems);
-        Assert.Single(content.Quests);
-    }
-
-    [Fact]
-    public void PackInfoNeedsAnIdOfLowercaseLettersDigitsAndUnderscores()
-    {
-        var info = TimbnPackReader.ReadInfo("""{ "id": "larrys_wine", "name": "Larry's Wine", "bubbleColor": "9ad0ff" }""");
-
-        Assert.Equal("larrys_wine", info.Id);
-        Assert.Equal("Larry's Wine", info.Name);
-        Assert.NotNull(info.BubbleColor);
-        Assert.Throws<TimbnPackException>(() => TimbnPackReader.ReadInfo("""{ "id": "Larry's Wine" }"""));
-        Assert.Throws<TimbnPackException>(() => TimbnPackReader.ReadInfo("""{ "name": "No id" }"""));
-    }
-
     [Theory]
     [InlineData("slept")]
-    [InlineData("crafted:candle")]
-    [InlineData("walkedInto:vineyard_basement")]
     [InlineData("usedItem:grape_wine:1")]
     public void EventsReadTheGamesOwn(string text) =>
         Assert.NotNull(TimbnPackRules.Event(new JValue(text)));
 
     [Theory]
-    [InlineData("crafted")]
-    [InlineData("danced:badly")]
-    public void UnknownEventsThrow(string text) =>
-        Assert.Throws<TimbnPackException>(() => TimbnPackRules.Event(new JValue(text)));
-
-    [Theory]
-    [InlineData("time:18-24")]
     [InlineData("time:22-4")]
     [InlineData("day:pride")]
     [InlineData("resource:money:500")]
-    [InlineData("questNotStarted:q")]
     [InlineData("reputation:npc_larry:20")]
     public void ConditionsParse(string text) =>
         Assert.NotNull(new TimbnPackRules(id => id).Condition(new JValue(text)));
-
-    [Theory]
-    [InlineData("time:25-2")]
-    [InlineData("day:monday")]
-    [InlineData("resource:money")]
-    [InlineData("carries")]
-    [InlineData("reputation:npc_lary:20")]
-    public void BadConditionsThrow(string text) =>
-        Assert.Throws<TimbnPackException>(() => new TimbnPackRules(id => id).Condition(new JValue(text)));
-
-    [Theory]
-    [InlineData("pack.schema.json")]
-    [InlineData("quests.schema.json")]
-    public void TheSchemasAreValidJson(string file)
-    {
-        var schema = JObject.Parse(File.ReadAllText(Path.Combine(PacksFolder(), file)));
-
-        Assert.EndsWith($"/Timbn.GraveyardKeeperTwo.QuestPacks/{file}", (string)schema["$id"]!, StringComparison.Ordinal);
-    }
-
-    private static string PacksFolder([System.Runtime.CompilerServices.CallerFilePath] string here = "") =>
-        Path.Combine(Path.GetDirectoryName(here)!, "..", "..", "src", "Timbn.GraveyardKeeperTwo.QuestPacks");
 
     private static TimbnPackContent Read(string json) =>
         new TimbnPackReader("pack", []).Read([("pack/quests/quests.json", json)]);

@@ -39,6 +39,8 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
         Player = new(this);
         Clock = new(this);
         UI = new(this);
+        Interactions = new(this);
+        ModEvents = new(this);
         Saves = new(this);
         Npcs = new(this);
         Audio = new(this);
@@ -107,6 +109,12 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
     /// <summary>Puts the plugin's own hints and IMGUI on screen, taken down when this plugin unloads.</summary>
     public TimbnPluginUI UI { get; }
 
+    /// <summary>Adds actions to the game's own objects, such as a second key on a chest, taken away when this plugin unloads.</summary>
+    public TimbnPluginInteractions Interactions { get; }
+
+    /// <summary>Lets mods tell each other things through Core with no reference to each other, taken away when this plugin unloads.</summary>
+    public TimbnPluginModEvents ModEvents { get; }
+
     /// <summary>Keeps the plugin's own data with each save, in a file next to the game's save.</summary>
     public TimbnPluginSaves Saves { get; }
 
@@ -147,12 +155,15 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
 
     internal TimbnSubscriptions SessionSubscriptions { get; }
 
+    private IDisposable? _modInfo;
+    // Core's entry is bound like every plugin's, so its static Enabled is never null, but nothing reads it and the Mods
+    // window shows no switch for it, since every Timbn mod and the window itself stop without Core.
     internal ConfigEntry<bool> EnabledSetting { get; private set; } = null!;
 
     internal ManualLogSource PluginLogger => Logger;
 
     internal bool IsPluginEnabled =>
-        EnabledSetting.Value && (this is TimbnCorePlugin || TimbnCorePlugin.Instance?.IsPluginEnabled == true);
+        this is TimbnCorePlugin || (EnabledSetting.Value && TimbnCorePlugin.Instance != null);
 
     internal bool IsRunning => _started && IsPluginEnabled;
 
@@ -199,17 +210,21 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
 
     private void Initialize()
     {
-        EnabledSetting = Config.Bind("General", "Enabled", true, $"Master toggle for {Metadata.Name}.");
+        EnabledSetting = this is TimbnCorePlugin
+            ? Config.Bind("General", "Enabled", true, new ConfigDescription("Timbn Core is always on, and this setting does nothing.", null, new TimbnSettingTags { Browsable = false }))
+            : Config.Bind("General", "Enabled", true, $"Master toggle for {Metadata.Name}.");
         BindConfig(Config);
         if (this is not TimbnCorePlugin && TimbnCorePlugin.Instance is null)
         {
-            Logger.LogWarning($"Plugin {Metadata.GUID} not started because Timbn Core is not running, either off in its config or failed to start. See Core's log lines above.");
+            Logger.LogWarning($"Plugin {Metadata.GUID} not started because Timbn Core is not running, since it failed to start. See Core's log lines above.");
             return;
         }
 
+        // Before the Enabled gate, so a mod that is turned off keeps its About card and its place in its group.
+        RegisterModInfo();
         if (!IsPluginEnabled)
         {
-            Logger.LogInfo($"Plugin {Metadata.GUID} is disabled in config (its own or Core's Enabled toggle). Skipping.");
+            Logger.LogInfo($"Plugin {Metadata.GUID} is disabled in config. Skipping.");
             return;
         }
 
@@ -220,10 +235,8 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
         _started = true;
         OnStarted();
         DontDestroyOnLoad(gameObject);
-        gameObject.hideFlags = HideFlags.HideAndDontSave;
         Subscriptions.Add(TimbnGameEvents.GameStarted(Events.AttachToSave));
         Subscriptions.Add(TimbnGameEvents.GoToMainMenu(SessionSubscriptions.Dispose));
-        Subscriptions.Add(TimbnMainMenu.AddLine($"{Metadata.Name}: ", Metadata.Version.ToString()));
         Logger.LogMessage($"Plugin {Metadata.GUID} v{Metadata.Version} loaded, patches under '{harmonyId}'.");
         Text.AddLanguageFilesIfPresent();
         if (!TimbnSafe.Run(OnAwake, Logger, nameof(OnAwake)))
@@ -326,6 +339,8 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
 
     private void OnDestroy()
     {
+        _modInfo?.Dispose();
+        _modInfo = null;
         if (!_started)
             return;
 
@@ -354,6 +369,36 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
 
     /// <summary>Binds the plugin's own settings. Runs before OnAwake, whether or not the plugin is enabled.</summary>
     protected virtual void BindConfig(ConfigFile config) { }
+
+    /// <summary>
+    /// What the Mods window shows about the mod, which is optional. The mod's Overview opens with an About card holding the
+    /// description and a button for each link, and its author shows beside its version. Mods naming the same group share
+    /// one entry in the mod list that opens a page listing them. Core reads it once as the plugin wakes, before it checks
+    /// Enabled, so a mod that is turned off keeps its card and its place in its group. Links that are not https pages on
+    /// the site they are named for are left out with a warning. Null, the default, gives a card saying the mod gave no
+    /// information.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// protected override TimbnModInfo ModInfo => new()
+    /// {
+    ///     ModGroupName = "My Mods",
+    ///     ModGroupId = "0b5c7e52-3d1a-4f8e-9c6b-2a7d41e0f9a3",
+    ///     Description = "Labels for your chests.",
+    ///     NexusLink = "https://www.nexusmods.com/graveyardkeeper2/mods/12",
+    /// };
+    /// </code>
+    /// </example>
+    protected virtual TimbnModInfo? ModInfo => null;
+
+    private void RegisterModInfo() => TimbnSafe.Run(() =>
+    {
+        if (ModInfo is not { } info)
+            return;
+
+        TimbnModLinks.For(info, PluginLogger.LogWarning);
+        _modInfo = TimbnModInfos.Add(Metadata.GUID, info);
+    }, Logger, nameof(ModInfo));
 
     /// <summary>Runs once at startup if the plugin is enabled, after config is bound and patches are applied.</summary>
     protected virtual void OnAwake() { }
@@ -384,7 +429,10 @@ public abstract class TimbnFrameworkPlugin<T> : TimbnFrameworkPlugin where T : T
     /// </summary>
     public static new ManualLogSource Logger { get; private set; } = null!;
 
-    /// <summary>The plugin's General/Enabled toggle. Null until the plugin has started.</summary>
+    /// <summary>
+    /// The plugin's General/Enabled toggle. Null until the plugin has started. Core's is always on whatever it says, since
+    /// Core cannot be turned off.
+    /// </summary>
     public static ConfigEntry<bool> Enabled { get; private set; } = null!;
 
     /// <summary>
@@ -404,11 +452,11 @@ public abstract class TimbnFrameworkPlugin<T> : TimbnFrameworkPlugin where T : T
     public static T? Instance { get; private set; }
 
     /// <summary>
-    /// Whether the plugin's own Enabled toggle and Core's are both on. Check it in a patch or a static helper that
-    /// has to stand down the moment a player turns the plugin off in a config manager. For one feature's toggle, see
-    /// the plugin's Settings.IsEnabled.
+    /// Whether the plugin's own Enabled toggle is on while Core runs. Check it in a patch or a static helper that has to
+    /// stand down the moment a player turns the plugin off. For one feature's toggle, see the plugin's Settings.IsEnabled.
+    /// Core's is true whenever Core runs.
     /// </summary>
-    public static bool IsEnabled => Enabled?.Value == true && TimbnCorePlugin.Enabled?.Value == true;
+    public static bool IsEnabled => TimbnCorePlugin.Instance != null && (typeof(T) == typeof(TimbnCorePlugin) || Enabled?.Value == true);
 
     protected TimbnFrameworkPlugin()
     {

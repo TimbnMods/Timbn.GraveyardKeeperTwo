@@ -223,6 +223,23 @@ public sealed class TimbnPluginEvents
     public IDisposable WorldObjectDestroyed(Action<Wgo> handler) =>
         Static(handler, h => Wgo.OnWgoDestroy += h, h => Wgo.OnWgoDestroy -= h);
 
+    /// <summary>
+    /// Runs when a world object leaves the save for good, such as a chest the player dismantles or a sign a mod takes away,
+    /// so a mod can drop what it kept for that object. Unlike <see cref="WorldObjectDestroyed"/>, which runs whenever a view
+    /// goes, such as when its scene unloads, this one runs only when the object itself is gone. Changing an object's id,
+    /// moving it to another scene, or a mod taking it out with its craft kept to put it back, keeps the same object, so none
+    /// of them runs it. A mod that replaces an object with a new one removes the old one.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// Events.WorldObjectRemoved(data => _labels.Remove(data.UniqueId));
+    /// </code>
+    /// </example>
+    /// <param name="handler">Gets the world object that was removed.</param>
+    /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
+    public IDisposable WorldObjectRemoved(Action<WgoData> handler) =>
+        Static(handler, h => TimbnPatchedEvents.WorldObjectRemoved += h, h => TimbnPatchedEvents.WorldObjectRemoved -= h);
+
     /// <summary>Runs when any of the game's windows opens, such as the inventory, a vendor or the main menu.</summary>
     /// <example>
     /// <code>

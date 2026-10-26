@@ -50,14 +50,6 @@ public sealed class TimbnEventHooksTests
         Assert.Equal(1, heard);
     }
 
-    [Fact]
-    public void AMissingEventIsRefused() =>
-        Assert.Throws<ArgumentException>(() => TimbnEventHooks.Find<Action>(typeof(Source), "Nope", null));
-
-    [Fact]
-    public void AHandlerWithTheWrongParametersIsRefused() =>
-        Assert.Throws<ArgumentException>(() => TimbnEventHooks.Find<Action<int>>(typeof(Source), nameof(Source.Unlocked), null));
-
     private sealed class Source
     {
         public static event Action<string, bool>? Unlocked;

@@ -28,6 +28,13 @@ internal static class TimbnLoadErrors
             _problems.Add(line);
     }
 
+    internal static void Clear()
+    {
+        _startFailures.Clear();
+        _featureFailures.Clear();
+        _problems.Clear();
+    }
+
     internal static string? Describe() => Describe(Chainloader.DependencyErrors, Chainloader.PluginInfos);
 
     internal static string? Describe(IEnumerable<string> dependencyErrors, IReadOnlyDictionary<string, PluginInfo> plugins)

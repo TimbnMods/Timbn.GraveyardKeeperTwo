@@ -1,3 +1,5 @@
+using System.ComponentModel;
+
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>Finds, gives, and drops items in the loaded save. At the main menu every count is zero and nothing moves.</summary>
@@ -99,32 +101,6 @@ public static class TimbnItems
     private static bool IsLive(DropData? drop) => drop?.Item != null && !drop.IsRemoving;
 
     /// <summary>
-    /// Puts an item into the player's inventory and bags, and drops whatever does not fit in front of the player
-    /// so nothing is lost. The overflow drops the way the game drops items, so a big stack splits into several
-    /// pickups. An item the game won't drop that way, such as fuel, still lands as a single pickup.
-    /// </summary>
-    /// <param name="item">The item and how many.</param>
-    /// <returns>How many went into the player's inventory.</returns>
-    public static int GiveToPlayer(Item item)
-    {
-        if (!TimbnGame.IsInGame)
-            return 0;
-
-        var moved = new MultiInventory(MainGame.PlayerData, addCurrentPlayerWorldZone: false).AddItem(item);
-        if (moved < item.Count)
-        {
-            var rest = Item.Copy(item);
-            rest.Count = item.Count - moved;
-            var worldId = MainGame.PlayerData.currentGameSceneId;
-            var position = PlayerDropPosition();
-            if (!MainGame.Instance.dropSystem.DropItem(rest, worldId, position))
-                DropAt(rest, worldId, position);
-        }
-
-        return moved;
-    }
-
-    /// <summary>
     /// What one of an item sells for, the price the town pallets and the game's orders pay, in the game's raw money
     /// units where 100 is one silver coin.
     /// </summary>
@@ -150,23 +126,18 @@ public static class TimbnItems
     /// <returns>The sprite id, or an empty string for an item the game doesn't have.</returns>
     public static string IconId(string id) => TimbnBalance.Loaded?.GetDataOrNull<ItemDef>(id) is { } item ? TimbnBalance.GetIcon(item) : "";
 
-    /// <summary>Counts an item in the player's inventory and bags. Storage in the world does not count.</summary>
-    /// <param name="id">The item id.</param>
-    /// <returns>How many the player is carrying.</returns>
-    public static int CountOnPlayer(string id) =>
-        TimbnGame.IsInGame ? MainGame.PlayerData.inventory.Data.GetTotalCountInInventory(id) : 0;
+    // Released mods such as Living Town 1.0.0 still call these, so they forward instead of doing nothing.
+    [Obsolete("Use TimbnPlayer.GiveItem. This goes away in the next major version.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static int GiveToPlayer(Item item) => TimbnPlayer.GiveItem(item, notify: false);
 
-    /// <summary>
-    /// Removes an item from the player's inventory and bags, up to the count asked for. The items are gone, so
-    /// check <see cref="CountOnPlayer"/> first when the player has to have enough.
-    /// </summary>
-    /// <param name="id">The item id.</param>
-    /// <param name="count">How many to take.</param>
-    /// <returns>How many were taken, which is less than <paramref name="count"/> when the player had fewer.</returns>
-    public static int TakeFromPlayer(string id, int count) =>
-        TimbnGame.IsInGame
-            ? new MultiInventory(MainGame.PlayerData, addCurrentPlayerWorldZone: false).RemoveItemByCount(id, count).Sum(item => item.Count)
-            : 0;
+    [Obsolete("Use TimbnPlayer.CountItem. This goes away in the next major version.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static int CountOnPlayer(string id) => TimbnPlayer.CountItem(id);
+
+    [Obsolete("Use TimbnPlayer.TakeItem. This goes away in the next major version.")]
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static int TakeFromPlayer(string id, int count) => TimbnPlayer.TakeItem(id, count);
 
     /// <summary>Drops an item on the ground as a pickup. Nothing happens at the main menu.</summary>
     /// <param name="item">The item and how many.</param>

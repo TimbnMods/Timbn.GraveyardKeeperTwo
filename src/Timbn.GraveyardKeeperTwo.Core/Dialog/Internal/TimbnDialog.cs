@@ -7,7 +7,9 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 internal static class TimbnDialog
 {
     private const string _iconId = "timbn_speech_bubble";
-    private const string _leaveKey = "common_leave";
+    private const string _leaveKey = TimbnGameIds.Texts.CommonLeave;
+
+    private const string _playerSpeaker = "player";
     private const string _errorAnswer = "Error";
     private const string _gameIconId = "icon_speech_bubble";
 
@@ -89,6 +91,9 @@ internal static class TimbnDialog
         if (!TryFormat(key, values, out var shown))
             return false;
 
+        if (values.Length == 0)
+            shown = TimbnGameTexts.Voiced(npc.Definition.id, key);
+
         void said()
         {
             GlobalEventsSystem.FireTrigger(GlobalEventsSystem.Event.Type.SpeechSaid, key);
@@ -103,6 +108,9 @@ internal static class TimbnDialog
         TimbnLocale.WarnIfMissing(key);
         if (!TryFormat(key, values, out var shown))
             return false;
+
+        if (values.Length == 0)
+            shown = TimbnGameTexts.Voiced(_playerSpeaker, key);
 
         void said()
         {
@@ -448,7 +456,7 @@ internal static class TimbnDialog
     private static void TakeControl()
     {
         if (_control is null && TimbnGame.IsInGame)
-            _control = TimbnControl.Take();
+            _control = TimbnPlayerControl.Take();
     }
 
     private static void ReleaseControl()

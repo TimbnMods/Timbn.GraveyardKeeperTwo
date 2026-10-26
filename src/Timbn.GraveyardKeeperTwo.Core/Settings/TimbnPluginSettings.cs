@@ -44,7 +44,7 @@ public sealed class TimbnPluginSettings
     /// </summary>
     /// <example>
     /// <code>
-    /// Settings.Toggle(PluginConfig.TechPointCap, cap => cap > 999, _techPointCap.Apply, _techPointCap.Revert);
+    /// Settings.Toggle(PluginConfig.RingRadius, radius => radius > 0f, _ring.Show, _ring.Hide);
     /// </code>
     /// </example>
     /// <param name="entry">The setting.</param>
@@ -93,7 +93,7 @@ public sealed class TimbnPluginSettings
         _owner.Subscriptions.Add(TimbnSettings.While(entry, Working(entry, isOn), subscribe, _owner.PluginLogger));
 
     /// <summary>
-    /// Runs your code whenever a setting's value changes, such as from a config manager or a reloaded config file.
+    /// Runs your code whenever a setting's value changes, such as from the Mods window or a reloaded config file.
     /// The handler is removed when the plugin unloads, and a throw is logged. Prefer Toggle or While when the
     /// setting switches a change on and off.
     /// </summary>
@@ -111,8 +111,8 @@ public sealed class TimbnPluginSettings
     /// <summary>
     /// Whether a toggle is on and its feature is working, which is what <see cref="Toggle(ConfigEntry{bool}, Action, Action)"/>
     /// and <see cref="While(ConfigEntry{bool}, Func{IDisposable})"/> go by. Use it in place of the entry's Value in a
-    /// patch or a handler that reads the toggle directly. The plugin's static IsEnabled is the master switch instead,
-    /// the plugin's own Enabled toggle and Core's.
+    /// patch or a handler that reads the toggle directly. The plugin's static IsEnabled is the master switch instead, the
+    /// plugin's own Enabled toggle while Core runs.
     /// </summary>
     /// <param name="entry">The toggle.</param>
     /// <returns>True when the toggle is on and no game update has broken the feature's patches.</returns>

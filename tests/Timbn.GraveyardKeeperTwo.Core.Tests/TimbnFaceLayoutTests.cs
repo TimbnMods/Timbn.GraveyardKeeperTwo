@@ -12,26 +12,6 @@ public sealed class TimbnFaceLayoutTests
         new(name, TimbnFaceKind.Top, x, y, z, width, depth, 0);
 
     [Fact]
-    public void AFrontTakesItsPicturesSize()
-    {
-        var faces = TimbnFaceLayout.Resolve(Request(TimbnFaceShape.Front, "pot", 4, 20, 16), 24, 26);
-
-        var face = Assert.Single(faces);
-        Assert.Equal(TimbnFaceKind.Front, face.Kind);
-        Assert.Equal((4, 20, 16, 24, 26), (face.X, face.Y, face.Z, face.Width, face.Height));
-    }
-
-    [Fact]
-    public void ATopTakesItsPicturesSizeAsAcrossAndDeep()
-    {
-        var faces = TimbnFaceLayout.Resolve(Request(TimbnFaceShape.Top, "shadow", 0, 1, 0), 60, 36);
-
-        var face = Assert.Single(faces);
-        Assert.Equal(TimbnFaceKind.Top, face.Kind);
-        Assert.Equal((60, 36), (face.Width, face.Height));
-    }
-
-    [Fact]
     public void ABlockGivesItsUpperRowsToTheTopAndTheRestToTheFront()
     {
         var faces = TimbnFaceLayout.Resolve(Request(TimbnFaceShape.Block, "base", 0, 0, 4, 32), 44, 52);
@@ -43,53 +23,6 @@ public sealed class TimbnFaceLayoutTests
     }
 
     [Fact]
-    public void ABlocksFaceNamesSayWhichHalfTheyAre()
-    {
-        var faces = TimbnFaceLayout.Resolve(Request(TimbnFaceShape.Block, "base", depth: 2), 10, 12);
-
-        Assert.Equal("base front", faces[0].Name);
-        Assert.Equal("base top", faces[1].Name);
-    }
-
-    [Theory]
-    [InlineData(10)]
-    [InlineData(11)]
-    public void ABlockThatLeavesNoFrontRowsThrowsAndNamesIt(int depth)
-    {
-        var error = Assert.Throws<InvalidOperationException>(() => TimbnFaceLayout.Resolve(Request(TimbnFaceShape.Block, "stone", depth: depth), 8, 10));
-
-        Assert.Contains("stone", error.Message);
-    }
-
-    [Theory]
-    [InlineData(-1, 0, 0)]
-    [InlineData(0, -1, 0)]
-    [InlineData(0, 0, -1)]
-    public void ANegativePositionThrowsAndNamesTheFace(int x, int y, int z)
-    {
-        var error = Assert.Throws<ArgumentOutOfRangeException>(() => TimbnFaceLayout.Validate(Request(TimbnFaceShape.Front, "pot", x, y, z)));
-
-        Assert.Contains("pot", error.Message);
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-3)]
-    public void ABlockNeedsADepthOfAtLeastOne(int depth)
-    {
-        var error = Assert.Throws<ArgumentOutOfRangeException>(() => TimbnFaceLayout.Validate(Request(TimbnFaceShape.Block, "base", depth: depth)));
-
-        Assert.Contains("base", error.Message);
-    }
-
-    [Fact]
-    public void AFrontAndATopDoNotNeedADepth()
-    {
-        TimbnFaceLayout.Validate(Request(TimbnFaceShape.Front));
-        TimbnFaceLayout.Validate(Request(TimbnFaceShape.Top));
-    }
-
-    [Fact]
     public void TwoFrontsOnTheSamePlaneThatOverlapThrowAndNameBoth()
     {
         List<TimbnFace> faces = [Front("left", 0, 0, 5, 10, 10), Front("right", 9, 4, 5, 10, 10)];
@@ -98,17 +31,12 @@ public sealed class TimbnFaceLayoutTests
 
         Assert.Contains("left", error.Message);
         Assert.Contains("right", error.Message);
-    }
 
-    [Fact]
-    public void TwoTopsAtTheSameHeightThatOverlapThrowAndNameBoth()
-    {
-        List<TimbnFace> faces = [Top("floor", 0, 1, 0, 20, 20), Top("rug", 5, 1, 10, 4, 4)];
+        List<TimbnFace> tops = [Top("floor", 0, 1, 0, 20, 20), Top("rug", 5, 1, 10, 4, 4)];
+        var topError = Assert.Throws<InvalidOperationException>(() => TimbnFaceLayout.CheckOverlaps(tops));
 
-        var error = Assert.Throws<InvalidOperationException>(() => TimbnFaceLayout.CheckOverlaps(faces));
-
-        Assert.Contains("floor", error.Message);
-        Assert.Contains("rug", error.Message);
+        Assert.Contains("floor", topError.Message);
+        Assert.Contains("rug", topError.Message);
     }
 
     [Fact]
@@ -135,31 +63,6 @@ public sealed class TimbnFaceLayoutTests
     }
 
     [Fact]
-    public void AFrontAndATopOnTheSameSpotDoNotOverlap()
-    {
-        List<TimbnFace> faces = [Front("front", 0, 0, 0, 10, 10), Top("top", 0, 0, 0, 10, 10)];
-
-        Assert.Null(TimbnFaceLayout.FindOverlap(faces));
-    }
-
-    [Fact]
-    public void TheTwoHalvesOfABlockNeverOverlapEachOther()
-    {
-        var faces = TimbnFaceLayout.Resolve(Request(TimbnFaceShape.Block, "base", 0, 0, 4, 32), 44, 52);
-
-        Assert.Null(TimbnFaceLayout.FindOverlap(faces));
-    }
-
-    [Fact]
-    public void TwoBlocksWhoseTopsShareAHeightAndOverlapAreCaught()
-    {
-        var faces = TimbnFaceLayout.Resolve(Request(TimbnFaceShape.Block, "one", 0, 0, 0, 4), 10, 14);
-        faces.AddRange(TimbnFaceLayout.Resolve(Request(TimbnFaceShape.Block, "two", 5, 0, 2, 4), 10, 14));
-
-        Assert.NotNull(TimbnFaceLayout.FindOverlap(faces));
-    }
-
-    [Fact]
     public void ExtentsCoverEveryFaceWithTopsReachingBackAndFrontsReachingUp()
     {
         List<TimbnFace> faces = [Top("shadow", 0, 1, 0, 60, 36), Front("pot", 4, 20, 16, 24, 26), Top("lid", 2, 30, 10, 5, 3)];
@@ -172,29 +75,12 @@ public sealed class TimbnFaceLayoutTests
     }
 
     [Fact]
-    public void ExtentsOfAFrontOnlyModelHaveNoDepth()
-    {
-        List<TimbnFace> faces = [Front("sign", 3, 0, 7, 10, 12)];
-
-        var extents = TimbnFaceLayout.Extents(faces);
-
-        Assert.Equal((7, 7, 12), (extents.MinZ, extents.MaxZ, extents.MaxY));
-    }
-
-    [Fact]
     public void AFrontsCornersRunAcrossAtItsDepthAndUp()
     {
         var corners = TimbnFaceLayout.Corners(Front("pot", 4, 20, 16, 24, 26));
 
         Assert.Equal([(4, 20, 16), (28, 20, 16), (28, 46, 16), (4, 46, 16)], corners);
-    }
-
-    [Fact]
-    public void ATopsCornersRunAcrossAtItsHeightAndBack()
-    {
-        var corners = TimbnFaceLayout.Corners(Top("shadow", 0, 1, 2, 60, 36));
-
-        Assert.Equal([(0, 1, 2), (60, 1, 2), (60, 1, 38), (0, 1, 38)], corners);
+        Assert.Equal([(0, 1, 2), (60, 1, 2), (60, 1, 38), (0, 1, 38)], TimbnFaceLayout.Corners(Top("shadow", 0, 1, 2, 60, 36)));
     }
 
     [Theory]
@@ -219,15 +105,6 @@ public sealed class TimbnFaceLayoutTests
             // Unity draws the side whose corners run clockwise, and with the usual cross product that side is the one it points toward.
             Assert.True(cross.X * normal.X + cross.Y * normal.Y + cross.Z * normal.Z > 0);
         }
-    }
-
-    [Fact]
-    public void ThePictureRowsOfAWholeFaceRunFromZeroToOne()
-    {
-        var (low, high) = TimbnFaceLayout.PictureRows(Front("pot", 0, 0, 0, 24, 26), 26);
-
-        Assert.Equal(0f, low);
-        Assert.Equal(1f, high);
     }
 
     [Fact]

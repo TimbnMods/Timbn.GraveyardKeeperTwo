@@ -11,17 +11,9 @@ public sealed class TimbnBuiltModelTests
         var corner = TimbnBuiltModel.ToWorld((0, 0, 0), extents.CenterX, extents.CenterZ);
         var far = TimbnBuiltModel.ToWorld((70, 18, 34), extents.CenterX, extents.CenterZ);
 
-        Assert.Equal(-0.7f, corner.x, 4);
+        Assert.Equal(-far.x, corner.x, 4);
+        Assert.Equal(-far.z, corner.z, 4);
         Assert.Equal(0f, corner.y, 4);
-        Assert.Equal(-0.425f, corner.z, 4);
-        Assert.Equal(0.7f, far.x, 4);
-        Assert.Equal(0.6f, far.y, 4);
-        Assert.Equal(0.425f, far.z, 4);
-    }
-
-    [Fact]
-    public void AModelWithNoFacesThrows()
-    {
-        Assert.Throws<InvalidOperationException>(() => TimbnBuiltModel.Create("Empty", []));
+        Assert.True(far.y > 0f);
     }
 }

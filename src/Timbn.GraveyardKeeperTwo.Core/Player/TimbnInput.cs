@@ -45,6 +45,12 @@ public static class TimbnInput
         }
     }
 
+    /// <summary>
+    /// True while the player plays with a gamepad, the same check the game's windows make to show key glyphs instead of
+    /// buttons and to move a focus between controls. It changes as soon as the player touches the mouse or the gamepad.
+    /// </summary>
+    public static bool IsGamepadActive => LazyInput.IsGamepadActive;
+
     private static bool IsReadingInput =>
         TimbnGame.IsInGame
         && LazyInput.IsInitialized

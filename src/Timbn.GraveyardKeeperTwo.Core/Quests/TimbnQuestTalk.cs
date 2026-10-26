@@ -73,9 +73,10 @@ public sealed class TimbnQuestOffer : TimbnTalk<TimbnQuestOffer>
             throw new InvalidOperationException($"Quest {_questId} has two Accept answers.");
 
         MarkAnswered();
-        AcceptKey = named($"{_questId}_accept");
+        var prefix = $"{_questId}_accept";
+        AcceptKey = named(prefix);
         AcceptWants = TimbnWants.From(needs, cost);
-        AcceptThen = Lines(AcceptKey, then);
+        AcceptThen = Lines(prefix, then);
         return this;
     }
 
@@ -85,8 +86,9 @@ public sealed class TimbnQuestOffer : TimbnTalk<TimbnQuestOffer>
             throw new InvalidOperationException($"Quest {_questId} has two Decline answers.");
 
         MarkAnswered();
-        DeclineKey = named($"{_questId}_decline");
-        DeclineThen = Lines(DeclineKey, then);
+        var prefix = $"{_questId}_decline";
+        DeclineKey = named(prefix);
+        DeclineThen = Lines(prefix, then);
         return this;
     }
 }
@@ -181,8 +183,9 @@ public sealed class TimbnQuestTalk : TimbnTalk<TimbnQuestTalk>
     private TimbnQuestTalk SetAccept(Func<string, string> named, Action<TimbnLines>? then)
     {
         MarkAccepted();
-        AcceptKey = named($"{_prefix}_accept");
-        AcceptThen = Lines(AcceptKey, then);
+        var prefix = $"{_prefix}_accept";
+        AcceptKey = named(prefix);
+        AcceptThen = Lines(prefix, then);
         return this;
     }
 
@@ -206,8 +209,9 @@ public sealed class TimbnQuestTalk : TimbnTalk<TimbnQuestTalk>
             throw new InvalidOperationException($"{_prefix} has two Decline answers.");
 
         MarkAnswered();
-        DeclineKey = named($"{_prefix}_decline");
-        DeclineThen = Lines(DeclineKey, then);
+        var prefix = $"{_prefix}_decline";
+        DeclineKey = named(prefix);
+        DeclineThen = Lines(prefix, then);
         return this;
     }
 

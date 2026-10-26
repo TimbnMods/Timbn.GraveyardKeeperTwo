@@ -111,14 +111,14 @@ internal sealed class TimbnConversation
     internal TimbnConversation Give(string itemId, int count) =>
         Do(() =>
         {
-            var moved = TimbnItems.GiveToPlayer(new Item(itemId, count));
+            var moved = TimbnPlayer.GiveItem(new Item(itemId, count), notify: false);
             TimbnCorePlugin.Logger.LogInfo($"{nameof(TimbnConversation)}|Talk '{_talkId}' gave the player {count} {itemId}, {moved} into their inventory.");
         });
 
     internal TimbnConversation Take(string itemId, int count) =>
         Do(() =>
         {
-            var taken = TimbnItems.TakeFromPlayer(itemId, count);
+            var taken = TimbnPlayer.TakeItem(itemId, count);
             TimbnCorePlugin.Logger.LogInfo($"{nameof(TimbnConversation)}|Talk '{_talkId}' took {taken} of {count} {itemId} from the player.");
         });
 

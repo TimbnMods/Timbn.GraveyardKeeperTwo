@@ -6,12 +6,6 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 /// </summary>
 public static class TimbnConfig
 {
-    // The configuration manager finds this by its field name, so the class only has to be named like its own.
-    private sealed class HiddenEntry
-    {
-        public readonly bool? Browsable = false;
-    }
-
     /// <summary>
     /// Moves the values of config entries a plugin has renamed or moved into their new entries, so players keep
     /// their settings across the change. Call it at the end of <c>BindConfig</c>, once every new entry is bound.
@@ -49,7 +43,7 @@ public static class TimbnConfig
     }
 
     /// <summary>
-    /// Binds a setting that only accepts values between a lowest and a highest, which a config manager shows as a
+    /// Binds a setting that only accepts values between a lowest and a highest, which the Mods window shows as a
     /// slider. It is the same as ConfigFile.Bind with an AcceptableValueRange, in one line.
     /// </summary>
     /// <example>
@@ -70,7 +64,7 @@ public static class TimbnConfig
         config.Bind(section, key, defaultValue, new ConfigDescription(description, new AcceptableValueRange<T>(min, max)));
 
     /// <summary>
-    /// Binds a setting that stays out of the in game configuration manager, for a switch only a developer needs, such as
+    /// Binds a setting that stays out of the Mods window, for a switch only a developer needs, such as
     /// turning on a plugin's debug log. It is still written to the config file and read like any other entry.
     /// </summary>
     /// <example>
@@ -85,5 +79,5 @@ public static class TimbnConfig
     /// <param name="description">What the setting does.</param>
     /// <returns>The bound setting.</returns>
     public static ConfigEntry<T> BindHidden<T>(this ConfigFile config, string section, string key, T defaultValue, string description) =>
-        config.Bind(section, key, defaultValue, new ConfigDescription(description, null, new HiddenEntry()));
+        config.Bind(section, key, defaultValue, new ConfigDescription(description, null, new TimbnSettingTags { Browsable = false }));
 }

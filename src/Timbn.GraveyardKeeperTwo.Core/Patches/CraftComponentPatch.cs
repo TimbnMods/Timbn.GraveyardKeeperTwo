@@ -4,7 +4,7 @@ namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 [HarmonyPatch(typeof(CraftComponent))]
 internal static class CraftComponentPatch
 {
-    // The craft window's Start button and the queue both ask this, so a failed check greys the button and a queued craft
+    // The craft window's Start button and the queue both ask this, so a failed check grays the button and a queued craft
     // waits for it, the way a missing ingredient does. A craft already running is left alone.
     [HarmonyPatch(nameof(CraftComponent.GetStartCraftStatus))]
     [HarmonyPostfix]

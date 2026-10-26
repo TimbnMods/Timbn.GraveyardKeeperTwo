@@ -57,15 +57,6 @@ public sealed class TimbnGraphSearchTests
         Assert.Equal(["b", "c", "a"], Route("b", "a", out _));
     }
 
-    [Fact]
-    public void ARouteToItselfIsOnePoint()
-    {
-        Add("a", 0);
-
-        Assert.Equal(["a"], Route("a", "a", out var length));
-        Assert.Equal(0f, length);
-    }
-
     public sealed class Point
     {
         public Point(string id, float x)

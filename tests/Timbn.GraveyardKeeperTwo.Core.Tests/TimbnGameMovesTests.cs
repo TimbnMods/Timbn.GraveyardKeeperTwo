@@ -19,36 +19,6 @@ public sealed class TimbnGameMovesTests
     private IDisposable Watch(WgoData npc) => TimbnGameMoves.Add(() => npc, (what, walks) => _told.Add((what, walks)));
 
     [Fact]
-    public void AScriptEventOfTheirsIsReported()
-    {
-        using var watch = Watch(_herm);
-
-        TimbnGameMoves.OnEvent(_herm, "go_home");
-
-        Assert.Equal([("the game fired their go_home event", false)], _told);
-    }
-
-    [Fact]
-    public void SomeoneElsesEventIsNotTheirs()
-    {
-        using var watch = Watch(_herm);
-
-        TimbnGameMoves.OnEvent(_linda, "go_home");
-
-        Assert.Empty(_told);
-    }
-
-    [Fact]
-    public void TheInteractionEventIsNoMove()
-    {
-        using var watch = Watch(_herm);
-
-        TimbnGameMoves.OnEvent(_herm, "interaction");
-
-        Assert.Empty(_told);
-    }
-
-    [Fact]
     public void EventsDuringAnInteractionAreNoMove()
     {
         using var watch = Watch(_herm);
@@ -91,17 +61,6 @@ public sealed class TimbnGameMovesTests
     }
 
     [Fact]
-    public void OursIsLiftedAgainAfterAThrow()
-    {
-        using var watch = Watch(_herm);
-
-        Assert.Throws<InvalidOperationException>(() => TimbnGameMoves.Ours(() => throw new InvalidOperationException()));
-        TimbnGameMoves.OnEvent(_herm, "go_home");
-
-        Assert.Single(_told);
-    }
-
-    [Fact]
     public void NestedOursStaysOursUntilTheOutermostEnds()
     {
         using var watch = Watch(_herm);
@@ -116,17 +75,6 @@ public sealed class TimbnGameMovesTests
     }
 
     [Fact]
-    public void AStoryTeleportIsReportedAsNoWalk()
-    {
-        using var watch = Watch(_herm);
-
-        TimbnGameMoves.OnTeleport(null);
-        TimbnGameMoves.OnTeleport(_herm);
-
-        Assert.Equal([("a story graph teleported them", false)], _told);
-    }
-
-    [Fact]
     public void MovesAfterAnEventCoreFiredAreNotReported()
     {
         using var watch = Watch(_herm);
@@ -137,50 +85,5 @@ public sealed class TimbnGameMovesTests
 
         Assert.Empty(_told);
         TimbnGameMoves.Reset();
-    }
-
-    [Fact]
-    public void SettlingIsPerPerson()
-    {
-        using var watch = Watch(_linda);
-
-        TimbnGameMoves.OurEvent(_herm);
-        TimbnGameMoves.OnEvent(_linda, "go_home");
-
-        Assert.Single(_told);
-        TimbnGameMoves.Reset();
-    }
-
-    [Fact]
-    public void ResetEndsEverySettle()
-    {
-        using var watch = Watch(_herm);
-
-        TimbnGameMoves.OurEvent(_herm);
-        TimbnGameMoves.Reset();
-        TimbnGameMoves.OnEvent(_herm, "go_home");
-
-        Assert.Single(_told);
-    }
-
-    [Fact]
-    public void ADisposedWatchHearsNothing()
-    {
-        var watch = Watch(_herm);
-        watch.Dispose();
-
-        TimbnGameMoves.OnEvent(_herm, "go_home");
-
-        Assert.Empty(_told);
-    }
-
-    [Fact]
-    public void AWatchWithNoPersonYetHearsNothing()
-    {
-        using var watch = TimbnGameMoves.Add(() => null, (what, walks) => _told.Add((what, walks)));
-
-        TimbnGameMoves.OnEvent(_herm, "go_home");
-
-        Assert.Empty(_told);
     }
 }

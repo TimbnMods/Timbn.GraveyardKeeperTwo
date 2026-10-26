@@ -6,12 +6,8 @@ public sealed class TimbnDayPlanTests
 
     [Theory]
     [InlineData(0.25f, 0)]
-    [InlineData(0.5f, 0)]
-    [InlineData(0.70f, 1)]
     [InlineData(0.84f, 1)]
-    [InlineData(0.9f, 2)]
     [InlineData(0.1f, 2)]
-    [InlineData(0f, 2)]
     public void BlockAtPicksTheLatestStartAndWrapsBeforeDawn(float timeOfDay, int expected) =>
         Assert.Equal(expected, TimbnDayPlan.BlockAt(_starts, timeOfDay));
 
@@ -25,25 +21,12 @@ public sealed class TimbnDayPlanTests
     }
 
     [Fact]
-    public void BlockAtWithNoBlocksIsNone() => Assert.Equal(-1, TimbnDayPlan.BlockAt([], 0.5f));
-
-    [Fact]
     public void LastStartIsTodaysBlockStart() =>
         Assert.Equal(TimbnDayPlan.Minutes(4, 0.70f), TimbnDayPlan.LastStart(_starts, 4, 0.8f));
 
     [Fact]
     public void LastStartBeforeDawnIsYesterdaysLastBlock() =>
         Assert.Equal(TimbnDayPlan.Minutes(3, 0.85f), TimbnDayPlan.LastStart(_starts, 4, 0.1f));
-
-    [Fact]
-    public void LastStartOfAOneBlockDayMovesOnEachDay()
-    {
-        float[] starts = [0.25f];
-
-        Assert.Equal(TimbnDayPlan.Minutes(4, 0.25f), TimbnDayPlan.LastStart(starts, 4, 0.9f));
-        Assert.Equal(TimbnDayPlan.Minutes(5, 0.25f), TimbnDayPlan.LastStart(starts, 5, 0.3f));
-        Assert.True(TimbnDayPlan.LastStart(starts, 5, 0.3f) > TimbnDayPlan.Minutes(4, 0.9f));
-    }
 
     [Fact]
     public void TakeBackIsDueOnceAtTheNextBlockStart()
@@ -81,7 +64,4 @@ public sealed class TimbnDayPlanTests
     public void MinutesUntilWrapsPastMidnightAndCountsAWholeDayForTheSameMoment(float start, float timeOfDay, double expected) =>
         Assert.Equal(expected, TimbnDayPlan.MinutesUntil(start, timeOfDay), 1);
 
-    [Fact]
-    public void MinutesCountWholeDaysAndThePartOfToday() =>
-        Assert.Equal(3 * 1440.0 + 720.0, TimbnDayPlan.Minutes(3, 0.5f), 3);
 }

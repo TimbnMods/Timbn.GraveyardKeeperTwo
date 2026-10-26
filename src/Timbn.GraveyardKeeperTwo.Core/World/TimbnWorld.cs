@@ -13,6 +13,10 @@ public static class TimbnWorld
     private static readonly DistanceMetric[] _metrics =
         [DistanceMetric.ClosestAsSeenFromAboveSoft(), DistanceMetric.ClosestAsSeenFromAbove()];
 
+    // Checked against every door landing in 1.009.1. Basement holds the morgue, the mine and the home, vineyard, workyard
+    // and warehouse basements, and every door into these areas passes the dungeons preset.
+    private static readonly string[] _dungeonAreas = ["Basement", "TownSewer", "IntroScoutSewer", "Prison"];
+
     /// <summary>
     /// The scenes of the loaded world, each holding its world objects, zones, and the items on its ground. Empty at
     /// the main menu.
@@ -58,6 +62,33 @@ public static class TimbnWorld
     /// <returns>A copy of the list, so objects can be removed while looping it. Empty when there are none or at the main menu.</returns>
     public static IReadOnlyList<WgoData> FindAll(string definitionId) =>
         TimbnGame.IsInGame ? [.. MainGame.WorldData.GetWgoDataList(definitionId)] : [];
+
+    /// <summary>
+    /// The world object with a unique id, the one each object keeps for its whole life, such as a chest a mod keeps a
+    /// label for. Read from the game's own cache, so it is cheap, and it finds the object in any scene.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// if (TimbnWorld.Find(chestId) is { } chest)
+    ///     TimbnWorld.ViewOf(chest)?.DrawWidgets();
+    /// </code>
+    /// </example>
+    /// <param name="uniqueId">The object's unique id, its UniqueId.</param>
+    /// <returns>The object, or null when it is gone or at the main menu.</returns>
+    public static WgoData? Find(SGuid uniqueId) => TimbnGame.IsInGame ? MainGame.WorldData.GetWgoData(uniqueId) : null;
+
+    /// <summary>
+    /// The first world object of one definition in the loaded save, for a definition the world has only one of, such
+    /// as the home's teleport milestone. Use <see cref="FindAll"/> when there can be more.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var milestone = TimbnWorld.Find("teleport_milestone_6_home");
+    /// </code>
+    /// </example>
+    /// <param name="definitionId">The definition's id from the balance, such as sawhorse.</param>
+    /// <returns>The object, or null when there is none or at the main menu.</returns>
+    public static WgoData? Find(string definitionId) => TimbnGame.IsInGame ? MainGame.WorldData.GetWgoData(definitionId) : null;
 
     /// <summary>
     /// The world objects attached to a station, such as the ones built into its slots or a tool rack built next to it,
@@ -328,7 +359,50 @@ public static class TimbnWorld
     /// <param name="id">The point's id.</param>
     /// <returns>The point, or null when no point has that id or at the main menu.</returns>
     public static GDPointData? Point(string id) =>
-        TimbnGame.IsInGame ? MainGame.WorldData.gdPointsData.GetGDPointDataById(id) : null;
+        // The game's single lookup logs a warning for an id it lacks, and its list lookup asks quietly.
+        TimbnGame.IsInGame ? MainGame.WorldData.gdPointsData.GetGDPointsDataById(id).FirstOrDefault() : null;
+
+    /// <summary>
+    /// The lighting and weather preset a spot is in, the one the game's doors set as the player lands there. It is
+    /// outdoor, indoor (the tavern and the other rooms, where no rain shows), dungeons (the basements, the sewers and the
+    /// prison) or church.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// var inside = TimbnWorld.EnvironmentAt(TimbnPlayer.Position) != "outdoor";
+    /// </code>
+    /// </example>
+    /// <param name="position">The spot.</param>
+    /// <returns>The preset's name, outdoor at the main menu.</returns>
+    public static string EnvironmentAt(Vector3 position)
+    {
+        if (!TimbnGame.IsInGame)
+            return "outdoor";
+
+        var areas = MainGame.Instance.gameSceneConfigs?.Where(config => config != null).SelectMany(config => config.IndoorAreas) ?? [];
+        IndoorAreaData? inside = null;
+        var smallest = float.PositiveInfinity;
+        foreach (var area in areas)
+        {
+            if (area == null || !area.ContainsXZ(position))
+                continue;
+
+            var size = area.GetXZArea();
+            if (size >= smallest)
+                continue;
+
+            smallest = size;
+            inside = area;
+        }
+
+        if (inside == null)
+            return "outdoor";
+
+        if (inside.id == "Church")
+            return "church";
+
+        return _dungeonAreas.Contains(inside.id) ? "dungeons" : "indoor";
+    }
 
     /// <summary>
     /// Every point carrying a custom tag, for a set of spots the game marks the same way, such as the two seats each

@@ -48,6 +48,9 @@ internal static class TimbnScriptReloads
         if (TimbnCorePlugin.Instance is not { } core)
             return;
 
+        // Every page closes, the Mods window's questions included, since their buttons would act on the mods being swapped out.
+        TimbnPageWindow.CloseAll();
+        TimbnModsScreen.CloseForReload();
         TimbnBalance.HoldRemovals();
         TimbnSprites.HoldRemovals();
         core.StartCoroutine(ReleaseAfterReload());

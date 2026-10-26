@@ -32,7 +32,7 @@ public sealed class TimbnPluginPlayer
     /// </code>
     /// </example>
     /// <returns>A handle that gives control back when disposed. It is also released when the plugin unloads and on the way to the main menu.</returns>
-    public IDisposable TakeControl() => _owner.SessionSubscriptions.Add(TimbnControl.Take());
+    public IDisposable TakeControl() => _owner.SessionSubscriptions.Add(TimbnPlayerControl.Take());
 
     /// <summary>
     /// Makes the player walk faster or slower until the returned handle is disposed. It multiplies the game's own
@@ -52,6 +52,22 @@ public sealed class TimbnPluginPlayer
     /// <param name="multiplier">How many times the normal walking speed. 1 is normal.</param>
     /// <returns>A handle that ends the change when disposed. It is also released when the plugin unloads and on the way to the main menu.</returns>
     public IDisposable MultiplyWalkSpeed(float multiplier) => _owner.SessionSubscriptions.Add(TimbnMovement.SetSpeed(multiplier));
+
+    /// <summary>
+    /// Plays one of the game's animations on the player until the returned handle is disposed, such as working with their
+    /// hands while they pet a cat. Core keeps it playing, since the game's own movement sets the player idle, for example
+    /// the frame after a walk ends. Take control first so the player stays put. Several plugins can hold an animation at
+    /// once, and the newest one plays. When the last is released, the player goes back to idle.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// _control = Player.TakeControl();
+    /// _animation = Player.HoldAnimation(AnimationState.WorkHands);
+    /// </code>
+    /// </example>
+    /// <param name="state">The animation, such as AnimationState.WorkHands.</param>
+    /// <returns>A handle that ends the animation when disposed. It is also released when the plugin unloads and on the way to the main menu.</returns>
+    public IDisposable HoldAnimation(AnimationState state) => _owner.SessionSubscriptions.Add(TimbnPlayerAnimation.Hold(state));
 
     /// <summary>
     /// Walks the player to a spot along the navmesh as if they held the movement keys, and calls back when they get
@@ -76,16 +92,32 @@ public sealed class TimbnPluginPlayer
     /// the player has no way to within half a unit of the spot or gets blocked on the way, each of which is logged.
     /// </param>
     /// <returns>A handle that stops the walk when disposed. It is also stopped when the plugin unloads and on the way to the main menu.</returns>
-    public IDisposable WalkTo(Vector3 position, Action? arrived = null)
-    {
-        var walk = TimbnPlayerWalk.Start(position, arrived, _owner.PluginLogger);
-        if (walk.IsDone)
-            return walk;
+    public IDisposable WalkTo(Vector3 position, Action? arrived = null) => OwnWalk(TimbnPlayerWalk.Start(position, arrived, _owner.PluginLogger), null);
 
-        var owned = _owner.SessionSubscriptions.Add(walk);
-        walk.Ended = owned.Dispose;
-        return owned;
-    }
+    /// <summary>
+    /// Walks the player to a spot like <see cref="WalkTo(Vector3, Action)"/>, and calls back however the walk ends, with
+    /// whether they got there. Use it when the player has to be let go if they never arrive, such as a walk under a held
+    /// control that the navmesh has no way for.
+    /// </summary>
+    /// <example>
+    /// <code>
+    /// _control = Player.TakeControl();
+    /// _walk = Player.WalkTo(bench, arrived =>
+    /// {
+    ///     if (arrived)
+    ///         SitDown();
+    ///     else
+    ///         _control?.Dispose();
+    /// });
+    /// </code>
+    /// </example>
+    /// <param name="position">Where to walk to.</param>
+    /// <param name="ended">
+    /// Runs once when the walk ends, with true on arrival and false when the player has no way, gets blocked, leaves the
+    /// scene or a newer walk takes over. It never runs after the handle is disposed.
+    /// </param>
+    /// <returns>A handle that stops the walk when disposed. It is also stopped when the plugin unloads and on the way to the main menu.</returns>
+    public IDisposable WalkTo(Vector3 position, Action<bool> ended) => OwnWalk(TimbnPlayerWalk.Start(position, null, _owner.PluginLogger), ended);
 
     /// <summary>
     /// Puts an item in the player's hands, held over their head the way they carry a log. A player with a free carry
@@ -145,14 +177,60 @@ public sealed class TimbnPluginPlayer
     /// <param name="position">Where to go.</param>
     /// <param name="arrived">Runs once on arrival. It never runs after the handle is disposed or when the navmesh has no way there, which is logged.</param>
     /// <returns>A handle that stops the slide when disposed. It is also stopped when the plugin unloads and on the way to the main menu.</returns>
-    public IDisposable SlideTo(Vector3 position, Action? arrived = null)
+    public IDisposable SlideTo(Vector3 position, Action? arrived = null) => OwnSlide(StartSlide(position, arrived), null);
+
+    /// <summary>
+    /// Slides the player to a spot like <see cref="SlideTo(Vector3, Action)"/>, and calls back however the slide ends, with
+    /// whether they got there.
+    /// </summary>
+    /// <param name="position">Where to go.</param>
+    /// <param name="ended">
+    /// Runs once when the slide ends, with true on arrival and false when the navmesh has no way there, the slide fails or
+    /// a newer slide replaces it. It never runs after the handle is disposed.
+    /// </param>
+    /// <returns>A handle that stops the slide when disposed. It is also stopped when the plugin unloads and on the way to the main menu.</returns>
+    public IDisposable SlideTo(Vector3 position, Action<bool> ended) => OwnSlide(StartSlide(position, null), ended);
+
+    private TimbnPlayerSlide StartSlide(Vector3 position, Action? arrived) =>
+        TimbnPlayerSlide.Start(position, arrived, _owner.PluginLogger, overNavmesh: true, pace: TimbnPlayerSlide.WalkPace);
+
+    private IDisposable OwnWalk(TimbnPlayerWalk walk, Action<bool>? ended)
     {
-        var slide = TimbnPlayerSlide.Start(position, arrived, _owner.PluginLogger, overNavmesh: true, pace: TimbnPlayerSlide.WalkPace);
+        if (walk.IsDone)
+        {
+            Report(ended, false);
+            return walk;
+        }
+
+        var owned = _owner.SessionSubscriptions.Add(walk);
+        walk.Ended = () =>
+        {
+            owned.Dispose();
+            Report(ended, walk.Arrived);
+        };
+        return owned;
+    }
+
+    private IDisposable OwnSlide(TimbnPlayerSlide slide, Action<bool>? ended)
+    {
         if (slide.IsDone)
+        {
+            Report(ended, slide.Arrived);
             return slide;
+        }
 
         var owned = _owner.SessionSubscriptions.Add(slide);
-        slide.Ended = owned.Dispose;
+        slide.Ended = () =>
+        {
+            owned.Dispose();
+            Report(ended, slide.Arrived);
+        };
         return owned;
+    }
+
+    private void Report(Action<bool>? ended, bool arrived)
+    {
+        if (ended != null)
+            TimbnSafe.Run(() => ended(arrived), _owner.PluginLogger, $"{nameof(TimbnPluginPlayer)}|{TimbnSafe.Describe(ended)}");
     }
 }

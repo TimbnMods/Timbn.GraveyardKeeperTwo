@@ -35,6 +35,10 @@ public sealed class TimbnQuestLayoutTests
         Assert.Equal(plan.Cells["first"], plan.Cells["second"]);
         Assert.True(plan.Hidden["first"]);
         Assert.False(plan.Hidden["second"]);
+
+        var alone = TimbnQuestLayout.Arrange([Ours("first", started: true), Continuing("second", "first", started: false)], [Game("story", 0, 0)]);
+
+        Assert.False(alone.Hidden["first"]);
     }
 
     [Fact]
@@ -140,14 +144,6 @@ public sealed class TimbnQuestLayoutTests
         Assert.Equal(plan.Cells["first"], plan.Cells["next"]);
         Assert.Equal(plan.Cells["first"] + new Cell(0, 1), plan.Cells["side"]);
         Assert.False(plan.Hidden["next"]);
-    }
-
-    [Fact]
-    public void AStepLeftAloneInItsChainIsShownAgain()
-    {
-        var plan = TimbnQuestLayout.Arrange([Ours("first", started: true), Continuing("second", "first", started: false)], [Game("story", 0, 0)]);
-
-        Assert.False(plan.Hidden["first"]);
     }
 
     [Fact]

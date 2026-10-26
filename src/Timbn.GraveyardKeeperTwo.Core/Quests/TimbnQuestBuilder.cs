@@ -110,6 +110,8 @@ public sealed class TimbnQuestBuilder
 
     internal TimbnQuestEvent? WaitsForEvent { get; private set; }
 
+    internal Func<bool>? ReadyCondition { get; private set; }
+
     internal string TalkNpc { get; private set; } = "";
 
     internal TimbnQuestTalk? TalkOf { get; private set; }
@@ -451,7 +453,7 @@ public sealed class TimbnQuestBuilder
     /// .OnCancel(run =>
     /// {
     ///     if (parcel.Status == QuestStatus.InProgress && run is not null)
-    ///         TimbnItems.TakeFromPlayer(run.Item("parcel"), 1);
+    ///         TimbnPlayer.TakeItem(run.Item("parcel"), 1);
     /// })
     /// ]]></code>
     /// </example>
@@ -544,8 +546,14 @@ public sealed class TimbnQuestBuilder
 
     /// <summary>
     /// What the player gets when the stage is done. A Talk's Accept answer shows it, and the game pays it when the
-    /// answer is picked. Otherwise Core pays it when the stage completes.
+    /// answer is picked. Otherwise Core pays it when the stage completes. It is read again each time, so a reward taken
+    /// from a setting follows the setting.
     /// </summary>
+    /// <example>
+    /// <code><![CDATA[
+    /// .Reward(reward => reward.Money(PluginConfig.RewardMoney.Value))
+    /// ]]></code>
+    /// </example>
     /// <param name="rewards">Adds the rewards.</param>
     /// <returns>This builder, for chaining.</returns>
     public TimbnQuestBuilder Reward(Action<TimbnRewards> rewards)
@@ -596,12 +604,12 @@ public sealed class TimbnQuestBuilder
 
     internal TimbnRewards RewardsFor(TimbnQuestRun? run)
     {
-        if (!HasRunRewards || run is null)
+        if (HasRunRewards && run is null)
             return RewardsOf;
 
         var rewards = new TimbnRewards();
         foreach (var add in _rewards)
-            add(rewards, run);
+            TimbnSafe.Run(() => add(rewards, run), TimbnCorePlugin.Logger, $"{nameof(TimbnQuestBuilder)}|Quest {Id} reward");
 
         return rewards;
     }
@@ -612,6 +620,25 @@ public sealed class TimbnQuestBuilder
     /// <returns>This builder, for chaining.</returns>
     public TimbnQuestBuilder ReadyByCode()
     {
+        WaitsForCode = true;
+        return this;
+    }
+
+    /// <summary>
+    /// The quest also waits until a condition holds, such as the player carrying enough of an item, and Core marks it ready
+    /// once it does. Core checks it about once a second while the quest is in progress, so keep it cheap. It counts as
+    /// <see cref="ReadyByCode"/>, so MarkReady still works too.
+    /// </summary>
+    /// <example>
+    /// <code><![CDATA[
+    /// .ReadyWhen(() => TimbnPlayer.HasItem(TimbnGameIds.Items.Apple, 5))
+    /// ]]></code>
+    /// </example>
+    /// <param name="condition">True once the quest is ready.</param>
+    /// <returns>This builder, for chaining.</returns>
+    public TimbnQuestBuilder ReadyWhen(Func<bool> condition)
+    {
+        ReadyCondition = condition;
         WaitsForCode = true;
         return this;
     }

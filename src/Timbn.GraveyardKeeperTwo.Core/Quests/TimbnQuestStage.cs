@@ -62,6 +62,9 @@ public sealed class TimbnQuestStage
     /// <inheritdoc cref="TimbnQuestBuilder.ReadyByCode"/>
     public TimbnQuestStage ReadyByCode() => With(() => Step.ReadyByCode());
 
+    /// <inheritdoc cref="TimbnQuestBuilder.ReadyWhen"/>
+    public TimbnQuestStage ReadyWhen(Func<bool> condition) => With(() => Step.ReadyWhen(condition));
+
     /// <inheritdoc cref="TimbnQuestBuilder.ReadyOn"/>
     public TimbnQuestStage ReadyOn(TimbnQuestEvent gameEvent) => With(() => Step.ReadyOn(gameEvent));
 

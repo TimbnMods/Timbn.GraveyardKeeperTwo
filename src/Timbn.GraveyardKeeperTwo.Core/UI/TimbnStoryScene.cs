@@ -20,7 +20,7 @@ internal static class TimbnStoryScene
     internal static bool IsRunning =>
         (BarsUp && !_barsOurs) || (MainGame.PlayerController is { } player && !player.IsControlEnabledByType(TakenControlType.ByCinematics));
 
-    internal static bool GameHasPlayer(params TakenControlType[] ignored) => TimbnControl.IsTakenByGame(ignored);
+    internal static bool GameHasPlayer(params TakenControlType[] ignored) => TimbnPlayerControl.IsTakenByGame(ignored);
 
     internal static bool TryShowBars(Action then)
     {

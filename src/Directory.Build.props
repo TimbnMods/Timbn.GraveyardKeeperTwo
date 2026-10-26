@@ -27,7 +27,7 @@
   </PropertyGroup>
 
   <!--
-    Thunderstore package settings for the Package target. A project opts in by setting Thunderstore true.
+    Thunderstore package settings the release tool (tools/release) reads. A project opts in by setting Thunderstore true.
     ThunderstoreBepInExPack is the full Namespace-Name-Version of the BepInExPack the Graveyard Keeper 2 community
     lists. ThunderstoreCoreFirstVersion is the first Core uploaded there,
     since a dependency must name a version Thunderstore has.

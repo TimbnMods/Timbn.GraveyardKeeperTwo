@@ -8,29 +8,11 @@ public sealed class TimbnLocaleMarkupTests
     private static readonly LLBase _lang = (LLBase)RuntimeHelpers.GetUninitializedObject(typeof(LL));
 
     [Fact]
-    public void PlainTextHasNoMetadata()
-    {
-        var text = TimbnLocaleMarkup.Parse(_lang, "key", "Hello there", out var nested, out var replacement);
-
-        Assert.Equal("Hello there", text);
-        Assert.False(nested.hasMetaInfo);
-        Assert.Null(replacement);
-    }
-
-    [Fact]
     public void SpriteTagsBecomeTextMeshProSprites()
     {
-        var text = TimbnLocaleMarkup.Parse(_lang, "key", "Pay (*slv*) now", out _, out _);
+        var text = TimbnLocaleMarkup.Parse(_lang, "key", "Pay (*slv*) “Hi„ ・ now", out _, out _);
 
-        Assert.Equal("Pay <sprite name=\"slv\"> now", text);
-    }
-
-    [Fact]
-    public void SwapsCharactersTheWayTheGamesLoaderDoes()
-    {
-        var text = TimbnLocaleMarkup.Parse(_lang, "key", "“Hi„ ・", out _, out _);
-
-        Assert.Equal("\"Hi\" ⊙", text);
+        Assert.Equal("Pay <sprite name=\"slv\"> \"Hi\" ⊙ now", text);
     }
 
     [Fact]

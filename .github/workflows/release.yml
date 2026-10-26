@@ -1,5 +1,5 @@
 # Packages every draft release that has its Release DLL attached, waits for approval, then uploads to Nexus,
-# Thunderstore and the Steam Workshop and publishes the GitHub release. Running it is the approval to package,
+# Thunderstore, the Steam Workshop and NuGet and publishes the GitHub release. Running it is the approval to package,
 # and a reviewer of the release-approval environment approves the uploads after reading the run summary.
 # Every upload job skips work that is already done, so a failed run can be rerun.
 name: Release drafts

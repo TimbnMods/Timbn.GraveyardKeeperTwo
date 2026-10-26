@@ -4,7 +4,7 @@
     <PackageType>Template</PackageType>
     <PackageId>Timbn.GraveyardKeeperTwo.Templates</PackageId>
     <Title>Timbn Graveyard Keeper 2 mod templates</Title>
-    <Version>1.0.0</Version>
+    <Version>1.1.0</Version>
     <Authors>Timbn</Authors>
     <Description>A dotnet new template for a Graveyard Keeper 2 mod built on Timbn Core. Run dotnet new gk2mod.</Description>
     <PackageTags>graveyardkeeper2;bepinex;modding;template</PackageTags>
