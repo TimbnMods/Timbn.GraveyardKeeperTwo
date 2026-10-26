@@ -12,6 +12,8 @@ sections:
 
   - title: Settings
     list:
+      - Whether it installs your Workshop mods each start (`General / Enabled`, on by default).
+      - The Steam folder your Workshop downloads are in, for a Workshop library outside the game's own Steam library, such as when the log says no Steam library was found (`General / SteamFolder`, empty by default).
       - Workshop items to leave out, as ids separated by commas (`General / SkippedItems`, empty by default). The id is the number at the end of the item's Steam page address.
 
   - title: Good To Know

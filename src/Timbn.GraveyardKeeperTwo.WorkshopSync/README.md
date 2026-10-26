@@ -4,7 +4,7 @@ Timbn Workshop Sync installs the BepInEx mods a player subscribes to on the Stea
 
 ## How it works
 
-- It's a BepInEx preloader patcher, not a plugin, so it runs before the chainloader scans `plugins` and a mod subscribed to just now loads on that same start. `WorkshopSyncPatcher` patches nothing (`TargetDLLs` is empty) and only uses `Initialize` to run the sync.
+- It's a BepInEx preloader patcher, not a plugin, so it runs before the chainloader scans `plugins` and a newly subscribed mod loads on that same start. `WorkshopSyncPatcher` patches nothing (`TargetDLLs` is empty) and only uses `Initialize` to run the sync.
 - It doesn't use Core or Steamworks. `WorkshopMirror` reads the folders under `steamapps/workshop/content/4358690` directly. The Steam library is found two folders up from the game, by its `appmanifest_4358690.acf`, unless `SteamFolder` is set.
 - `BepInEx/plugins/Workshop` is deleted and filled again every start, so updates and unsubscribes apply on the next start.
 - In each item, every folder named `plugins` (at any depth) is copied to `plugins/Workshop/<item id>`, and every `config` folder to `BepInEx/config` without overwriting files the player already has. An item with neither, such as a translation, is left alone.
