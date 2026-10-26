@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.0
+
+- Now runs on Timbn Core 2.2.0.
+- The Mods window shows an About card for this mod, with a description and links to its pages, and lists it under Timbn Mods.
+
 ## 1.1.0
 
 - Now runs on Timbn Core 2.0.0.
