@@ -170,7 +170,6 @@ internal sealed class TimbnPackReader
     private TimbnQuestBuilder BuildQuest(string id, JObject quest)
     {
         var builder = new TimbnQuestBuilder(Full(id), Npc(Required(quest, "giver"), "giver"), Text(Required(quest, "name"), "name"));
-        Dictionary<TimbnQuestBuilder, Func<bool>> readyWhen = [];
         foreach (var property in quest.Properties())
         {
             var value = property.Value;
@@ -198,10 +197,10 @@ internal sealed class TimbnPackReader
                     builder.StartsOn(TimbnPackRules.Event(value));
                     break;
                 case "stages":
-                    Stages(builder, value, readyWhen);
+                    Stages(builder, value);
                     break;
                 default:
-                    if (!StepField(builder, property, readyWhen))
+                    if (!StepField(builder, property))
                         Unknown(property);
 
                     break;
@@ -209,16 +208,11 @@ internal sealed class TimbnPackReader
         }
 
         builder.Finish();
-        foreach (var step in builder.Steps)
-        {
-            if (readyWhen.TryGetValue(step, out var isReady))
-                _content.ReadyWhen[step.Id] = isReady;
-        }
 
         return builder;
     }
 
-    private void Stages(TimbnQuestBuilder builder, JToken token, Dictionary<TimbnQuestBuilder, Func<bool>> readyWhen)
+    private void Stages(TimbnQuestBuilder builder, JToken token)
     {
         if (token is not JArray stages)
             throw TimbnPackException.At(token, "\"stages\" should be a list of stages, such as [ { \"id\": \"ask\", ... } ].");
@@ -240,7 +234,7 @@ internal sealed class TimbnPackReader
                             added.Name(Text(property.Value, "name"));
                             break;
                         default:
-                            if (!StepField(added.Step, property, readyWhen))
+                            if (!StepField(added.Step, property))
                                 Unknown(property);
 
                             break;
@@ -250,7 +244,7 @@ internal sealed class TimbnPackReader
         }
     }
 
-    private bool StepField(TimbnQuestBuilder step, JProperty property, Dictionary<TimbnQuestBuilder, Func<bool>> readyWhen)
+    private bool StepField(TimbnQuestBuilder step, JProperty property)
     {
         var value = property.Value;
         switch (property.Name)
@@ -286,8 +280,7 @@ internal sealed class TimbnPackReader
                 step.ReadyOn(TimbnPackRules.Event(value));
                 return true;
             case "readyWhen":
-                readyWhen[step] = _rules.Condition(value);
-                step.ReadyByCode();
+                step.ReadyWhen(_rules.Condition(value));
                 return true;
             case "then":
                 step.DoneLines(lines => Lines(lines, value));
@@ -736,8 +729,6 @@ internal sealed class TimbnPackContent
     internal List<TimbnQuestBuilder> Quests { get; } = [];
 
     internal List<TimbnPackTalk> Talks { get; } = [];
-
-    internal Dictionary<string, Func<bool>> ReadyWhen { get; } = [];
 
     internal List<string> Problems { get; } = [];
 }

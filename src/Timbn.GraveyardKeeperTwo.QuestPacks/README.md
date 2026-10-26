@@ -9,7 +9,7 @@ Timbn Quest Packs adds quests and talks written as plain JSON files, so a quest 
 - A mod's pack is put in that mod's own `Subscriptions` through `PluginStarted`, so it unloads and reloads with the mod. Its id is the mod's GUID unless it has a `pack.json`.
 - `TimbnPackReader` turns the JSON into Core's `TimbnQuestBuilder` steps and talks, and `TimbnPackRules` reads the conditions, actions, values and events inside them. A broken entry is skipped and added to the problem list, so the rest of the pack still loads.
 - Each step becomes a `TimbnQuestRuntime`, and talks go through `TimbnPluginDialog.AddRecorded`. Quest progress and once only talks are saved by Core, never by this mod.
-- `CheckReady` runs every second and marks a quest ready once its `readyWhen` comes true.
+- `readyWhen` goes to Core's `ReadyWhen` on the step, so Core marks the quest ready once it comes true.
 - PNGs in a pack's `sprites` folder are added as `<pack id>_<name>`. A standalone pack's `lang` folder is read too.
 - `TimbnPackReaderTests` in Core's test project covers the reader.
 
@@ -21,4 +21,4 @@ The pack format is defined by `pack.schema.json` and `quests.schema.json` here, 
 
 ## Building
 
-It needs Timbn Core 2.0.0 or newer. It always deploys to `BepInEx/plugins` and can't be hot reloaded, since it reaches Core's internals through `InternalsVisibleTo` and ScriptEngine renames the assemblies it loads.
+It needs Timbn Core 2.2.0 or newer. It always deploys to `BepInEx/plugins` and can't be hot reloaded, since it reaches Core's internals through `InternalsVisibleTo` and ScriptEngine renames the assemblies it loads.
