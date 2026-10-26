@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.4.0
+
+- Now runs on Timbn Core 2.2.0.
+- The Mods window shows an About card for this mod, with a description and links to its pages, and lists it under Timbn Mods.
+- While you meditate, the key to wake up shows at the bottom of the screen, and the back key (Esc or B) wakes you.
+- Only the campfire at your home can be used now, and the HomeOnly setting is gone.
+
 ## 1.3.0
 
 - Now runs on Timbn Core 2.0.0.
