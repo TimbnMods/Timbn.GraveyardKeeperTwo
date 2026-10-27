@@ -205,10 +205,8 @@ public sealed class TimbnNpcSchedule : IDisposable
         if (_day.Condition is not { } condition)
             return true;
 
-        var holds = false;
         _conditionName ??= $"{nameof(TimbnNpcSchedule)}|{TimbnSafe.Describe(condition)}";
-        TimbnSafe.Run(() => holds = condition(), _owner.PluginLogger, _conditionName);
-        return holds;
+        return TimbnSafe.Check(condition, _owner.PluginLogger, _conditionName);
     }
 
     private TimbnNpc? Bind()

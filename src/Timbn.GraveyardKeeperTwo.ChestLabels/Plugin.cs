@@ -24,16 +24,24 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         var data = Saves.Register<ChestLabelData>(_ => Board?.Rebuild());
         Board = new ChestLabelBoard(data);
         Settings.Changed(PluginConfig.DefaultSize, _ => Board.Rebuild());
+        Events.SaveReady(WarmLabelPage);
         Interactions.Register(ChestLabelBoard.CanLabel).AddSecondary(Text.Key("timbn_chest_labels_label"), NameChest);
         ModEvents.Listen<MovedBuilding>("moved", moved => Board.Moved(moved.OldId, moved.NewId));
         Events.WorldObjectRemoved(data => Board.ChestRemoved(data.UniqueId));
     }
 
-    private void NameChest(Wgo chest)
+    private void NameChest(Wgo chest) =>
+        ShowLabelPage(chest, Board.GetText(chest.Data), Board.GetColor(chest.Data), (ChestLabelSize)Board.GetSize(chest.Data));
+
+    // Builds the page once as the save loads and closes it in the same frame, so the first time the player names a chest
+    // the page's code is already compiled.
+    private void WarmLabelPage()
     {
-        var name = Board.GetText(chest.Data);
-        var color = Board.GetColor(chest.Data);
-        var labelSize = (ChestLabelSize)Board.GetSize(chest.Data);
+        if (UI.CanShowPage)
+            ShowLabelPage(null, string.Empty, null, ChestLabelSize.DefaultSize).Dispose();
+    }
+
+    private IDisposable ShowLabelPage(Wgo? chest, string name, string? color, ChestLabelSize labelSize) =>
         UI.ShowPage(
             Text.Get("timbn_chest_labels_title"),
             (page, close) =>
@@ -41,8 +49,7 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
                 page.Add(new TimbnTextBox(() => name, value => name = value) { FocusWhenShown = true });
                 page.Add(new TimbnColorPicker(PluginConfig.ColorList, () => color, value => color = value));
                 page.Add(new TimbnChoice<ChestLabelSize>(() => labelSize, value => labelSize = value));
-                page.ButtonFooter(footer => footer.AddPrimarySpecial(Text.Get(TimbnGameIds.Texts.UiSave), () => { Board.SetLabel(chest, name, color, (int)labelSize); close(); }));
+                page.ButtonFooter(footer => footer.AddPrimarySpecial(Text.Get(TimbnGameIds.Texts.UiSave), () => { Board.SetLabel(chest!, name, color, (int)labelSize); close(); }));
             },
             width: TimbnLength.Pixels(180));
-    }
 }

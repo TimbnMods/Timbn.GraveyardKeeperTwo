@@ -449,14 +449,14 @@ public sealed class TimbnPluginEvents
     /// <see cref="GameEvent(Action, Action{Action}, Action{Action})"/>.
     /// </summary>
     /// <example>
-    /// Log every tech the player unlocks.
+    /// Log each tab the player opens in the character window.
     /// <code><![CDATA[
-    /// Events.GameEvent(typeof(KnowledgeSystem), nameof(KnowledgeSystem.OnTechUnlocked),
-    ///     (string techId, bool silent) => Logger.LogInfo($"Unlocked {techId}"));
+    /// Events.GameEvent(typeof(CharacterWindow), nameof(CharacterWindow.OnTabChanged),
+    ///     (CharacterWindowData.CharPage page) => Logger.LogInfo($"Opened {page}"));
     /// ]]></code>
     /// </example>
-    /// <param name="type">The game type that declares the event, such as typeof(KnowledgeSystem).</param>
-    /// <param name="eventName">The event's name, such as nameof(KnowledgeSystem.OnTechUnlocked).</param>
+    /// <param name="type">The game type that declares the event, such as typeof(CharacterWindow).</param>
+    /// <param name="eventName">The event's name, such as nameof(CharacterWindow.OnTabChanged). It has to be a C# event, so a plain static field like KnowledgeSystem.OnTechUnlocked needs the add and remove form instead.</param>
     /// <param name="handler">Runs each time the event fires.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable GameEvent(Type type, string eventName, Action handler)

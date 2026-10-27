@@ -56,6 +56,7 @@ internal sealed partial class TimbnModsScreen : TimbnPage
     private int _tabIndex;
     private Vector2Int _sized;
     private bool _built;
+    private bool _bodyPending;
 
     private TimbnModsScreen(Action? onClosed)
     {
@@ -108,6 +109,7 @@ internal sealed partial class TimbnModsScreen : TimbnPage
         _tabIndex = 0;
         BeginDraft();
         ComputeTabs();
+        _bodyPending = true;
 
         page.Split(
             _listWidth,
@@ -127,7 +129,11 @@ internal sealed partial class TimbnModsScreen : TimbnPage
             right =>
             {
                 right.Add(new TimbnSpace(height: _afterHeader));
-                _body = right.Region(DrawBody, fill: 1f);
+                _body = right.Region(body =>
+                {
+                    if (!_bodyPending)
+                        DrawBody(body);
+                }, fill: 1f);
             },
             top: top => _header = top.Region(DrawHeader),
             topLeft: DrawSummary,
@@ -139,8 +145,31 @@ internal sealed partial class TimbnModsScreen : TimbnPage
         page.AddKeyAction(TimbnFaceButton.SecondarySpecial, TimbnModsText.ResetSetting, _overview.ResetFocused, new(() => !OnSettingsTab), AskDefaults, TimbnModsText.HoldToResetAll);
     }
 
+    // Opens the window and closes it again in the same frame so nothing is drawn, which gets everything it needs ready.
+    internal static void WarmUp()
+    {
+        if (_open != null)
+            return;
+
+        var screen = new TimbnModsScreen(null);
+        using var handle = TimbnCorePlugin.Instance!.UI.ShowPage(screen);
+        screen.BuildBodyNow();
+    }
+
+    private void BuildBodyNow()
+    {
+        if (!_bodyPending)
+            return;
+
+        _bodyPending = false;
+        _body?.Rebuild();
+        _page?.Refresh();
+    }
+
     protected override void OnTick()
     {
+        // The settings are built one frame after the window shows, so opening it is not one long frame.
+        BuildBodyNow();
         _overview.Tick();
         if (_sized != new Vector2Int(TimbnModsWindowHost.WidthPercent.Value, TimbnModsWindowHost.HeightPercent.Value))
             SizeFromSettings();
@@ -345,6 +374,7 @@ internal sealed partial class TimbnModsScreen : TimbnPage
         if (view.Entry != _view.Entry)
             _lastMember = null;
 
+        _bodyPending = false;
         _view = view;
         _tabIndex = 0;
         BeginDraft();
@@ -357,6 +387,7 @@ internal sealed partial class TimbnModsScreen : TimbnPage
 
     private void SelectTab(int index)
     {
+        _bodyPending = false;
         _tabIndex = index;
         _body!.Rebuild();
         _page!.Refresh();

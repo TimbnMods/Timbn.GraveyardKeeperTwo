@@ -45,10 +45,6 @@ internal static class WgoDataPatch
         TimbnGameMoves.OnEvent(__instance, eventName);
     }
 
-    [HarmonyPatch(nameof(WgoData.OnRemove))]
-    [HarmonyPrefix]
-    private static void OnRemovePreFix(WgoData __instance) => TimbnNavmeshBake.Remove(__instance);
-
     [HarmonyPatch(nameof(WgoData.OnCraftStart))]
     [HarmonyPostfix]
     private static void OnCraftStartPostFix(WgoData __instance, CraftElementBase ce) => TimbnCraftEvents.Started(__instance, ce);

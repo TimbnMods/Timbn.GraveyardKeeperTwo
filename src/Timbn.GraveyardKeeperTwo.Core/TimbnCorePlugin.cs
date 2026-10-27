@@ -56,6 +56,7 @@ public sealed class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
         TimbnModsWindowHost.Start(this);
         Subscriptions.Add(TimbnMainMenu.AddLine($"{Metadata.Name}: ", Metadata.Version.ToString()));
         Events.EveryRealSeconds(1f, TimbnDialog.Refresh);
+        Events.EveryRealSeconds(0.25f, TimbnModsCatalog.Warm);
         Events.SaveReady(TimbnMoveBuildingsLink.Check);
         Events.EveryRealSeconds(1f, TimbnQuests.StartContinuedQuests);
         Events.EveryRealSeconds(1f, TimbnQuests.CheckReadyWhen);
@@ -117,6 +118,7 @@ public sealed class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
         }
 
         TimbnMainMenu.OnUpdate();
+        TimbnControlWarmUp.Tick();
     }
 
     private void OnGUI() => TimbnGui.Draw();

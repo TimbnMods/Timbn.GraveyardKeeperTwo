@@ -7,6 +7,7 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 internal static class TimbnModsWindowHost
 {
     private const string _section = "Mods Window";
+
     internal static ConfigEntry<bool> ShowModSettings { get; private set; } = null!;
 
     internal static ConfigEntry<int> WidthPercent { get; private set; } = null!;

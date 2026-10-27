@@ -36,5 +36,19 @@ public static class TimbnSafe
 
     internal static bool Run(Action? action, string what) => Run(action, TimbnCorePlugin.Logger, what);
 
+    // Asks a yes or no handler and counts a throw as no, for a check made every frame, where Run would build a closure to carry the answer out.
+    internal static bool Check(Func<bool> condition, ManualLogSource logger, string what)
+    {
+        try
+        {
+            return condition();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError($"{what} threw: {ex}");
+            return false;
+        }
+    }
+
     internal static string Describe(Delegate handler) => $"{handler.Method.DeclaringType?.FullName}.{handler.Method.Name}";
 }

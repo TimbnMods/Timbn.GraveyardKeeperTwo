@@ -50,12 +50,15 @@ public sealed class TimbnPotionBuff
     public string Description { get; set; } = "";
 
     /// <summary>
-    /// How long the buff lasts in real seconds, read each time the potion is drunk so it can follow a setting. 60 by
-    /// default.
+    /// How long the buff lasts in real seconds, 60 by default. Core reads it when the game's balance is built and again
+    /// when a save loads, so a setting changed in the middle of a save applies after the next load.
     /// </summary>
     public Func<float> DurationSeconds { get; set; } = () => 60f;
 
-    /// <summary>One of the game's buff colors, used for the start burst and the HUD frame. Read each time the potion is drunk so it can follow a setting.</summary>
+    /// <summary>
+    /// One of the game's buff colors, used for the start burst and the HUD frame. Core reads it when the game's balance
+    /// is built and again when a save loads, so a setting changed in the middle of a save applies after the next load.
+    /// </summary>
     public Func<string> GlowColor { get; set; } = () => "ltyellow";
 
     /// <summary>The buff's icon sprite name. Use any sprite the game has or one added with Sprites.AddEmbeddedPng.</summary>

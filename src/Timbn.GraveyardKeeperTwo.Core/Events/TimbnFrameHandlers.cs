@@ -26,7 +26,10 @@ internal sealed class TimbnFrameHandlers
 
     internal IDisposable Add(Action handler, float interval, bool whilePaused)
     {
-        var entry = new Entry(handler, Math.Max(0f, interval), whilePaused, Remove);
+        // Built once, since the log line is only used when the handler throws and a frame would build it for every handler.
+        var outcome = _keep ? "keeps running after it" : "was stopped because it";
+        var context = $"{nameof(TimbnFrameHandlers)}|{_name} handler {TimbnSafe.Describe(handler)} {outcome}";
+        var entry = new Entry(handler, Math.Max(0f, interval), whilePaused, context, Remove);
         _entries.Add(entry);
         return entry;
     }
@@ -49,8 +52,7 @@ internal sealed class TimbnFrameHandlers
                     continue;
 
                 entry.Next = now + entry.Interval;
-                var outcome = _keep ? "keeps running after it" : "was stopped because it";
-                if (TimbnSafe.Run(entry.Handler, _logger, $"{nameof(TimbnFrameHandlers)}|{_name} handler {TimbnSafe.Describe(entry.Handler)} {outcome}"))
+                if (TimbnSafe.Run(entry.Handler, _logger, entry.Context))
                     continue;
 
                 if (_keep)
@@ -87,15 +89,18 @@ internal sealed class TimbnFrameHandlers
     {
         private readonly Action<Entry> _remove;
 
-        public Entry(Action handler, float interval, bool whilePaused, Action<Entry> remove)
+        public Entry(Action handler, float interval, bool whilePaused, string context, Action<Entry> remove)
         {
             Handler = handler;
             Interval = interval;
             WhilePaused = whilePaused;
+            Context = context;
             _remove = remove;
         }
 
         public Action Handler { get; }
+
+        public string Context { get; }
 
         public float Interval { get; }
 

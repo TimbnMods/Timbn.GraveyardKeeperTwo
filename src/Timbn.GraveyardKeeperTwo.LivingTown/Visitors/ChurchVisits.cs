@@ -72,17 +72,26 @@ internal sealed class ChurchVisits
         if (!TimbnGame.IsInGame || (!VisitsOn && !_plugin.Settings.IsEnabled(PluginConfig.Funerals)))
             return;
 
-        foreach (var gone in _visitors.Where(npc => npc.IsGone).ToList())
+        // Looped from the end by hand, since this runs every frame and a Where and ToList would build a list each time.
+        for (var index = _visitors.Count - 1; index >= 0; index--)
         {
-            _visitors.Remove(gone);
+            var gone = _visitors[index];
+            if (!gone.IsGone)
+                continue;
+
+            _visitors.RemoveAt(index);
             _driver.Forget(gone);
             _funeral.Forget(gone);
         }
 
         // A story scene that claims an NPC interrupts their routine without invoking the exit callback, which would
         // otherwise leave them stranded until the next save.
-        foreach (var taken in _visitors.Where(npc => !npc.IsRunning).ToList())
+        for (var index = _visitors.Count - 1; index >= 0; index--)
         {
+            var taken = _visitors[index];
+            if (taken.IsRunning)
+                continue;
+
             GraveyardVisitors.Log($"{taken.Id} was taken over by the game, so they are sent away.");
             Leave(taken);
         }

@@ -543,7 +543,7 @@ public static class TimbnPlayer
     /// </summary>
     /// <example>
     /// <code>
-    /// TimbnPlayer.TeleportTo("player_spawn_point_home");
+    /// TimbnPlayer.TeleportTo("tp_point_tp_RT_home_exit");
     /// </code>
     /// </example>
     /// <param name="pointId">The point's id, as <see cref="TimbnWorld.Point"/> takes it.</param>

@@ -321,6 +321,12 @@ public sealed class TimbnPluginUI
         OwnPopup(closed => TimbnPageWindow.Show(page, _owner.PluginLogger, closed, overOthers));
 
     /// <summary>
+    /// Whether a page can open now, which is once the game has made the window pages are copied from. A page shown before
+    /// that opens nothing and logs a warning, so a mod that shows one on its own, such as at start-up, checks this first.
+    /// </summary>
+    public bool CanShowPage => TimbnPageWindow.CanShow;
+
+    /// <summary>
     /// Shows a popup made from a title and a lambda, with no class of its own. It is the same popup as
     /// <see cref="ShowPage(TimbnPage, bool)"/>, with the game's gold title bar, close button, Esc and gamepad navigation.
     /// </summary>
