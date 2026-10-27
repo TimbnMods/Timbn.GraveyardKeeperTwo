@@ -151,7 +151,7 @@ internal static class TimbnModsCatalog
 
     // Reading every setting's tags by reflection costs a few milliseconds a mod, so a mod is built once and kept for as long
     // as its config is the same object (a reload makes a new one) with the same settings, broken features and game language.
-    private static readonly ConditionalWeakTable<ConfigFile, BuiltMod> _built = new();
+    private static readonly ConditionalWeakTable<ConfigFile, BuiltMod> _built = [];
 
     private static int _warmedPlugins = -1;
     private static string _warmedLanguage = string.Empty;

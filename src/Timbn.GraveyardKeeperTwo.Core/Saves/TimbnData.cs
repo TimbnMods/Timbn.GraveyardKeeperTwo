@@ -2,17 +2,6 @@ using Newtonsoft.Json.Linq;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
-internal interface ITimbnSaveEntry
-{
-    string Id { get; }
-
-    void Load(JToken? section);
-
-    JToken Serialize();
-
-    void Reset();
-}
-
 /// <summary>
 /// Holds a mod's data object that Core reads from and writes to disk. <see cref="TimbnSaveData{T}"/> belongs to a
 /// save and <see cref="TimbnGlobalData{T}"/> to the player. Both hand out the data through <see cref="Current"/>.

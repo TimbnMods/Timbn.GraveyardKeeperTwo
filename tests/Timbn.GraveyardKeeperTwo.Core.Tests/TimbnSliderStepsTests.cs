@@ -1,5 +1,3 @@
-using Timbn.GraveyardKeeperTwo.Core.Framework;
-
 namespace Timbn.GraveyardKeeperTwo.Core.Tests;
 
 public sealed class TimbnSliderStepsTests
