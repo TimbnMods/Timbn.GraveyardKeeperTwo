@@ -7,9 +7,8 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 /// <see cref="TimbnColumn"/>, a <see cref="TimbnCard"/>, a <see cref="TimbnScroll"/>, a <see cref="TimbnRegion"/> or a
 /// <see cref="TimbnSplit"/>, and each has a one call shorthand in <see cref="TimbnPageShorthands"/>, such as
 /// <c>page.Row(row => ...)</c>. <see cref="ButtonFooter"/> is the one container that is a call of the builder, since it
-/// only takes buttons tied to a key. A control takes callbacks and not values, a get
-/// that reads it and a set that stores it, and its <see cref="TimbnComponent.Disabled"/> is read all the time to gray it
-/// out. A <see cref="TimbnField"/> puts a name on the left and components on the right, with an optional description in
+/// only takes buttons tied to a key. A control takes callbacks instead of values. One is a get that reads it and one is
+/// a set that stores it. Its <see cref="TimbnComponent.Disabled"/> is read all the time to gray it out. A <see cref="TimbnField"/> puts a name on the left and components on the right, with an optional description in
 /// small gray text under the name. Nothing is saved, so a mod that wants a Save button keeps its own pending values.
 /// </summary>
 /// <example>
@@ -54,12 +53,12 @@ public sealed class TimbnPageBuilder
 
     /// <summary>
     /// Makes a builder that fills any box with a column of its own, for UI that is not a page, in the game's look. Whatever
-    /// is built goes when the box is destroyed. Outside a page window nothing reads keys, so its
-    /// <see cref="ButtonFooter"/> buttons only work with the mouse, and <see cref="AddKeyAction"/> and the calls that tie a
-    /// button to a key do nothing.
+    /// is built goes when the box is destroyed. Nothing reads keys outside a page window. <see cref="ButtonFooter"/>
+    /// buttons only work with the mouse there. <see cref="AddKeyAction"/> and the calls that tie a button to a key do
+    /// nothing.
     /// </summary>
     /// <param name="parent">The box to fill.</param>
-    /// <param name="logger">Your plugin's logger, which a control's problems are logged to.</param>
+    /// <param name="logger">The mod's logger. A control's problems are logged to it.</param>
     public static TimbnPageBuilder On(RectTransform parent, ManualLogSource logger) =>
         Create(TimbnUi.Stretch(TimbnUi.Column(parent, "Column")), logger);
 
@@ -71,9 +70,9 @@ public sealed class TimbnPageBuilder
     }
 
     /// <summary>
-    /// Calls changed with the value read gives whenever it differs from the last one, checked every frame while the page is
-    /// open, and once straight away. It suits a part of the page that is not a control, such as a mod's own object put in
-    /// <see cref="Root"/>, that has to follow the mod's state. It stops when the page goes.
+    /// Calls changed with the value that read returns. It calls once straight away, then again each time the value differs
+    /// from the last one. It checks every frame while the page is open. Use it for a part of the page that is not a control
+    /// and has to follow the mod's state, like an object the mod put in <see cref="Root"/>. It stops when the page goes.
     /// </summary>
     /// <param name="read">Reads the value. Keep it cheap, since it runs every frame.</param>
     /// <param name="changed">Gets the new value.</param>

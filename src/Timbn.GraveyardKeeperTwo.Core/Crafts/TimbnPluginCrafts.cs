@@ -1,10 +1,10 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Adds crafts on behalf of a plugin, at the game's own stations or at ones added with Stations.Add. Each craft is
-/// copied from one of the game's, shows up in the station's craft window straight away, and is removed when the plugin
-/// unloads. Core keeps a queued one out of the game's save so the save still loads once the plugin is gone. Reach it
-/// through the plugin's Crafts property.
+/// Adds crafts for a mod, at the game's own stations or at ones added with Stations.Add. Each craft is copied from
+/// one of the game's. It shows up in the station's craft window straight away and is removed when the mod unloads.
+/// Core keeps a queued one out of the game's save so the save still loads once the mod is gone. Reach it through the
+/// Crafts property.
 /// </summary>
 public sealed class TimbnPluginCrafts
 {
@@ -16,9 +16,9 @@ public sealed class TimbnPluginCrafts
     }
 
     /// <summary>
-    /// Adds a craft. See <see cref="TimbnCraftBuilder"/> for what it can hold. The craft window titles the craft with the
-    /// name and shows the description in its tooltip. Call it in OnAwake, after the station it runs at when that is a
-    /// station of the plugin's own.
+    /// Adds a craft. See <see cref="TimbnCraftBuilder"/> for what it can hold. The craft window shows the name as the
+    /// craft's title and the description in its tooltip. Call it in OnAwake. When it runs at a station the mod adds,
+    /// call it after that station.
     /// </summary>
     /// <example>
     /// Smoked fish from a river fillet and a log at the smoking rack, copied from the oven's baked fish.
@@ -32,7 +32,7 @@ public sealed class TimbnPluginCrafts
     /// ]]></code>
     /// </example>
     /// <param name="id">The craft's id, for example "timbn_smoke_fillet_fish_river". Keep it stable, since a save keeps a queued craft under it.</param>
-    /// <param name="name">The name shown in the craft window. Empty leaves the text to the plugin's lang files.</param>
+    /// <param name="name">The name shown in the craft window. Empty leaves the text to the mod's lang files.</param>
     /// <param name="description">The description shown in the craft's tooltip. Empty leaves it to the lang files.</param>
     /// <param name="craft">Describes the craft.</param>
     /// <returns>A handle that removes the craft early when disposed. You don't need to keep it.</returns>
@@ -48,7 +48,7 @@ public sealed class TimbnPluginCrafts
     }
 
     /// <summary>
-    /// Adds a craft whose name and description come from the plugin's lang files, under the craft's id and id_d. See
+    /// Adds a craft whose name and description come from the mod's lang files, under the craft's id and id_d. See
     /// <see cref="Add(string, string, string, Action{TimbnCraftBuilder})"/>.
     /// </summary>
     /// <example>

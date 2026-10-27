@@ -1,8 +1,8 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Gives NPCs conversations on behalf of a plugin, using the game's own speech bubbles and answer choices.
-/// Talks are removed when the plugin unloads. Reach it through the plugin's Dialog property.
+/// Gives NPCs conversations on behalf of a mod. It uses the game's own speech bubbles and answer choices.
+/// Talks are removed when the mod unloads. Reach it through the mod's Dialog property.
 /// </summary>
 public sealed class TimbnPluginDialog
 {
@@ -16,11 +16,11 @@ public sealed class TimbnPluginDialog
     }
 
     /// <summary>
-    /// The color tinted onto the game's speech bubble over an NPC that has one of this plugin's talks or quests on
-    /// offer, so players can tell a mod's bubble from the game's. The quest tree also draws the line into each of this
-    /// plugin's quests in it once the quest above is done, where the game draws gold. Every plugin has its own, and
-    /// the default is a warm gold close to the game's. Set it once in OnAwake. A change shows the next time a bubble
-    /// or the quest tree is drawn.
+    /// Sets the color of the speech bubble over an NPC that has one of this mod's talks or quests on offer. It lets
+    /// players tell a mod's bubble from the game's. The quest tree also uses it for the line into each of this mod's
+    /// quests once the quest above is done, where the game draws gold. Every mod has its own color. The default is a
+    /// warm gold close to the game's. Set it once in OnAwake. A change shows the next time a bubble or the quest tree
+    /// is drawn.
     /// </summary>
     /// <example>
     /// <code>
@@ -30,13 +30,13 @@ public sealed class TimbnPluginDialog
     public Color BubbleColor { get; set; } = DefaultBubbleColor;
 
     /// <summary>
-    /// Gives an NPC a conversation of your own. While isOffered returns true the NPC shows a speech icon, and when
-    /// the player interacts, the conversation plays in place of the NPC's own. The player's control is taken while it
-    /// plays and given back when it ends. isOffered is checked about once a second. Each line is the text itself, and
-    /// Core names its localization key after the talk id (talkId_1, talkId_2 and so on, in the order the lines are
-    /// written), so a lang file can translate it. Add new lines at the end of a talk that has shipped, since a line put
-    /// in the middle moves every key after it and a translation would show the wrong lines. The lines are recorded
-    /// once, here, so pick between lines with When and fill in changing values with a <c>Func&lt;object&gt;</c>.
+    /// Gives an NPC a conversation of your own. While isOffered returns true the NPC shows a speech icon. When the
+    /// player interacts, the conversation plays in place of the NPC's own. The player's control is taken while it
+    /// plays and given back when it ends. Core checks isOffered about once a second. Each line is the text itself.
+    /// Core names its localization key after the talk id (talkId_1, talkId_2 and so on in the order written) so a
+    /// lang file can translate it. Add new lines at the end of a talk that has shipped. A line put in the middle moves
+    /// every key after it. A translation would show the wrong lines. The lines are recorded only once, here. Pick
+    /// between lines with When and fill in changing values with a <c>Func&lt;object&gt;</c>.
     /// </summary>
     /// <example>
     /// Larry asks for wine while the player is carrying some, and a tip he gives once per save in a bubble color of
@@ -56,7 +56,7 @@ public sealed class TimbnPluginDialog
     /// <param name="talkId">A unique id for this talk. It becomes the NPC's interaction event and the start of its text keys, and reusing an id on another NPC throws.</param>
     /// <param name="isOffered">Whether the talk is available right now. A throw counts as false and is logged.</param>
     /// <param name="lines">Writes the conversation's lines.</param>
-    /// <param name="options">Optional settings, such as making the talk a one-shot or giving it its own bubble color.</param>
+    /// <param name="options">Optional settings, such as offering the talk only once or giving it a bubble color of its own.</param>
     /// <returns>A handle that removes the talk early when disposed. You don't need to keep it.</returns>
     public IDisposable AddTalk(string npcId, string talkId, Func<bool> isOffered, Action<TimbnLines> lines, TimbnTalkOptions? options = null)
     {
@@ -76,7 +76,8 @@ public sealed class TimbnPluginDialog
     /// <summary>
     /// Gives an NPC a conversation that is written each time the player talks, so plain C# can pick and fill the lines
     /// from the game's state, such as what the player carries. Everything else works the same as AddTalk. A numbered
-    /// key can belong to a different line from one talk to the next, so give a Key to any line a lang file translates.
+    /// key can belong to a different line from one talk to the next. Name any line a lang file translates with
+    /// <see cref="TimbnTalk{TSelf}.Named"/>.
     /// </summary>
     /// <example>
     /// <code><![CDATA[
@@ -94,7 +95,7 @@ public sealed class TimbnPluginDialog
     /// <param name="talkId">A unique id for this talk. It becomes the NPC's interaction event and the start of its text keys, and reusing an id on another NPC throws.</param>
     /// <param name="isOffered">Whether the talk is available right now. A throw counts as false and is logged.</param>
     /// <param name="lines">Writes the conversation's lines, each time the player talks. A throw is logged and ends the talk.</param>
-    /// <param name="options">Optional settings, such as making the talk a one-shot or giving it its own bubble color.</param>
+    /// <param name="options">Optional settings, such as offering the talk only once or giving it a bubble color of its own.</param>
     /// <returns>A handle that removes the talk early when disposed. You don't need to keep it.</returns>
     public IDisposable AddDynamicTalk(string npcId, string talkId, Func<bool> isOffered, Action<TimbnLines> lines, TimbnTalkOptions? options = null)
     {
@@ -119,10 +120,10 @@ public sealed class TimbnPluginDialog
 
     /// <summary>
     /// Adds an answer of your own to the menu an NPC or an object opens when the player interacts, next to the game's
-    /// own answers and above Leave, the way a quest adds its turn in. Picking it takes its cost, plays the lines that
-    /// follow, and shows the menu again. isOffered, needs and cost are read each time the menu opens, so a price can
-    /// follow a setting. The text can color any part of itself, with the game's highlight in square brackets or any
-    /// color in a color tag, and buttonColor gives the answer's button a color of its own.
+    /// own answers and above Leave. Picking it takes its cost, plays the lines that follow and shows the menu again.
+    /// isOffered, needs and cost are read each time the menu opens, so a price can follow a setting. The text can color
+    /// any part of itself. Use the game's highlight in square brackets or any color in a color tag. buttonColor gives
+    /// the answer's button a color of its own.
     /// </summary>
     /// <example>
     /// <code><![CDATA[
@@ -201,12 +202,12 @@ public sealed class TimbnPluginDialog
         });
     }
 
-    /// <summary>Whether the player has already started a one-shot talk in the loaded save.</summary>
+    /// <summary>Tells whether the player has already started a talk with Once set in the loaded save.</summary>
     /// <param name="talkId">The talk's id, as passed to AddTalk.</param>
     /// <returns>True once the talk has been started, until it is reset.</returns>
     public bool HasSeenTalk(string talkId) => TimbnDialog.HasSeen(OnceKey(talkId));
 
-    /// <summary>Makes a one-shot talk offered again in the loaded save, as if the player had never started it.</summary>
+    /// <summary>Offers a talk with Once set again in the loaded save, as if the player had never started it.</summary>
     /// <param name="talkId">The talk's id, as passed to AddTalk.</param>
     public void ResetTalk(string talkId) => TimbnDialog.ResetSeen(OnceKey(talkId));
 

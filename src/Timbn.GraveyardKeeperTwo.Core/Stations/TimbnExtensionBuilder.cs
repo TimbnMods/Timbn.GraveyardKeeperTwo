@@ -1,12 +1,12 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Describes a bench extension for the plugin's Stations.AddExtension, like the game's tool rack. An extension is
-/// placed straight from the build desk with no construction site, has nothing to interact with, and attaches to a
-/// station that lists it in <see cref="TimbnStationBuilder.Extensions"/> when the two are built next to each other.
-/// Core turns it into the extension, its build desk entry and its removal, with their text. Only <see cref="Model"/>
-/// is required. An extension with no <see cref="Cost"/> is free, and one with no <see cref="UnlockedBy"/> is on the
-/// build desk from the start.
+/// Describes a bench extension for Stations.AddExtension, like the game's tool rack. An extension is placed straight
+/// from the build desk with no construction site and has nothing to interact with. It attaches to a station that
+/// lists it in <see cref="TimbnStationBuilder.Extensions"/> when the two are built next to each other. Core turns it
+/// into the extension, its build desk entry and its removal, with their text. Only <see cref="Model"/> is required.
+/// An extension with no <see cref="Cost"/> is free. One with no <see cref="UnlockedBy"/> is on the build desk from
+/// the start.
 /// </summary>
 /// <example>
 /// A pillar that opens a craft at the Stick Box when built next to it.
@@ -57,7 +57,7 @@ public sealed class TimbnExtensionBuilder
 
     internal Action<WGODef>? EditExtension { get; private set; }
 
-    /// <summary>The extension's look, a model from the plugin's Models with a box shaped footprint of the given size and a solid body.</summary>
+    /// <summary>Sets how the extension looks, with a model from Models. Core gives it a box shaped footprint of the given size and a solid body.</summary>
     /// <param name="model">The model, centered on the extension with its base at the ground.</param>
     /// <param name="size">Width, height and depth in world units, for example (0.5, 1, 0.5) for a pillar.</param>
     /// <exception cref="ArgumentOutOfRangeException">The size is zero or below on any axis.</exception>
@@ -79,7 +79,10 @@ public sealed class TimbnExtensionBuilder
         return this;
     }
 
-    /// <summary>The game extension the new one is copied from, the tool rack ("tool_rack") by default. Its build desk entry and removal are copied from the same extension when it has them, otherwise from the tool rack's.</summary>
+    /// <summary>
+    /// Sets the game extension the new one is copied from. The default is the tool rack ("tool_rack"). The build desk
+    /// entry and removal come from the same extension when it has them. Otherwise they come from the tool rack.
+    /// </summary>
     /// <param name="extensionId">The game extension's world object id.</param>
     public TimbnExtensionBuilder BasedOn(string extensionId)
     {
@@ -87,7 +90,7 @@ public sealed class TimbnExtensionBuilder
         return this;
     }
 
-    /// <summary>The icon shown in the build desk and on the station's craft window row. Any sprite the game has, or one added with the plugin's Sprites.AddEmbeddedPng. Without one the template's icons stay.</summary>
+    /// <summary>The icon shown in the build desk and on the station's craft window row. Use any sprite the game has or one added with Sprites.AddEmbeddedPng. Without one the template's icons stay.</summary>
     /// <param name="spriteId">The sprite name, for example "timbn_red_magic".</param>
     public TimbnExtensionBuilder Icon(string spriteId)
     {

@@ -3,8 +3,8 @@ using LazyBearTechnology;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Writes the text plugins added into the game's loaded language and puts the shipped text back when it is removed.
-/// Text from a plugin's lang files always wins over text added in code for the same key.
+/// Writes the text mods added into the game's loaded language and puts the shipped text back when it is removed.
+/// Text from a mod's lang files always wins over text added in code for the same key.
 /// </summary>
 internal static class TimbnLocale
 {

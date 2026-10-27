@@ -5,11 +5,11 @@ using System.Text.RegularExpressions;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// One play of a quest whose details change each time, such as which villager asks and for what. A quest's Setup fills
-/// it when the mod calls NewRun, Core keeps it with the save until the play ends, and every part of the quest that takes
-/// a run reads it. Each value has a name, and text anywhere in the quest shows it with that name in braces, such as
-/// {dish}. An NPC shows as their name, an item as its name, a text value as its line (all in the player's language,
-/// looked up as the text shows), and a number as itself.
+/// Holds one play of a quest whose details change each time, such as which villager asks and for what. A quest's Setup
+/// fills it when the mod calls NewRun. Core keeps it with the save until the play ends. Every part of the quest
+/// that takes a run reads it. Each value has a name. Text anywhere in the quest shows a value with its name in braces,
+/// such as {dish}. An NPC shows as their name, an item as its name and a number as itself. A text value shows its
+/// line. Names and lines appear in the player's language.
 /// </summary>
 /// <example>
 /// <code><![CDATA[

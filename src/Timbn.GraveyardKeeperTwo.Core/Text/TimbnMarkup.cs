@@ -1,7 +1,7 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Writes the game's text markup for you, for icons and other lines inside a line of text. Use it in any text a plugin
+/// Writes the game's text markup for you, for icons and other lines inside a line of text. Use it in any text a mod
 /// adds, such as quest lines or Text.Add. Lang files write the same markup by hand.
 /// </summary>
 /// <example>

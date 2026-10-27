@@ -41,14 +41,14 @@ public sealed class TimbnModelFaces
     /// Stands a picture up facing the camera, such as a monitor screen or a sign. Its width and height are the PNG's.
     /// </summary>
     /// <param name="pngName">
-    /// A PNG embedded in the plugin's DLL, named without ".png", for example "still_pot". Embed it with
+    /// A PNG embedded in the mod's DLL, named without ".png", for example "still_pot". Embed it with
     /// <c>LogicalName="%(Filename)%(Extension)"</c>.
     /// </param>
     /// <param name="x">Pixels from the model's left edge to the picture's left edge.</param>
     /// <param name="y">Pixels up from the floor to the picture's bottom.</param>
     /// <param name="z">Pixels back from the model's front to the picture.</param>
     /// <exception cref="ArgumentOutOfRangeException">A position is below zero.</exception>
-    /// <exception cref="InvalidOperationException">The plugin has no such embedded resource.</exception>
+    /// <exception cref="InvalidOperationException">The mod's DLL has no such embedded resource.</exception>
     public TimbnModelFaces Front(string pngName, int x, int y, int z) => Add(TimbnFaceShape.Front, pngName, x, y, z, 0);
 
     /// <summary>Stands a picture made in code up facing the camera.</summary>
@@ -65,12 +65,12 @@ public sealed class TimbnModelFaces
     /// is its front edge and its top row is its back edge, so it reaches from z to z plus the PNG's height. Put it 1
     /// pixel above any surface under it so the two don't flicker.
     /// </summary>
-    /// <param name="pngName">A PNG embedded in the plugin's DLL, named without ".png".</param>
+    /// <param name="pngName">A PNG embedded in the mod's DLL, named without ".png".</param>
     /// <param name="x">Pixels from the model's left edge to the picture's left edge.</param>
     /// <param name="y">Pixels up from the floor to the picture.</param>
     /// <param name="z">Pixels back from the model's front to the picture's front edge.</param>
     /// <exception cref="ArgumentOutOfRangeException">A position is below zero.</exception>
-    /// <exception cref="InvalidOperationException">The plugin has no such embedded resource.</exception>
+    /// <exception cref="InvalidOperationException">The mod's DLL has no such embedded resource.</exception>
     public TimbnModelFaces Top(string pngName, int x, int y, int z) => Add(TimbnFaceShape.Top, pngName, x, y, z, 0);
 
     /// <summary>Lays a picture made in code flat facing up.</summary>
@@ -87,13 +87,13 @@ public sealed class TimbnModelFaces
     /// The upper <paramref name="depth"/> rows are the top and the rest are the front, so the front is the PNG's height
     /// minus the depth. Both share the block's x and width.
     /// </summary>
-    /// <param name="pngName">A PNG embedded in the plugin's DLL, named without ".png".</param>
+    /// <param name="pngName">A PNG embedded in the mod's DLL, named without ".png".</param>
     /// <param name="x">Pixels from the model's left edge to the block's left edge.</param>
     /// <param name="y">Pixels up from the floor to the block's bottom.</param>
     /// <param name="z">Pixels back from the model's front to the block's front.</param>
     /// <param name="depth">Front to back, in pixels, which is also how many rows of the picture are the top.</param>
     /// <exception cref="ArgumentOutOfRangeException">A position is below zero or the depth is below 1.</exception>
-    /// <exception cref="InvalidOperationException">The plugin has no such embedded resource.</exception>
+    /// <exception cref="InvalidOperationException">The mod's DLL has no such embedded resource.</exception>
     public TimbnModelFaces Block(string pngName, int x, int y, int z, int depth) => Add(TimbnFaceShape.Block, pngName, x, y, z, depth);
 
     /// <summary>Adds a solid block from one picture made in code.</summary>

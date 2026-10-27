@@ -1,11 +1,11 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Gives people a day on the game clock, moves them and adds new ones for a plugin. Everything is owned by the
-/// plugin, so walks it started stop, claims are let go and added people are removed when it unloads. People, groups,
-/// events and animations come from the generated <see cref="TimbnGameIds.Npcs"/>, <see cref="TimbnGameIds.Groups"/>,
-/// <see cref="TimbnGameIds.NpcEvents"/> and <see cref="TimbnGameIds.NpcAnimations"/>, and points are named by their id. Reach it
-/// through the plugin's Npcs property.
+/// Gives people a day on the game clock, moves them and adds new ones for a mod. Everything is owned by the mod. When
+/// it unloads, walks it started stop, claims are let go and added people are removed. People, groups, events and
+/// animations come from the generated <see cref="TimbnGameIds.Npcs"/>, <see cref="TimbnGameIds.Groups"/>,
+/// <see cref="TimbnGameIds.NpcEvents"/> and <see cref="TimbnGameIds.NpcAnimations"/>. Points are named by their id.
+/// Reach it through the mod's Npcs property.
 /// </summary>
 public sealed class TimbnPluginNpcs
 {
@@ -27,7 +27,7 @@ public sealed class TimbnPluginNpcs
     /// </example>
     /// <param name="npcId">The person, from <see cref="TimbnGameIds.Npcs"/>.</param>
     /// <param name="day">The day to follow.</param>
-    /// <returns>The schedule, for its status. Dispose it to stop early. It also stops when the plugin unloads.</returns>
+    /// <returns>The schedule, for its status. Dispose it to stop early. It also stops when the mod unloads.</returns>
     public TimbnNpcSchedule Schedule(string npcId, TimbnNpcDay day)
     {
         var schedule = new TimbnNpcSchedule(this, _owner, npcId, day);
@@ -56,8 +56,8 @@ public sealed class TimbnPluginNpcs
 
     /// <summary>
     /// Adds a person to the loaded save at a point, such as one more villager. The game's life simulator leaves them
-    /// alone, so walk them yourself. They are removed again when the handle is disposed, the plugin unloads or the
-    /// player returns to the main menu, and are left out of every save the game writes.
+    /// alone, so walk them yourself. They are removed again when the handle is disposed, the mod unloads or the player
+    /// returns to the main menu. They are left out of every save the game writes.
     /// </summary>
     /// <example>
     /// <code>
@@ -85,10 +85,11 @@ public sealed class TimbnPluginNpcs
     }
 
     /// <summary>
-    /// Loads the look of some kinds of people in the background, so the first Spawn of each kind in a session doesn't
-    /// stall a frame for 10 to 30 ms while the game loads it. Call it when a save is ready, with every kind the mod
-    /// may spawn. Copies count the ones the game already shows, so a kind out in the village with copies at 1 gets
-    /// nothing ready, and a second one spawned then still stalls. Ask for 2 when the game's own may be about.
+    /// Loads the look of some kinds of people in the background. That way the first Spawn of each kind in a session
+    /// does not stall a frame while the game loads it. Call it when a save is ready, with every kind the mod may
+    /// spawn. Copies counts the ones the game already shows. With copies at 1, a kind that is already out in the
+    /// village gets nothing new ready. Spawning a second one then still stalls. Ask for 2 when the game's own may be
+    /// about.
     /// </summary>
     /// <example>
     /// <code>
@@ -102,8 +103,8 @@ public sealed class TimbnPluginNpcs
     /// <summary>
     /// Adds one more of a kind of villager, who lives exactly like the ones the game placed. They join the same life
     /// simulator group, go out to its points by day and home at night. They start at their home and go straight out
-    /// when the rest of their group is out. They are removed when the handle is disposed, the plugin unloads or the
-    /// player returns to the main menu, and are left out of every save the game writes.
+    /// when the rest of their group is out. They are removed when the handle is disposed, the mod unloads or the
+    /// player returns to the main menu. They are left out of every save the game writes.
     /// </summary>
     /// <example>
     /// <code>
@@ -149,7 +150,7 @@ public sealed class TimbnPluginNpcs
     /// <param name="vendorId">The vendor, from <see cref="TimbnGameIds.Npcs"/>.</param>
     /// <param name="isClosed">True while the window should stay shut.</param>
     /// <param name="lineKey">A text key added with Text.Add, said by the vendor in their speech bubble, or null for none.</param>
-    /// <returns>A handle that lets trade open again when disposed. It is also removed when the plugin unloads.</returns>
+    /// <returns>A handle that lets trade open again when disposed. It is also removed when the mod unloads.</returns>
     public IDisposable CloseTradeWhen(string vendorId, Func<bool> isClosed, string? lineKey = null) =>
         _owner.Subscriptions.Add(TimbnVendorGates.Add(vendorId, isClosed, lineKey, _owner.PluginLogger));
 

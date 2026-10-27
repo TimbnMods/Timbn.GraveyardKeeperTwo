@@ -1,16 +1,16 @@
 namespace Timbn.GraveyardKeeperTwo.Core;
 
 /// <summary>
-/// The loaded Core plugin. Checks the game version and wires the game's events to the framework's save, talk, quest,
+/// Runs Core itself. It checks the game version and wires the game's events to the framework's save, talk, quest,
 /// potion, NPC and main menu upkeep.
 /// </summary>
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 public sealed class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
 {
-    /// <summary>Core's plugin guid, for a mod's BepInDependency attribute so BepInEx loads Core first.</summary>
+    /// <summary>Holds Core's guid for a mod's BepInDependency attribute, so BepInEx loads Core first.</summary>
     public const string Guid = MyPluginInfo.PLUGIN_GUID;
 
-    /// <summary>Core's own plugin version.</summary>
+    /// <summary>Holds Core's version.</summary>
     public const string Version = MyPluginInfo.PLUGIN_VERSION;
 
     /// <summary>The game version these mods were last verified against.</summary>
@@ -24,7 +24,7 @@ public sealed class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
 
     /// <summary>
     /// A short id for the running game's code, the first twelve hex digits of Assembly-CSharp's module version id.
-    /// It changes whenever the game's scripts are rebuilt, for example "06096414ba3b" on 1.010 (Steam build 25907946).
+    /// It changes whenever the game's scripts are rebuilt, for example "5ec8094e4c33" on 1.010.
     /// </summary>
     public static string GameBuild { get; } = typeof(MainGame).Assembly.ManifestModule.ModuleVersionId.ToString("N")[..12];
 

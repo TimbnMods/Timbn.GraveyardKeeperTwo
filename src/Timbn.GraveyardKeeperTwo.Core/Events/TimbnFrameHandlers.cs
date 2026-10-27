@@ -1,7 +1,7 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// The per frame handlers of one plugin for one Unity phase, run while a save is loaded. A mod's handler is stopped
+/// The per frame handlers of one mod for one Unity phase, run while a save is loaded. A mod's handler is stopped
 /// after a throw, and Core's own keeps running, since Core is never reloaded and a stopped tick would be gone until the
 /// game restarts.
 /// </summary>

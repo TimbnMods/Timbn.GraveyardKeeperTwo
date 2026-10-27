@@ -3,9 +3,9 @@ using LazyBearTechnology;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// A person in the loaded save that a plugin moves, from the plugin's Npcs.Find or Npcs.Spawn. Every method does
-/// nothing and returns false once the person is gone. When the handle is disposed, the plugin unloads or the player
-/// returns to the main menu, a walk it started is stopped, its claim is let go, and a person Npcs.Spawn added is removed.
+/// A person in the loaded save that a mod moves, from Npcs.Find or Npcs.Spawn. Once the person is gone, the methods
+/// that act on them do nothing and return false or null. When the handle is disposed, the mod unloads or the player
+/// returns to the main menu, a walk it started stops and its claim is let go. A person Npcs.Spawn added is removed.
 /// </summary>
 public sealed class TimbnNpc : IDisposable
 {
@@ -61,8 +61,8 @@ public sealed class TimbnNpc : IDisposable
     /// <summary>
     /// Whether the person blocks the keeper like a wall. Set it to false for a crowd the keeper should be able to walk
     /// through, such as visitors who stand about the graveyard. It only changes the person's solid parts toward the
-    /// keeper's body, so they are still talked to, hit and walked around by everyone else, and it carries over when the
-    /// person streams out and back in. Leave it alone for someone the keeper has to be able to push against.
+    /// keeper's body. They are still talked to, hit and walked around by everyone else. It carries over when the person
+    /// streams out and back in. Leave it true for someone the keeper needs to be blocked by.
     /// </summary>
     /// <example>
     /// <code>
@@ -79,7 +79,7 @@ public sealed class TimbnNpc : IDisposable
         }
     }
 
-    /// <summary>The person's definition id, such as npc_larry, the one <see cref="TimbnGameIds.Npcs"/> lists. Handy for a log line.</summary>
+    /// <summary>The person's definition id, such as npc_larry, the one <see cref="TimbnGameIds.Npcs"/> lists.</summary>
     public string Id => Data.MovableObjectId;
 
     /// <summary>The id of the player resource that holds the player's reputation with this NPC, or null for an NPC without one.</summary>
@@ -95,16 +95,16 @@ public sealed class TimbnNpc : IDisposable
     public bool IsWalking => !IsGone && Data.MovementComponent is { IsMoving: true };
 
     /// <summary>
-    /// Whether a run started with <see cref="RunSteps"/> on this person, by any plugin, is still playing. A run the game
-    /// takes over, by firing one of the person's events or moving them in a story scene, ends without its done callback,
-    /// so a plugin that keeps a list of the people it spawned checks this to notice one the game left standing.
+    /// Whether a run started with <see cref="RunSteps"/> on this person by any mod is still playing. The game can take
+    /// over a run by firing one of the person's events or moving them in a story scene. That run ends without its done
+    /// callback. A mod that keeps a list of the people it spawned checks this to notice one the game left standing.
     /// </summary>
     public bool IsRunning => !IsGone && TimbnNpcCommand.IsRunning(Data);
 
     /// <summary>
-    /// How many game minutes are left before the next block of their schedule starts, or 24 hours when the day has
-    /// one block. It is 0 for a person no schedule drives. Use it to leave a long trip alone when the block is about
-    /// to change.
+    /// How many game minutes are left before the next block of their schedule starts, a day's worth at most. When the
+    /// day has only one block, it counts down to that block's start again. It is 0 for a person no schedule drives. Use
+    /// it to leave a long trip alone when the block is about to change.
     /// </summary>
     public double MinutesLeftInBlock => NextBlockStart is { } next ? TimbnDayPlan.MinutesUntil(next, TimbnClock.TimeOfDay) : 0;
 
@@ -129,8 +129,8 @@ public sealed class TimbnNpc : IDisposable
     internal bool PointTaken { get; private set; }
 
     /// <summary>
-    /// Walks the person to a point and turns them the way it faces. A walk along the paths the paths do not reach is
-    /// skipped, or tried again from the day's origin when the person has a schedule.
+    /// Walks the person to a point and turns them the way it faces. When the paths don't reach the point, the walk is
+    /// skipped. A person on a schedule tries again from the current block's origin point.
     /// </summary>
     /// <example>
     /// <code>
@@ -138,7 +138,7 @@ public sealed class TimbnNpc : IDisposable
     /// </code>
     /// </example>
     /// <param name="pointId">The id of the point to walk to, such as npc_sim_village_right_side_03.</param>
-    /// <param name="walk">Along the game's paths, or over the navmesh.</param>
+    /// <param name="walk">How to walk. It can go along the game's paths, over the navmesh or in a straight line.</param>
     /// <param name="arrived">Runs once on arrival. It does not run when the walk is stopped or replaced, or cannot reach the point.</param>
     /// <param name="failed">Runs once when the walk started but could not reach the point, so a chain of walks can go on or give up. It does not run when the walk is stopped or replaced.</param>
     /// <returns>False when the point is missing, the paths do not reach it, or the person is gone.</returns>
@@ -247,8 +247,8 @@ public sealed class TimbnNpc : IDisposable
 
     /// <summary>
     /// Rolls the person's dice for this game minute against a chance, such as whether to set off on a trip. The same
-    /// minute rolls the same on a reload, and each person added with Npcs.Spawn rolls apart from the others of their
-    /// kind. A miss is written to the log with the roll, so a skipped trip explains itself.
+    /// minute rolls the same on a reload. Each person added with Npcs.Spawn rolls on their own, not like the others of
+    /// their kind. A miss is written to the log with the roll, so a skipped trip explains itself.
     /// </summary>
     /// <example>
     /// <code>
@@ -381,12 +381,12 @@ public sealed class TimbnNpc : IDisposable
     }
 
     /// <summary>
-    /// Plays a list of steps on command, such as for a quest or a cutscene, and calls back when the last one is done.
-    /// A new run on the same person replaces the one before. It starts at once, even in the middle of a conversation
-    /// with them. The person still stops when the player starts talking to them later in the run, but not for a story
-    /// scene, since a cutscene is when you want them moving. When the game itself moves them, through a story walk, a
-    /// teleport or a script event, the run ends and leaves them to it. A schedule of theirs steps aside while it plays
-    /// and takes them back as soon as it ends.
+    /// Plays a list of steps and calls back when the last one is done. Use it for a quest or a cutscene. A new run on
+    /// the same person replaces the one before. It starts at once, even in the middle of a conversation with them. The
+    /// person still stops if the player starts talking to them later in the run. A story scene is the exception, since
+    /// a cutscene is when you want them moving. The run ends if the game moves them itself, for example with a story
+    /// walk, a teleport or a script event. A schedule of theirs steps aside while the run plays and takes them back as
+    /// soon as it ends.
     /// </summary>
     /// <example>
     /// <code>
@@ -398,7 +398,7 @@ public sealed class TimbnNpc : IDisposable
     /// </code>
     /// </example>
     /// <param name="steps">What to do, in order.</param>
-    /// <param name="done">Runs once after the last step. It does not run when the run is stopped or replaced, the game takes the person, the save closes or the plugin unloads.</param>
+    /// <param name="done">Runs once after the last step. It does not run when the run is stopped or replaced, the game takes the person, the save closes or the mod unloads.</param>
     /// <returns>The run, which stops it when disposed, or null when the person is gone.</returns>
     public IDisposable? RunSteps(TimbnNpcSteps steps, Action? done = null)
     {

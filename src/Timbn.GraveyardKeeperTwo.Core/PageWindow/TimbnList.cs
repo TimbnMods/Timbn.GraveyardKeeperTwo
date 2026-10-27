@@ -17,10 +17,11 @@ public sealed class TimbnListEntry(string title, string subtitle = "", string de
 }
 
 /// <summary>
-/// A column of lines the player picks one from, each on the game's save slot card, with the chosen one lit. A click or A
-/// picks a line. On a gamepad, LT and RT step to the previous and next line and move the focus onto it, from anywhere on
-/// the page, when the page does not use the triggers to step its controls (<see cref="TimbnPage.StepWithTriggers"/> false). It is as tall as all its lines, so put it in
-/// a <see cref="TimbnScroll"/> when there may be more than fit.
+/// Shows a column of lines where the player picks one. Each line is on the game's save slot card and the chosen one is
+/// lit. A click or A picks a line. On a gamepad LT and RT step to the previous and next line and move the focus onto it
+/// from anywhere on the page. They do not do that when the page uses the triggers to step its controls (see
+/// <see cref="TimbnPage.StepWithTriggers"/>). The list is as tall as all its lines. Put it in a
+/// <see cref="TimbnScroll"/> when there may be more lines than fit.
 /// </summary>
 /// <example>
 /// <code>
@@ -61,7 +62,7 @@ public sealed class TimbnList(IReadOnlyList<TimbnListEntry> entries, Func<int> g
 
     /// <summary>
     /// With a gamepad in use, puts the focus on the chosen line, such as when the player backs out of what the line shows.
-    /// With a mouse in use it is where the gamepad's focus starts once the player picks one up.
+    /// With a mouse in use it sets where the gamepad's focus starts once the player picks one up.
     /// </summary>
     public void FocusChosen()
     {

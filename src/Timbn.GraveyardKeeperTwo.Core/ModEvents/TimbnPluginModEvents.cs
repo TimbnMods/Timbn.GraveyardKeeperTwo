@@ -4,14 +4,15 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 /// A way for mods to tell each other things through Core without a reference to each other's DLL. A mod publishes
 /// an id with some plain data, and any mod that listens to that id is called once with it. Delivery is one way, right
 /// away, to whoever listens at that moment, with no history for a mod that starts listening later. Ids are plain
-/// strings with no namespace, and any number of mods can publish the same one. Everything a plugin adds here is taken
-/// away when it unloads. Reach it through the plugin's ModEvents property.
+/// strings with no namespace. Any number of mods can publish the same one. Everything a mod adds here is taken
+/// away when it unloads. Reach it through the mod's ModEvents property.
 /// </summary>
 /// <remarks>
-/// The payload is sent as JSON, so keep it to plain data (strings, numbers, true and false, lists and nested
-/// objects), and send ids, not game objects. A listener never needs the publisher's DLL. It writes its own small
-/// class with the same property names, which are matched ignoring case, and fields it leaves out stay at their
-/// default. The shape is the publisher's to document, and a publisher should only ever add fields, since a rename
+/// Mods don't share a DLL, so a payload reaches a listener as JSON read into the listener's own class. Keep it to
+/// plain data (strings, numbers, true and false, lists and nested objects) and send ids, not game objects. A listener
+/// never needs the publisher's DLL. It writes its own small class with the same property names, which are matched
+/// ignoring case. Fields it leaves out stay at their default. A listener that uses the publisher's own class gets
+/// the object itself. The shape is the publisher's to document. A publisher should only ever add fields, since a rename
 /// breaks every listener.
 /// </remarks>
 public sealed class TimbnPluginModEvents
@@ -28,8 +29,8 @@ public sealed class TimbnPluginModEvents
     public IReadOnlyList<TimbnModEvent> Known => TimbnModEventBus.Known;
 
     /// <summary>
-    /// Publishes data under an id, calling every mod listening to it once, straight away. The first time this plugin
-    /// publishes an id it joins that id's publishing mods, until it unloads.
+    /// Publishes data under an id, calling every mod listening to it once, straight away. The first time this mod
+    /// publishes an id it joins that id's publishing mods until it unloads.
     /// </summary>
     /// <example>
     /// <code>
@@ -58,7 +59,7 @@ public sealed class TimbnPluginModEvents
     /// </example>
     /// <param name="id">The id to listen to. It does not need to exist yet.</param>
     /// <param name="handler">Runs for each event.</param>
-    /// <returns>A handle that stops listening when disposed. It also stops when the plugin unloads, so you don't need to keep it.</returns>
+    /// <returns>A handle that stops listening when disposed. It also stops when the mod unloads, so you don't need to keep it.</returns>
     public IDisposable Listen<T>(string id, Action<T> handler) =>
         _owner.Subscriptions.Add(TimbnModEventBus.Listen(id, handler, _owner.PluginLogger));
 
@@ -73,14 +74,14 @@ public sealed class TimbnPluginModEvents
     /// </example>
     /// <param name="id">The id to listen to. It does not need to exist yet.</param>
     /// <param name="handler">Runs for each event.</param>
-    /// <returns>A handle that stops listening when disposed. It also stops when the plugin unloads, so you don't need to keep it.</returns>
+    /// <returns>A handle that stops listening when disposed. It also stops when the mod unloads, so you don't need to keep it.</returns>
     public IDisposable Listen(string id, Action handler) =>
         _owner.Subscriptions.Add(TimbnModEventBus.Listen(id, handler, _owner.PluginLogger));
 
     /// <summary>Calls the handler once for each event published under the id from now on, with the payload as the JSON text it was sent as, which is "null" for an event with nothing in it.</summary>
     /// <param name="id">The id to listen to. It does not need to exist yet.</param>
     /// <param name="handler">Runs for each event.</param>
-    /// <returns>A handle that stops listening when disposed. It also stops when the plugin unloads, so you don't need to keep it.</returns>
+    /// <returns>A handle that stops listening when disposed. It also stops when the mod unloads, so you don't need to keep it.</returns>
     public IDisposable Listen(string id, Action<string> handler) =>
         _owner.Subscriptions.Add(TimbnModEventBus.Listen(id, handler, _owner.PluginLogger));
 }

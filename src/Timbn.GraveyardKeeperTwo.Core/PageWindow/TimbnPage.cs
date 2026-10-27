@@ -49,8 +49,8 @@ public class TimbnPage
     public virtual string Title => _title;
 
     /// <summary>
-    /// How wide a popup is, in the game's UI units for the room inside its frame or as a share of the screen. It is kept
-    /// at least a small width. Auto, the default, is half the screen. A tab is as wide as the Mods window leaves it.
+    /// How wide a popup is, in the game's UI units for the room inside its frame or as a share of the screen. It is never
+    /// narrower than 120 units. Auto, the default, is half the screen. A tab is as wide as the Mods window leaves it.
     /// </summary>
     public TimbnLength Width { get; set; }
 

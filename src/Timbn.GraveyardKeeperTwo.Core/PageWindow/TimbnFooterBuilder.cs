@@ -26,7 +26,7 @@ public sealed class TimbnFooterBuilder
     /// <summary>Adds a button tied to A (Space on the keyboard), such as OK or Yes.</summary>
     /// <param name="label">The button's text, already in the player's language.</param>
     /// <param name="onPress">Called when the player presses the button or its key.</param>
-    /// <param name="disabled">Grays the button out and stops it running, as a value or a callback that is read all the time, the same as a component's <see cref="TimbnComponent.Disabled"/>.</param>
+    /// <param name="disabled">Grays the button out and stops it running. It can be a value or a callback that is read all the time, like a component's <see cref="TimbnComponent.Disabled"/>.</param>
     /// <param name="gamepad">Where the button goes while a gamepad is in use.</param>
     public void AddPrimary(string label, Action onPress, TimbnBinding<bool> disabled = default, TimbnGamepadPlacement gamepad = TimbnGamepadPlacement.Inline) =>
         _row.AddAction(TimbnFaceButton.Primary, label, onPress, disabled, gamepad);
@@ -38,7 +38,7 @@ public sealed class TimbnFooterBuilder
     /// </summary>
     /// <param name="label">The button's text, already in the player's language.</param>
     /// <param name="onPress">Called when the player presses the button or its key.</param>
-    /// <param name="disabled">Grays the button out and stops it running, as a value or a callback that is read all the time, the same as a component's <see cref="TimbnComponent.Disabled"/>.</param>
+    /// <param name="disabled">Grays the button out and stops it running. It can be a value or a callback that is read all the time, like a component's <see cref="TimbnComponent.Disabled"/>.</param>
     /// <param name="gamepad">Where the button goes while a gamepad is in use.</param>
     public void AddSecondary(string label, Action onPress, TimbnBinding<bool> disabled = default, TimbnGamepadPlacement gamepad = TimbnGamepadPlacement.Inline) =>
         _row.AddAction(TimbnFaceButton.Secondary, label, onPress, disabled, gamepad);
@@ -46,7 +46,7 @@ public sealed class TimbnFooterBuilder
     /// <summary>Adds a button tied to X (F on the keyboard), such as Save on a page with a text box.</summary>
     /// <param name="label">The button's text, already in the player's language.</param>
     /// <param name="onPress">Called when the player presses the button or its key.</param>
-    /// <param name="disabled">Grays the button out and stops it running, as a value or a callback that is read all the time, the same as a component's <see cref="TimbnComponent.Disabled"/>.</param>
+    /// <param name="disabled">Grays the button out and stops it running. It can be a value or a callback that is read all the time, like a component's <see cref="TimbnComponent.Disabled"/>.</param>
     /// <param name="gamepad">Where the button goes while a gamepad is in use.</param>
     public void AddPrimarySpecial(string label, Action onPress, TimbnBinding<bool> disabled = default, TimbnGamepadPlacement gamepad = TimbnGamepadPlacement.Inline) =>
         _row.AddAction(TimbnFaceButton.PrimarySpecial, label, onPress, disabled, gamepad);
@@ -54,7 +54,7 @@ public sealed class TimbnFooterBuilder
     /// <summary>Adds a button tied to Y, such as Discard.</summary>
     /// <param name="label">The button's text, already in the player's language.</param>
     /// <param name="onPress">Called when the player presses the button or its key.</param>
-    /// <param name="disabled">Grays the button out and stops it running, as a value or a callback that is read all the time, the same as a component's <see cref="TimbnComponent.Disabled"/>.</param>
+    /// <param name="disabled">Grays the button out and stops it running. It can be a value or a callback that is read all the time, like a component's <see cref="TimbnComponent.Disabled"/>.</param>
     /// <param name="gamepad">Where the button goes while a gamepad is in use.</param>
     public void AddSecondarySpecial(string label, Action onPress, TimbnBinding<bool> disabled = default, TimbnGamepadPlacement gamepad = TimbnGamepadPlacement.Inline) =>
         _row.AddAction(TimbnFaceButton.SecondarySpecial, label, onPress, disabled, gamepad);

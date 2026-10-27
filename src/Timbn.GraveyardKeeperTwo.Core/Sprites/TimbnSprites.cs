@@ -164,7 +164,7 @@ internal static class TimbnSprites
     internal static void HoldRemovals() => _holding = true;
 
     /// <summary>
-    /// Destroys every held sprite no reloaded plugin added again. One added again stays alive but unlisted, since the
+    /// Destroys every held sprite no reloaded mod added again. One added again stays alive but unlisted, since the
     /// HUD keeps drawing the old object until it redraws and a destroyed texture shows as a white square.
     /// </summary>
     internal static void ReleaseHeldRemovals()

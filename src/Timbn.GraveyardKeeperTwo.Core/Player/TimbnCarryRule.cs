@@ -20,6 +20,9 @@ public enum TimbnCarryRule
     /// </summary>
     Exclusive,
 
-    /// <summary>Exclusive, and nothing but the plugin takes it out of their hands, by disposing the handle.</summary>
+    /// <summary>
+    /// Works like Exclusive. Only the mod can take it out of their hands, by disposing the handle. The interaction key
+    /// and the game's drops leave it alone.
+    /// </summary>
     OnlyByCode,
 }

@@ -5,8 +5,8 @@ using System.Text.RegularExpressions;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Non generic base of every Timbn plugin. Handles config, the Enabled gate, Harmony patching, and
-/// teardown. Plugins derive from <see cref="TimbnFrameworkPlugin{T}"/> instead.
+/// Holds what every Timbn mod shares. It handles config, the Enabled gate, Harmony patching and teardown. A mod
+/// derives from <see cref="TimbnFrameworkPlugin{T}"/> instead.
 /// </summary>
 public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
 {
@@ -21,6 +21,7 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
     private readonly HashSet<string> _brokenFeatures = [];
     private bool _started;
 
+    /// <summary>Reads the mod's metadata and creates its facade properties, like Events and Settings.</summary>
     protected TimbnFrameworkPlugin()
     {
         Metadata = MetadataHelper.GetMetadata(this);
@@ -50,7 +51,7 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
         Techs = new(this);
     }
 
-    /// <summary>The plugin's own BepInPlugin attribute. Use this instead of Info.</summary>
+    /// <summary>Holds the mod's BepInPlugin attribute. Use it instead of Info.</summary>
     protected internal BepInPlugin Metadata { get; }
 
     private void RepairPluginInfo()
@@ -71,72 +72,87 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
     }
 
     /// <summary>
-    /// Subscribes this plugin to the game's events. Every subscription is removed when the plugin unloads, and
-    /// events that belong to a save follow every save the player loads.
+    /// Subscribes the mod to the game's events. Every subscription is removed when the mod unloads. Events that
+    /// belong to a save follow every save the player loads.
     /// </summary>
     public TimbnPluginEvents Events { get; }
 
-    /// <summary>Adds potions that are removed when this plugin unloads.</summary>
+    /// <summary>Adds potions that are removed when the mod unloads.</summary>
     public TimbnPluginPotions Potions { get; }
 
-    /// <summary>Adds quests that are removed when this plugin unloads.</summary>
+    /// <summary>Adds quests that are removed when the mod unloads.</summary>
     public TimbnPluginQuests Quests { get; }
 
-    /// <summary>Gives NPCs conversations that are removed when this plugin unloads.</summary>
+    /// <summary>Gives NPCs conversations that are removed when the mod unloads.</summary>
     public TimbnPluginDialog Dialog { get; }
 
-    /// <summary>Adds or overrides the game's text, removed again when this plugin unloads.</summary>
+    /// <summary>Adds or overrides the game's text. The change is undone when the mod unloads.</summary>
     public TimbnPluginText Text { get; }
 
-    /// <summary>Adds custom sprites, such as item and buff icons, that are removed when this plugin unloads.</summary>
+    /// <summary>Adds sprites like item and buff icons. They are removed when the mod unloads.</summary>
     public TimbnPluginSprites Sprites { get; }
 
-    /// <summary>Adds definitions to the game's balance tables that are removed when this plugin unloads.</summary>
+    /// <summary>Adds definitions to the game's balance tables that are removed when the mod unloads.</summary>
     public TimbnPluginBalance Balance { get; }
 
-    /// <summary>Shows lines of text and popups on the main menu, removed again when this plugin unloads.</summary>
+    /// <summary>Shows lines of text and popups on the main menu. They are removed when the mod unloads.</summary>
     public TimbnPluginMainMenu MainMenu { get; }
 
-    /// <summary>Keeps the plugin's changes to the game in step with its config as settings change.</summary>
+    /// <summary>Keeps the mod's changes to the game in step with its config as settings change.</summary>
     public TimbnPluginSettings Settings { get; }
 
-    /// <summary>Acts on the player character, such as holding them still, undone when this plugin unloads.</summary>
+    /// <summary>
+    /// Acts on the player character, like holding them still. Each change is undone when the mod
+    /// unloads.
+    /// </summary>
     public TimbnPluginPlayer Player { get; }
 
-    /// <summary>Changes how fast the game's time runs, undone when this plugin unloads.</summary>
+    /// <summary>Changes how fast the game's time runs. The change is undone when the mod unloads.</summary>
     public TimbnPluginClock Clock { get; }
 
-    /// <summary>Puts the plugin's own hints and IMGUI on screen, taken down when this plugin unloads.</summary>
+    /// <summary>Puts hints and IMGUI on screen. They are taken down when the mod unloads.</summary>
     public TimbnPluginUI UI { get; }
 
-    /// <summary>Adds actions to the game's own objects, such as a second key on a chest, taken away when this plugin unloads.</summary>
+    /// <summary>
+    /// Adds actions to the game's objects, like a second key on a chest. They go away when the mod
+    /// unloads.
+    /// </summary>
     public TimbnPluginInteractions Interactions { get; }
 
-    /// <summary>Lets mods tell each other things through Core with no reference to each other, taken away when this plugin unloads.</summary>
+    /// <summary>
+    /// Lets mods tell each other things through Core with no reference to each other. Everything it adds goes away
+    /// when the mod unloads.
+    /// </summary>
     public TimbnPluginModEvents ModEvents { get; }
 
-    /// <summary>Keeps the plugin's own data with each save, in a file next to the game's save.</summary>
+    /// <summary>Keeps the mod's data with each save. It goes in a file next to the game's save.</summary>
     public TimbnPluginSaves Saves { get; }
 
     /// <summary>
-    /// Walks and adds people and gives them a day on the game clock, with every walk, claim and added person undone
-    /// when this plugin unloads.
+    /// Walks and adds people and gives them a day on the game clock. Every walk, claim and added person is undone
+    /// when the mod unloads.
     /// </summary>
     public TimbnPluginNpcs Npcs { get; }
 
-    /// <summary>Plays the game's own music for the plugin, put back the way it was when the plugin is done.</summary>
+    /// <summary>Plays the game's music for the mod. The music goes back to what it was when the mod is done.</summary>
     public TimbnPluginAudio Audio { get; }
 
-    /// <summary>Builds 3D models from the plugin's PNGs and uses them in the world, all freed when this plugin unloads.</summary>
+    /// <summary>
+    /// Builds 3D models from the mod's PNGs and uses them in the world. They are freed when the mod
+    /// unloads.
+    /// </summary>
     public TimbnPluginModels Models { get; }
 
-    /// <summary>Adds buildable workstations and bench extensions, offered at a build desk, that are removed when this plugin unloads.</summary>
+    /// <summary>
+    /// Adds workstations and bench extensions the player builds at a build desk. They are removed when the mod
+    /// unloads.
+    /// </summary>
     public TimbnPluginStations Stations { get; }
 
-    /// <summary>Adds crafts at the game's stations or the plugin's own that are removed when this plugin unloads.</summary>
+    /// <summary>Adds crafts at the game's stations or the mod's own. They are removed when the mod unloads.</summary>
     public TimbnPluginCrafts Crafts { get; }
 
-    /// <summary>Adds technologies to the tech tree, bought with tech points and removed when this plugin unloads.</summary>
+    /// <summary>Adds technologies to the tech tree that cost tech points. They go away when the mod unloads.</summary>
     public TimbnPluginTechs Techs { get; }
 
     /// <summary>
@@ -367,16 +383,16 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
 
     private protected virtual void OnStopped() { }
 
-    /// <summary>Binds the plugin's own settings. Runs before OnAwake, whether or not the plugin is enabled.</summary>
+    /// <summary>Binds the mod's settings. It runs before OnAwake, whether or not the mod is enabled.</summary>
     protected virtual void BindConfig(ConfigFile config) { }
 
     /// <summary>
-    /// What the Mods window shows about the mod, which is optional. The mod's Overview opens with an About card holding the
-    /// description and a button for each link, and its author shows beside its version. Mods naming the same group share
-    /// one entry in the mod list that opens a page listing them. Core reads it once as the plugin wakes, before it checks
-    /// Enabled, so a mod that is turned off keeps its card and its place in its group. Links that are not https pages on
-    /// the site they are named for are left out with a warning. Null, the default, gives a card saying the mod gave no
-    /// information.
+    /// Describes the mod for the Mods window. It is optional. The mod's Overview opens with an About card that holds
+    /// the description and a button for each link. The author shows beside the version. Mods that name the same group
+    /// share one entry in the mod list. That entry opens a page listing them. Core reads this once as the mod wakes
+    /// and before it checks Enabled. So a mod that is turned off keeps its card and its place in its group. Links that
+    /// are not https pages on the site they are named for are left out with a warning. Null is the default and gives a
+    /// card saying the mod gave no information.
     /// </summary>
     /// <example>
     /// <code>
@@ -400,45 +416,51 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
         _modInfo = TimbnModInfos.Add(Metadata.GUID, info);
     }, Logger, nameof(ModInfo));
 
-    /// <summary>Runs once at startup if the plugin is enabled, after config is bound and patches are applied.</summary>
+    /// <summary>
+    /// Runs once at startup if the mod is enabled. It runs after config is bound and patches are
+    /// applied.
+    /// </summary>
     protected virtual void OnAwake() { }
 
-    /// <summary>Runs every frame while the plugin is enabled.</summary>
+    /// <summary>
+    /// Runs every frame while the mod is running. It also runs on the main menu. Use Events.Update for work that
+    /// should only run in a save.
+    /// </summary>
     protected virtual void OnUpdate() { }
 
     /// <summary>
-    /// Runs when the plugin unloads, before Core removes everything the plugin registered and its Harmony
-    /// patches. Put back anything the plugin changed in the game directly, such as a value it set or a
-    /// GameObject it created. Registrations made through Events, Settings, Potions, Quests, Dialog, Text,
-    /// Sprites, Balance, MainMenu, Player, Clock, UI, Saves, Npcs, Audio, Models, Stations, Crafts and Techs are cleaned up for you, and cleanup that belongs
-    /// to a save is better placed in Events.SaveClosed, which also runs on the way to the main menu.
+    /// Runs when the mod unloads, before Core removes everything the mod registered and its Harmony patches.
+    /// Put back anything the mod changed in the game directly, such as a value it set or a GameObject it
+    /// created. Anything registered through this class's properties (Events, Settings, Interactions,
+    /// ModEvents and the rest) is cleaned up for you. Cleanup that belongs to a save is better placed in
+    /// Events.SaveClosed, which also runs on the way to the main menu.
     /// </summary>
     protected virtual void OnUnload() { }
 }
 
 /// <summary>
-/// Base class for a Timbn plugin. Pass your plugin type as T to give it its own static Logger, Enabled entry, and
-/// Instance.
+/// Is the class every Timbn mod derives from. Pass the mod's class as T to give it a static Logger, Enabled entry
+/// and Instance.
 /// </summary>
 [SuppressMessage("BepInEx", "BepInEx001:BaseUnityPlugin should have a BepInPlugin attribute", Justification = "Abstract base; concrete plugins carry [BepInPlugin]")]
 public abstract class TimbnFrameworkPlugin<T> : TimbnFrameworkPlugin where T : TimbnFrameworkPlugin<T>
 {
     /// <summary>
-    /// The plugin's log source, writing under the plugin's name. It hides the BepInEx instance Logger so a static
-    /// Harmony patch or helper can log the same way the plugin does.
+    /// Writes to the log under the mod's name. It hides the BepInEx instance Logger so a static Harmony patch or
+    /// helper can log the same way the mod does.
     /// </summary>
     public static new ManualLogSource Logger { get; private set; } = null!;
 
     /// <summary>
-    /// The plugin's General/Enabled toggle. Null until the plugin has started. Core's is always on whatever it says, since
-    /// Core cannot be turned off.
+    /// Holds the mod's General/Enabled toggle. It is null until the mod has started. Core's is always on whatever it
+    /// says, since Core cannot be turned off.
     /// </summary>
     public static ConfigEntry<bool> Enabled { get; private set; } = null!;
 
     /// <summary>
-    /// The running plugin, or null while it is not running. This is how a Harmony patch, which has to be static,
-    /// reaches the plugin's state without a static of its own, and it is cleared when the plugin unloads so a hot
-    /// reload never leaves a patch talking to the old copy.
+    /// Holds the running mod or null while it is not running. A Harmony patch has to be static, so this is how it
+    /// reaches the mod's state without a static of its own. It is cleared when the mod unloads, so a hot reload never
+    /// leaves a patch talking to the old copy.
     /// </summary>
     /// <example>
     /// <code>
@@ -452,12 +474,13 @@ public abstract class TimbnFrameworkPlugin<T> : TimbnFrameworkPlugin where T : T
     public static T? Instance { get; private set; }
 
     /// <summary>
-    /// Whether the plugin's own Enabled toggle is on while Core runs. Check it in a patch or a static helper that has to
-    /// stand down the moment a player turns the plugin off. For one feature's toggle, see the plugin's Settings.IsEnabled.
-    /// Core's is true whenever Core runs.
+    /// Says whether the mod's Enabled toggle is on while Core runs. Check it in a patch or a static helper that has to
+    /// stand down the moment a player turns the mod off. Use Settings.IsEnabled for one feature's toggle. Core's is true
+    /// whenever Core runs.
     /// </summary>
     public static bool IsEnabled => TimbnCorePlugin.Instance != null && (typeof(T) == typeof(TimbnCorePlugin) || Enabled?.Value == true);
 
+    /// <summary>Sets the static Logger so a patch or helper can log as soon as the mod is created.</summary>
     protected TimbnFrameworkPlugin()
     {
         Logger = base.Logger;

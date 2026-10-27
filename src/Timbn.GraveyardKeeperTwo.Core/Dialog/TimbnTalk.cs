@@ -3,11 +3,11 @@ using System.Text.RegularExpressions;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// The steps every conversation shares, for talks added with the plugin's Dialog.AddTalk and for quest
-/// conversations. Each line is the text itself, and Core turns it into a localization key named after the talk or
-/// quest, numbered in the order written, so a lang file can translate it. <see cref="Named"/> gives a line a name of its
-/// own instead, and <see cref="Line"/> leaves the text out of code and reads it from the plugin's lang files by name.
-/// The steps play in order, each waiting for the one before.
+/// Holds the steps every conversation shares. Talks added with Dialog.AddTalk and quest conversations both use them.
+/// Each line is the text itself. Core turns it into a localization key named after the talk or quest and numbered in
+/// the order written, so a lang file can translate it. <see cref="Named"/> gives a line a name of its own instead.
+/// <see cref="Line"/> leaves the text out of code and reads it from the mod's lang files by name. The steps play in
+/// order, each waiting for the one before.
 /// </summary>
 /// <typeparam name="TSelf">The conversation type, so each step chains on the same type.</typeparam>
 public abstract class TimbnTalk<TSelf>
@@ -36,7 +36,7 @@ public abstract class TimbnTalk<TSelf>
     /// talk.Say("You have %1 boards.", carried);
     /// ]]></code>
     /// </example>
-    /// <param name="text">The line.</param>
+    /// <param name="text">What the NPC says.</param>
     /// <param name="values">The values for %1, %2 and so on.</param>
     /// <returns>This conversation, for chaining.</returns>
     public TSelf Say(string text, params object[] values)
@@ -46,9 +46,10 @@ public abstract class TimbnTalk<TSelf>
     }
 
     /// <summary>
-    /// A line in the NPC's speech bubble with its text only in the plugin's lang files, under the talk or quest id plus
-    /// this name, so Line("ask") in the offer of quest my_craving reads my_craving_offer_ask. Values fill %1, %2 and so
-    /// on the same way as <see cref="Say"/>. A name with no line in lang/en.txt fails when the talk or quest is added.
+    /// A line in the NPC's speech bubble with its text only in the mod's lang files. Its key is the talk or quest id
+    /// plus this name, so Line("ask") in the offer of quest my_craving reads my_craving_offer_ask. Values fill %1, %2
+    /// and so on the same way as <see cref="Say"/>. A name with no line in lang/en.txt fails when the talk or quest is
+    /// added.
     /// </summary>
     /// <example>
     /// <code><![CDATA[
@@ -66,7 +67,7 @@ public abstract class TimbnTalk<TSelf>
 
     /// <summary>A line spoken by another NPC, skipped with a warning when that NPC is not in the world.</summary>
     /// <param name="npcId">The other NPC, from <see cref="TimbnGameIds.Npcs"/>, such as TimbnGameIds.Npcs.Herm.</param>
-    /// <param name="text">The line.</param>
+    /// <param name="text">What the other NPC says.</param>
     /// <returns>This conversation, for chaining.</returns>
     public TSelf SayAs(string npcId, string text)
     {
@@ -75,7 +76,7 @@ public abstract class TimbnTalk<TSelf>
     }
 
     /// <summary>A line in the player's speech bubble, with values filled in the same way as <see cref="Say"/>.</summary>
-    /// <param name="text">The line.</param>
+    /// <param name="text">What the player says.</param>
     /// <param name="values">The values for %1, %2 and so on.</param>
     /// <returns>This conversation, for chaining.</returns>
     public TSelf PlayerSay(string text, params object[] values)
@@ -89,7 +90,8 @@ public abstract class TimbnTalk<TSelf>
 
     /// <summary>
     /// Names the line just before it, so its localization key is the talk or quest id plus this name rather than a
-    /// number. Translators then see what the line is, and adding lines elsewhere never moves its key.
+    /// number. Translators then see what the line is. Adding lines elsewhere never moves its key. It has to come
+    /// right after a Say, PlayerSay or SayAs line.
     /// </summary>
     /// <example>
     /// <code><![CDATA[
@@ -109,16 +111,14 @@ public abstract class TimbnTalk<TSelf>
     }
 
     /// <summary>Runs your code at this point in the conversation. A throw is logged and ends the conversation.</summary>
-    /// <param name="action">The code to run.</param>
     /// <returns>This conversation, for chaining.</returns>
     public TSelf RunCode(Action action) => Step(c => c.Do(action));
 
     /// <summary>
     /// Runs one of the game's script expressions at this point in the conversation, such as <c>AddRep("npc_larry", 5)</c>
-    /// or <c>$money += 50</c>, the way the game's own conversations do. It runs against the NPC being talked to, so
+    /// or <c>$money += 50</c>, like the game's own conversations do. It runs against the NPC being talked to, so
     /// <c>@name</c> reads a value on them. A typo fails when the talk or quest is added.
     /// </summary>
-    /// <param name="expression">The game expression.</param>
     /// <returns>This conversation, for chaining.</returns>
     public TSelf RunExpression(string expression)
     {
@@ -150,7 +150,7 @@ public abstract class TimbnTalk<TSelf>
         return Step(c => c.When(() => condition.IsTrueFor(c.Npc), t => yes.Script.Replay(t), no is null ? null : o => no.Script.Replay(o)));
     }
 
-    /// <summary>Gives the player an item. Anything that does not fit drops in front of the player.</summary>
+    /// <summary>Gives the player an item. Anything that does not fit drops on the ground by the player.</summary>
     /// <param name="itemId">The item id, such as flitch.</param>
     /// <param name="count">How many to give.</param>
     /// <returns>This conversation, for chaining.</returns>
@@ -214,7 +214,6 @@ public abstract class TimbnTalk<TSelf>
     ///         .Answer("Not today."))
     /// ]]></code>
     /// </example>
-    /// <param name="answers">Adds the answers.</param>
     /// <returns>This conversation, for chaining.</returns>
     public TSelf Ask(Action<TimbnAsk> answers)
     {
@@ -269,7 +268,7 @@ public sealed class TimbnAsk
     internal bool IsEmpty => _choices.Count == 0;
 
     /// <summary>One answer the player can pick.</summary>
-    /// <param name="text">The answer.</param>
+    /// <param name="text">The answer as the player sees it.</param>
     /// <param name="then">What follows it. Leave it out to carry straight on.</param>
     /// <param name="needs">
     /// What has to be true to pick it, checked but not taken, such as reputation with the NPC the player is talking to.

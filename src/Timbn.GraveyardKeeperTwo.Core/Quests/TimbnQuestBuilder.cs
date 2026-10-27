@@ -3,12 +3,12 @@ using System.Text.RegularExpressions;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Describes a quest for the plugin's Quests.Add, with who gives it, when it is offered, and what the player does. A
-/// quest is a list of stages. What is written on the builder itself (Description, TalksWith, Needs, Talk and the rest) is
-/// its first stage, and each <see cref="AddStage"/> adds the next, which Core turns into one game quest per stage, each
-/// continuing the one before, the way the game builds its own storylines. Every line is the text itself, and Core turns
-/// it into localization keys named after the quest id. To keep the text only in the plugin's lang files, use the
-/// Quests.Add that takes no name with Description(), Line, and the Accept and Decline that take no text.
+/// Describes a quest for Quests.Add. It says who gives the quest, when it is offered and what the player does. A quest
+/// is a list of stages. What you write on the builder itself (Description, TalksWith, Needs, Talk and the rest) is the
+/// first stage. Each <see cref="AddStage"/> adds the next one. Core turns each stage into one game quest that continues
+/// the one before, like the game's own storylines. Every line is the text itself, and Core turns it into localization
+/// keys named after the quest id. To keep the text only in the mod's lang files, use the Quests.Add that takes no name.
+/// Pair it with Description(), Line and the Accept and Decline that take no text.
 /// </summary>
 /// <example>
 /// Larry wants 3 bottles of wine and pays 300 and a silver bottle for them.
@@ -167,11 +167,10 @@ public sealed class TimbnQuestBuilder
 
     /// <summary>
     /// Points the player to the NPC to talk to with the HUD's point of interest marker, the one the game uses for work
-    /// spots. It marks the giver while the offer waits, then whoever takes the hand in once the player can finish, such
-    /// as the villager waiting on a dish once it is in the bag. While the NPC is off screen the marker sits at the screen
-    /// edge pointing the way, or on the door that leads to them, and once they are on screen their talk bubble shows
-    /// instead. Each half can be switched on its own, such as from a setting, and both are read every time the marker
-    /// updates, so a change applies straight away.
+    /// spots. It marks the giver while the offer waits. Then it marks whoever takes the hand in once the player can
+    /// finish. While the NPC is off screen, the marker sits at the screen edge pointing the way or on the door that
+    /// leads to them. Once they are on screen their talk bubble shows instead. Each half can be switched on its own,
+    /// for example from a setting. Both are read every time the marker updates, so a change applies straight away.
     /// </summary>
     /// <example>
     /// <code>
@@ -189,7 +188,7 @@ public sealed class TimbnQuestBuilder
     }
 
     /// <summary>
-    /// Which of the game's five rings the quest's node in the quest tree shows while the quest is in progress, the way
+    /// Which of the game's five rings the quest's node in the quest tree shows while the quest is in progress, like
     /// the game sets one for each of its own quests. The green grows further around with each ring, and a completed
     /// quest always shows the gold laurel. Left out, a step of a ContinuesFrom chain gets a ring by its place in the chain,
     /// growing as the story goes on like the game's own storylines, and a quest on its own shows the first ring.
@@ -206,7 +205,6 @@ public sealed class TimbnQuestBuilder
     }
 
     /// <summary>The quest description while the quest is in progress.</summary>
-    /// <param name="text">The text.</param>
     /// <returns>This builder, for chaining.</returns>
     public TimbnQuestBuilder Description(string text)
     {
@@ -216,9 +214,9 @@ public sealed class TimbnQuestBuilder
     }
 
     /// <summary>
-    /// The quest description with its text only in the plugin's lang files, under quest_open_ plus the quest id plus _d
-    /// while in progress, and quest_closed_ plus the id plus _d once done. Without the closed line it keeps the in
-    /// progress one.
+    /// The quest description with its text only in the mod's lang files. While in progress it reads quest_open_ plus
+    /// the quest id plus _d. Once done it reads quest_closed_ plus the id plus _d. Without the closed line it keeps the
+    /// in progress one.
     /// </summary>
     /// <returns>This builder, for chaining.</returns>
     public TimbnQuestBuilder Description()
@@ -228,7 +226,6 @@ public sealed class TimbnQuestBuilder
     }
 
     /// <summary>The quest description once the quest is done. Left out, it keeps the in progress description.</summary>
-    /// <param name="text">The text.</param>
     /// <returns>This builder, for chaining.</returns>
     public TimbnQuestBuilder DoneDescription(string text)
     {
@@ -258,10 +255,10 @@ public sealed class TimbnQuestBuilder
     }
 
     /// <summary>
-    /// Makes the quest the next step of another of your quests, the way the game chains its own quests. It takes that
+    /// Makes the quest the next step of another of your quests, like the game chains its own quests. It takes that
     /// quest's place in the quest tree, sharing its cell, and the tree shows the newest step there. With no Offer or
-    /// StartsOn of its own, it starts within about a second of that quest being completed, once its OfferWhen is true
-    /// too if it has one. Only a mod quest can be continued, since a mod never takes a game quest's place.
+    /// StartsOn of its own, it starts within about a second of that quest being completed. If it has an OfferWhen,
+    /// that has to be true too. Only a mod quest can be continued, since a mod never takes a game quest's place.
     /// </summary>
     /// <example>
     /// <code><![CDATA[
@@ -330,7 +327,6 @@ public sealed class TimbnQuestBuilder
     }
 
     /// <summary>Starts the quest by itself when the player does something in the game, while OfferAfter and OfferWhen allow it.</summary>
-    /// <param name="gameEvent">The event.</param>
     /// <returns>This builder, for chaining.</returns>
     public TimbnQuestBuilder StartsOn(TimbnQuestEvent gameEvent)
     {
@@ -429,7 +425,8 @@ public sealed class TimbnQuestBuilder
 
     /// <summary>
     /// Cancels a run that has gone this many game days without being finished, whether or not the player took the
-    /// quest on. The quest goes back to not started and leaves the log, ready for the next NewRun.
+    /// quest on. The quest goes back to not started and leaves the log, ready for the next NewRun. It needs a Setup,
+    /// since only a run can expire.
     /// </summary>
     /// <param name="days">Game days from the NewRun, at least 1.</param>
     /// <returns>This builder, for chaining.</returns>
@@ -457,7 +454,6 @@ public sealed class TimbnQuestBuilder
     /// })
     /// ]]></code>
     /// </example>
-    /// <param name="action">The code to run.</param>
     /// <returns>This builder, for chaining.</returns>
     public TimbnQuestBuilder OnCancel(Action<TimbnQuestRun?> action)
     {
@@ -490,8 +486,9 @@ public sealed class TimbnQuestBuilder
     }
 
     /// <summary>
-    /// What the player pays to finish the stage, taken when they pick the talk's Accept answer, which shows it as the
-    /// game's price and is grayed out until they can pay. The NPC only shows a speech bubble once they can.
+    /// Sets what the player pays to finish the stage. It is taken when they pick the talk's Accept answer. The answer
+    /// shows the cost as the game's price and is grayed out until they can pay. The NPC only shows a speech bubble once
+    /// they can.
     /// </summary>
     /// <param name="cost">Adds the cost.</param>
     /// <returns>This builder, for chaining.</returns>
@@ -520,7 +517,7 @@ public sealed class TimbnQuestBuilder
     /// <summary>
     /// The conversation that finishes the stage, with the NPC from <see cref="TalksWith(string)"/> or the quest giver. Its Accept
     /// answer takes the stage's <see cref="Cost(Action{TimbnCost})"/>, gives its <see cref="Reward(Action{TimbnRewards})"/> and completes the stage. Accept with no
-    /// text completes the stage once the lines are done, for something the NPC simply hands over. See
+    /// text completes the stage once the lines are done, for something the NPC hands over. See
     /// <see cref="TimbnQuestTalk"/>.
     /// </summary>
     /// <example>
@@ -616,7 +613,7 @@ public sealed class TimbnQuestBuilder
 
     internal bool ReadsRun => GiverOf is not null || TalkNpcOf is not null || IconOf is not null || HasRunNeeds || HasRunCost || HasRunRewards;
 
-    /// <summary>The quest also waits for your code to call its MarkReady, such as when the player reaches a place.</summary>
+    /// <summary>Makes the quest wait for your code to call its MarkReady, for example when the player reaches a place.</summary>
     /// <returns>This builder, for chaining.</returns>
     public TimbnQuestBuilder ReadyByCode()
     {
@@ -625,9 +622,9 @@ public sealed class TimbnQuestBuilder
     }
 
     /// <summary>
-    /// The quest also waits until a condition holds, such as the player carrying enough of an item, and Core marks it ready
-    /// once it does. Core checks it about once a second while the quest is in progress, so keep it cheap. It counts as
-    /// <see cref="ReadyByCode"/>, so MarkReady still works too.
+    /// Makes the quest wait until a condition holds, for example the player carrying enough of an item. Core marks it
+    /// ready once it does. Core checks it about once a second while the quest is in progress, so keep it cheap. It
+    /// counts as <see cref="ReadyByCode"/>, so MarkReady still works too.
     /// </summary>
     /// <example>
     /// <code><![CDATA[
@@ -643,8 +640,7 @@ public sealed class TimbnQuestBuilder
         return this;
     }
 
-    /// <summary>The quest also waits for something the player does in the game, such as sleeping or crafting.</summary>
-    /// <param name="gameEvent">The event.</param>
+    /// <summary>Makes the quest wait for something the player does in the game, such as sleeping or crafting.</summary>
     /// <returns>This builder, for chaining.</returns>
     public TimbnQuestBuilder ReadyOn(TimbnQuestEvent gameEvent)
     {
@@ -679,7 +675,6 @@ public sealed class TimbnQuestBuilder
     /// Runs your code once the stage is done, after the lines that follow the Accept answer, or as soon as they stop if
     /// they end early. A throw is logged.
     /// </summary>
-    /// <param name="action">The code to run.</param>
     /// <returns>This builder, for chaining.</returns>
     public TimbnQuestBuilder OnDone(Action action)
     {
@@ -692,7 +687,6 @@ public sealed class TimbnQuestBuilder
     /// are not saved, such as a marker or a hold on the player, and undo them in <see cref="OnEnd"/>. For a change that
     /// is saved, use <see cref="OnStartExpression"/>. A throw is logged.
     /// </summary>
-    /// <param name="action">The code to run.</param>
     /// <returns>This builder, for chaining.</returns>
     public TimbnQuestBuilder OnStart(Action action)
     {
@@ -701,10 +695,9 @@ public sealed class TimbnQuestBuilder
     }
 
     /// <summary>
-    /// Runs your code when the quest stops being in progress, whether it is done, reset, the player leaves the save, or
-    /// the plugin unloads, to undo what <see cref="OnStart"/> did. A throw is logged.
+    /// Runs your code when the quest stops being in progress, to undo what <see cref="OnStart"/> did. That happens when
+    /// it is done or reset, when the player leaves the save and when the mod unloads. A throw is logged.
     /// </summary>
-    /// <param name="action">The code to run.</param>
     /// <returns>This builder, for chaining.</returns>
     public TimbnQuestBuilder OnEnd(Action action)
     {
@@ -713,12 +706,10 @@ public sealed class TimbnQuestBuilder
     }
 
     /// <summary>
-    /// One of the game's script expressions, run once by the game the moment the quest starts, such as
-    /// <c>AddPerk("perk_x")</c> or <c>$money += 50</c>. Use it for changes that are saved, since the save keeps the
-    /// result. The game also replays a <c>RevealTech("...")</c> here on load. Call it again to add more. A typo fails
-    /// when the quest is added.
+    /// Adds a game script expression that the game runs once when the quest starts, such as <c>AddPerk("perk_x")</c>
+    /// or <c>$money += 50</c>. Use it for changes that are saved, since the save keeps the result. The game also
+    /// replays a <c>RevealTech("...")</c> here on load. Call it again to add more. A typo fails when the quest is added.
     /// </summary>
-    /// <param name="expression">The game expression.</param>
     /// <returns>This builder, for chaining.</returns>
     public TimbnQuestBuilder OnStartExpression(string expression)
     {
@@ -727,10 +718,9 @@ public sealed class TimbnQuestBuilder
     }
 
     /// <summary>
-    /// One of the game's script expressions, run once by the game the moment the quest is completed, such as
+    /// Adds a game script expression that the game runs once when the quest is completed, such as
     /// <c>RevealTech("tech_x")</c>. See <see cref="OnStartExpression"/>.
     /// </summary>
-    /// <param name="expression">The game expression.</param>
     /// <returns>This builder, for chaining.</returns>
     public TimbnQuestBuilder OnDoneExpression(string expression)
     {
@@ -739,12 +729,13 @@ public sealed class TimbnQuestBuilder
     }
 
     /// <summary>
-    /// Adds the next stage of the quest, written in the same place. Core makes each stage its own game quest, continuing
-    /// the one before in the same spot in the quest tree, with the game's own start and complete popups, and each starts
-    /// by itself once the stage before is done. When the quest itself has stage parts (a Description, a Talk, a ReadyOn
-    /// and so on), it is the first stage and this one the next. Otherwise the first AddStage is the first stage and keeps
-    /// the quest's id, and the quest's offer, OfferWhen, StartsOn, OfferAfter and Icon belong to it. Every later stage's id is
-    /// the quest id plus the stage name. The quest's DoneDescription describes the end of the last stage.
+    /// Adds the next stage of the quest, written in the same place. Core makes each stage its own game quest. It
+    /// continues the one before in the same spot in the quest tree and uses the game's start and complete popups. Each
+    /// stage starts by itself once the stage before is done. If the quest has stage parts of its own (a Description, a
+    /// Talk or a ReadyOn), those are the first stage and this adds the next. Otherwise the first AddStage is the first
+    /// stage. It keeps the quest's id and takes the quest's offer, OfferWhen, StartsOn, OfferAfter and Icon. Every
+    /// later stage's id is the quest id plus the stage name. The quest's DoneDescription describes the end of the last
+    /// stage.
     /// </summary>
     /// <example>
     /// <code><![CDATA[

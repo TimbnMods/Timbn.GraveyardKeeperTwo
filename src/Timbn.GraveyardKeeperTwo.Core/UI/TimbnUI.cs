@@ -3,8 +3,8 @@ using LazyBearTechnology;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Reads and drives the game's own screens, such as which window is open and the fade to black. See the plugin's
-/// UI property for things a plugin shows that have to be taken down again.
+/// Reads and drives the game's own screens, such as which window is open and the fade to black. See the UI
+/// property for things a mod shows that have to be taken down again.
 /// </summary>
 public static class TimbnUI
 {
@@ -27,8 +27,6 @@ public static class TimbnUI
     ///     BuildPins.Draw();
     /// </code>
     /// </example>
-    /// <typeparam name="TWindow">The window's type.</typeparam>
-    /// <returns>True when that window is open and on top.</returns>
     public static bool IsWindowOpen<TWindow>() where TWindow : LazyWidgetBase => ActiveWindow is TWindow;
 
     /// <summary>
@@ -99,7 +97,6 @@ public static class TimbnUI
     /// </example>
     /// <param name="key">The text's localization key.</param>
     /// <param name="onTextShown">Runs once the text has faded out and the screen is still black, which is the moment to change the world.</param>
-    /// <remarks>It is a short fade.</remarks>
     /// <param name="onDone">Runs when the screen is back.</param>
     public static void FadeText(string key, Action? onTextShown = null, Action? onDone = null)
     {

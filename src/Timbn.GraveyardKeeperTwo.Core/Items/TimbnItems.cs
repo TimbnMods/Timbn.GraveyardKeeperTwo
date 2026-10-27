@@ -2,7 +2,7 @@ using System.ComponentModel;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
-/// <summary>Finds, gives, and drops items in the loaded save. At the main menu every count is zero and nothing moves.</summary>
+/// <summary>Counts, finds, removes and drops items in the loaded save and reads item prices and icons. At the main menu every count is zero and nothing moves.</summary>
 public static class TimbnItems
 {
     /// <summary>
@@ -127,14 +127,17 @@ public static class TimbnItems
     public static string IconId(string id) => TimbnBalance.Loaded?.GetDataOrNull<ItemDef>(id) is { } item ? TimbnBalance.GetIcon(item) : "";
 
     // Released mods such as Living Town 1.0.0 still call these, so they forward instead of doing nothing.
+    /// <summary>Forwards to <see cref="TimbnPlayer.GiveItem(Item, bool)"/> with no notice. It is kept for released mods.</summary>
     [Obsolete("Use TimbnPlayer.GiveItem. This goes away in the next major version.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static int GiveToPlayer(Item item) => TimbnPlayer.GiveItem(item, notify: false);
 
+    /// <summary>Forwards to <see cref="TimbnPlayer.CountItem"/>. It is kept for released mods.</summary>
     [Obsolete("Use TimbnPlayer.CountItem. This goes away in the next major version.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static int CountOnPlayer(string id) => TimbnPlayer.CountItem(id);
 
+    /// <summary>Forwards to <see cref="TimbnPlayer.TakeItem"/>. It is kept for released mods.</summary>
     [Obsolete("Use TimbnPlayer.TakeItem. This goes away in the next major version.")]
     [EditorBrowsable(EditorBrowsableState.Never)]
     public static int TakeFromPlayer(string id, int count) => TimbnPlayer.TakeItem(id, count);

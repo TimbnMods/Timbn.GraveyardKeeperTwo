@@ -14,7 +14,7 @@ public static class TimbnSafe
     /// </code>
     /// </example>
     /// <param name="action">The code to run. Null counts as having run.</param>
-    /// <param name="logger">The plugin's Logger, so the line shows under the plugin's name.</param>
+    /// <param name="logger">The mod's Logger, so the line shows under the mod's name.</param>
     /// <param name="what">What the code is, for the log line, such as a class and what it was doing.</param>
     /// <returns>True when the code ran through, false when it threw.</returns>
     public static bool Run(Action? action, ManualLogSource logger, string what)

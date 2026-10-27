@@ -1,10 +1,10 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Adds buildable workstations and bench extensions on behalf of a plugin, each offered at a build desk and built,
-/// worked and dismantled like the game's own. Core makes every definition the game expects from a few lines, keeps a
-/// built one out of the game's save so the save still loads once the plugin is gone, and removes everything when the
-/// plugin unloads. Reach it through the plugin's Stations property.
+/// Adds buildable workstations and bench extensions for a mod. Each one is offered at a build desk and is built,
+/// worked and dismantled like the game's own. Core makes every definition the game expects from a few lines. It keeps
+/// a built one out of the game's save so the save still loads once the mod is gone. It removes everything when the
+/// mod unloads. Reach it through the Stations property.
 /// </summary>
 public sealed class TimbnPluginStations
 {
@@ -34,11 +34,11 @@ public sealed class TimbnPluginStations
     /// ]]></code>
     /// </example>
     /// <param name="id">The station's world object id, for example "timbn_stick_box". Keep it stable, since saves name a built station by it.</param>
-    /// <param name="name">The name shown in the build desk and over the station. Empty leaves the text to the plugin's lang files.</param>
+    /// <param name="name">The name shown in the build desk and over the station. Empty leaves the text to the mod's lang files.</param>
     /// <param name="description">The description shown in the build desk. Empty leaves it to the lang files.</param>
     /// <param name="station">Describes the station.</param>
     /// <returns>
-    /// The station, for naming it in a craft's In. It lives until the plugin unloads, so unlike an extension or a craft
+    /// The station, for naming it in a craft's In. It lives until the mod unloads, so unlike an extension or a craft
     /// there is no handle to remove it early.
     /// </returns>
     /// <exception cref="ArgumentException">The id is empty.</exception>
@@ -55,9 +55,9 @@ public sealed class TimbnPluginStations
     }
 
     /// <summary>
-    /// Adds a workstation whose name and build desk description come from the plugin's lang files. The station and its
-    /// construction site are named under the station's id, and the build desk entry under its BuildingId with the
-    /// description under BuildingId_d. See <see cref="Add(string, string, string, Action{TimbnStationBuilder})"/>.
+    /// Adds a workstation whose name and build desk description come from the mod's lang files. The lang file needs four
+    /// keys. These are the station's id, id_place for its construction site, id_place_p for the build desk entry and
+    /// id_place_p_d for its description. See <see cref="Add(string, string, string, Action{TimbnStationBuilder})"/>.
     /// </summary>
     /// <example>
     /// <code><![CDATA[
@@ -71,7 +71,7 @@ public sealed class TimbnPluginStations
     /// </example>
     /// <param name="id">The station's world object id, for example "timbn_stick_box". Keep it stable, since saves name a built station by it.</param>
     /// <param name="station">Describes the station.</param>
-    /// <returns>The station, for naming it in a craft's In. It lives until the plugin unloads.</returns>
+    /// <returns>The station, for naming it in a craft's In. It lives until the mod unloads.</returns>
     /// <exception cref="ArgumentException">The id is empty.</exception>
     /// <exception cref="InvalidOperationException">No model was given.</exception>
     public TimbnStation Add(string id, Action<TimbnStationBuilder> station) => Add(id, "", "", station);
@@ -83,7 +83,7 @@ public sealed class TimbnPluginStations
     /// <see cref="TimbnExtensionBuilder"/> for what an extension can hold. Call it in OnAwake.
     /// </summary>
     /// <param name="id">The extension's world object id, for example "timbn_red_magic". Keep it stable, since saves name a built extension by it.</param>
-    /// <param name="name">The name shown in the build desk. Empty leaves the text to the plugin's lang files.</param>
+    /// <param name="name">The name shown in the build desk. Empty leaves the text to the mod's lang files.</param>
     /// <param name="description">The description shown in the build desk. Empty leaves it to the lang files.</param>
     /// <param name="extension">Describes the extension.</param>
     /// <returns>A handle that removes the extension early when disposed. You don't need to keep it.</returns>
@@ -100,8 +100,8 @@ public sealed class TimbnPluginStations
     }
 
     /// <summary>
-    /// Adds a bench extension whose name and build desk description come from the plugin's lang files, under the
-    /// extension's id, its build desk entry id_p and the description id_p_d. See
+    /// Adds a bench extension whose name and build desk description come from the mod's lang files. The keys are the
+    /// extension's id, id_p for its build desk entry and id_p_d for the description. See
     /// <see cref="AddExtension(string, string, string, Action{TimbnExtensionBuilder})"/>.
     /// </summary>
     /// <param name="id">The extension's world object id, for example "timbn_red_magic". Keep it stable, since saves name a built extension by it.</param>

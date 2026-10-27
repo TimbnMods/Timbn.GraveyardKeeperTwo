@@ -1,8 +1,8 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// A person following a <see cref="TimbnNpcDay"/> on the game clock, from the plugin's Npcs.Schedule, in every save
-/// the player loads. Disposing it, or the plugin unloading, stops the walk it started and lets go of its claim.
+/// A person following a <see cref="TimbnNpcDay"/> on the game clock in every save the player loads, set up with
+/// Npcs.Schedule. Disposing it or unloading the mod stops the walk it started and lets go of its claim.
 /// </summary>
 public sealed class TimbnNpcSchedule : IDisposable
 {

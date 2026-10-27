@@ -5,7 +5,7 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 /// <summary>
 /// Reads the game's calendar and clock for the loaded save, so a mod can ask what day or time it is without
 /// digging through EnvironmentEngine and the save, and sets the time of day as a one shot change that needs no
-/// undo. Every member reads as zero or empty at the main menu. See the plugin's Clock property for holds on the
+/// undo. Members that read the save give zero, null or false at the main menu. See the mod's Clock property for holds on the
 /// clock that are undone, such as freezing it or running it faster.
 /// </summary>
 public static class TimbnClock
@@ -61,8 +61,8 @@ public static class TimbnClock
     public static float TimeOfDay => Data?.TimeOfDay ?? 0f;
 
     /// <summary>
-    /// The game clock in minutes since the save began, counting whole days and the part of today. Use it for waits
-    /// that follow game time, so they stop while the game is paused and speed up with it, and are never real seconds.
+    /// Counts the game clock in minutes since the save began. It covers whole days and the part of today. Use it for
+    /// waits that follow game time. They stop while the game is paused and run faster when the game speeds up.
     /// </summary>
     /// <example>
     /// <code>
@@ -84,7 +84,9 @@ public static class TimbnClock
         }
     }
 
-    /// <summary>Whether the game's clock is stopped, as it is during some cutscenes or while a plugin holds Clock.Freeze.</summary>
+    /// <summary>
+    /// Whether the game's clock is stopped, as it is during some cutscenes or while a mod holds Clock.Freeze.
+    /// </summary>
     public static bool IsPaused => TimbnGame.IsInGame && EnvironmentEngine.Instance != null && EnvironmentEngine.Instance.IsPaused;
 
     /// <summary>

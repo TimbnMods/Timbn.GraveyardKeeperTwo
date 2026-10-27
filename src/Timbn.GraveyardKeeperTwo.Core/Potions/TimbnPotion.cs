@@ -1,8 +1,8 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Describes a potion for a plugin's Potions.Add. The potion becomes a real item, buff, and alchemy
-/// formula, and its buff decides what drinking it does.
+/// Describes a potion for Potions.Add. The potion becomes a real item, buff and alchemy formula. Its buff decides
+/// what drinking it does.
 /// </summary>
 public sealed class TimbnPotion
 {
@@ -18,7 +18,7 @@ public sealed class TimbnPotion
     /// <summary>Id of the existing usable item the new one is copied from.</summary>
     public string TemplateItemId { get; set; } = TimbnGameIds.Items.ThirdEyeSalt;
 
-    /// <summary>Item icon sprite name. Any sprite the game has, or one added with the plugin's Sprites.AddPng. Empty keeps the template's.</summary>
+    /// <summary>The item's icon sprite name. Use any sprite the game has or one added with Sprites.AddEmbeddedPng. Empty keeps the template's.</summary>
     public string IconId { get; set; } = "";
 
     /// <summary>The item's base price in the game's raw units, where 100 is one silver coin. 100 by default.</summary>
@@ -58,7 +58,7 @@ public sealed class TimbnPotionBuff
     /// <summary>One of the game's buff colors, used for the start burst and the HUD frame. Read each time the potion is drunk so it can follow a setting.</summary>
     public Func<string> GlowColor { get; set; } = () => "ltyellow";
 
-    /// <summary>Buff icon sprite name. Any sprite the game has, or one added with the plugin's Sprites.AddPng.</summary>
+    /// <summary>The buff's icon sprite name. Use any sprite the game has or one added with Sprites.AddEmbeddedPng.</summary>
     public string IconId { get; set; } = "b_speed";
 
     /// <summary>
@@ -77,7 +77,7 @@ public sealed class TimbnPotionBuff
 
     /// <summary>
     /// Runs when the buff starts, and again when a save loads with it active. Use it for effects the save doesn't
-    /// keep, like walk speed, and <see cref="ApplyChange"/> for C# changes the save would keep.
+    /// keep, like walk speed. Use <see cref="ApplyChange"/> for C# changes the save would keep.
     /// </summary>
     public Action? OnStart { get; set; }
 
@@ -88,10 +88,10 @@ public sealed class TimbnPotionBuff
     public Action? OnEnd { get; set; }
 
     /// <summary>
-    /// Makes a C# change the save would keep, such as a vendor's money. Core runs it when the buff starts, and
-    /// <see cref="RevertChange"/> takes it back just before every save and this puts it back right after, so the save
-    /// never holds the change and removing the mod mid buff leaves nothing behind. Both run on every save, so keep
-    /// them to setting state, with no sounds, toasts or drops.
+    /// Makes a C# change the save would keep, such as a vendor's money. Core runs it when the buff starts.
+    /// <see cref="RevertChange"/> takes it back just before every save, and Core runs this again right after. That way
+    /// the save never holds the change. Removing the mod mid buff leaves nothing behind. Both run on every save. Keep
+    /// them to setting state with no sounds, toasts or drops.
     /// </summary>
     public Action? ApplyChange { get; set; }
 

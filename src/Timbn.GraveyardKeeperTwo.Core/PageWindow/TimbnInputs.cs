@@ -4,6 +4,8 @@ using System.Reflection;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>An On and Off switch between two arrows.</summary>
+/// <param name="get">Reads whether it is on.</param>
+/// <param name="set">Called with the new state.</param>
 public sealed class TimbnToggle(Func<bool> get, Action<bool> set) : TimbnControl
 {
     internal override TimbnWidget BuildWidget(Transform parent) =>
@@ -42,10 +44,11 @@ public sealed class TimbnChoice<T>(Func<T> get, Action<T> set) : TimbnControl
 }
 
 /// <summary>
-/// A color between two arrows, drawn like the character editor's color switchers, with no color first, then your colors,
-/// then Unity's default ones. The color is a tag value, such as <c>#FF8800</c> or <c>orange</c>.
+/// A color between two arrows, drawn like the character editor's color switchers. It lists no color first, then the
+/// colors passed in, then Unity's basic colors (white, black, red and the rest). The color is a tag value, such as
+/// <c>#FF8800</c> or <c>orange</c>.
 /// </summary>
-/// <param name="colors">Your own colors, which come before Unity's.</param>
+/// <param name="colors">The colors to list before Unity's.</param>
 /// <param name="get">Reads the current color, or null for none.</param>
 /// <param name="set">Called with the new color, or null for none.</param>
 public sealed class TimbnColorPicker(IReadOnlyList<string> colors, Func<string?> get, Action<string?> set) : TimbnControl
@@ -66,9 +69,9 @@ public sealed class TimbnSlider(float min, float max, Func<float> get, Action<fl
 }
 
 /// <summary>
-/// Text in a box to type a new value into, set when the player finishes typing. Text too long for the box, and a gamepad,
-/// open the game's text window instead. Esc while typing works the way B does, backing out of a page that takes Back
-/// and leaving the box as it is on one that doesn't, and never keeps what was being typed.
+/// Text in a box to type a new value into, set when the player finishes typing. A gamepad or text too long for the box
+/// opens the game's text window instead. Esc while typing works like B. It never keeps what was typed. On a page that
+/// takes Back it backs out of the page. On one that doesn't it only leaves the box as it was.
 /// </summary>
 /// <param name="get">Reads the current text.</param>
 /// <param name="set">Called with the new text.</param>

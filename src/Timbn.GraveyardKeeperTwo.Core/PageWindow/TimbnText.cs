@@ -18,7 +18,7 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 /// </code>
 /// </example>
 /// <param name="text">The text, already in the player's language.</param>
-/// <param name="kind">The style.</param>
+/// <param name="kind">How the text looks. It is a label by default.</param>
 public sealed class TimbnText(string text, TimbnTextKind kind = TimbnTextKind.Label) : TimbnComponent
 {
     /// <summary>Whether a long line wraps onto more lines. Set it before the text is put on a page.</summary>

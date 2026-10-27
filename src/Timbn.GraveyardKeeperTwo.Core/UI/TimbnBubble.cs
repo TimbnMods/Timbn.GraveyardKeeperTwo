@@ -5,11 +5,11 @@ using System.Runtime.CompilerServices;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// An icon over a spot in the world, with no key or text, the way the game marks a workstation that needs something.
-/// Use it to show what someone wants, such as a beer over a customer's head. By default it sits in the game's small
-/// square frame. Set Framed to false for the bare icon, Scale to size it and Tint to color it. Get one from the
-/// plugin's UI.CreateBubble, move it with Show as often as you like, and it is hidden when the plugin unloads or the
-/// player returns to the main menu. Dispose a bubble the plugin is done with, such as one made per customer.
+/// Shows an icon over a spot in the world, with no key or text. The game marks a workstation that needs something
+/// the same way. Use it to show what someone wants, like a beer over a customer's head. By default the icon sits in
+/// the game's small square frame. Set Framed to false for the bare icon, Scale to size it and Tint to color it. Get
+/// one from UI.CreateBubble and move it with Show as often as you like. It is hidden when the mod unloads or the
+/// player returns to the main menu. Dispose a bubble when the mod is done with it, for example one per customer.
 /// </summary>
 /// <example>
 /// <code>
@@ -137,7 +137,7 @@ public sealed class TimbnBubble : IBubbleDrawable, IDisposable
             manager.Hide(this);
     }
 
-    /// <summary>Hides the bubble and lets the plugin forget it. It can still be shown again afterwards, but nothing hides it for the plugin any more.</summary>
+    /// <summary>Hides the bubble and lets the mod forget it. It can still be shown again afterwards, but nothing hides it for the mod any more.</summary>
     public void Dispose()
     {
         Hide();

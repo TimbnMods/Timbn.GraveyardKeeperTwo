@@ -1,9 +1,9 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Adds potions to the game on behalf of a plugin. Each potion becomes a real item, buff, and alchemy
-/// formula that brews at the mixer and saves like the game's own, and is removed when the plugin unloads.
-/// Reach it through the plugin's Potions property.
+/// Adds potions to the game for a mod. Each potion becomes a real item, buff and alchemy formula. It brews at the
+/// mixer and saves like the game's own. It is removed when the mod unloads. Reach it through the Potions
+/// property.
 /// </summary>
 public sealed class TimbnPluginPotions
 {

@@ -91,8 +91,8 @@ public abstract class TimbnComponent
 
     /// <summary>
     /// With a gamepad in use, puts the focus on the component's first control, such as a switch the page just built again.
-    /// With a mouse in use it is where the gamepad's focus starts once the player picks one up. It does nothing before the
-    /// component is on a page, or while it is hidden.
+    /// With a mouse in use it sets where the gamepad's focus starts once the player picks one up. It does nothing before
+    /// the component is on a page or while it is hidden.
     /// </summary>
     public void Focus()
     {
@@ -120,7 +120,6 @@ public abstract class TimbnComponent
     /// player can press calls <see cref="MakePressable(RectTransform, Action)"/> on its box.
     /// </summary>
     /// <param name="parent">The page's box to build in.</param>
-    /// <returns>The component's root object.</returns>
     protected internal abstract RectTransform Build(Transform parent);
 
     internal void BuildInto(Transform parent, TimbnPageWatcher? watcher)
@@ -172,6 +171,7 @@ public abstract class TimbnComponent
     /// <summary>
     /// Runs the mod's code for a click or a change and logs anything it throws to the page's logger, under the
     /// component's type, instead of letting it break the game's event. Use it in the handlers <see cref="Build(Transform)"/> hooks up.
+    /// When the component is not on a page there is no logger, so it just runs the code.
     /// </summary>
     /// <param name="action">The code to run.</param>
     /// <param name="what">A few words for the log line, such as "click".</param>

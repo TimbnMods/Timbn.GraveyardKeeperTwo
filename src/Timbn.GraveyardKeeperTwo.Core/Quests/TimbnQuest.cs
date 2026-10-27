@@ -1,8 +1,8 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// A quest added with the plugin's Quests.Add, all its stages included. Keep it to start the quest, mark it ready or
-/// complete it from your own code, and pass it to another quest's OfferAfter or ContinuesFrom to chain them.
+/// Holds a quest added with Quests.Add, all its stages included. Keep it to start the quest, mark it ready or complete
+/// it from your own code. Pass it to another quest's OfferAfter or ContinuesFrom to chain them.
 /// </summary>
 /// <example>
 /// <code><![CDATA[
@@ -40,7 +40,7 @@ public sealed class TimbnQuest
     /// <summary>
     /// Rolls a new run of a quest with a Setup, such as on a lucky new day. Setup fills it, then the giver offers the
     /// quest, or it starts straight away when it has no Offer or StartsOn. It does nothing while a run is going, while
-    /// the quest is in progress or done, or until OfferAfter and OfferWhen allow it.
+    /// the quest is in progress or done or until OfferAfter and OfferWhen allow it. It throws for a quest with no Setup.
     /// </summary>
     /// <example>
     /// <code><![CDATA[
@@ -60,7 +60,7 @@ public sealed class TimbnQuest
     /// <summary>
     /// Ends the current run early, whether or not the player took the quest on. Every stage goes back to not started and
     /// leaves the log, and a quest with a Setup waits for the next NewRun. It does nothing once a quest that is not
-    /// repeatable is done.
+    /// repeatable is done and at the main menu.
     /// </summary>
     /// <returns>True when a run or a quest in progress was canceled.</returns>
     public bool Cancel() => _added && _cycle is not null && _cycle.Cancel("by the mod's code");
@@ -142,7 +142,7 @@ public sealed class TimbnQuest
     /// Puts the quest, every stage included, back to not started in the loaded save, as if the player had never taken
     /// it, so it can be played again while testing. Items and money already handed over stay spent.
     /// </summary>
-    /// <returns>True when the quest was reset, false when no save is loaded.</returns>
+    /// <returns>True when the quest was reset. False when no save is loaded or the quest was skipped.</returns>
     public bool Reset()
     {
         if (!_added)
@@ -169,8 +169,8 @@ public sealed class TimbnQuest
 
     /// <summary>
     /// Completes the stage the player is on straight away, or the quest when it has no stages, for something your own
-    /// code decides is done, talk or not. It pays the rewards, plays the DoneLines and runs OnDone. It
-    /// does nothing unless that stage has started.
+    /// code decides is done, with or without a talk. It pays the rewards, plays the DoneLines and runs OnDone. It does
+    /// nothing unless that stage has started.
     /// </summary>
     /// <returns>True when it was completed.</returns>
     public bool Complete() => Current?.Complete() == true;

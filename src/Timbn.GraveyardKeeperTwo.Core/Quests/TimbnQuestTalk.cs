@@ -31,7 +31,7 @@ public sealed class TimbnQuestOffer : TimbnTalk<TimbnQuestOffer>
     /// .Accept("I'll sort it out.", then => then.Say("Thanks!"), needs: need => need.OnWeekday(TimbnWeekday.Pride))
     /// ]]></code>
     /// </example>
-    /// <param name="text">The answer.</param>
+    /// <param name="text">The answer as the player sees it.</param>
     /// <param name="then">What the NPC says after it. Leave it out to say nothing.</param>
     /// <param name="needs">What has to be true to pick it. Reputation is with the quest giver.</param>
     /// <param name="cost">What the player pays to take the quest on.</param>
@@ -40,7 +40,7 @@ public sealed class TimbnQuestOffer : TimbnTalk<TimbnQuestOffer>
         SetAccept(key => Script.Named(key, text), then, needs, cost);
 
     /// <summary>
-    /// The Accept answer with its text only in the plugin's lang files, under the quest id plus _accept, such as
+    /// The Accept answer with its text only in the mod's lang files, under the quest id plus _accept, such as
     /// my_craving_accept. Its lines follow from then, where <see cref="TimbnTalk{TSelf}.Line"/> reads my_craving_accept
     /// plus the line's name.
     /// </summary>
@@ -57,12 +57,12 @@ public sealed class TimbnQuestOffer : TimbnTalk<TimbnQuestOffer>
         SetAccept(Script.FileNamed, then, needs, cost);
 
     /// <summary>The player's answer that turns the quest down for now. The NPC offers it again later.</summary>
-    /// <param name="text">The answer.</param>
+    /// <param name="text">The answer as the player sees it.</param>
     /// <param name="then">What the NPC says after it. Leave it out to say nothing.</param>
     /// <returns>This conversation, for chaining.</returns>
     public TimbnQuestOffer Decline(string text, Action<TimbnLines>? then = null) => SetDecline(key => Script.Named(key, text), then);
 
-    /// <summary>The Decline answer with its text only in the plugin's lang files, under the quest id plus _decline.</summary>
+    /// <summary>The Decline answer with its text only in the mod's lang files, under the quest id plus _decline.</summary>
     /// <param name="then">What the NPC says after it. Leave it out to say nothing.</param>
     /// <returns>This conversation, for chaining.</returns>
     public TimbnQuestOffer Decline(Action<TimbnLines>? then = null) => SetDecline(Script.FileNamed, then);
@@ -94,14 +94,15 @@ public sealed class TimbnQuestOffer : TimbnTalk<TimbnQuestOffer>
 }
 
 /// <summary>
-/// The conversation that finishes a quest or a stage, at the NPC from its TalksWith call or the quest giver. The lines play,
-/// then the player picks Accept, which takes the stage's cost, gives its reward and completes the stage, or Decline to
-/// come back later. Accept with no text completes the stage as soon as the lines are done, for something the NPC
-/// simply hands over. When the NPC has a menu of its own, as Herm and Larry do, the talk joins it as one answer. Its
-/// text is the talk's first line when that is a PlayerSay, or the quest's name otherwise, and the rest plays once it
-/// is picked. A talk that is only an Accept answer puts that answer straight into the menu, with its price and reward.
-/// The NPC shows a speech bubble for the talk only once the stage's needs are met and the player can pay its cost,
-/// while the answer in an NPC's own menu is there all along, so the player can still ask and decline.
+/// Plays the conversation that finishes a quest or a stage. It is with the NPC from the TalksWith call or the quest
+/// giver. The lines play, then the player picks Accept or Decline. Accept takes the stage's cost, gives its reward and
+/// completes the stage. Decline lets them come back later. Accept with no text completes the stage as soon as the
+/// lines are done, for something the NPC hands over. Some NPCs have a menu of their own, as Herm and Larry do.
+/// The talk joins that menu as one answer. Its label is the talk's first line when that is a PlayerSay. Otherwise it is
+/// the quest's name. The rest plays once it is picked. A talk that is only an Accept answer puts that answer straight
+/// into the menu with its price and reward. The NPC shows a speech bubble for the talk only once the stage's needs are
+/// met and the player can pay its cost. The answer in an NPC's own menu is there all along, so the player can still
+/// ask and decline.
 /// </summary>
 /// <example>
 /// <code><![CDATA[
@@ -141,13 +142,13 @@ public sealed class TimbnQuestTalk : TimbnTalk<TimbnQuestTalk>
     /// The player's answer that finishes the stage. It shows the stage's cost and reward, is grayed out with the game's
     /// price until the player can pay, and takes the cost and gives the reward when it is picked.
     /// </summary>
-    /// <param name="text">The answer.</param>
+    /// <param name="text">The answer as the player sees it.</param>
     /// <param name="then">What follows it, such as the NPC's thanks or what to do next.</param>
     /// <returns>This conversation, for chaining.</returns>
     public TimbnQuestTalk Accept(string text, Action<TimbnLines>? then = null) => SetAccept(key => Script.Named(key, text), then);
 
     /// <summary>
-    /// The Accept answer with its text only in the plugin's lang files, under the quest id plus _talk_accept, such as
+    /// The Accept answer with its text only in the mod's lang files, under the quest id plus _talk_accept, such as
     /// my_craving_talk_accept, or the stage's id in place of the quest id. Its lines follow from then.
     /// </summary>
     /// <example>
@@ -161,7 +162,7 @@ public sealed class TimbnQuestTalk : TimbnTalk<TimbnQuestTalk>
 
     /// <summary>
     /// Completes the stage as soon as the lines before it are done, with no answer to pick, giving the stage's reward,
-    /// such as when the NPC simply hands something over. A stage with a cost needs the player to pick an Accept answer
+    /// such as when the NPC hands something over. A stage with a cost needs the player to pick an Accept answer
     /// instead, and there is nothing to Decline or Resume.
     /// </summary>
     /// <returns>This conversation, for chaining.</returns>
@@ -193,12 +194,12 @@ public sealed class TimbnQuestTalk : TimbnTalk<TimbnQuestTalk>
     /// The player's answer that leaves without finishing, to come back later. Without it, Core adds the game's leave
     /// answer when the stage has a cost or a reward, and an NPC with a menu of its own already has one.
     /// </summary>
-    /// <param name="text">The answer.</param>
+    /// <param name="text">The answer as the player sees it.</param>
     /// <param name="then">What the NPC says after it. Leave it out to say nothing.</param>
     /// <returns>This conversation, for chaining.</returns>
     public TimbnQuestTalk Decline(string text, Action<TimbnLines>? then = null) => SetDecline(key => Script.Named(key, text), then);
 
-    /// <summary>The Decline answer with its text only in the plugin's lang files, under the quest id plus _talk_decline.</summary>
+    /// <summary>The Decline answer with its text only in the mod's lang files, under the quest id plus _talk_decline.</summary>
     /// <param name="then">What the NPC says after it. Leave it out to say nothing.</param>
     /// <returns>This conversation, for chaining.</returns>
     public TimbnQuestTalk Decline(Action<TimbnLines>? then = null) => SetDecline(Script.FileNamed, then);

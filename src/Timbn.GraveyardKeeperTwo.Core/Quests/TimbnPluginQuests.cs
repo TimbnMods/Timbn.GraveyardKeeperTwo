@@ -1,8 +1,8 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Adds quests to the game on behalf of a plugin, removed again when the plugin unloads. Reach it through the
-/// plugin's Quests property.
+/// Adds quests to the game on behalf of a mod. They are removed again when the mod unloads. Reach it through the
+/// mod's Quests property.
 /// </summary>
 public sealed class TimbnPluginQuests
 {
@@ -14,8 +14,9 @@ public sealed class TimbnPluginQuests
     }
 
     /// <summary>
-    /// Adds a quest. Core registers it in the quest tree, adds its text, shows a speech bubble on the NPC
-    /// when there is something to say, runs the offer and talk conversations, and pays its rewards. See <see cref="TimbnQuestBuilder"/> for what a quest can hold. Call it in OnAwake.
+    /// Adds a quest. Core registers it in the quest tree and adds its text. It shows a speech bubble on the NPC when
+    /// there is something to say, runs the offer and talk conversations and pays the rewards. See
+    /// <see cref="TimbnQuestBuilder"/> for what a quest can hold. Call it in OnAwake.
     /// </summary>
     /// <example>
     /// <code><![CDATA[
@@ -34,9 +35,9 @@ public sealed class TimbnPluginQuests
     /// <param name="name">The quest's name in the quest tree.</param>
     /// <param name="quest">Describes the quest.</param>
     /// <returns>
-    /// The quest, for starting it, marking it ready, or chaining another quest after it. It lives until the plugin
-    /// unloads, since a quest in a loaded save should not vanish mid save. When another mod already adds a quest
-    /// with the same id, this one is skipped and named in the main menu's load error popup.
+    /// The quest, for starting it, marking it ready or chaining another quest after it. It stays added until the mod
+    /// unloads. When another mod already adds a quest with the same id, this one is skipped and named in the main
+    /// menu's load error popup.
     /// </returns>
     public TimbnQuest Add(string id, string npcId, string name, Action<TimbnQuestBuilder> quest)
     {
@@ -90,9 +91,9 @@ public sealed class TimbnPluginQuests
     public TimbnQuest Add(string id, string name, Action<TimbnQuestBuilder> quest) => Build(new TimbnQuestBuilder(id, "", name), quest);
 
     /// <summary>
-    /// Adds a quest with its giver read from its run, like the Add that takes a name, with the name only in the plugin's
-    /// lang files under the quest id. Pair it with <see cref="TimbnQuestBuilder.Description()"/>,
-    /// <see cref="TimbnTalk{TSelf}.Line"/>, and the Accept and Decline that take no text, so all of the quest's text
+    /// Adds a quest whose giver is read from its run, like the Add that takes a name. Its name is kept only in the
+    /// mod's lang files under the quest id. Use it with <see cref="TimbnQuestBuilder.Description()"/>,
+    /// <see cref="TimbnTalk{TSelf}.Line"/> and the Accept and Decline that take no text. Then all of the quest's text
     /// lives in lang/en.txt and its translations.
     /// </summary>
     /// <example>

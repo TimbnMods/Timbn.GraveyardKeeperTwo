@@ -3,12 +3,12 @@ using LazyBearTechnology;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// The game's "press a key to do something" hint, drawn over a spot in the world the way it is drawn over a chest
-/// or a door, for an interaction the game itself does not know about. Get one from the plugin's UI.CreateHint, move
-/// it with Show as often as you like, and it is hidden when the plugin unloads or the player returns to the main
-/// menu. It shows one key, or two on two rows the way a cargo lift shows Open and Put. While it shows, its keys
-/// belong to the hint the way they do for the game's own hints, so the game ignores those presses and does not, for
-/// example, drop what the player is carrying. Dispose a hint the plugin is done with, such as one made per visitor.
+/// Shows the game's "press a key to do something" hint over a spot in the world, for an interaction the game does
+/// not know about. It looks like the hint over a chest or a door. Get one from UI.CreateHint and move it with Show as
+/// often as you like. It is hidden when the mod unloads or the player returns to the main menu. It shows one key or
+/// two on two rows like a cargo lift shows Open and Put. While it shows, its keys belong to the hint just as they do
+/// for the game's hints. So the game ignores those presses and does not drop what the player is carrying, for
+/// example. Dispose a hint when the mod is done with it, for example one per visitor.
 /// </summary>
 /// <example>
 /// <code>
@@ -109,7 +109,7 @@ public sealed class TimbnInteractionHint : IBubbleDrawable, IDisposable
             manager.Hide(this);
     }
 
-    /// <summary>Hides the hint and lets the plugin forget it. It can still be shown again afterwards, but nothing hides it for the plugin any more.</summary>
+    /// <summary>Hides the hint and lets the mod forget it. It can still be shown again afterwards, but nothing hides it for the mod any more.</summary>
     public void Dispose()
     {
         Hide();
