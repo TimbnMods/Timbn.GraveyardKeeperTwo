@@ -22,11 +22,18 @@ internal static class TimbnControlWarmUp
         if (_done)
             return;
 
+        // A save that loaded first is past the main menu, and the catalog's own timer finishes the rest in a save.
+        if (TimbnGame.IsInGame)
+        {
+            _done = true;
+            return;
+        }
+
         TimbnModsCatalog.Warm();
         var ui = TimbnCorePlugin.Instance!.UI;
 
         // A page already open is the player's or a popup's, and a page shown here would close it.
-        if (!TimbnModsCatalog.IsWarm || TimbnGame.IsInGame || !ui.CanShowPage || TimbnPageWindow.AnyOpen)
+        if (!TimbnModsCatalog.IsWarm || !ui.CanShowPage || TimbnPageWindow.AnyOpen)
             return;
 
         _done = true;

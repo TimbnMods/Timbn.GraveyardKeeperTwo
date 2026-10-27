@@ -65,13 +65,16 @@ public sealed class TimbnColorPicker(IReadOnlyList<string> colors, Func<string?>
 public sealed class TimbnSlider(float min, float max, Func<float> get, Action<float> set, bool wholeNumbers = false) : TimbnControl
 {
     /// <summary>
-    /// How many decimal places one step covers, so 1 steps by 0.1. It is worked out from the range when left unset, with
-    /// whole numbers stepping by 1. Set it before the control is put on a page.
+    /// How many decimal places one step covers, so 1 steps by 0.1. When left unset (or 0) it follows the decimals in the
+    /// minimum and maximum, so 3.2 to 5 steps by 0.1. A range with whole ends steps by the largest round number (1, 5, 10,
+    /// 50 and so on, or 0.5, 0.1, 0.05 and 0.01) that still gives 100 steps, so 0 to 1 steps by 0.01, 0 to 100 by 1 and
+    /// 0 to 5000 by 50. Whole numbers always step by 1. Clicking the number types an exact value up to four decimals
+    /// whatever the step, and the handle sits on the nearest step. Set it before the control is put on a page.
     /// </summary>
     public int? Decimals { get; set; }
 
     internal override TimbnWidget BuildWidget(Transform parent) =>
-        new TimbnSliderWidget(TimbnWidgets.InputRow(parent), min, max, wholeNumbers ? 0 : Decimals ?? TimbnSliderSteps.Decimals(false, min, max), get, Guarded(set), Watcher!.Logger);
+        new TimbnSliderWidget(TimbnWidgets.InputRow(parent), min, max, wholeNumbers, Decimals ?? TimbnSliderSteps.Decimals(wholeNumbers, min, max), get, Guarded(set), Watcher!.Logger);
 }
 
 /// <summary>
@@ -105,13 +108,19 @@ public sealed class TimbnTextBox(Func<string> get, Action<string> set, bool? who
 
     /// <summary>
     /// Whether the box has the caret as soon as the page is on screen, so the player types straight away, the way
-    /// <see cref="TimbnPluginUI.ShowPrompt"/> does. A has nothing left to pick then, so the page's Select hint goes. Set it
+    /// <see cref="TimbnPluginUI.ShowPrompt(string, string, Action{string}, string, Action)"/> does. A has nothing left to pick then, so the page's Select hint goes. Set it
     /// on one box of a page, before it is put on the page.
     /// </summary>
     public bool FocusWhenShown { get; set; }
 
+    /// <summary>
+    /// The most characters the box takes, 0 for no limit. Left unset, a box that types in place (see <see cref="SetsWhileTyping"/>)
+    /// takes 200 and any other box takes any length. Set it before the control is put on a page.
+    /// </summary>
+    public int? CharacterLimit { get; set; }
+
     internal override TimbnWidget BuildWidget(Transform parent) =>
-        new TimbnTextBoxWidget(TimbnWidgets.InputRow(parent), get, Guarded(set), wholeNumbers, Placeholder, SetsWhileTyping, FocusWhenShown, InField, ShowsFocusFrame, Watcher!.Logger);
+        new TimbnTextBoxWidget(TimbnWidgets.InputRow(parent), get, Guarded(set), wholeNumbers, Placeholder, SetsWhileTyping, FocusWhenShown, InField, ShowsFocusFrame, CharacterLimit, Watcher!.Logger);
 }
 
 /// <summary>

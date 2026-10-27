@@ -85,7 +85,7 @@ public sealed class TimbnPluginBalance
 
     /// <summary>
     /// Changes one of the game's own definitions, such as a perk, an item, or a craft, and puts it back when the
-    /// plugin unloads or the returned handle is disposed. Apply runs straight away if the balance has loaded, and
+    /// mod unloads or the returned handle is disposed. Apply runs straight away if the balance has loaded, and
     /// again on the fresh copy each time the balance loads after that, so the change is never lost to a reload.
     /// Revert only runs on the copy apply changed, and only while that copy is still the loaded one. Keep what
     /// revert needs, such as the old value, from inside apply. Pair it with Settings.While to follow a toggle.

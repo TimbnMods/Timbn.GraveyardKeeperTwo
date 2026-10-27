@@ -4,6 +4,8 @@ namespace Timbn.GraveyardKeeperTwo.ChestLabels;
 [BepInDependency(TimbnCorePlugin.Guid, "2.2.0")]
 public class Plugin : TimbnFrameworkPlugin<Plugin>
 {
+    private bool _warmed;
+
     internal ChestLabelBoard Board { get; private set; } = null!;
 
     protected override void BindConfig(ConfigFile config) => PluginConfig.Bind(config);
@@ -37,8 +39,11 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
     // the page's code is already compiled. It opens over any page another mod showed first, which it leaves open.
     private void WarmLabelPage()
     {
-        if (UI.CanShowPage)
-            ShowLabelPage(null, string.Empty, null, ChestLabelSize.DefaultSize, overOthers: true).Dispose();
+        if (_warmed || !UI.CanShowPage)
+            return;
+
+        _warmed = true;
+        ShowLabelPage(null, string.Empty, null, ChestLabelSize.DefaultSize, overOthers: true).Dispose();
     }
 
     private IDisposable ShowLabelPage(Wgo? chest, string name, string? color, ChestLabelSize labelSize, bool overOthers = false) =>

@@ -449,7 +449,8 @@ public sealed class TimbnPluginEvents
     /// <see cref="GameEvent(Action, Action{Action}, Action{Action})"/>.
     /// </summary>
     /// <example>
-    /// Log each tab the player opens in the character window.
+    /// Log each tab the player opens in the character window, whose event passes the page, so the handler takes the page.
+    /// An event that passes nothing takes a handler with no parameters.
     /// <code><![CDATA[
     /// Events.GameEvent(typeof(CharacterWindow), nameof(CharacterWindow.OnTabChanged),
     ///     (CharacterWindowData.CharPage page) => Logger.LogInfo($"Opened {page}"));

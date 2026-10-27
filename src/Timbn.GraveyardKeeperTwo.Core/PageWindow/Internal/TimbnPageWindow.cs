@@ -383,7 +383,8 @@ internal sealed class TimbnPageWindow : LazyWindow<LazyWidgetDataBase>
 
     // Closing a window gives player control back, and the game's handler for that throws once the player is destroyed
     // (the main menu, or a quit), whether or not the game still counts as in a save. The window is already hidden by then, so
-    // the throw is logged for debugging only and the rest of the close runs.
+    // the throw is logged for debugging only and the rest of the close runs. TimbnSafe.Run is not used here since it logs
+    // an error, and this one throw is expected on every quit, so it names the one exception type.
     private void CloseWindow()
     {
         try

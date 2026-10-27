@@ -132,7 +132,24 @@ public sealed class TimbnPluginUI
     /// <param name="onCancel">Runs when the player backs out with Cancel, the close button or Esc.</param>
     /// <returns>A handle that closes the window without calling any handler when disposed. It is also closed when the mod unloads and on the way to the main menu. You don't need to keep it.</returns>
     public IDisposable ShowPrompt(string title, string current, Action<string> onSave, string placeholder = "", Action? onCancel = null) =>
-        OwnPopup(closed => TimbnPrompts.Prompt(title, current, placeholder, onSave, onCancel, _owner.PluginLogger, closed));
+        ShowPrompt(title, current, onSave, placeholder, onCancel, null, null, null, null);
+
+    /// <summary>
+    /// Opens the same text popup as <see cref="ShowPrompt(string, string, Action{string}, string, Action)"/> and lets you
+    /// make the box take only numbers, change how many characters it takes, and change the popup's width and whether the
+    /// game pauses behind it. Pass null for any of those to keep the default.
+    /// </summary>
+    /// <param name="title">The window's header, already in the player's language.</param>
+    /// <param name="current">The text the field starts with.</param>
+    /// <param name="onSave">Gets the typed text when the player presses OK or Enter.</param>
+    /// <param name="placeholder">The hint shown in the empty field.</param>
+    /// <param name="onCancel">Runs when the player backs out with Cancel, the close button or Esc.</param>
+    /// <param name="wholeNumbers">True to take only whole numbers, false to take only decimal numbers, or null to take any text.</param>
+    /// <param name="characterLimit">The most characters the field takes, 0 for no limit, or null for the default of 200.</param>
+    /// <param name="width">The window's width, or null for the default of 260 pixels.</param>
+    /// <param name="pauseGame">Whether the game pauses while it is open, or null to pause whenever the player is in a game.</param>
+    public IDisposable ShowPrompt(string title, string current, Action<string> onSave, string placeholder, Action? onCancel, bool? wholeNumbers, int? characterLimit, TimbnLength? width = null, bool? pauseGame = null) =>
+        OwnPopup(closed => TimbnPrompts.Prompt(title, current, placeholder, onSave, onCancel, _owner.PluginLogger, closed, wholeNumbers, characterLimit, width, pauseGame));
 
     /// <summary>
     /// Asks the player a yes or no question in a small popup built from the same pieces as
@@ -151,7 +168,20 @@ public sealed class TimbnPluginUI
     /// <param name="onNo">Runs when the player answers No, uses the close button or presses Esc.</param>
     /// <returns>A handle that closes the window without calling any handler when disposed. It is also closed when the mod unloads and on the way to the main menu. You don't need to keep it.</returns>
     public IDisposable ShowConfirm(string title, string message, Action onYes, Action? onNo = null) =>
-        OwnPopup(closed => TimbnPrompts.Confirm(title, message, onYes, onNo, _owner.PluginLogger, closed));
+        ShowConfirm(title, message, onYes, onNo, null, null);
+
+    /// <summary>
+    /// Opens the same question as <see cref="ShowConfirm(string, string, Action, Action)"/> and lets you change the popup's
+    /// width and whether the game pauses behind it. Pass null for either to keep the default.
+    /// </summary>
+    /// <param name="title">The window's header, already in the player's language.</param>
+    /// <param name="message">The question, already in the player's language.</param>
+    /// <param name="onYes">Runs when the player answers Yes.</param>
+    /// <param name="onNo">Runs when the player answers No, uses the close button or presses Esc.</param>
+    /// <param name="width">The window's width, or null for the default of 260 pixels.</param>
+    /// <param name="pauseGame">Whether the game pauses while it is open, or null to pause whenever the player is in a game.</param>
+    public IDisposable ShowConfirm(string title, string message, Action onYes, Action? onNo, TimbnLength? width, bool? pauseGame = null) =>
+        OwnPopup(closed => TimbnPrompts.Confirm(title, message, onYes, onNo, _owner.PluginLogger, closed, width, pauseGame));
 
     /// <summary>
     /// Tells the player something in a small popup built from the same pieces as <see cref="ShowPage(TimbnPage, bool)"/>, with
@@ -168,7 +198,19 @@ public sealed class TimbnPluginUI
     /// <param name="onOk">Runs when the player presses OK, uses the close button or presses Esc.</param>
     /// <returns>A handle that closes the window without calling any handler when disposed. It is also closed when the mod unloads and on the way to the main menu. You don't need to keep it.</returns>
     public IDisposable ShowMessage(string title, string message, Action? onOk = null) =>
-        OwnPopup(closed => TimbnPrompts.Message(title, message, onOk, _owner.PluginLogger, closed));
+        ShowMessage(title, message, onOk, null, null);
+
+    /// <summary>
+    /// Opens the same message as <see cref="ShowMessage(string, string, Action)"/> and lets you change the popup's width
+    /// and whether the game pauses behind it. Pass null for either to keep the default.
+    /// </summary>
+    /// <param name="title">The window's header, already in the player's language.</param>
+    /// <param name="message">The text, already in the player's language.</param>
+    /// <param name="onOk">Runs when the player presses OK, uses the close button or presses Esc.</param>
+    /// <param name="width">The window's width, or null for the default of 260 pixels.</param>
+    /// <param name="pauseGame">Whether the game pauses while it is open, or null to pause whenever the player is in a game.</param>
+    public IDisposable ShowMessage(string title, string message, Action? onOk, TimbnLength? width, bool? pauseGame = null) =>
+        OwnPopup(closed => TimbnPrompts.Message(title, message, onOk, _owner.PluginLogger, closed, width, pauseGame));
 
     /// <summary>
     /// Opens the game's own right click menu, a list of lines the player picks one from. The menu closes when a line is
