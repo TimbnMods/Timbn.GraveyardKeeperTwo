@@ -62,6 +62,7 @@ internal static class TimbnScriptReloads
     {
         yield return null;
         yield return new WaitForEndOfFrame();
+        TimbnModsCatalog.Invalidate();
         TimbnSafe.Run(TimbnBalance.ReleaseHeldRemovals, $"{nameof(TimbnScriptReloads)}|Removing what the reloaded plugins left out");
         TimbnSafe.Run(TimbnSprites.ReleaseHeldRemovals, $"{nameof(TimbnScriptReloads)}|Removing the sprites the reloaded plugins left out");
     }

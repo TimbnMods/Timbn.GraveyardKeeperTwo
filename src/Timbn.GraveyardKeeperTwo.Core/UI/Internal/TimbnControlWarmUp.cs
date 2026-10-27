@@ -24,12 +24,17 @@ internal static class TimbnControlWarmUp
 
         TimbnModsCatalog.Warm();
         var ui = TimbnCorePlugin.Instance!.UI;
-        if (!TimbnModsCatalog.IsWarm || TimbnGame.IsInGame || !ui.CanShowPage)
+
+        // A page already open is the player's or a popup's, and a page shown here would close it.
+        if (!TimbnModsCatalog.IsWarm || TimbnGame.IsInGame || !ui.CanShowPage || TimbnPageWindow.AnyOpen)
             return;
 
         _done = true;
-        TimbnModsScreen.WarmUp();
-        ControlsPage(ui);
+        TimbnSafe.Run(() =>
+        {
+            TimbnModsScreen.WarmUp();
+            ControlsPage(ui);
+        }, $"{nameof(TimbnControlWarmUp)}|Getting the pages ready");
     }
 
     private static void ControlsPage(TimbnPluginUI ui)

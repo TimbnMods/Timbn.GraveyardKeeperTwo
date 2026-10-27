@@ -3,8 +3,7 @@ namespace Timbn.GraveyardKeeperTwo.Core.Patches;
 /// <summary>
 /// Starts a plugin's talk when the player interacts with an NPC and that talk is next in line, keeps plugin talks
 /// queued behind the game's own events, tells Core who the player talks to in the game's own talks, and tells a
-/// schedule when the game fires an event on a scheduled person outside the player's interaction. When an object leaves
-/// the world, the navmesh under it is rebuilt without it.
+/// schedule when the game fires an event on a scheduled person outside the player's interaction.
 /// </summary>
 [HarmonyPatch(typeof(WgoData))]
 internal static class WgoDataPatch

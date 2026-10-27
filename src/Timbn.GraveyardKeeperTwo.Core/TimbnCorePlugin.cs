@@ -117,8 +117,9 @@ public sealed class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
                 MainMenu.AddPopup("Some mods did not load", loadErrors);
         }
 
-        TimbnMainMenu.OnUpdate();
+        // Before the menu shows a popup, so the warm up's own page is gone by then and never takes a popup's place.
         TimbnControlWarmUp.Tick();
+        TimbnMainMenu.OnUpdate();
     }
 
     private void OnGUI() => TimbnGui.Draw();

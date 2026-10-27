@@ -34,14 +34,14 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         ShowLabelPage(chest, Board.GetText(chest.Data), Board.GetColor(chest.Data), (ChestLabelSize)Board.GetSize(chest.Data));
 
     // Builds the page once as the save loads and closes it in the same frame, so the first time the player names a chest
-    // the page's code is already compiled.
+    // the page's code is already compiled. It opens over any page another mod showed first, which it leaves open.
     private void WarmLabelPage()
     {
         if (UI.CanShowPage)
-            ShowLabelPage(null, string.Empty, null, ChestLabelSize.DefaultSize).Dispose();
+            ShowLabelPage(null, string.Empty, null, ChestLabelSize.DefaultSize, overOthers: true).Dispose();
     }
 
-    private IDisposable ShowLabelPage(Wgo? chest, string name, string? color, ChestLabelSize labelSize) =>
+    private IDisposable ShowLabelPage(Wgo? chest, string name, string? color, ChestLabelSize labelSize, bool overOthers = false) =>
         UI.ShowPage(
             Text.Get("timbn_chest_labels_title"),
             (page, close) =>
@@ -51,5 +51,6 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
                 page.Add(new TimbnChoice<ChestLabelSize>(() => labelSize, value => labelSize = value));
                 page.ButtonFooter(footer => footer.AddPrimarySpecial(Text.Get(TimbnGameIds.Texts.UiSave), () => { Board.SetLabel(chest!, name, color, (int)labelSize); close(); }));
             },
-            width: TimbnLength.Pixels(180));
+            width: TimbnLength.Pixels(180),
+            overOthers: overOthers);
 }

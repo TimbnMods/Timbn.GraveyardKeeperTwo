@@ -63,6 +63,13 @@ internal sealed class TimbnTextBoxWidget : TimbnWidget
 
     public override void Refresh() => _field.SetTextWithoutNotify(_get());
 
+    // The text of a box that still has the caret, for a key that acts on the page before the edit ends.
+    internal void CommitFocused()
+    {
+        if (_field.isFocused && !_field.wasCanceled)
+            Commit(_field.text);
+    }
+
     private bool Overflows => _field.textComponent.GetPreferredValues(_get()).x > _field.textViewport.rect.width;
 
     private void Commit(string text)

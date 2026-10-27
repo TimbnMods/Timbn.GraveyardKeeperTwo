@@ -10,6 +10,7 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 /// </summary>
 internal sealed class TimbnSliderWidget : TimbnWidget
 {
+    private const int _mostSteps = 1000;
     private const float _padStepsPerRange = 20f;
     private const float _numberGap = 2f;
 
@@ -32,9 +33,9 @@ internal sealed class TimbnSliderWidget : TimbnWidget
         _min = min;
         _max = max;
         _decimals = decimals;
-        _stepSize = TimbnSliderSteps.Step(decimals);
+        _stepSize = TimbnSliderSteps.StepSize(decimals, min, max);
         // A range of one value still needs a step, or the slider's position would divide by zero.
-        var steps = Math.Max(1, Mathf.RoundToInt((max - min) / _stepSize));
+        var steps = Math.Clamp(Mathf.RoundToInt((max - min) / _stepSize), 1, _mostSteps);
 
         var minus = TimbnTheme.Minus(parts.Control);
         _slider = Track(parts.Control, steps);

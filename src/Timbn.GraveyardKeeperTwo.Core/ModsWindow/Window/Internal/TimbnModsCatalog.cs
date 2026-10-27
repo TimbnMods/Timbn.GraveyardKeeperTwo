@@ -169,6 +169,9 @@ internal static class TimbnModsCatalog
 
     internal static IReadOnlyList<TimbnModsMod> FromChainloader() => Sort(Plugins().Select(BuildCached));
 
+    // A reload brings new plugins and config files under the same count, so the next Warm builds them.
+    internal static void Invalidate() => _warmedPlugins = -1;
+
     internal static bool IsWarm => _warmedPlugins == Chainloader.PluginInfos.Count && _warmedLanguage == LLBase.CurrentLang;
 
     // Builds one mod that is not kept yet each call, so the window's first open finds them ready. It goes quiet once every

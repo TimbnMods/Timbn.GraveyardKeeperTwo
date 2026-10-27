@@ -4,21 +4,18 @@ namespace Timbn.GraveyardKeeperTwo.Core.Tests;
 
 public sealed class TimbnSliderStepsTests
 {
-    [Fact]
-    public void WholeNumbersStepByOne() => Assert.Equal(0, TimbnSliderSteps.Decimals(true, 1f, 18f));
+    [Theory]
+    [InlineData(true, 1f, 18f, 7f, 0)]
+    [InlineData(false, 3.2f, 5f, 5f, 1)]
+    [InlineData(false, 0f, 1f, 0.25f, 2)]
+    [InlineData(false, 0f, 1f, 0f, 1)]
+    [InlineData(false, 5f, 5f, 5f, 0)]
+    public void DecimalsFollowTheNumbersTheAuthorWrote(bool wholeNumbers, float min, float max, float defaultValue, int expected) =>
+        Assert.Equal(expected, TimbnSliderSteps.Decimals(wholeNumbers, min, max, defaultValue));
 
     [Fact]
-    public void OneDecimalInTheRangeStepsByTenths() => Assert.Equal(1, TimbnSliderSteps.Decimals(false, 3.2f, 5f));
+    public void ALongRangeSteps2Or5OrTenTimesLarger() => Assert.Equal(500f, TimbnSliderSteps.StepSize(0, 0f, 100000f));
 
     [Fact]
-    public void ADecimalDefaultSetsTheStep() => Assert.Equal(2, TimbnSliderSteps.Decimals(false, 0f, 1f, 0.25f));
-
-    [Fact]
-    public void AWholeFloatRangeWithAWholeDefaultStepsByOne() => Assert.Equal(0, TimbnSliderSteps.Decimals(false, 1f, 50f, 7f));
-
-    [Fact]
-    public void ATightRangeGetsFinerSteps() => Assert.Equal(1, TimbnSliderSteps.Decimals(false, 0f, 1f));
-
-    [Fact]
-    public void StepIsOneInTheLastPlace() => Assert.Equal(0.01f, TimbnSliderSteps.Step(2));
+    public void ANumberTooBigForADecimalDoesNotThrow() => Assert.Equal(0, TimbnSliderSteps.Decimals(false, 0f, float.MaxValue, 7f));
 }
