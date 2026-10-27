@@ -372,11 +372,30 @@ internal sealed class TimbnPageWindow : LazyWindow<LazyWidgetDataBase>
         Clear(_root);
         _pause?.Dispose();
         _pause = null;
-        base.Close();
+        CloseWindow();
         if (page != null)
             TimbnSafe.Run(page.Closed, _logger, $"{nameof(TimbnPageWindow)}|The page's closed handler");
 
         closed?.Invoke();
+    }
+
+    // Closing a window gives player control back, and the game's handler for that throws once the player is destroyed
+    // (the main menu, or a quit). The window is already hidden by then, so there it is dropped and the rest of the close runs.
+    private void CloseWindow()
+    {
+        if (TimbnGame.IsInGame)
+        {
+            base.Close();
+            return;
+        }
+
+        try
+        {
+            base.Close();
+        }
+        catch (ArgumentNullException)
+        {
+        }
     }
 
     // A page can change height while it is open, such as a card that shows and hides, and the window's own layout is

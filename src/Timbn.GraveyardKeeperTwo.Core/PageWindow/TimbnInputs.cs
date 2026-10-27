@@ -64,8 +64,14 @@ public sealed class TimbnColorPicker(IReadOnlyList<string> colors, Func<string?>
 /// <param name="wholeNumbers">Whether the slider steps by whole numbers.</param>
 public sealed class TimbnSlider(float min, float max, Func<float> get, Action<float> set, bool wholeNumbers = false) : TimbnControl
 {
+    /// <summary>
+    /// How many decimal places one step covers, so 1 steps by 0.1. It is worked out from the range when left unset, with
+    /// whole numbers stepping by 1. Set it before the control is put on a page.
+    /// </summary>
+    public int? Decimals { get; set; }
+
     internal override TimbnWidget BuildWidget(Transform parent) =>
-        new TimbnSliderWidget(TimbnWidgets.InputRow(parent), min, max, wholeNumbers, get, Guarded(set), Watcher!.Logger);
+        new TimbnSliderWidget(TimbnWidgets.InputRow(parent), min, max, wholeNumbers ? 0 : Decimals ?? TimbnSliderSteps.Decimals(false, min, max), get, Guarded(set), Watcher!.Logger);
 }
 
 /// <summary>

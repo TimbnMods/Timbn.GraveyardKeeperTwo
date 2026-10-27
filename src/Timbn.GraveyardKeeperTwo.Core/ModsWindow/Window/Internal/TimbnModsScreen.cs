@@ -261,13 +261,16 @@ internal sealed partial class TimbnModsScreen : TimbnPage
         });
     }
 
-    // A name with its version, then who made it when anyone is named, then a count, as three evenly spaced lines.
+    // A name, then who made it with the version after it, then a count, as three evenly spaced lines. The name gets a
+    // line to itself so a long one is not cut short by the version.
     private static void HeaderText(TimbnPageBuilder top, string name, string version, string? author, string count) => top.Column(
         lines =>
         {
-            TitleLine(lines, name, version);
-            if (!string.IsNullOrWhiteSpace(author))
-                lines.Add(new TimbnText(string.Format(TimbnModsText.ByAuthor, author), TimbnTextKind.Detail));
+            TitleLine(lines, name);
+            var byLine = string.IsNullOrWhiteSpace(author) ? string.Empty : string.Format(TimbnModsText.ByAuthor, author);
+            var detail = string.Join("  ", new[] { byLine, version }.Where(part => part.Length > 0));
+            if (detail.Length > 0)
+                lines.Add(new TimbnText(detail, TimbnTextKind.Detail));
 
             lines.Add(new TimbnText(count, TimbnTextKind.Detail));
         },

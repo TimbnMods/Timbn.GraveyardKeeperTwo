@@ -5,12 +5,11 @@ using UnityEngine.UI;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// The game's slider, a minus, the track and a plus, with the value printed after the plus. The range is mapped onto at
-/// most 100 steps, and clicking the number types an exact value, which can sit between the steps.
+/// The game's slider, a minus, the track and a plus, with the value printed after the plus. Each step is one in the last
+/// decimal place, and clicking the number types a value that snaps to it.
 /// </summary>
 internal sealed class TimbnSliderWidget : TimbnWidget
 {
-    private const int _maxSteps = 100;
     private const float _padStepsPerRange = 20f;
     private const float _numberGap = 2f;
 
@@ -21,10 +20,10 @@ internal sealed class TimbnSliderWidget : TimbnWidget
     private readonly float _min;
     private readonly float _max;
     private readonly float _stepSize;
-    private readonly bool _wholeNumbers;
+    private readonly int _decimals;
     private readonly ManualLogSource _logger;
 
-    public TimbnSliderWidget(TimbnWidgets.SettingParts parts, float min, float max, bool wholeNumbers, Func<float> get, Action<float> set, ManualLogSource logger)
+    public TimbnSliderWidget(TimbnWidgets.SettingParts parts, float min, float max, int decimals, Func<float> get, Action<float> set, ManualLogSource logger)
         : base(parts.Row, parts.Name)
     {
         _logger = logger;
@@ -32,10 +31,10 @@ internal sealed class TimbnSliderWidget : TimbnWidget
         _set = set;
         _min = min;
         _max = max;
-        _wholeNumbers = wholeNumbers;
-        var steps = wholeNumbers ? Mathf.Clamp(Mathf.RoundToInt(max - min), 1, _maxSteps) : _maxSteps;
+        _decimals = decimals;
+        _stepSize = TimbnSliderSteps.Step(decimals);
         // A range of one value still needs a step, or the slider's position would divide by zero.
-        _stepSize = max > min ? (max - min) / steps : 1f;
+        var steps = Math.Max(1, Mathf.RoundToInt((max - min) / _stepSize));
 
         var minus = TimbnTheme.Minus(parts.Control);
         _slider = Track(parts.Control, steps);
@@ -65,7 +64,7 @@ internal sealed class TimbnSliderWidget : TimbnWidget
             ("gamepadNavigationItem", stop));
         game.Initialize(above =>
         {
-            var value = Whole(_min + above);
+            var value = Snap(_min + above);
             _amount.text = Format(value);
             _set(value);
         }, 0f, _stepSize);
@@ -107,13 +106,12 @@ internal sealed class TimbnSliderWidget : TimbnWidget
                 return;
 
             value = Mathf.Clamp(value, _min, _max);
-            _set(_wholeNumbers ? Mathf.Round(value) : value);
+            _set(Snap(value));
             Refresh();
         }, null, _logger);
     }
 
-    private float Whole(float value) => _wholeNumbers ? Mathf.Round(value) : value;
+    private float Snap(float value) => (float)Math.Round(value, _decimals);
 
-    private string Format(float value) =>
-        _wholeNumbers ? value.ToString("0", CultureInfo.InvariantCulture) : value.ToString("0.##", CultureInfo.InvariantCulture);
+    private string Format(float value) => value.ToString("F" + _decimals, CultureInfo.InvariantCulture);
 }
