@@ -10,5 +10,5 @@ internal static class DropViewAtomMeshPatch
     [HarmonyPatch(nameof(DropViewAtomMesh.Activate))]
     [HarmonyPrefix]
     private static void ActivatePreFix(DropViewAtomMesh __instance, string iconId) =>
-        TimbnSafe.Run(() => TimbnCarry.GiveLook(__instance, iconId), $"{nameof(DropViewAtomMeshPatch)}|The carried look of {iconId}");
+        TimbnSafe.Run(() => TimbnOverhead.GiveLook(__instance, iconId), $"{nameof(DropViewAtomMeshPatch)}|The carried look of {iconId}");
 }

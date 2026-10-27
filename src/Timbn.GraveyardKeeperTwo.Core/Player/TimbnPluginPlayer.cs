@@ -119,43 +119,48 @@ public sealed class TimbnPluginPlayer
     public IDisposable WalkTo(Vector3 position, Action<bool> ended) => OwnWalk(TimbnPlayerWalk.Start(position, null, _owner.PluginLogger), ended);
 
     /// <summary>
-    /// Puts an item in the player's hands, held over their head the way they carry a log. A small item like a mug
-    /// shows its icon there. If the player has a free carry slot, they keep what they carried and hold the new item on
-    /// top. Otherwise what was on top is dropped. Check TimbnPlayer.HandsFree first when the item should be the only
-    /// thing carried. Pressing the interaction key with nothing in reach puts the item down the way the game drops
-    /// anything carried. The game does the same when the player starts work or a fight. The item is kept out of every
-    /// save. An item that is already carried is not handed over again. The handle then comes back already ended.
-    /// The rule decides how it sits in and leaves their hands, as described on <see cref="TimbnCarryRule"/>.
+    /// Puts an item over the player's head the way a log sits there. A small item like a mug shows its icon there. If
+    /// the player has a free overhead slot, what is overhead stays and the new item goes on top. Otherwise what was on
+    /// top is dropped. Check TimbnPlayer.HasOverheadItem first when the item should be the only one overhead. Pressing
+    /// the interaction key with nothing in reach puts the item down the way the game drops anything overhead. The game
+    /// does the same when the player starts work or a fight. The item is kept out of every save. An item that is
+    /// already overhead is not added again. The handle then comes back already ended. The rule decides how it sits
+    /// overhead and leaves, as described on <see cref="TimbnOverheadRule"/>.
     /// </summary>
     /// <example>
     /// <code>
-    /// _mug = Player.Carry(new Item("my_mod_mug"), () => TimbnItems.RemoveDrops(TimbnItems.FindDrops(drop => drop.Id == "my_mod_mug")));
-    /// // once it is handed over
+    /// _mug = Player.AddOverheadItem(new Item("my_mod_mug"), () => TimbnItems.RemoveDrops(TimbnItems.FindDrops(drop => drop.Id == "my_mod_mug")));
+    /// // once it is taken off
     /// _mug.Dispose();
     /// </code>
     /// </example>
-    /// <param name="item">The item to carry, such as one the mod added with Balance.Add.</param>
+    /// <param name="item">The item to put overhead, such as one the mod added with Balance.Add.</param>
     /// <param name="putDown">
     /// Runs once the player has put it down or the game took it, a frame later, so a dropped item is already on the
     /// ground. It does not run when the handle is disposed.
     /// </param>
-    /// <param name="rule">How the item sits in and leaves the player's hands. By default as the game carries a log.</param>
-    /// <returns>A handle that takes the item out of the player's hands when disposed, if they still carry it. It is also taken when the mod unloads and on the way to the main menu.</returns>
-    public IDisposable Carry(Item item, Action? putDown = null, TimbnCarryRule rule = TimbnCarryRule.Vanilla)
+    /// <param name="rule">How the item sits overhead and leaves. By default as the game treats a log.</param>
+    /// <returns>A handle that takes the item off when disposed, if it is still overhead. It is also taken off when the mod unloads and on the way to the main menu.</returns>
+    public IDisposable AddOverheadItem(Item item, Action? putDown = null, TimbnOverheadRule rule = TimbnOverheadRule.Vanilla)
     {
-        var carried = TimbnCarry.Carry(item, putDown, rule, _owner.PluginLogger);
-        if (carried.IsDone)
-            return carried;
+        var handle = TimbnOverhead.Add(item, putDown, rule, _owner.PluginLogger);
+        if (handle.IsDone)
+            return handle;
 
-        var check = _owner.Events.Update(carried.Check);
+        var check = _owner.Events.Update(handle.Check);
         var owned = _owner.SessionSubscriptions.Add(() =>
         {
             check.Dispose();
-            carried.Dispose();
+            handle.Dispose();
         });
-        carried.Ended = owned.Dispose;
+        handle.Ended = owned.Dispose;
         return owned;
     }
+
+    /// <summary>Use <see cref="AddOverheadItem"/>.</summary>
+    [Obsolete("Use AddOverheadItem.")]
+    public IDisposable Carry(Item item, Action? putDown = null, TimbnOverheadRule rule = TimbnOverheadRule.Vanilla) =>
+        AddOverheadItem(item, putDown, rule);
 
     /// <summary>
     /// Moves the player to a spot along the NPC navmesh with the game's own walker, the way a story scene walks them,

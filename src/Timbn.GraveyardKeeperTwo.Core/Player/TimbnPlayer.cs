@@ -76,30 +76,39 @@ public static class TimbnPlayer
     }
 
     /// <summary>
-    /// The item the player carries over their head, such as a log, or null when they carry nothing or at the main
-    /// menu. A player with extra carry slots can carry several, and this is the one on top, the one the
-    /// interaction key puts down first. See the mod's Player.Carry to hand them one.
+    /// The item over the player's head, such as a log, or null when nothing is there or at the main menu. A player
+    /// with extra overhead slots can have several, and this is the one on top, the one the interaction key puts down
+    /// first. See the mod's Player.AddOverheadItem to add one.
     /// </summary>
     /// <example>
     /// <code>
-    /// if (TimbnPlayer.Carried?.id == "wood")
-    ///     Logger.LogInfo("The player carries a log.");
+    /// if (TimbnPlayer.OverheadItem?.id == "wood")
+    ///     Logger.LogInfo("A log is over the player's head.");
     /// </code>
     /// </example>
-    public static Item? Carried => TimbnCarry.Current;
+    public static Item? OverheadItem => TimbnOverhead.Current;
 
     /// <summary>
-    /// Whether the player's hands are free, with nothing over their head in any carry slot and nothing held out in
-    /// front of them the way they hold seeds. False at the main menu.
+    /// Whether the player has something over their head in any overhead slot, or a seed or fertilizer picked to plant.
+    /// The game treats the two as one slot, since picking something to plant puts down whatever was overhead. False
+    /// at the main menu.
     /// </summary>
     /// <example>
     /// <code>
-    /// if (TimbnPlayer.HandsFree)
-    ///     _mug = Player.Carry(new Item("my_mod_mug"));
+    /// if (!TimbnPlayer.HasOverheadItem)
+    ///     _mug = Player.AddOverheadItem(new Item("my_mod_mug"));
     /// </code>
     /// </example>
-    public static bool HandsFree =>
-        TimbnGame.IsInGame && MainGame.PlayerData.OverheadCount == 0 && !MainGame.PlayerData.HasInteractingItem;
+    public static bool HasOverheadItem =>
+        TimbnGame.IsInGame && (MainGame.PlayerData.HasOverheadItem || MainGame.PlayerData.HasInteractingItem);
+
+    /// <summary>Use <see cref="OverheadItem"/>.</summary>
+    [Obsolete("Use OverheadItem.")]
+    public static Item? Carried => OverheadItem;
+
+    /// <summary>Use !<see cref="HasOverheadItem"/>.</summary>
+    [Obsolete("Use !HasOverheadItem.")]
+    public static bool HandsFree => TimbnGame.IsInGame && !HasOverheadItem;
 
     private static void ChangeMoney(int amount)
     {

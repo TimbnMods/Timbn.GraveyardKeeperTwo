@@ -2,9 +2,9 @@ using LazyBearTechnology;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
-internal static class TimbnCarry
+internal static class TimbnOverhead
 {
-    private const string _iconName = "TimbnCarriedIcon";
+    private const string _iconName = "TimbnOverheadIcon";
     private const float _iconHeight = 0.3f;
 
     private static readonly AccessTools.FieldRef<PlayerData, List<Item>>? _overheadItems =
@@ -19,56 +19,56 @@ internal static class TimbnCarry
     private static readonly AccessTools.FieldRef<DropViewAtomSprite, SpriteRenderer>? _itemSprite =
         TimbnReflection.TryField<DropViewAtomSprite, SpriteRenderer>("itemSprite");
 
-    private static readonly List<Carried> _carried = [];
+    private static readonly List<OverheadHandle> _handles = [];
 
     internal static Item? Current => TimbnGame.IsInGame ? MainGame.PlayerData.overheadItem : null;
 
     internal static bool IsReadingInput { get; set; }
 
     internal static bool BlocksDrop(Item item) =>
-        _carried.Exists(carried => carried.Item == item && carried.Rule == TimbnCarryRule.OnlyByCode);
+        _handles.Exists(handle => handle.Item == item && handle.Rule == TimbnOverheadRule.OnlyByCode);
 
     /// <summary>Whether the player holds something exclusive, so nothing else may be picked up or handed to them.</summary>
     internal static bool HandsLocked =>
-        TimbnGame.IsInGame && _carried.Exists(carried => carried.Rule != TimbnCarryRule.Vanilla && IsCarried(carried.Item));
+        TimbnGame.IsInGame && _handles.Exists(handle => handle.Rule != TimbnOverheadRule.Vanilla && IsHeld(handle.Item));
 
-    internal static Carried Carry(Item item, Action? putDown, TimbnCarryRule rule, ManualLogSource logger)
+    internal static OverheadHandle Add(Item item, Action? putDown, TimbnOverheadRule rule, ManualLogSource logger)
     {
-        var carried = new Carried(item, putDown, rule, logger);
+        var handle = new OverheadHandle(item, putDown, rule, logger);
         if (!TimbnGame.IsInGame || item == null || item.IsEmpty)
         {
-            carried.End();
-            return carried;
+            handle.End();
+            return handle;
         }
 
-        if (IsCarried(item) || _carried.Exists(other => other.Item == item))
+        if (IsHeld(item) || _handles.Exists(other => other.Item == item))
         {
-            logger.LogWarning($"{nameof(TimbnPluginPlayer)}.{nameof(TimbnPluginPlayer.Carry)}|The player already carries this {item.id}, so it is not handed to them again.");
-            carried.End();
-            return carried;
+            logger.LogWarning($"{nameof(TimbnPluginPlayer)}.{nameof(TimbnPluginPlayer.AddOverheadItem)}|The player already has {item.id} overhead, so it is not added again.");
+            handle.End();
+            return handle;
         }
 
         if (HandsLocked)
         {
-            logger.LogWarning($"{nameof(TimbnPluginPlayer)}.{nameof(TimbnPluginPlayer.Carry)}|The player holds something exclusive, so {item.id} is not handed to them.");
-            carried.End();
-            return carried;
+            logger.LogWarning($"{nameof(TimbnPluginPlayer)}.{nameof(TimbnPluginPlayer.AddOverheadItem)}|The player has something exclusive overhead, so {item.id} is not added.");
+            handle.End();
+            return handle;
         }
 
-        if (rule != TimbnCarryRule.Vanilla)
+        if (rule != TimbnOverheadRule.Vanilla)
         {
             foreach (var held in MainGame.PlayerData.OverheadItems.ToList())
                 MainGame.PlayerData.DropOverheadItem(held);
         }
 
-        _carried.Add(carried);
+        _handles.Add(handle);
         MainGame.PlayerData.AddOverheadItem(item);
-        return carried;
+        return handle;
     }
 
     internal static IDisposable RemoveForSave()
     {
-        if (!TimbnGame.IsInGame || _overheadItems is null || _carried.Count == 0)
+        if (!TimbnGame.IsInGame || _overheadItems is null || _handles.Count == 0)
             return TimbnUndo.None;
 
         var items = _overheadItems(MainGame.PlayerData);
@@ -78,7 +78,7 @@ internal static class TimbnCarry
         List<(int Index, Item Item)> removed = [];
         for (var i = items.Count - 1; i >= 0; i--)
         {
-            if (!_carried.Exists(carried => carried.Item == items[i]))
+            if (!_handles.Exists(handle => handle.Item == items[i]))
                 continue;
 
             removed.Add((i, items[i]));
@@ -92,7 +92,7 @@ internal static class TimbnCarry
         });
     }
 
-    private static bool IsCarried(Item item) =>
+    private static bool IsHeld(Item item) =>
         TimbnGame.IsInGame && MainGame.PlayerData.OverheadItems.Contains(item);
 
     internal static void GiveLook(DropViewAtomMesh view, string iconId)
@@ -146,13 +146,13 @@ internal static class TimbnCarry
         return null;
     }
 
-    internal sealed class Carried : IDisposable
+    internal sealed class OverheadHandle : IDisposable
     {
         private readonly Action? _putDown;
         private readonly ManualLogSource _logger;
         private bool _ended;
 
-        internal Carried(Item item, Action? putDown, TimbnCarryRule rule, ManualLogSource logger)
+        internal OverheadHandle(Item item, Action? putDown, TimbnOverheadRule rule, ManualLogSource logger)
         {
             Item = item;
             _putDown = putDown;
@@ -162,7 +162,7 @@ internal static class TimbnCarry
 
         internal Item Item { get; }
 
-        internal TimbnCarryRule Rule { get; }
+        internal TimbnOverheadRule Rule { get; }
 
         internal bool IsDone => _ended;
 
@@ -170,12 +170,12 @@ internal static class TimbnCarry
 
         internal void Check()
         {
-            if (_ended || IsCarried(Item))
+            if (_ended || IsHeld(Item))
                 return;
 
             End();
             if (_putDown != null)
-                TimbnSafe.Run(_putDown, _logger, $"{nameof(TimbnPluginPlayer)}.{nameof(TimbnPluginPlayer.Carry)}|{TimbnSafe.Describe(_putDown)}");
+                TimbnSafe.Run(_putDown, _logger, $"{nameof(TimbnPluginPlayer)}.{nameof(TimbnPluginPlayer.AddOverheadItem)}|{TimbnSafe.Describe(_putDown)}");
         }
 
         public void Dispose()
@@ -184,7 +184,7 @@ internal static class TimbnCarry
                 return;
 
             End();
-            if (IsCarried(Item))
+            if (IsHeld(Item))
                 MainGame.PlayerData.RemoveOverheadItem(Item);
         }
 
@@ -194,7 +194,7 @@ internal static class TimbnCarry
                 return;
 
             _ended = true;
-            _carried.Remove(this);
+            _handles.Remove(this);
             Ended?.Invoke();
         }
     }
