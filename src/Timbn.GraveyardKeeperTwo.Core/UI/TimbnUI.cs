@@ -56,7 +56,7 @@ public static class TimbnUI
     /// </code>
     /// </example>
     /// <param name="key">The text's localization key.</param>
-    /// <param name="iconId">An icon shown beside the text, such as an item's i_cup_beer or one added with Sprites.AddPng.</param>
+    /// <param name="iconId">An icon shown beside the text, such as an item's i_cup_beer or one added with Sprites.Add and the Item kind.</param>
     public static void Notify(string key, string iconId)
     {
         if (!TimbnGame.IsInGame)

@@ -1,7 +1,7 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// A 3D model built from a mod's PNGs, drawn with the game's own prop shader so it takes the game's lighting, fog
+/// A 3D model built from a mod's images, drawn with the game's own prop shader so it takes the game's lighting, fog
 /// and dithering. Get one from <see cref="TimbnPluginModels.Build"/>.
 /// </summary>
 public sealed class TimbnModel

@@ -138,7 +138,7 @@ public abstract class TimbnFrameworkPlugin : BaseUnityPlugin
     public TimbnPluginAudio Audio { get; }
 
     /// <summary>
-    /// Builds 3D models from the mod's PNGs and uses them in the world. They are freed when the mod
+    /// Builds 3D models from the mod's images and uses them in the world. They are freed when the mod
     /// unloads.
     /// </summary>
     public TimbnPluginModels Models { get; }

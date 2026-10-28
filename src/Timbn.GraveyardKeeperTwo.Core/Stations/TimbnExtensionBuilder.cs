@@ -90,7 +90,7 @@ public sealed class TimbnExtensionBuilder
         return this;
     }
 
-    /// <summary>The icon shown in the build desk and on the station's craft window row. Use any sprite the game has or one added with Sprites.AddEmbeddedPng. Without one the template's icons stay.</summary>
+    /// <summary>The icon shown in the build desk and on the station's craft window row. Use any sprite the game has or one added with Sprites.AddEmbedded and the Blueprint kind. Without one the template's icons stay.</summary>
     /// <param name="spriteId">The sprite name, for example "timbn_red_magic".</param>
     public TimbnExtensionBuilder Icon(string spriteId)
     {

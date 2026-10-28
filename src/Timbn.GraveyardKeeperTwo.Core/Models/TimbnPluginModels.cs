@@ -1,7 +1,7 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Adds 3D models for a mod. It builds models from the mod's PNGs and draws them with the game's own prop shader.
+/// Adds 3D models for a mod. It builds models from the mod's images and draws them with the game's own prop shader.
 /// Hand a model to Stations to make a buildable station or bench extension or to AddPart for a part hung on a grave.
 /// Everything is freed when the mod unloads. Reach it through the Models property.
 /// </summary>
@@ -15,8 +15,8 @@ public sealed class TimbnPluginModels
     }
 
     /// <summary>
-    /// Makes a model from PNGs with no 3D modeling and no Unity, drawn with the game's own prop shader so it takes
-    /// the game's lighting. Each PNG is a face exactly as the player sees it (a front standing up, a top lying flat,
+    /// Makes a model from images with no 3D modeling and no Unity, drawn with the game's own prop shader so it takes
+    /// the game's lighting. Each image is a face exactly as the player sees it (a front standing up, a top lying flat,
     /// or a block that is both), its own size is the face's size, and you only say where it stands (see
     /// <see cref="TimbnModelFaces"/>). Hand the result to Stations or AddPart. It is freed when the mod unloads.
     /// </summary>
@@ -24,7 +24,7 @@ public sealed class TimbnPluginModels
     /// <param name="build">Adds the model's faces.</param>
     /// <returns>The model, ready for a station's Model.</returns>
     /// <exception cref="InvalidOperationException">
-    /// The model has no faces, a PNG is missing or unreadable, a block's depth leaves no front, or two faces on the
+    /// The model has no faces, an image is missing or unreadable, a block's depth leaves no front, or two faces on the
     /// same plane overlap.
     /// </exception>
     /// <exception cref="ArgumentOutOfRangeException">A face's position is below zero or a block's depth is below 1.</exception>

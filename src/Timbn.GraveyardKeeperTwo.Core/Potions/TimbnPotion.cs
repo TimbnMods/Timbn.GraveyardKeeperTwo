@@ -18,7 +18,7 @@ public sealed class TimbnPotion
     /// <summary>Id of the existing usable item the new one is copied from.</summary>
     public string TemplateItemId { get; set; } = TimbnGameIds.Items.ThirdEyeSalt;
 
-    /// <summary>The item's icon sprite name. Use any sprite the game has or one added with Sprites.AddEmbeddedPng. Empty keeps the template's.</summary>
+    /// <summary>The item's icon sprite name. Use any sprite the game has or one added with Sprites.AddEmbedded and the Item kind. Empty keeps the template's.</summary>
     public string IconId { get; set; } = "";
 
     /// <summary>The item's base price in the game's raw units, where 100 is one silver coin. 100 by default.</summary>
@@ -61,7 +61,7 @@ public sealed class TimbnPotionBuff
     /// </summary>
     public Func<string> GlowColor { get; set; } = () => "ltyellow";
 
-    /// <summary>The buff's icon sprite name. Use any sprite the game has or one added with Sprites.AddEmbeddedPng.</summary>
+    /// <summary>The buff's icon sprite name. Use any sprite the game has or one added with Sprites.AddEmbedded and the Buff kind.</summary>
     public string IconId { get; set; } = "b_speed";
 
     /// <summary>

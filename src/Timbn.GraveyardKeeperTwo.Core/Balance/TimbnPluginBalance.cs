@@ -74,7 +74,7 @@ public sealed class TimbnPluginBalance
     /// <param name="id">The new item's id. It must not belong to an item the game ships.</param>
     /// <param name="name">The item's name. Empty leaves the text to the mod's lang files.</param>
     /// <param name="description">The item's tooltip description. Empty leaves it to the lang files.</param>
-    /// <param name="iconId">The item's icon, any sprite the game has or one added with Sprites.AddEmbeddedPng. Empty keeps the template's.</param>
+    /// <param name="iconId">The item's icon, any sprite the game has or one added with Sprites.AddEmbedded and the Item kind. Empty keeps the template's.</param>
     /// <param name="edit">
     /// Changes anything else on the copy, such as its price or onUseExpressions, each time the balance loads. Can be
     /// null. It runs after the icon is set, and the game reads the item's use effects again afterward.

@@ -196,7 +196,7 @@ public sealed class TimbnCraftBuilder
         return this;
     }
 
-    /// <summary>The icon the craft window shows for the craft, instead of the icon of what it makes. Use any sprite the game has or one added with Sprites.AddEmbeddedPng.</summary>
+    /// <summary>The icon the craft window shows for the craft, instead of the icon of what it makes. Use any sprite the game has or one added with Sprites.AddEmbedded and the Item kind.</summary>
     /// <param name="spriteId">The sprite name.</param>
     public TimbnCraftBuilder Icon(string spriteId)
     {

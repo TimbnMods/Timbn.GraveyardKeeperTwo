@@ -501,7 +501,7 @@ public sealed class TimbnStationBuilder
 
     /// <summary>
     /// The icon shown over the station and in the build desk. Use any sprite the game has or one added with
-    /// Sprites.AddEmbeddedPng. Without one the template's icons stay.
+    /// Sprites.AddEmbedded and the Blueprint kind. Without one the template's icons stay.
     /// </summary>
     /// <param name="spriteId">The sprite name, for example "timbn_red_workbench".</param>
     public TimbnStationBuilder Icon(string spriteId)

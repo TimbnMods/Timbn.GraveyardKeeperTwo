@@ -16,7 +16,7 @@ internal static class InfusionMachine
             .Block("infusion_machine_table", 0, 0, 1, 24)
             .Top("infusion_machine_basin", 5, 17, 5));
 
-        plugin.Sprites.AddEmbeddedPng(_buildIcon);
+        plugin.Sprites.AddEmbedded(_buildIcon + ".png",TimbnSpriteKind.Blueprint);
         var machine = plugin.Stations.Add(StationId, station => station
             // Two cells across by two deep, with a stand's slot on each side. A stand is a cell deeper, flush with the machine's front.
             .Model(model, new Vector3(0.64f, 0.5f, 0.6f))

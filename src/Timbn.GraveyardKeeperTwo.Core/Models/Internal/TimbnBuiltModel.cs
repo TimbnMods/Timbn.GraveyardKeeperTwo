@@ -89,11 +89,11 @@ internal static class TimbnBuiltModel
     {
         // Point filtering and clamping keep the pixel art crisp, like the game's own sprites.
         var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false) { filterMode = FilterMode.Point, wrapMode = TextureWrapMode.Clamp, name = textureName };
-        if (texture.LoadImage(picture.Png))
+        if (texture.LoadImage(picture.Image))
             return texture;
 
         UnityEngine.Object.DestroyImmediate(texture);
-        throw new InvalidOperationException($"{picture.Request.Name} is not a PNG the game can read.");
+        throw new InvalidOperationException($"{picture.Request.Name} is not an image the game can read.");
     }
 
     private static void WarnAboutHalfTransparency(string modelName, string faceName, Texture2D texture)

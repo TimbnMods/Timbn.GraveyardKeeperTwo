@@ -29,7 +29,7 @@ internal static class InfusionStand
             .Top("infusion_stand_working_lidlines", 2, 20, 4)
             .Front("infusion_stand_working_lidedge", 2, 17, 3));
 
-        plugin.Sprites.AddEmbeddedPng(_buildIcon);
+        plugin.Sprites.AddEmbedded(_buildIcon + ".png",TimbnSpriteKind.Blueprint);
         var stand = plugin.Stations.Add(StationId, station => station
             .Model(open, Size)
             .Icon(_buildIcon)

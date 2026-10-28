@@ -2,14 +2,14 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 internal readonly struct TimbnPlacedPicture
 {
-    internal TimbnPlacedPicture(byte[] png, object key, TimbnFaceRequest request)
+    internal TimbnPlacedPicture(byte[] image, object key, TimbnFaceRequest request)
     {
-        Png = png;
+        Image = image;
         Key = key;
         Request = request;
     }
 
-    internal byte[] Png { get; }
+    internal byte[] Image { get; }
 
     // Faces with an equal key share one texture and one mesh.
     internal object Key { get; }

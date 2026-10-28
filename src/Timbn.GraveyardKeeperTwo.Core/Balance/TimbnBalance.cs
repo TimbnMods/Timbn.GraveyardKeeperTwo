@@ -280,7 +280,7 @@ public static class TimbnBalance
     }
 
     /// <summary>
-    /// Changes an item's icon to any sprite the game has or one added with Sprites.AddEmbeddedPng. It sets the
+    /// Changes an item's icon to any sprite the game has or one added with Sprites.AddEmbedded and the Item kind. It sets the
     /// item's iconId and also its custom icon, so the two always match.
     /// </summary>
     /// <example>

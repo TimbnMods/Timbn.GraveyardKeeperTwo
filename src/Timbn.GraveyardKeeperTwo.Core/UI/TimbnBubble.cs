@@ -107,7 +107,7 @@ public sealed class TimbnBubble : IBubbleDrawable, IDisposable
     /// same values costs nothing.
     /// </summary>
     /// <param name="position">The spot in the world to draw it over.</param>
-    /// <param name="iconId">The icon, such as an item's i_cup_beer or one added with Sprites.AddPng.</param>
+    /// <param name="iconId">The icon, such as an item's i_cup_beer or one added with Sprites.Add and the Item kind.</param>
     /// <param name="crossedOut">Draws a red line through the icon, such as for a wish that went unmet.</param>
     public void Show(Vector3 position, string iconId, bool crossedOut = false)
     {
