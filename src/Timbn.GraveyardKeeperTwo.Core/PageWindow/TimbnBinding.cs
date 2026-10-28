@@ -17,7 +17,6 @@ public readonly struct TimbnBinding<T>
     private readonly Func<T>? _read;
 
     /// <summary>A plain value.</summary>
-    /// <param name="value">The value.</param>
     public TimbnBinding(T value)
     {
         _value = value;
@@ -36,7 +35,6 @@ public readonly struct TimbnBinding<T>
     public T Current => _read != null ? _read() : _value!;
 
     /// <summary>A plain value as a binding.</summary>
-    /// <param name="value">The value.</param>
     public static implicit operator TimbnBinding<T>(T value) => new(value);
 
     /// <summary>A callback as a binding.</summary>
@@ -44,6 +42,5 @@ public readonly struct TimbnBinding<T>
     public static implicit operator TimbnBinding<T>(Func<T> read) => new(read);
 
     /// <summary>A binding as its value now.</summary>
-    /// <param name="binding">The binding.</param>
     public static implicit operator T(TimbnBinding<T> binding) => binding.Current;
 }

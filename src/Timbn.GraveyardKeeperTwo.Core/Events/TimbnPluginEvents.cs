@@ -3,14 +3,13 @@ using LazyBearTechnology;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Subscribes a plugin to the game's events without any cleanup code. Every subscription is owned by the
-/// plugin and removed when it unloads, so an F6 hot reload never leaves an old handler firing. The named events
-/// are the ones Core adds something to and the ones mods commonly need, such as a new day or the player using an
-/// item, and those that belong to a save follow every save the player loads. Any other game event is one line of
-/// <see cref="GameEvent(Action, Action{Action}, Action{Action})"/>,
-/// or of <see cref="SaveEvent(Action, Action{Action}, Action{Action})"/> for an event on an object that belongs to
-/// the loaded save. Each handler is wrapped so a throw is logged instead of reaching the game. Reach it through the
-/// plugin's Events property.
+/// Subscribes a mod to the game's events without any cleanup code. Every subscription is owned by the mod and
+/// removed when it unloads, so an F6 hot reload never leaves an old handler firing. The named events are the ones
+/// Core adds something to and the ones mods commonly need, like a new day or the player using an item. Those that
+/// belong to a save follow every save the player loads. Any other game event takes one line with
+/// <see cref="GameEvent(Action, Action{Action}, Action{Action})"/>. Use SaveEvent for an event on an object that
+/// belongs to the loaded save. Each handler is wrapped so a throw is logged instead of reaching the game. Reach it
+/// through the mod's Events property.
 /// </summary>
 public sealed class TimbnPluginEvents
 {
@@ -32,7 +31,7 @@ public sealed class TimbnPluginEvents
 
     /// <summary>
     /// Runs for every save the player plays, once the scene is loaded and MainGame.Instance, PlayerData and
-    /// WorldData are live. It runs straight away when a save is already loaded, which covers a plugin started by a
+    /// WorldData are live. It runs straight away when a save is already loaded, which covers a mod started by a
     /// hot reload mid game, and then each time a save finishes loading.
     /// </summary>
     /// <example>
@@ -40,7 +39,6 @@ public sealed class TimbnPluginEvents
     /// Events.SaveReady(() => ZombieTint.PaintAll(reset: false));
     /// </code>
     /// </example>
-    /// <param name="handler">Your handler.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable SaveReady(Action handler)
     {
@@ -52,16 +50,15 @@ public sealed class TimbnPluginEvents
     }
 
     /// <summary>
-    /// Runs when the player stops playing a save, whether they return to the main menu or the plugin unloads mid
-    /// game, such as on a hot reload. It is the one place to put back what the plugin changed in the world for
-    /// that save. On unload it runs after OnUnload and before Core removes the plugin's other registrations.
+    /// Runs when the player stops playing a save, whether they return to the main menu or the mod unloads mid game,
+    /// such as on a hot reload. It is the one place to put back what the mod changed in the world for that save. On
+    /// unload it runs after OnUnload and before Core removes the mod's other registrations.
     /// </summary>
     /// <example>
     /// <code>
     /// Events.SaveClosed(meditation.Stop);
     /// </code>
     /// </example>
-    /// <param name="handler">Your handler.</param>
     /// <returns>A handle that unsubscribes early when disposed, without running the handler. You don't need to keep it.</returns>
     public IDisposable SaveClosed(Action handler)
     {
@@ -78,7 +75,7 @@ public sealed class TimbnPluginEvents
     /// Runs just before the game writes the save you are playing, ahead of Core taking out the mod content it keeps
     /// out of the file. Use it to put back what a mod changed in the world that the save would otherwise keep, such as
     /// a visitor standing in the graveyard, and bring it back in <see cref="AfterSave"/>. Core strips its own content
-    /// after every plugin's handler has run, so nothing a handler leaves behind reaches the file. It runs for every
+    /// after every mod's handler has run, so nothing a handler leaves behind reaches the file. It runs for every
     /// write of the live save.
     /// </summary>
     /// <example>
@@ -86,7 +83,6 @@ public sealed class TimbnPluginEvents
     /// Events.BeforeSave(visits.SendAway);
     /// </code>
     /// </example>
-    /// <param name="handler">Your handler.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable BeforeSave(Action handler) =>
         Own(TimbnGameEvents.On(handler, h => TimbnSaveEvents.Before += h, h => TimbnSaveEvents.Before -= h));
@@ -101,7 +97,6 @@ public sealed class TimbnPluginEvents
     /// Events.AfterSave(visits.Return);
     /// </code>
     /// </example>
-    /// <param name="handler">Your handler.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable AfterSave(Action handler) =>
         Own(TimbnGameEvents.On(handler, h => TimbnSaveEvents.After += h, h => TimbnSaveEvents.After -= h));
@@ -123,10 +118,9 @@ public sealed class TimbnPluginEvents
 
     /// <summary>
     /// Runs when the player falls asleep, right after the game has gathered the loose resources around them and
-    /// as the sleep fade begins. It does not run when the bed turns the player away for being rested, see
-    /// <see cref="SleepRefused"/>.
+    /// as the sleep fade begins. It does not run when the bed turns the player away for being rested
+    /// (<see cref="SleepRefused"/> covers that).
     /// </summary>
-    /// <param name="handler">Your handler.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable SleepStarted(Action handler) =>
         Static(handler, h => TimbnPatchedEvents.SleepStarted += h, h => TimbnPatchedEvents.SleepStarted -= h);
@@ -146,7 +140,6 @@ public sealed class TimbnPluginEvents
         Static(handler, h => TimbnPatchedEvents.SleepRefused += h, h => TimbnPatchedEvents.SleepRefused -= h);
 
     /// <summary>Runs when the player wakes up, as the screen starts to fade back in and right after the game writes its wake up save.</summary>
-    /// <param name="handler">Your handler.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable SleepEnded(Action handler) =>
         Static(handler, h => TimbnPatchedEvents.SleepEnded += h, h => TimbnPatchedEvents.SleepEnded -= h);
@@ -175,13 +168,11 @@ public sealed class TimbnPluginEvents
             h => TimbnPatchedEvents.Triggered -= h);
 
     /// <summary>Runs when the game pauses, such as when the pause menu opens.</summary>
-    /// <param name="handler">Your handler.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable GamePaused(Action handler) =>
         Static(handler, h => MainGame.OnGamePaused += h, h => MainGame.OnGamePaused -= h);
 
     /// <summary>Runs when the game unpauses.</summary>
-    /// <param name="handler">Your handler.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable GameUnpaused(Action handler) =>
         Static(handler, h => MainGame.OnGameUnpaused += h, h => MainGame.OnGameUnpaused -= h);
@@ -206,7 +197,6 @@ public sealed class TimbnPluginEvents
         Static(handler, h => EnvironmentEngine.OnTimeOfDayChangedEvent += h, h => EnvironmentEngine.OnTimeOfDayChangedEvent -= h);
 
     /// <summary>Runs when the player is moved by a teleport, which is also how every scene change happens.</summary>
-    /// <param name="handler">Your handler.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable PlayerTeleported(Action handler) =>
         Static(handler, h => PlayerController.OnPlayerTeleported += h, h => PlayerController.OnPlayerTeleported -= h);
@@ -224,11 +214,12 @@ public sealed class TimbnPluginEvents
         Static(handler, h => Wgo.OnWgoDestroy += h, h => Wgo.OnWgoDestroy -= h);
 
     /// <summary>
-    /// Runs when a world object leaves the save for good, such as a chest the player dismantles or a sign a mod takes away,
-    /// so a mod can drop what it kept for that object. Unlike <see cref="WorldObjectDestroyed"/>, which runs whenever a view
-    /// goes, such as when its scene unloads, this one runs only when the object itself is gone. Changing an object's id,
-    /// moving it to another scene, or a mod taking it out with its craft kept to put it back, keeps the same object, so none
-    /// of them runs it. A mod that replaces an object with a new one removes the old one.
+    /// Runs when a world object leaves the save for good, like a chest the player dismantles or a sign a mod takes
+    /// away. A mod can use it to drop what it kept for that object. <see cref="WorldObjectDestroyed"/> runs whenever a
+    /// view goes, when its scene unloads for example. This one runs only when the object itself is gone. It does not
+    /// run when an object keeps its identity. That covers changing its id and moving it to another scene. It also
+    /// covers a mod taking it out with its craft kept to put it back. A mod that replaces an object with a new one
+    /// removes the old one.
     /// </summary>
     /// <example>
     /// <code>
@@ -257,7 +248,6 @@ public sealed class TimbnPluginEvents
     /// Events.MainMenuOpened(ReloadMyFiles);
     /// </code>
     /// </example>
-    /// <param name="handler">Your handler.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable MainMenuOpened(Action handler) =>
         WindowOpened(window =>
@@ -266,13 +256,12 @@ public sealed class TimbnPluginEvents
                 handler();
         });
 
-    /// <summary>Runs when the player changes the game's language, so a plugin can drop text it looked up earlier.</summary>
+    /// <summary>Runs when the player changes the game's language, so a mod can drop text it looked up earlier.</summary>
     /// <example>
     /// <code>
     /// Events.LanguageChanged(_itemNames.Clear);
     /// </code>
     /// </example>
-    /// <param name="handler">Your handler.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable LanguageChanged(Action handler) =>
         Static(handler, h => GameSettings.OnLanguageChanged += h, h => GameSettings.OnLanguageChanged -= h);
@@ -280,8 +269,8 @@ public sealed class TimbnPluginEvents
     /// <summary>
     /// Runs with the game's balance, where it keeps every item, craft, perk, and tech, each time it loads. It runs
     /// straight away when the balance is already loaded, then after every later load, once Core has put in the
-    /// definitions plugins added. Use it to read the game's definitions. To change one, Balance.Edit also puts it
-    /// back when the plugin unloads.
+    /// definitions mods added. Use it to read the game's definitions. To change one, use Balance.Edit, which also puts
+    /// it back when the mod unloads.
     /// </summary>
     /// <example>
     /// <code>
@@ -389,7 +378,6 @@ public sealed class TimbnPluginEvents
     /// Events.Update(() => stuckCarriers.Tick());
     /// </code>
     /// </example>
-    /// <param name="handler">Your handler.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable Update(Action handler) => Own(_frameHandlers.Add(handler, 0f, whilePaused: true));
 
@@ -405,7 +393,7 @@ public sealed class TimbnPluginEvents
     /// </code>
     /// </example>
     /// <param name="seconds">The shortest time between runs. Zero or less runs on every frame.</param>
-    /// <param name="handler">Your handler.</param>
+    /// <param name="handler">Runs each time the seconds have passed.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable EveryRealSeconds(float seconds, Action handler) => Own(_frameHandlers.Add(handler, seconds, whilePaused: false));
 
@@ -414,7 +402,6 @@ public sealed class TimbnPluginEvents
     /// belongs here, since the game moves the player during Update and a camera that follows them has to run
     /// afterwards. Otherwise it works like <see cref="Update"/>.
     /// </summary>
-    /// <param name="handler">Your handler.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable LateUpdate(Action handler) => Own(_lateHandlers.Add(handler, 0f, whilePaused: true));
 
@@ -422,14 +409,13 @@ public sealed class TimbnPluginEvents
     /// Runs on every physics step while a save is loaded, paused or not. Forces and velocities belong here, since
     /// the physics engine reads them at that moment. Otherwise it works like <see cref="Update"/>.
     /// </summary>
-    /// <param name="handler">Your handler.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable FixedUpdate(Action handler) => Own(_fixedHandlers.Add(handler, 0f, whilePaused: true));
 
     /// <summary>
     /// Subscribes to a static game event that has no named method here. The handler is wrapped so a throw is
-    /// logged instead of reaching the game, the subscription is owned by the plugin, and it is removed when the
-    /// plugin unloads, so there is nothing to clean up. It hooks the event once, so use it only for static events.
+    /// logged instead of reaching the game. The subscription is owned by the mod and removed when the mod unloads,
+    /// so there is nothing to clean up. It hooks the event once, so use it only for static events.
     /// An event on an object that belongs to a save (quests, the player's data) needs
     /// <see cref="SaveEvent(Action, Action{Action}, Action{Action})"/>, which hooks it again for each save.
     /// </summary>
@@ -443,7 +429,7 @@ public sealed class TimbnPluginEvents
     ///     h => KnowledgeSystem.OnTechUnlocked -= h);
     /// ]]></code>
     /// </example>
-    /// <param name="handler">Your handler.</param>
+    /// <param name="handler">Runs each time the event fires.</param>
     /// <param name="add">Subscribes a handler to the event, such as <c><![CDATA[h => KnowledgeSystem.OnTechUnlocked += h]]></c>.</param>
     /// <param name="remove">Unsubscribes it again, such as <c><![CDATA[h => KnowledgeSystem.OnTechUnlocked -= h]]></c>.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
@@ -463,15 +449,16 @@ public sealed class TimbnPluginEvents
     /// <see cref="GameEvent(Action, Action{Action}, Action{Action})"/>.
     /// </summary>
     /// <example>
-    /// Log every tech the player unlocks.
+    /// Log each tab the player opens in the character window, whose event passes the page, so the handler takes the page.
+    /// An event that passes nothing takes a handler with no parameters.
     /// <code><![CDATA[
-    /// Events.GameEvent(typeof(KnowledgeSystem), nameof(KnowledgeSystem.OnTechUnlocked),
-    ///     (string techId, bool silent) => Logger.LogInfo($"Unlocked {techId}"));
+    /// Events.GameEvent(typeof(CharacterWindow), nameof(CharacterWindow.OnTabChanged),
+    ///     (CharacterWindowData.CharPage page) => Logger.LogInfo($"Opened {page}"));
     /// ]]></code>
     /// </example>
-    /// <param name="type">The game type that declares the event, such as typeof(KnowledgeSystem).</param>
-    /// <param name="eventName">The event's name, such as nameof(KnowledgeSystem.OnTechUnlocked).</param>
-    /// <param name="handler">Your handler.</param>
+    /// <param name="type">The game type that declares the event, such as typeof(CharacterWindow).</param>
+    /// <param name="eventName">The event's name, such as nameof(CharacterWindow.OnTabChanged). It has to be a C# event, so a plain static field like KnowledgeSystem.OnTechUnlocked needs the add and remove form instead.</param>
+    /// <param name="handler">Runs each time the event fires.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable GameEvent(Type type, string eventName, Action handler)
     {
@@ -509,7 +496,7 @@ public sealed class TimbnPluginEvents
     ///     h => MainGame.PlayerData.OnItemUsed -= h);
     /// ]]></code>
     /// </example>
-    /// <param name="handler">Your handler.</param>
+    /// <param name="handler">Runs each time the event fires.</param>
     /// <param name="add">Subscribes a handler to the save's event, such as <c><![CDATA[h => MainGame.PlayerData.OnItemUsed += h]]></c>.</param>
     /// <param name="remove">Unsubscribes it again, such as <c><![CDATA[h => MainGame.PlayerData.OnItemUsed -= h]]></c>.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
@@ -538,7 +525,7 @@ public sealed class TimbnPluginEvents
     /// </example>
     /// <param name="source">Reads the save's object, such as <c><![CDATA[() => MainGame.PlayerData]]></c>.</param>
     /// <param name="eventName">The event's name, such as nameof(PlayerData.OnItemUsed).</param>
-    /// <param name="handler">Your handler.</param>
+    /// <param name="handler">Runs each time the event fires.</param>
     /// <returns>A handle that unsubscribes early when disposed. You don't need to keep it.</returns>
     public IDisposable SaveEvent<TSource>(Func<TSource> source, string eventName, Action handler)
     {

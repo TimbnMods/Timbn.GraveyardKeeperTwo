@@ -4,6 +4,8 @@ using System.Reflection;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>An On and Off switch between two arrows.</summary>
+/// <param name="get">Reads whether it is on.</param>
+/// <param name="set">Called with the new state.</param>
 public sealed class TimbnToggle(Func<bool> get, Action<bool> set) : TimbnControl
 {
     internal override TimbnWidget BuildWidget(Transform parent) =>
@@ -42,10 +44,11 @@ public sealed class TimbnChoice<T>(Func<T> get, Action<T> set) : TimbnControl
 }
 
 /// <summary>
-/// A color between two arrows, drawn like the character editor's color switchers, with no color first, then your colors,
-/// then Unity's default ones. The color is a tag value, such as <c>#FF8800</c> or <c>orange</c>.
+/// A color between two arrows, drawn like the character editor's color switchers. It lists no color first, then the
+/// colors passed in, then Unity's basic colors (white, black, red and the rest). The color is a tag value, such as
+/// <c>#FF8800</c> or <c>orange</c>.
 /// </summary>
-/// <param name="colors">Your own colors, which come before Unity's.</param>
+/// <param name="colors">The colors to list before Unity's.</param>
 /// <param name="get">Reads the current color, or null for none.</param>
 /// <param name="set">Called with the new color, or null for none.</param>
 public sealed class TimbnColorPicker(IReadOnlyList<string> colors, Func<string?> get, Action<string?> set) : TimbnControl
@@ -61,14 +64,23 @@ public sealed class TimbnColorPicker(IReadOnlyList<string> colors, Func<string?>
 /// <param name="wholeNumbers">Whether the slider steps by whole numbers.</param>
 public sealed class TimbnSlider(float min, float max, Func<float> get, Action<float> set, bool wholeNumbers = false) : TimbnControl
 {
+    /// <summary>
+    /// How many decimal places one step covers, so 1 steps by 0.1. When left unset (or 0) it follows the decimals in the
+    /// minimum and maximum, so 3.2 to 5 steps by 0.1. A range with whole ends steps by the largest round number (1, 5, 10,
+    /// 50 and so on, or 0.5, 0.1, 0.05 and 0.01) that still gives 100 steps, so 0 to 1 steps by 0.01, 0 to 100 by 1 and
+    /// 0 to 5000 by 50. Whole numbers always step by 1. Clicking the number types an exact value up to four decimals
+    /// whatever the step, and the handle sits on the nearest step. Set it before the control is put on a page.
+    /// </summary>
+    public int? Decimals { get; set; }
+
     internal override TimbnWidget BuildWidget(Transform parent) =>
-        new TimbnSliderWidget(TimbnWidgets.InputRow(parent), min, max, wholeNumbers, get, Guarded(set), Watcher!.Logger);
+        new TimbnSliderWidget(TimbnWidgets.InputRow(parent), min, max, wholeNumbers, Decimals ?? TimbnSliderSteps.Decimals(wholeNumbers, min, max), get, Guarded(set), Watcher!.Logger);
 }
 
 /// <summary>
-/// Text in a box to type a new value into, set when the player finishes typing. Text too long for the box, and a gamepad,
-/// open the game's text window instead. Esc while typing works the way B does, backing out of a page that takes Back
-/// and leaving the box as it is on one that doesn't, and never keeps what was being typed.
+/// Text in a box to type a new value into, set when the player finishes typing. A gamepad or text too long for the box
+/// opens the game's text window instead. Esc while typing works like B. It never keeps what was typed. On a page that
+/// takes Back it backs out of the page. On one that doesn't it only leaves the box as it was.
 /// </summary>
 /// <param name="get">Reads the current text.</param>
 /// <param name="set">Called with the new text.</param>
@@ -96,13 +108,19 @@ public sealed class TimbnTextBox(Func<string> get, Action<string> set, bool? who
 
     /// <summary>
     /// Whether the box has the caret as soon as the page is on screen, so the player types straight away, the way
-    /// <see cref="TimbnPluginUI.ShowPrompt"/> does. A has nothing left to pick then, so the page's Select hint goes. Set it
+    /// <see cref="TimbnPluginUI.ShowPrompt(string, string, Action{string}, string, Action)"/> does. A has nothing left to pick then, so the page's Select hint goes. Set it
     /// on one box of a page, before it is put on the page.
     /// </summary>
     public bool FocusWhenShown { get; set; }
 
+    /// <summary>
+    /// The most characters the box takes, 0 for no limit. Left unset, a box that types in place (see <see cref="SetsWhileTyping"/>)
+    /// takes 200 and any other box takes any length. Set it before the control is put on a page.
+    /// </summary>
+    public int? CharacterLimit { get; set; }
+
     internal override TimbnWidget BuildWidget(Transform parent) =>
-        new TimbnTextBoxWidget(TimbnWidgets.InputRow(parent), get, Guarded(set), wholeNumbers, Placeholder, SetsWhileTyping, FocusWhenShown, InField, ShowsFocusFrame, Watcher!.Logger);
+        new TimbnTextBoxWidget(TimbnWidgets.InputRow(parent), get, Guarded(set), wholeNumbers, Placeholder, SetsWhileTyping, FocusWhenShown, InField, ShowsFocusFrame, CharacterLimit, Watcher!.Logger);
 }
 
 /// <summary>

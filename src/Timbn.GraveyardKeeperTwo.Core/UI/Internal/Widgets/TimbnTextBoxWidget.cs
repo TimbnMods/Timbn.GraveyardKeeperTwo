@@ -17,7 +17,7 @@ internal sealed class TimbnTextBoxWidget : TimbnWidget
     private readonly bool _typesInPlace;
     private bool _windowOpen;
 
-    public TimbnTextBoxWidget(TimbnWidgets.SettingParts parts, Func<string> get, Action<string> set, bool? wholeNumbers, string placeholder, bool typesInPlace, bool focusWhenShown, bool inField, bool showsFrame, ManualLogSource logger)
+    public TimbnTextBoxWidget(TimbnWidgets.SettingParts parts, Func<string> get, Action<string> set, bool? wholeNumbers, string placeholder, bool typesInPlace, bool focusWhenShown, bool inField, bool showsFrame, int? characterLimit, ManualLogSource logger)
         : base(parts.Row, parts.Name)
     {
         _get = get;
@@ -28,10 +28,10 @@ internal sealed class TimbnTextBoxWidget : TimbnWidget
         if (wholeNumbers is { } whole)
             _field.contentType = whole ? TMP_InputField.ContentType.IntegerNumber : TMP_InputField.ContentType.DecimalNumber;
 
-        if (typesInPlace)
-        {
+        if (characterLimit is { } limit)
+            _field.characterLimit = limit;
+        else if (typesInPlace)
             _field.characterLimit = _characterLimit;
-        }
 
         if (focusWhenShown)
             _field.gameObject.AddComponent<TimbnFocusOnStart>().Field = _field;
@@ -62,6 +62,13 @@ internal sealed class TimbnTextBoxWidget : TimbnWidget
     }
 
     public override void Refresh() => _field.SetTextWithoutNotify(_get());
+
+    // The text of a box that still has the caret, for a key that acts on the page before the edit ends.
+    internal void CommitFocused()
+    {
+        if (_field.isFocused && !_field.wasCanceled)
+            Commit(_field.text);
+    }
 
     private bool Overflows => _field.textComponent.GetPreferredValues(_get()).x > _field.textViewport.rect.width;
 

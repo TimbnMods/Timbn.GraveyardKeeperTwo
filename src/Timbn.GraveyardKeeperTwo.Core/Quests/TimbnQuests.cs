@@ -4,8 +4,9 @@ using LazyBearTechnology;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Registers the quests plugins add as real QuestDefs, so the game's own quest system starts, finishes, saves and
-/// lists them. It also reads the status of any quest, the game's own included.
+/// Reads quest state and fires story triggers for mods. It reads the status of any quest, the game's own included. A
+/// mod adds its own quests through the Quests property on its base class. Core registers each one as a real QuestDef.
+/// The game's own quest system then starts, finishes, saves and lists it.
 /// </summary>
 public static class TimbnQuests
 {
@@ -129,7 +130,7 @@ public static class TimbnQuests
         DropStubs();
     }
 
-    /// <summary>Whether the quest has a real definition, the game's or a plugin's, not counting a placeholder for a saved quest whose mod is gone.</summary>
+    /// <summary>Whether the quest has a real definition, the game's or a mod's, not counting a placeholder for a saved quest whose mod is gone.</summary>
     internal static bool HasDefinition(string id) =>
         !_stubs.ContainsKey(id) && TimbnBalance.Loaded?.GetDataOrNull<QuestDef>(id) is not null;
 

@@ -1,6 +1,6 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
-/// <summary>Draws the IMGUI a plugin registered with UI.DrawGui and UI.DebugWindow, and offers the shared bits of a debug window.</summary>
+/// <summary>Draws the IMGUI a mod registered with UI.DrawGui and UI.CreateDebugWindow. It also offers the shared bits of a debug window.</summary>
 public static class TimbnGui
 {
     private static readonly List<Entry> _entries = [];

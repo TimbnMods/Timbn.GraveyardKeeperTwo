@@ -5,7 +5,7 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 /// <summary>
 /// The game's item cell, the square that holds an icon and a count in an inventory. Give it an item's id, such as one
 /// from TimbnGameIds.Items, and it draws the item's own icon. Any other id is looked up as an icon, such as one added
-/// with Sprites.AddPng, and one the game has no sprite for shows its name where the icon would be. Leave the id out for
+/// with Sprites.Add and the Item kind, and one the game has no sprite for shows its name where the icon would be. Leave the id out for
 /// an empty cell, such as one the player fills with <see cref="Chosen"/>, which shows the plus the study table shows on
 /// its empty slot. The cell keeps the game's own size in the middle of its row.
 /// </summary>

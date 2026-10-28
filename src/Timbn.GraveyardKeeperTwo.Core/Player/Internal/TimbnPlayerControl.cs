@@ -7,6 +7,7 @@ internal static class TimbnPlayerControl
 
     private static readonly List<Hold> _holds = [];
     private static int _moving;
+    private static TakenControlType[] _except = [];
 
     // The game's lock keeps the facing through mouse aim and walk input, so it is held only while plugins hold control.
     private static bool _facingLocked;
@@ -42,7 +43,16 @@ internal static class TimbnPlayerControl
         if (!TimbnGame.IsInGame || MainGame.PlayerController == null)
             return false;
 
-        return !MainGame.PlayerController.IsControlsEnabledExcept(ignored.Concat(_holds.Select(hold => hold.Reason)).ToArray());
+        // The game reads the list and keeps nothing of it, and a tick asks every frame, so one list is reused until its size changes.
+        var length = ignored.Length + _holds.Count;
+        if (_except.Length != length)
+            _except = new TakenControlType[length];
+
+        ignored.CopyTo(_except, 0);
+        for (var index = 0; index < _holds.Count; index++)
+            _except[ignored.Length + index] = _holds[index].Reason;
+
+        return !MainGame.PlayerController.IsControlsEnabledExcept(_except);
     }
 
     /// <summary>Lets the player's body move under the plugins' holds until disposed, so a walk can steer it.</summary>

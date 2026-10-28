@@ -21,18 +21,17 @@ public sealed class TimbnNeeds
 
     /// <summary>Items the player has to carry but keeps.</summary>
     /// <param name="itemId">The item id, with its quality suffix where it has one, such as grape_wine:1.</param>
-    /// <param name="count">How many.</param>
+    /// <param name="count">How many they need.</param>
     /// <returns>These needs, for chaining.</returns>
     public TimbnNeeds Item(string itemId, int count = 1) => With(() => Wants.HasItem(itemId, count));
 
     /// <summary>A resource the player has to have but keeps.</summary>
     /// <param name="resourceId">The resource id.</param>
-    /// <param name="amount">How much.</param>
+    /// <param name="amount">How much they need.</param>
     /// <returns>These needs, for chaining.</returns>
     public TimbnNeeds Resource(string resourceId, float amount) => With(() => Wants.HasResource(resourceId, amount));
 
     /// <summary>Money the player has to have but keeps, in the game's raw units, where 100 is one silver coin.</summary>
-    /// <param name="amount">How much.</param>
     /// <returns>These needs, for chaining.</returns>
     public TimbnNeeds Money(int amount) => Resource(LazyConsts.MONEY_KEY, amount);
 
@@ -40,17 +39,14 @@ public sealed class TimbnNeeds
     /// Reputation with the NPC the player is talking to, such as the favor a vendor asks for before a job. Herm and the
     /// village head share one reputation.
     /// </summary>
-    /// <param name="amount">How much.</param>
     /// <returns>These needs, for chaining.</returns>
     public TimbnNeeds Reputation(int amount) => With(() => Wants.Reputation(amount));
 
     /// <summary>Gratitude, which the town vendors ask for.</summary>
-    /// <param name="amount">How much.</param>
     /// <returns>These needs, for chaining.</returns>
     public TimbnNeeds Gratitude(float amount) => With(() => Wants.Happiness(amount));
 
     /// <summary>Only on one day of the week, shown with the day's icon. One day per answer.</summary>
-    /// <param name="day">The day.</param>
     /// <returns>These needs, for chaining.</returns>
     public TimbnNeeds OnWeekday(TimbnWeekday day) => With(() => Wants.OnDay(day));
 

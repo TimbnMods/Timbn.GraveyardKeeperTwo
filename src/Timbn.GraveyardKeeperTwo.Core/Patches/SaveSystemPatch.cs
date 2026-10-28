@@ -33,7 +33,7 @@ internal static class SaveSystemPatch
         Strip(__state, TimbnNpcs.RemoveSpawnedForSave);
         Strip(__state, TimbnNpcs.ReleaseClaimsForSave);
         Strip(__state, TimbnNpc.ClearAnimationsForSave);
-        Strip(__state, TimbnCarry.RemoveForSave);
+        Strip(__state, TimbnOverhead.RemoveForSave);
         Strip(__state, TimbnBaseGamePlaces.PlaceAllForSave);
         Strip(__state, TimbnPotions.RevertForSave);
         if (isLiveSave)

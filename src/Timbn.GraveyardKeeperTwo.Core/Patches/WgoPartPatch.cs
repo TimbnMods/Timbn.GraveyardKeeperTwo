@@ -10,9 +10,5 @@ internal static class WgoPartPatch
 
     [HarmonyPatch("ApplyWgoPartState", typeof(WgoPartState))]
     [HarmonyPostfix]
-    private static void ApplyWgoPartStatePostFix(WgoPart __instance)
-    {
-        TimbnPartPrefab.PlaceDock(__instance);
-        TimbnNavmeshBake.Refresh(__instance.GetComponentInParent<Wgo>(true));
-    }
+    private static void ApplyWgoPartStatePostFix(WgoPart __instance) => TimbnPartPrefab.PlaceDock(__instance);
 }

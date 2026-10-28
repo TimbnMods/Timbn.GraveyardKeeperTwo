@@ -1,13 +1,13 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Helpers for a plugin's config file, for binding a slider or a hidden setting in one line and carrying a
-/// player's values over when a setting is renamed or moved.
+/// Helpers for a mod's config file. They bind a slider or a hidden setting in one line and carry a player's values
+/// over when a setting is renamed or moved.
 /// </summary>
 public static class TimbnConfig
 {
     /// <summary>
-    /// Moves the values of config entries a plugin has renamed or moved into their new entries, so players keep
+    /// Moves the values of config entries a mod has renamed or moved into their new entries, so players keep
     /// their settings across the change. Call it at the end of <c>BindConfig</c>, once every new entry is bound.
     /// An old entry is only used while it is still in the file, and it is removed from the file afterwards.
     /// </summary>
@@ -19,7 +19,7 @@ public static class TimbnConfig
     ///     (UnstuckKey, "Unstuck", "Key"));
     /// </code>
     /// </example>
-    /// <param name="config">The plugin's config file.</param>
+    /// <param name="config">The mod's config file.</param>
     /// <param name="moves">Each new entry with the section and key it used to have.</param>
     public static void CarryOver(ConfigFile config, params (ConfigEntryBase Entry, string Section, string Key)[] moves)
     {
@@ -51,7 +51,7 @@ public static class TimbnConfig
     /// TimeSpeed = config.BindRange("Meditation", "TimeSpeed", 7f, "How many times faster time runs while you meditate.", 1f, 50f);
     /// </code>
     /// </example>
-    /// <param name="config">The plugin's config file.</param>
+    /// <param name="config">The mod's config file.</param>
     /// <param name="section">The section it goes under.</param>
     /// <param name="key">The setting's name.</param>
     /// <param name="defaultValue">The value until the player changes it.</param>
@@ -65,14 +65,14 @@ public static class TimbnConfig
 
     /// <summary>
     /// Binds a setting that stays out of the Mods window, for a switch only a developer needs, such as
-    /// turning on a plugin's debug log. It is still written to the config file and read like any other entry.
+    /// turning on a mod's debug log. It is still written to the config file and read like any other entry.
     /// </summary>
     /// <example>
     /// <code>
     /// WriteDebugLog = config.BindHidden("Debug", "WriteDebugLog", false, "Writes the debug log.");
     /// </code>
     /// </example>
-    /// <param name="config">The plugin's config file.</param>
+    /// <param name="config">The mod's config file.</param>
     /// <param name="section">The section it goes under.</param>
     /// <param name="key">The setting's name.</param>
     /// <param name="defaultValue">The value until it is changed.</param>

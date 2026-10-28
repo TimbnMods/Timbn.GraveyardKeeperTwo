@@ -1,13 +1,13 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// A person's day for the plugin's Npcs.Schedule, made of blocks that each start at a time of day. A block's intro
-/// runs once when it starts on time and its loop repeats until the next block starts. A block joined late, after a
-/// load, a sleep or a jump of the clock, runs its join late steps in place of the intro. A new block waits for a trip
-/// picked by Decide to end. The person stops for a conversation or a story scene, and when the game moves them
-/// itself the day leaves them to it until a later block starts. A plugin's <see cref="TimbnNpc.RunSteps"/> on them takes
-/// over until it ends, and then the day joins the block of the moment late. Shut a vendor's trade window with the
-/// plugin's Npcs.CloseTradeWhen.
+/// Describes a person's day for Npcs.Schedule. The day is made of blocks that each start at a set time. A block's
+/// intro runs once when it starts on time. Its loop repeats until the next block starts. A block joined late runs its
+/// late steps in place of the intro. That happens after a load, a sleep or a jump of the clock. When the next block
+/// comes due during a trip picked by Decide, it waits for the trip to end. The person stops for a conversation or a
+/// story scene. When the game moves them itself, the day leaves them to it until a later block starts. A
+/// <see cref="TimbnNpc.RunSteps"/> run takes them over until it ends. Then the day joins the block of the moment late.
+/// Shut a vendor's trade window with Npcs.CloseTradeWhen.
 /// </summary>
 /// <example>
 /// <code>
@@ -103,8 +103,9 @@ public sealed class TimbnNpcDay
     }
 
     /// <summary>
-    /// After the game moved the person itself, the day carries on at a later block start only while they stand on
-    /// this point, such as their home point. Without it the day carries on at the next block start wherever they are.
+    /// Keeps the day from carrying on after the game moved the person. It waits until they stand on this point again,
+    /// for example their home point. The day resumes at a later block start only while they are there. Without it the
+    /// day carries on at the next block start wherever they are.
     /// </summary>
     public TimbnNpcDay ResumeWhenAt(string pointId)
     {
@@ -113,8 +114,8 @@ public sealed class TimbnNpcDay
     }
 
     /// <summary>
-    /// Writes every step, walk, claim and skip to the plugin's log at the debug level, each line starting with the
-    /// game day and time. Pass a check to log only while it holds, such as a hidden setting, since it is asked each time.
+    /// Writes every step, walk, claim and skip to the mod's log at the debug level. Each line starts with the game day
+    /// and time. Pass a check to log only while it holds, such as a hidden setting, since it is asked each time.
     /// </summary>
     /// <example>
     /// <code>
@@ -160,41 +161,24 @@ public sealed class TimbnNpcBlock
         return this;
     }
 
-    /// <summary>The steps run once when the block starts on time.</summary>
+    /// <summary>Sets the steps that run once when the block starts on time.</summary>
     public TimbnNpcBlock Intro(Func<TimbnNpcSteps, TimbnNpcSteps> build)
     {
         IntroSteps = build(new TimbnNpcSteps());
         return this;
     }
 
-    /// <summary>The steps run in place of the intro when the block is joined late, usually putting the person where the block expects them.</summary>
+    /// <summary>Sets the steps that run in place of the intro when the block is joined late. They usually put the person where the block expects them.</summary>
     public TimbnNpcBlock LateIntro(Func<TimbnNpcSteps, TimbnNpcSteps> build)
     {
         LateSteps = build(new TimbnNpcSteps());
         return this;
     }
 
-    /// <summary>The steps repeated until the next block starts.</summary>
+    /// <summary>Sets the steps that repeat until the next block starts.</summary>
     public TimbnNpcBlock Loop(Func<TimbnNpcSteps, TimbnNpcSteps> build)
     {
         LoopSteps = build(new TimbnNpcSteps());
         return this;
     }
-}
-
-/// <summary>A point every walk to or from another point passes, set with <see cref="TimbnNpcDay.Doorway"/>.</summary>
-internal sealed class TimbnNpcDoorway
-{
-    internal TimbnNpcDoorway(string point, string via, TimbnWalk walk)
-    {
-        Point = point;
-        Via = via;
-        Walk = walk;
-    }
-
-    internal string Point { get; }
-
-    internal string Via { get; }
-
-    internal TimbnWalk Walk { get; }
 }

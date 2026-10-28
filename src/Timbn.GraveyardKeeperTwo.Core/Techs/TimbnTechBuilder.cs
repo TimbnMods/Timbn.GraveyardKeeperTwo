@@ -1,8 +1,8 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Describes a technology for the plugin's Techs.Add, a node on the game's tech tree that the player buys with tech
-/// points. It needs <see cref="At"/> for its cell and <see cref="After"/> for the tech that comes before it. What the
+/// Describes a technology for Techs.Add. A technology is a node on the game's tech tree that the player buys with
+/// tech points. It needs <see cref="At"/> for its cell and <see cref="After"/> for the tech that comes before it. What the
 /// tech unlocks is set from the other side, by the station's or craft's UnlockedBy with this tech's id.
 /// </summary>
 /// <example>
@@ -69,7 +69,7 @@ public sealed class TimbnTechBuilder
     }
 
     /// <summary>The techs the player needs first, which the tree joins to this one with a line. The tech is open once every one of them is bought.</summary>
-    /// <param name="techId">A tech's id, from <see cref="TimbnGameIds.Techs"/> or another plugin.</param>
+    /// <param name="techId">A tech's id, from <see cref="TimbnGameIds.Techs"/> or another mod.</param>
     /// <param name="more">More techs' ids.</param>
     public TimbnTechBuilder After(string techId, params string[] more)
     {
@@ -80,9 +80,9 @@ public sealed class TimbnTechBuilder
 
     /// <summary>
     /// The icons the tree and the tech's popup list, in this order, instead of everything the tech unlocks. The popup
-    /// has room for three. A station added with Stations.Add (or any build desk entry) shows as the building, a craft
-    /// with its recipe, and an item with no recipe and a line saying where it is crafted. An id the game doesn't have
-    /// yet is skipped.
+    /// has room for three. A station added with Stations.Add (or any build desk entry) shows as the building. A craft
+    /// shows with its recipe. An item shows a line saying where it is crafted instead of a recipe. An id the game
+    /// doesn't have yet is skipped.
     /// </summary>
     /// <param name="id">A station's id, a build desk entry's id, an item's id or a craft's id.</param>
     /// <param name="more">More ids.</param>

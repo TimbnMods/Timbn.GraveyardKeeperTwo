@@ -33,10 +33,3 @@ public readonly struct TimbnLength
     /// <summary>Whether this is <see cref="Auto"/>.</summary>
     public bool IsAuto => Kind == TimbnLengthKind.Auto;
 }
-
-internal enum TimbnLengthKind
-{
-    Auto,
-    Pixels,
-    Percent,
-}

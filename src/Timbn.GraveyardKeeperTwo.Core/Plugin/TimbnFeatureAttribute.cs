@@ -1,12 +1,11 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Names the feature a Harmony patch class belongs to, so a game update that breaks one feature's patches turns
-/// off that feature alone and the rest of the plugin keeps running. The name is the key of the config entry that
-/// switches the feature, and while the feature is broken the plugin's Settings.Toggle and Settings.While read
-/// that entry as off, the main menu popup names the feature, and <see cref="TimbnFrameworkPlugin.IsFeatureBroken"/>
-/// says so. A patch class with no feature belongs to the plugin itself, and a failure there still turns off the
-/// whole plugin.
+/// Names the feature a Harmony patch class belongs to. When a game update breaks one feature's patches, only that
+/// feature turns off and the rest of the mod keeps running. The name is the key of the config entry that switches
+/// the feature. While the feature is broken, Settings.Toggle and Settings.While read that entry as off. The main menu
+/// popup names the feature and <see cref="TimbnFrameworkPlugin.IsFeatureBroken"/> reports it. A patch class with no
+/// feature belongs to the mod itself. A failure there still turns off the whole mod.
 /// </summary>
 /// <example>
 /// <code>

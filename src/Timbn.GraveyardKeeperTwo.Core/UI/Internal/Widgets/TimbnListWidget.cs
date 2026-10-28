@@ -25,7 +25,11 @@ internal sealed class TimbnListWidget : TimbnWidget
         {
             var index = i;
             var card = TimbnUi.Card(Root, entries[i].Title);
-            TimbnUi.Entry(card, entries[i].Title, entries[i].Subtitle, wrap: false, detail: entries[i].Detail);
+            if (entries[i].Content is { } content)
+                BuildContent(card, content);
+            else
+                TimbnUi.Entry(card, entries[i].Title, entries[i].Subtitle, wrap: false, detail: entries[i].Detail);
+
             var frame = TimbnUi.MakeButton(card, () => Choose(index));
             MarkSelect(card);
             _frames.Add(frame);
@@ -46,14 +50,16 @@ internal sealed class TimbnListWidget : TimbnWidget
 
     public bool FocusWhenShown { get; set; }
 
-    // The chosen line's stop for the gamepad, or the first line's when none is chosen.
+    // The chosen line's stop for the gamepad, or the first line's when none is chosen. A card's own stop is looked up on the
+    // card, since a mod's content in the card may hold stops of its own.
     public GamepadNavigationItem? ChosenItem
     {
         get
         {
             var chosen = _get();
-            var items = Root.GetComponentsInChildren<GamepadNavigationItem>(false).Where(item => item.isActiveAndEnabled && item.Active).ToList();
-            return chosen >= 0 && chosen < items.Count ? items[chosen] : items.FirstOrDefault();
+            var items = _cards.Select(card => card.GetComponent<GamepadNavigationItem>()).Where(item => item != null && item.isActiveAndEnabled && item.Active).ToList();
+            var own = chosen >= 0 && chosen < _cards.Count ? _cards[chosen].GetComponent<GamepadNavigationItem>() : null;
+            return own != null && items.Contains(own) ? own : items.FirstOrDefault();
         }
     }
 
@@ -99,6 +105,13 @@ internal sealed class TimbnListWidget : TimbnWidget
 
         _focusWhenChosen = (_get() + delta + _frames.Count) % _frames.Count;
         Choose(_focusWhenChosen, picked: false);
+    }
+
+    private void BuildContent(RectTransform card, Action<TimbnPageBuilder> content)
+    {
+        var column = TimbnUi.Column(card, "Content", TimbnPageBuilder.PartGap);
+        var builder = TimbnPageBuilder.Create(column, _logger);
+        TimbnSafe.Run(() => content(builder), _logger, $"{nameof(TimbnList)}|The entry content");
     }
 
     private void Choose(int index, bool picked = true)

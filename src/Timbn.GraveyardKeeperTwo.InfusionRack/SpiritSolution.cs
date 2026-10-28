@@ -21,7 +21,7 @@ internal static class SpiritSolution
         foreach (var color in Colors)
         {
             var id = ItemId(color);
-            plugin.Sprites.AddEmbeddedPng(id);
+            plugin.Sprites.AddEmbedded(id + ".png",TimbnSpriteKind.Item);
             plugin.Balance.AddItem(_itemTemplate, id, "", "", id, item =>
             {
                 item.type = ItemType.None;

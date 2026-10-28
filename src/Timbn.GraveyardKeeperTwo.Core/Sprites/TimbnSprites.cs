@@ -3,7 +3,12 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 internal static class TimbnSprites
 {
     private const float _pixelsPerUnit = 50f;
-    private const int _canvasSize = 48;
+    private const int _blueprintSize = 28;
+    private const int _iconCanvasSize = 48;
+    private const int _iconMaxSize = 32;
+    private const int _perkSize = 26;
+    private const int _perkCanvasSize = 30;
+    private const int _buffSize = 26;
     private const float _coloredSaturation = 0.25f;
     private const int _hueBins = 36;
     private const float _hueRange = 25f / 360f;
@@ -14,7 +19,66 @@ internal static class TimbnSprites
     private static readonly List<(string Name, Sprite Sprite)> _held = [];
     private static bool _holding;
 
-    internal static IDisposable AddPng(string name, byte[] png)
+    // The game draws item icons and blueprints on 48 by 48 canvases and perks on 30 by 30 ones, with the art in the middle,
+    // and its windows draw them at that size, so a sprite of any other size is stretched. Each kind has one rule for the
+    // size a mod gives and where Core puts it. An image that breaks the rule is not added and the game shows its own default.
+    internal static IDisposable Add(string name, byte[] image, TimbnSpriteKind kind) => kind switch
+    {
+        TimbnSpriteKind.Item => Place(name, image, new Rule("icon", null, _iconMaxSize, _iconCanvasSize)),
+        TimbnSpriteKind.Blueprint => Place(name, image, new Rule("blueprint", _blueprintSize, _blueprintSize, _iconCanvasSize)),
+        TimbnSpriteKind.Perk => Place(name, image, new Rule("perk icon", _perkSize, _perkSize, _perkCanvasSize)),
+        TimbnSpriteKind.Buff => Place(name, image, new Rule("buff icon", _buffSize, _buffSize, null)),
+        _ => Place(name, image, new Rule("image", null, int.MaxValue, null)),
+    };
+
+    // The released QuestPacks 1.0.0 calls this by name.
+    internal static IDisposable AddPng(string name, byte[] image) => Add(name, image, TimbnSpriteKind.Image);
+
+    private static IDisposable Place(string name, byte[] image, Rule rule)
+    {
+        var art = Read(name, image);
+        if (art == null)
+            return TimbnUndo.None;
+
+        var wrong = rule.Exact is { } size
+            ? art.width != size || art.height != size
+            : art.width > rule.Max || art.height > rule.Max;
+        if (wrong)
+        {
+            var needs = rule.Exact is { } required ? $"a {rule.Noun} must be {required}x{required}" : $"an {rule.Noun} can be at most {rule.Max}x{rule.Max}";
+            TimbnCorePlugin.Logger.LogWarning($"{nameof(TimbnSprites)}|{name} is {art.width}x{art.height}, and {needs}. It was not added.");
+            UnityEngine.Object.Destroy(art);
+            return TimbnUndo.None;
+        }
+
+        if (rule.Canvas is not { } canvas)
+            return Register(name, Sprite.Create(art, new Rect(0, 0, art.width, art.height), new Vector2(0.5f, 0.5f), _pixelsPerUnit));
+
+        var texture = new Texture2D(canvas, canvas, TextureFormat.RGBA32, false)
+        {
+            name = name,
+            filterMode = FilterMode.Point,
+            wrapMode = TextureWrapMode.Clamp,
+        };
+        texture.SetPixels32(new Color32[canvas * canvas]);
+        texture.SetPixels32((canvas - art.width) / 2, (canvas - art.height) / 2, art.width, art.height, art.GetPixels32());
+        texture.Apply(false, true);
+        UnityEngine.Object.Destroy(art);
+        return Register(name, Sprite.Create(texture, new Rect(0, 0, canvas, canvas), new Vector2(0.5f, 0.5f), _pixelsPerUnit));
+    }
+
+    private readonly struct Rule(string noun, int? exact, int max, int? canvas)
+    {
+        internal string Noun { get; } = noun;
+
+        internal int? Exact { get; } = exact;
+
+        internal int Max { get; } = max;
+
+        internal int? Canvas { get; } = canvas;
+    }
+
+    private static Texture2D? Read(string name, byte[] image)
     {
         var texture = new Texture2D(2, 2, TextureFormat.RGBA32, false)
         {
@@ -22,15 +86,12 @@ internal static class TimbnSprites
             filterMode = FilterMode.Point,
             wrapMode = TextureWrapMode.Clamp,
         };
-        if (!texture.LoadImage(png))
-        {
-            UnityEngine.Object.Destroy(texture);
-            TimbnCorePlugin.Logger.LogWarning($"{nameof(TimbnSprites)}|{name} is not a readable image.");
-            return TimbnUndo.None;
-        }
+        if (texture.LoadImage(image))
+            return texture;
 
-        texture = PadToCanvas(texture);
-        return Register(name, Sprite.Create(texture, new Rect(0, 0, texture.width, texture.height), new Vector2(0.5f, 0.5f), _pixelsPerUnit));
+        UnityEngine.Object.Destroy(texture);
+        TimbnCorePlugin.Logger.LogWarning($"{nameof(TimbnSprites)}|{name} is not a readable image.");
+        return null;
     }
 
     internal static void AddTinted(string name, Sprite source, Color tint)
@@ -164,7 +225,7 @@ internal static class TimbnSprites
     internal static void HoldRemovals() => _holding = true;
 
     /// <summary>
-    /// Destroys every held sprite no reloaded plugin added again. One added again stays alive but unlisted, since the
+    /// Destroys every held sprite no reloaded mod added again. One added again stays alive but unlisted, since the
     /// HUD keeps drawing the old object until it redraws and a destroyed texture shows as a white square.
     /// </summary>
     internal static void ReleaseHeldRemovals()
@@ -187,30 +248,6 @@ internal static class TimbnSprites
 
         sprite = stack[^1];
         return sprite != null;
-    }
-
-    private static Texture2D PadToCanvas(Texture2D source)
-    {
-        if (source.width == _canvasSize && source.height == _canvasSize)
-            return source;
-
-        if (source.width > _canvasSize || source.height > _canvasSize)
-        {
-            TimbnCorePlugin.Logger.LogWarning($"{nameof(TimbnSprites)}|{source.name} is {source.width}x{source.height}, larger than {_canvasSize}. It will be squashed.");
-            return source;
-        }
-
-        var canvas = new Texture2D(_canvasSize, _canvasSize, TextureFormat.RGBA32, false)
-        {
-            name = source.name,
-            filterMode = FilterMode.Point,
-            wrapMode = TextureWrapMode.Clamp,
-        };
-        canvas.SetPixels32(new Color32[_canvasSize * _canvasSize]);
-        canvas.SetPixels32((_canvasSize - source.width) / 2, (_canvasSize - source.height) / 2, source.width, source.height, source.GetPixels32());
-        canvas.Apply(false, true);
-        UnityEngine.Object.Destroy(source);
-        return canvas;
     }
 
     private static void Destroy(Sprite sprite)

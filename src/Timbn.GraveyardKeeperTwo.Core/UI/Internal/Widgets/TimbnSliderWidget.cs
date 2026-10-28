@@ -5,13 +5,12 @@ using UnityEngine.UI;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// The game's slider, a minus, the track and a plus, with the value printed after the plus. The range is mapped onto at
-/// most 100 steps, and clicking the number types an exact value, which can sit between the steps.
+/// The game's slider, a minus, the track and a plus, with the value printed after the plus. Clicking the number types an
+/// exact value, up to four decimals, and the handle sits on the nearest step.
 /// </summary>
 internal sealed class TimbnSliderWidget : TimbnWidget
 {
-    private const int _maxSteps = 100;
-    private const float _padStepsPerRange = 20f;
+    private const int _maxDecimals = 4;
     private const float _numberGap = 2f;
 
     private readonly Slider _slider;
@@ -22,9 +21,10 @@ internal sealed class TimbnSliderWidget : TimbnWidget
     private readonly float _max;
     private readonly float _stepSize;
     private readonly bool _wholeNumbers;
+    private readonly int _decimals;
     private readonly ManualLogSource _logger;
 
-    public TimbnSliderWidget(TimbnWidgets.SettingParts parts, float min, float max, bool wholeNumbers, Func<float> get, Action<float> set, ManualLogSource logger)
+    public TimbnSliderWidget(TimbnWidgets.SettingParts parts, float min, float max, bool wholeNumbers, int decimals, Func<float> get, Action<float> set, ManualLogSource logger)
         : base(parts.Row, parts.Name)
     {
         _logger = logger;
@@ -33,9 +33,10 @@ internal sealed class TimbnSliderWidget : TimbnWidget
         _min = min;
         _max = max;
         _wholeNumbers = wholeNumbers;
-        var steps = wholeNumbers ? Mathf.Clamp(Mathf.RoundToInt(max - min), 1, _maxSteps) : _maxSteps;
+        _stepSize = TimbnSliderSteps.StepSize(wholeNumbers, decimals, min, max);
+        _decimals = TimbnSliderSteps.DecimalPlaces(_stepSize);
         // A range of one value still needs a step, or the slider's position would divide by zero.
-        _stepSize = max > min ? (max - min) / steps : 1f;
+        var steps = float.IsFinite(max - min) ? Math.Clamp(Mathf.RoundToInt(Math.Min((max - min) / _stepSize, int.MaxValue / 2f)), 1, int.MaxValue / 2) : 1;
 
         var minus = TimbnTheme.Minus(parts.Control);
         _slider = Track(parts.Control, steps);
@@ -50,9 +51,7 @@ internal sealed class TimbnSliderWidget : TimbnWidget
         type.navigation = new Navigation { mode = Navigation.Mode.None };
         type.onClick.AddListener(TypeValue);
 
-        // A long range would take a press per step, so a gamepad moves a twentieth of the range at a time.
-        var padStep = Math.Max(1, Mathf.RoundToInt(steps / _padStepsPerRange));
-        var stop = GamepadStop(delta => Nudge(delta * padStep));
+        var stop = GamepadStop(Nudge);
 
         // The game's slider script wires the minus and plus buttons, writes the number, plays the tick and calls back with
         // the slider's value times the step, which is how far the value is above the minimum.
@@ -65,7 +64,7 @@ internal sealed class TimbnSliderWidget : TimbnWidget
             ("gamepadNavigationItem", stop));
         game.Initialize(above =>
         {
-            var value = Whole(_min + above);
+            var value = Snap(_min + above);
             _amount.text = Format(value);
             _set(value);
         }, 0f, _stepSize);
@@ -107,13 +106,13 @@ internal sealed class TimbnSliderWidget : TimbnWidget
                 return;
 
             value = Mathf.Clamp(value, _min, _max);
-            _set(_wholeNumbers ? Mathf.Round(value) : value);
+            // Typing is exact to four decimals, so the value can sit between steps and the handle takes the nearest one.
+            _set(_wholeNumbers ? Mathf.Round(value) : (float)Math.Round(value, _maxDecimals));
             Refresh();
-        }, null, _logger);
+        }, null, _logger, wholeNumbers: _wholeNumbers);
     }
 
-    private float Whole(float value) => _wholeNumbers ? Mathf.Round(value) : value;
+    private float Snap(float value) => (float)Math.Round(value, _decimals);
 
-    private string Format(float value) =>
-        _wholeNumbers ? value.ToString("0", CultureInfo.InvariantCulture) : value.ToString("0.##", CultureInfo.InvariantCulture);
+    private static string Format(float value) => value.ToString("0.####", CultureInfo.InvariantCulture);
 }

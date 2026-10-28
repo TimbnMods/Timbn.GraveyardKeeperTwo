@@ -26,7 +26,6 @@ internal static class TimbnSession
         Step(TimbnQuests.OnLeftGame, nameof(TimbnQuests));
         Step(TimbnGame.OnLeftGame, nameof(TimbnGame));
         Step(TimbnNpcs.OnLeftGame, nameof(TimbnNpcs));
-        Step(TimbnNavmeshBake.OnLeftGame, nameof(TimbnNavmeshBake));
         Step(TimbnModels.OnLeftGame, nameof(TimbnModels));
         Step(TimbnPlayerGrid.Forget, nameof(TimbnPlayerGrid));
         Step(TimbnSaves.OnLeftGame, nameof(TimbnSaves));

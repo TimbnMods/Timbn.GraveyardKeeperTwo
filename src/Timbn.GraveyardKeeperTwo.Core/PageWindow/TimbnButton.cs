@@ -43,7 +43,7 @@ public sealed class TimbnButton : TimbnComponent
     /// A button with one of the game's icons on it. It is for the mouse only, since a gamepad cannot focus it, so give a
     /// gamepad player another way to do the same thing, such as a key or a text button.
     /// </summary>
-    /// <param name="icon">The icon.</param>
+    /// <param name="icon">Which of the game's icons it shows.</param>
     /// <param name="onClick">Called when the player presses it.</param>
     public TimbnButton(TimbnIcon icon, Action onClick)
     {

@@ -1,9 +1,10 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// What a mod tells the Mods window about itself, returned from <see cref="TimbnFrameworkPlugin.ModInfo"/>. Every
-/// field is optional, and a mod that gives none looks as it always did. Links must be https pages on the site they
-/// are named for, and any other link is ignored with a warning.
+/// Holds what a mod tells the Mods window about itself, returned from <see cref="TimbnFrameworkPlugin.ModInfo"/>.
+/// Every field is optional. A mod that gives none gets the plain entry. The Nexus, Steam Workshop and Thunderstore
+/// links must be https pages on that site. WebsiteLink can be any https page. Any other link is ignored with a
+/// warning.
 /// </summary>
 public sealed class TimbnModInfo
 {
@@ -16,8 +17,8 @@ public sealed class TimbnModInfo
     /// <summary>
     /// An id only the group's own mods give, such as a GUID made once for the group, so a mod that only shares the
     /// <see cref="ModGroupName"/> is not put in it. Mods with the same id make one group, under the first one's name. It is
-    /// optional, and mods that give no id are grouped by their <see cref="ModGroupName"/> alone, apart from any group with
-    /// an id. It does nothing without a <see cref="ModGroupName"/>.
+    /// optional. Mods that give no id are grouped by <see cref="ModGroupName"/> alone. They never join a group that has an
+    /// id. It does nothing without a <see cref="ModGroupName"/>.
     /// </summary>
     public string? ModGroupId { get; set; }
 

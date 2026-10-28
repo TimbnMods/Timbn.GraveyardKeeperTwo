@@ -31,7 +31,6 @@ public sealed class TimbnRewards
         MoneyTotal == 0 && ReputationTotal == 0 && _items.Count == 0 && _resources.Count == 0 && _shownItems.Count == 0 && _shownResources.Count == 0;
 
     /// <summary>Money in the game's raw units, where 100 is one silver coin and 10,000 one gold coin.</summary>
-    /// <param name="amount">How much.</param>
     /// <returns>These rewards, for chaining.</returns>
     public TimbnRewards Money(int amount)
     {
@@ -41,7 +40,7 @@ public sealed class TimbnRewards
 
     /// <summary>An item. Rewards that don't fit in the player's inventory drop on the ground by the player.</summary>
     /// <param name="itemId">The item id, with its quality suffix where it has one, such as grape_wine:2.</param>
-    /// <param name="count">How many.</param>
+    /// <param name="count">How many to give.</param>
     /// <returns>These rewards, for chaining.</returns>
     public TimbnRewards Item(string itemId, int count = 1)
     {
@@ -51,7 +50,7 @@ public sealed class TimbnRewards
 
     /// <summary>Any other resource the player keeps.</summary>
     /// <param name="resourceId">The resource id.</param>
-    /// <param name="amount">How much.</param>
+    /// <param name="amount">How much to give.</param>
     /// <returns>These rewards, for chaining.</returns>
     public TimbnRewards Resource(string resourceId, float amount)
     {
@@ -63,7 +62,6 @@ public sealed class TimbnRewards
     /// Reputation with the NPC the player is talking to, which is the NPC of a quest step's Talk, or the quest giver
     /// for a step with no Talk.
     /// </summary>
-    /// <param name="amount">How much.</param>
     /// <returns>These rewards, for chaining.</returns>
     public TimbnRewards Reputation(int amount)
     {

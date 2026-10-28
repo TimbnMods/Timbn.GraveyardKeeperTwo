@@ -1,8 +1,8 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// What plugins have registered with Core, kept by plugin guid. Each registration is undone by the handle it returns, which
-/// the plugin keeps in its own bag, so nothing Core holds outlives a plugin that unloads.
+/// Keeps what mods have registered with Core by mod guid. Each registration is undone by the handle it returns. The mod
+/// keeps that handle in its bag, so nothing Core holds outlives a mod that unloads.
 /// </summary>
 internal sealed class TimbnPluginRegistry<T>
     where T : class
@@ -16,13 +16,13 @@ internal sealed class TimbnPluginRegistry<T>
         return new TimbnUndo(() => _entries.Remove(entry));
     }
 
-    /// <summary>Everything the plugin registered, in the order it did.</summary>
+    /// <summary>Lists everything the mod registered, in the order it did.</summary>
     internal IEnumerable<T> For(string pluginGuid) => _entries.Where(entry => entry.PluginGuid == pluginGuid).Select(entry => entry.Item);
 
-    /// <summary>Everything every plugin registered, in the order it was added.</summary>
+    /// <summary>Lists everything every mod registered, in the order it was added.</summary>
     internal IEnumerable<T> All => _entries.Select(entry => entry.Item);
 
-    /// <summary>The last thing the plugin registered, or null when it registered nothing.</summary>
+    /// <summary>Returns the last thing the mod registered or null when it registered nothing.</summary>
     internal T? Latest(string pluginGuid) => For(pluginGuid).LastOrDefault();
 
     internal void Clear() => _entries.Clear();

@@ -1,9 +1,9 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// An IMGUI box for a plugin's debug or cheat menu, opened and closed with a key from the plugin's config. Core
-/// draws the box, a title line that names the key to close it, and a "load a save" note while no save is loaded,
-/// so the plugin only draws what goes inside. Get one from the plugin's UI.DebugWindow.
+/// Draws an IMGUI box for a mod's debug or cheat menu, opened and closed with a key from the mod's config. Core
+/// draws the box, a title line and a "load a save" note while no save is loaded, so the mod only draws what goes
+/// inside. The title line names the key that closes the window, when there is one. Get one from UI.CreateDebugWindow.
 /// </summary>
 /// <example>
 /// <code>
@@ -24,7 +24,7 @@ public sealed class TimbnGuiWindow
         _toggle = toggle;
     }
 
-    /// <summary>Whether the window is on screen. The toggle key flips it, and the plugin can set it too.</summary>
+    /// <summary>Whether the window is on screen. The toggle key flips it and the mod can set it too.</summary>
     public bool IsVisible { get; set; }
 
     /// <summary>

@@ -55,7 +55,7 @@ public sealed class TimbnRegion(Action<TimbnPageBuilder> build) : TimbnBox
 
     /// <summary>
     /// With a gamepad in use, puts the focus on the first control in the region, such as after the player picked something in
-    /// a list that the region shows. With a mouse in use it is where the gamepad's focus starts once the player picks one up.
+    /// a list that the region shows. With a mouse in use it sets where the gamepad's focus starts once the player picks one up.
     /// </summary>
     public void FocusFirst()
     {

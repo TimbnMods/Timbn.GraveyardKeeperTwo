@@ -1,9 +1,9 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// A list of things for a person to do in order. Build one in a block's Intro, LateIntro or Loop, return one from
-/// <see cref="Decide"/> to pick a trip, or hand one to <see cref="TimbnNpc.RunSteps"/> to play it on command. A wait names
-/// its clock, game minutes that follow the game's speed or real seconds that do not.
+/// A list of things for a person to do in order. Build one in a block's Intro, LateIntro or Loop. Return one from
+/// <see cref="Decide"/> to pick a trip or hand one to <see cref="TimbnNpc.RunSteps"/> to play it directly. A wait
+/// names its clock, either game minutes that follow the game's speed or real seconds that do not.
 /// </summary>
 /// <example>
 /// <code>
@@ -47,8 +47,8 @@ public sealed class TimbnNpcSteps
     /// Walks in straight lines from corner to corner as one movement, turning at each corner without stopping, for a
     /// route with several bends such as a way along the graveyard paths. The person ends within 0.1 of the last corner,
     /// the game's own slack for a waypoint walk, so take an exact step onto a seat or a spot with
-    /// <see cref="WalkStraight(float, float)"/> after it. Should the game's walker change, each corner is walked as
-    /// its own straight step instead.
+    /// <see cref="WalkStraight(float, float)"/> after it. If the game's waypoint walking is not available, each corner
+    /// is walked as its own straight step instead.
     /// </summary>
     public TimbnNpcSteps WalkStraight(IReadOnlyList<Vector3> corners) =>
         Add($"straight walk through {corners.Count} corner(s)", run =>
@@ -129,11 +129,12 @@ public sealed class TimbnNpcSteps
         });
 
     /// <summary>
-    /// Picks a trip off the origin and runs it, then asks again from where it ended, so trips can chain on without
-    /// going back to the origin in between. The pick is called with no previous trip at the origin, and with the trip
-    /// just finished after its body. Return a trip to run it (only its Leave part is skipped when it chains on), or
-    /// null to stay put at the origin or to run the finished trip's Return. Once the next block is due no trip chains
-    /// on, and the block waits for the walk home. A point claimed on the way is let go when the chain is over.
+    /// Picks a trip off the origin and runs it. Then it asks again from where the trip ended, so trips can chain on
+    /// without going back to the origin in between. The pick is called with no previous trip at the origin. It is
+    /// called again with the trip just finished after its body. Return a trip to run it (a chained trip skips its Leave
+    /// part). Return null to stay at the origin. After a trip, return null to run that trip's Return. Once the next
+    /// block is due, no trip chains on and the block waits for the walk home. A point claimed on the way is let go when
+    /// the chain is over.
     /// </summary>
     /// <example>
     /// <code>
@@ -229,19 +230,4 @@ public sealed class TimbnNpcSteps
         Steps.Add(new TimbnRoutineStep<TimbnNpcRun>(text, run));
         return this;
     }
-}
-
-/// <summary>What a list of steps acts on, the person.</summary>
-internal sealed class TimbnNpcRun
-{
-    internal TimbnNpcRun(TimbnNpc npc)
-    {
-        Npc = npc;
-    }
-
-    internal TimbnNpc Npc { get; }
-
-    internal bool BlockDue { get; set; }
-
-    internal System.Random Random { get; } = new();
 }

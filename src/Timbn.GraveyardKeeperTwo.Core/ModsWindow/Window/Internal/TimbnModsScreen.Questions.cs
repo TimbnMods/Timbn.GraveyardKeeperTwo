@@ -44,14 +44,8 @@ internal sealed partial class TimbnModsScreen
     // Both ask first, so the player sees that something happened.
     private void AskSave()
     {
-        if (!HasMod)
+        if (!HasMod || !IsDirty)
             return;
-
-        if (!IsDirty)
-        {
-            TimbnCorePlugin.Instance!.UI.ShowMessage(TimbnModsText.SaveTitle, string.Format(TimbnModsText.NothingToSave, Mod.Name));
-            return;
-        }
 
         TimbnCorePlugin.Instance!.UI.ShowConfirm(TimbnModsText.SaveTitle, string.Format(TimbnModsText.SaveMessage, Mod.Name), () => SaveDraft()?.Invoke());
     }

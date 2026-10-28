@@ -10,7 +10,7 @@ internal static class PlayerDataDropPatch
     [HarmonyPatch(nameof(PlayerData.DropOverheadItem), typeof(Item))]
     [HarmonyPrefix]
     private static bool DropOverheadItemPreFix(Item item) =>
-        !TimbnCarry.BlocksDrop(item);
+        !TimbnOverhead.BlocksDrop(item);
 
     // Picking something up runs inside the same key handling as the plain drop, and swaps what the player holds
     // through DropOverheadItem. That swap is the game's own drop, so it is not blocked, or the player would end up
@@ -19,9 +19,9 @@ internal static class PlayerDataDropPatch
     [HarmonyPrefix]
     private static bool AddOverheadItemPreFix(Item item, out bool __state)
     {
-        __state = TimbnCarry.IsReadingInput;
-        TimbnCarry.IsReadingInput = false;
-        if (!TimbnCarry.HandsLocked || item == null || item.IsEmpty)
+        __state = TimbnOverhead.IsReadingInput;
+        TimbnOverhead.IsReadingInput = false;
+        if (!TimbnOverhead.HandsLocked || item == null || item.IsEmpty)
             return true;
 
         // Whatever called this has already taken the item out of the world, so it goes on the ground rather than away.
@@ -32,5 +32,5 @@ internal static class PlayerDataDropPatch
     [HarmonyPatch(nameof(PlayerData.AddOverheadItem))]
     [HarmonyFinalizer]
     private static void AddOverheadItemFinalizer(bool __state) =>
-        TimbnCarry.IsReadingInput = __state;
+        TimbnOverhead.IsReadingInput = __state;
 }

@@ -5,7 +5,7 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
 /// Reads the game's own lists of places people go, so a mod never writes a list of point ids, and what the game keeps
-/// about a person, such as their reputation resource. To move someone, use the plugin's Npcs property.
+/// about a person, such as their reputation resource. To move someone, use the mod's Npcs property.
 /// </summary>
 public static class TimbnNpcs
 {
@@ -53,7 +53,7 @@ public static class TimbnNpcs
 
     /// <summary>
     /// The kinds of people the game itself placed in one of its life simulator groups, one entry per person, such as
-    /// the villagers of the village day group. People a plugin added with Npcs.Spawn are left out.
+    /// the villagers of the village day group. People a mod added with Npcs.Spawn are left out.
     /// </summary>
     /// <example>
     /// <code>

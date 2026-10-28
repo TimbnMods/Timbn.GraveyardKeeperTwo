@@ -4,9 +4,9 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 public enum TimbnWalk
 {
     /// <summary>
-    /// Along the game's paths, the way villagers walk, taking the shortest way along the roads and going through
-    /// doors. When the paths do not join where they stand to the point, the walk is skipped instead of cutting across
-    /// the map.
+    /// Along the game's paths like villagers walk, taking the shortest way along the roads and going through doors.
+    /// When the paths do not join the person's spot to the point, the walk is skipped instead of cutting across the
+    /// map.
     /// </summary>
     Paths,
 

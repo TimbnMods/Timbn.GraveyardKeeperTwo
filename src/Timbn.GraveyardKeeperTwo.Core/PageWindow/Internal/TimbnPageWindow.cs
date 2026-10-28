@@ -58,6 +58,8 @@ internal sealed class TimbnPageWindow : LazyWindow<LazyWidgetDataBase>
     /// <summary>Whether a page can open now, which needs a window already made or the game's window to copy one from.</summary>
     internal static bool CanShow => _windows.Any(window => window != null) || TimbnWindowFrame.CanCopy;
 
+    internal static bool AnyOpen => _windows.Any(window => window != null && window._page != null);
+
     internal static void DestroyInstance()
     {
         for (var depth = _windows.Count - 1; depth >= 0; depth--)
@@ -372,11 +374,27 @@ internal sealed class TimbnPageWindow : LazyWindow<LazyWidgetDataBase>
         Clear(_root);
         _pause?.Dispose();
         _pause = null;
-        base.Close();
+        CloseWindow();
         if (page != null)
             TimbnSafe.Run(page.Closed, _logger, $"{nameof(TimbnPageWindow)}|The page's closed handler");
 
         closed?.Invoke();
+    }
+
+    // Closing a window gives player control back, and the game's handler for that throws once the player is destroyed
+    // (the main menu, or a quit), whether or not the game still counts as in a save. The window is already hidden by then, so
+    // the throw is logged for debugging only and the rest of the close runs. TimbnSafe.Run is not used here since it logs
+    // an error, and this one throw is expected on every quit, so it names the one exception type.
+    private void CloseWindow()
+    {
+        try
+        {
+            base.Close();
+        }
+        catch (ArgumentNullException exception)
+        {
+            _logger?.LogDebug($"{nameof(TimbnPageWindow)}|The game's close handler found a destroyed object. {exception.Message}");
+        }
     }
 
     // A page can change height while it is open, such as a card that shows and hides, and the window's own layout is
@@ -497,6 +515,15 @@ internal sealed class TimbnPageWindow : LazyWindow<LazyWidgetDataBase>
             return;
 
         _actionFrame[action.Face] = Time.frameCount;
+
+        // A key press does not end the edit of a box with the caret the way a click does, so what was typed is taken first.
+        // Back and Cancel sit on the other buttons and leave the edit alone, since Esc and B must not keep it.
+        if (action.Face is TimbnFaceButton.Primary or TimbnFaceButton.PrimarySpecial)
+        {
+            foreach (var box in Widgets.OfType<TimbnTextBoxWidget>())
+                box.CommitFocused();
+        }
+
         if (action.Button != null)
             action.Button.Press();
         else if (action.Enabled)

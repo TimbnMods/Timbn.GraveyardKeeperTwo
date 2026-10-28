@@ -15,6 +15,6 @@ public sealed class TimbnModEvent
     /// <summary>The id mods publish and listen with, such as "moved".</summary>
     public string Id { get; }
 
-    /// <summary>The plugin guids of the mods publishing this id right now. It is empty when a mod only listens and nobody has published yet.</summary>
+    /// <summary>Lists the guids of the mods that publish this id right now. A mod outside Timbn shows under the name Core knows it by. It is empty when a mod only listens and nobody has published yet.</summary>
     public IReadOnlyList<string> PublishingMods { get; }
 }

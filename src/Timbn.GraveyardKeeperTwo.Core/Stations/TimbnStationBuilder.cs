@@ -1,11 +1,11 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Describes a buildable workstation for the plugin's Stations.Add, with its look, which game station it behaves
-/// like, and what it costs at the build desk. Core turns it into the five definitions the game expects, the station,
-/// its construction site, the build desk entry and the two removals, with their text, the same way the game's own
-/// woodworking bench is set up. Only <see cref="Model(TimbnModel)"/> is required. A station with no <see cref="Cost"/> is free, and
-/// one with no <see cref="UnlockedBy"/> is on the build desk from the start.
+/// Describes a buildable workstation for Stations.Add. It holds the station's look, which game station it behaves
+/// like and what it costs at the build desk. Core turns it into the five definitions the game expects. These are the
+/// station, its construction site, the build desk entry and the two removals. Core also adds their text and sets
+/// them up like the game's own woodworking bench. Only <see cref="Model(TimbnModel)"/> is required. A station with no
+/// <see cref="Cost"/> is free. One with no <see cref="UnlockedBy"/> is on the build desk from the start.
 /// </summary>
 /// <example>
 /// A smoking rack that works like the kitchen oven, built in the yard for 4 boards.
@@ -104,9 +104,10 @@ public sealed class TimbnStationBuilder
     internal Action<WGODef>? EditStation { get; private set; }
 
     /// <summary>
-    /// The finished station's look when it faces the camera, which every station has, with a box shaped footprint the
-    /// size of the model, a solid body, an interaction area and a dock spot in front where the player works and finished
-    /// items drop. A station with only this side stays as it is placed. Add <see cref="Left(TimbnModel, TimbnModel)"/>, <see cref="Right(TimbnModel, TimbnModel)"/> or
+    /// Sets how the finished station looks when it faces the camera. Every station needs one. Core gives it a box shaped
+    /// footprint the size of the model and a solid body. It also gets an interaction area and a dock spot in front. The
+    /// player works at the dock spot and finished items drop there. A station with only this side stays as it is placed.
+    /// Add <see cref="Left(TimbnModel, TimbnModel)"/>, <see cref="Right(TimbnModel, TimbnModel)"/> or
     /// <see cref="Up(TimbnModel, TimbnModel)"/> to let the player turn it with R in build mode.
     /// </summary>
     /// <param name="model">The model, centered on the station with its base at the ground.</param>
@@ -285,15 +286,16 @@ public sealed class TimbnStationBuilder
     }
 
     /// <summary>
-    /// Builds a slot into the station's front facing, a spot where a station or extension that calls BuildsInSlot with
-    /// the same id goes, the way the game's conveyor furnace has spots for its bellows and press. In build mode the game
-    /// marks each free slot in green, places it only there, and links the two, so the station finds
-    /// what sits in its slots with <see cref="TimbnWorld.Extensions"/>. Removing the station removes what sits in its
-    /// slots, with their refund and anything they hold dropped on the ground. A slot is the size of what goes in it, so
-    /// pass the same size given to that one's Model. The game snaps both to its build grid, so the size has to be whole
-    /// cells (0.32 across and 0.3 deep) and the slot's corner a whole number of cells from the corner of this station's
-    /// footprint, and Stations.Add says the nearest spot that fits when it isn't. A slot can sit beside the station, the
-    /// way the yard furnace takes its bellows, or inside its footprint, the way the conveyor furnace takes its pieces on top.
+    /// Adds a slot to the station's front facing. A slot is a spot where another station or extension goes. That piece
+    /// calls BuildsInSlot with the same id. The game's conveyor furnace works this way, with spots for its bellows and
+    /// press. In build mode the game marks each free slot in green and places the piece only there. It also links the
+    /// two, so the station can find what sits in its slots with <see cref="TimbnWorld.Extensions"/>. Removing the
+    /// station removes what sits in its slots. They are refunded and anything they hold drops on the ground. A slot is
+    /// the size of what goes in it, so pass the same size you gave that piece's Model. The game snaps both to its build
+    /// grid. The size has to be whole cells (0.32 across and 0.3 deep). The slot's corner has to be a whole number of
+    /// cells from the corner of this station's footprint. If it isn't, Stations.Add tells you the nearest spot that
+    /// fits. A slot can sit beside the station, like the yard furnace's bellows. It can also sit inside the footprint,
+    /// like the conveyor furnace's pieces on top.
     /// </summary>
     /// <example>
     /// A table with a stand's slot on its left and another on its right.
@@ -333,8 +335,8 @@ public sealed class TimbnStationBuilder
     /// Gives the station a spot where the game's own handler seats a zombie, for a station based on the game's zombie
     /// supplier ("zombie_supplier_station") or another that uses its handler. The player puts a zombie in with E and
     /// takes it out the usual way, and the zombie is the station's worker. Core bakes the spot at the dock edge of
-    /// every facing, looking back at the station. A seated zombie stays a caretaker, which asks its zone for orders and
-    /// walks off to carry things for zombie crafter benches, so Core keeps it sitting unless the station takes orders.
+    /// every facing, looking back at the station. A seated zombie is still a caretaker. It would ask its zone for orders
+    /// and walk off to carry things for zombie crafter benches. Core keeps it sitting unless the station takes orders.
     /// </summary>
     /// <param name="takesOrders">True to leave the zombie to take orders like the game's own supplier does, for a mod that makes a real one.</param>
     public TimbnStationBuilder ZombieSpot(bool takesOrders = false)
@@ -350,7 +352,7 @@ public sealed class TimbnStationBuilder
     /// it back unless a craft is running there, so a craft started on the station holds the zombie until it ends. The
     /// station can't be dismantled while a zombie lies on it. Show the zombie with
     /// <see cref="ShowWhen(TimbnLookCondition, TimbnModel, bool)"/> and <see cref="TimbnLook.HoldsGroup"/>("zombie"),
-    /// and start a craft there with the plugin's Crafts.Start. The game's resurrection table ("resurrection_table_1")
+    /// and start a craft there with Crafts.Start. The game's resurrection table ("resurrection_table_1")
     /// makes a good base.
     /// </summary>
     public TimbnStationBuilder HoldsZombie()
@@ -375,10 +377,10 @@ public sealed class TimbnStationBuilder
     }
 
     /// <summary>
-    /// The game station the new one behaves like, copied field by field. "kitchen_oven" gives a timed station that
-    /// cooks on its own and takes a zombie, "sawhorse" a bench worked by hand. The woodworking bench
-    /// ("woodworking_workbench_1") by default. Its site, build desk entry and removals are copied from the same
-    /// station when the game builds it from a build desk, otherwise from the woodworking bench's.
+    /// Sets the game station the new one behaves like, copied field by field. "kitchen_oven" gives a timed station that
+    /// cooks on its own and takes a zombie. "sawhorse" gives a bench worked by hand. The default is the woodworking
+    /// bench ("woodworking_workbench_1"). The construction site, build desk entry and removals come from the same
+    /// station when the game builds that one from a build desk. Otherwise they come from the woodworking bench.
     /// </summary>
     /// <param name="stationId">The game station's world object id.</param>
     public TimbnStationBuilder BasedOn(string stationId)
@@ -452,8 +454,9 @@ public sealed class TimbnStationBuilder
     }
 
     /// <summary>
-    /// Makes the station run its crafts by itself over time, the way the kitchen oven cooks while the player is away,
-    /// whose tick duration is 10. Use <see cref="Manual"/> for one that only progresses while someone works it.
+    /// Makes the station run its crafts by itself over time. The kitchen oven works like this when it cooks while the
+    /// player is away. Its tick duration is 10. Use <see cref="Manual"/> for a station that only progresses while
+    /// someone works it.
     /// </summary>
     /// <param name="tickDuration">The game's autocraft tick duration, for example 10.</param>
     public TimbnStationBuilder Automatic(int tickDuration)
@@ -497,8 +500,8 @@ public sealed class TimbnStationBuilder
     }
 
     /// <summary>
-    /// The icon shown over the station and in the build desk. Any sprite the game has, or one added with the plugin's
-    /// Sprites.AddEmbeddedPng. Without one the template's icons stay.
+    /// The icon shown over the station and in the build desk. Use any sprite the game has or one added with
+    /// Sprites.AddEmbedded and the Blueprint kind. Without one the template's icons stay.
     /// </summary>
     /// <param name="spriteId">The sprite name, for example "timbn_red_workbench".</param>
     public TimbnStationBuilder Icon(string spriteId)
@@ -540,8 +543,8 @@ public sealed class TimbnStationBuilder
     /// <summary>
     /// Which build desk offers the station, the yard's ("builder_yard") by default. Each build desk builds in its own zone,
     /// for example "builder_graveyard" or "builder_garden". The station can be limited to one build area in that zone,
-    /// such as "yard_place". Without an area it goes anywhere in the zone, except that the template's own area is kept
-    /// on a build desk the template also uses.
+    /// such as "yard_place". Without an area the station can go anywhere in the zone. The exception is a build desk that
+    /// the base station is also built at. There the base station's area is kept.
     /// </summary>
     /// <param name="buildDeskId">The build desk's world object id.</param>
     /// <param name="areaId">A build area id in the build desk's zone, or null for the default.</param>
@@ -600,7 +603,7 @@ public sealed class TimbnStationBuilder
     /// <summary>
     /// Has a technology put the station on the build desk, the way "work_with_wood_1" opens the woodworking bench. The
     /// tech's tooltip lists the station, researching the tech unlocks it, and a save that already has the tech gets it
-    /// as soon as it loads. The station is missing from the build desk until then. The tech is put back when the plugin
+    /// as soon as it loads. The station is missing from the build desk until then. The tech is put back when the mod
     /// unloads, and a tech the game doesn't have is logged.
     /// </summary>
     /// <param name="techId">The technology's id.</param>

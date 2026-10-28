@@ -20,7 +20,17 @@ internal static class TimbnNpcTalk
 
     internal static int Session { get; private set; }
 
-    internal static bool IsTalkingTo(WgoData npc) => _talks.Exists(talk => talk.Npc.UniqueId == npc.UniqueId);
+    // A loop and not Exists with a lambda, since every schedule asks every frame and the lambda would be built each time.
+    internal static bool IsTalkingTo(WgoData npc)
+    {
+        foreach (var talk in _talks)
+        {
+            if (talk.Npc.UniqueId == npc.UniqueId)
+                return true;
+        }
+
+        return false;
+    }
 
     internal static IDisposable StopWhileTalking(TimbnNpc npc)
     {

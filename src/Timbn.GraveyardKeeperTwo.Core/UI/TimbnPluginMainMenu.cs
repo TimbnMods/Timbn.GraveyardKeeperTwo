@@ -3,8 +3,8 @@ using System.ComponentModel;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Puts a plugin's messages on the main menu as popups in the game's dialog window. Reach it through the
-/// plugin's MainMenu property.
+/// Shows a mod's messages on the main menu as popups in the game's dialog window. Reach it through the MainMenu
+/// property.
 /// </summary>
 public sealed class TimbnPluginMainMenu
 {

@@ -8,7 +8,7 @@ internal static class BigDropInteractionHandlerPatch
     [HarmonyPostfix]
     private static void HasInteractionPostFix(ref bool __result)
     {
-        if (__result && TimbnCarry.HandsLocked)
+        if (__result && TimbnOverhead.HandsLocked)
             __result = false;
     }
 }

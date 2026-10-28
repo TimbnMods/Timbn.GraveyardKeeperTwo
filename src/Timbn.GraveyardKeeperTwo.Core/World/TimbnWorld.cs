@@ -99,7 +99,6 @@ public static class TimbnWorld
     /// var stands = TimbnWorld.Extensions(machine).Where(wgo => wgo.id == "timbn_infusion_stand").ToList();
     /// </code>
     /// </example>
-    /// <param name="station">The station.</param>
     /// <returns>A copy of the list. Empty when nothing is attached or at the main menu.</returns>
     public static IReadOnlyList<WgoData> Extensions(WgoData station) =>
         TimbnGame.IsInGame && station != null
@@ -110,7 +109,6 @@ public static class TimbnWorld
     /// The id of the craft at the front of a station's queue, running or waiting to start, or null when it has none,
     /// for example to check whether a stand started with Crafts.Start is still on "timbn_infusion_stand_infusion".
     /// </summary>
-    /// <param name="station">The station.</param>
     public static string? RunningCraft(WgoData station) => station.CraftComponent?.CurrentCraftElement?.CraftId;
 
     /// <summary>
@@ -227,7 +225,7 @@ public static class TimbnWorld
     /// </summary>
     /// <example>
     /// <code>
-    /// var visitors = TimbnWorld.TownGratitude / 5;
+    /// var parishioners = Mathf.Min(TimbnWorld.TownGratitude, (int)TimbnWorld.ChurchQuality);
     /// </code>
     /// </example>
     public static int TownGratitude => TimbnGame.IsInGame ? MainGame.PlayerData.GetResInt("happiness") : 0;
@@ -420,8 +418,6 @@ public static class TimbnWorld
         TimbnGame.IsInGame ? [.. MainGame.WorldData.gdPointsData.GetGDPointsDataByCustomTag(customTag) ?? []] : [];
 
     /// <summary>The distance between two spots as seen from above, ignoring height.</summary>
-    /// <param name="first">One spot.</param>
-    /// <param name="second">The other spot.</param>
     /// <returns>The flat distance in world units.</returns>
     public static float FlatDistance(Vector3 first, Vector3 second) =>
         new Vector2(first.x - second.x, first.z - second.z).magnitude;

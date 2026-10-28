@@ -6,7 +6,7 @@
 - Timbn mods can show an About card with a description and links, add pages of their own to the window, and share one line in the list as a group.
 - Timbn Core is always on now, since every Timbn mod needs it.
 - Timbn Core no longer hides other mods from tools such as RuntimeUnityEditor.
-- New for mod authors are pages and popups in the game's own look, actions on the game's objects and on spots in the world, key hint bars, events mods send each other, the game's own words (OK, Cancel, short replies, NPC names) for any text or conversation line, translatable enum choices, and more helpers for the player, the world and quests.
+- New for mod authors are pages and popups in the game's own look, actions on the game's objects and on spots in the world, key hint bars, events mods send each other, the game's own words (OK, Cancel, short replies, NPC names) for any text or conversation line, translatable enum choices, pictures on pages, item, blueprint, perk and buff icons with one size rule each and the game's margin added for you, list cards a mod fills itself, rows that wrap onto new lines, and more helpers for the player, the world and quests.
 
 ## 2.1.0
 

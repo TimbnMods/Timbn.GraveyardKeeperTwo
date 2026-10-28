@@ -3,10 +3,9 @@ using LazyBearTechnology;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Adds definitions to the game's balance tables on behalf of a plugin. The balance is where the game keeps
-/// every item, buff, quest, vendor, craft, and building, and GameBalance.Me.GetData looks them up by id.
-/// Use this for a kind of definition that has no easier Core API. Definitions are removed when the plugin
-/// unloads. Reach it through the plugin's Balance property.
+/// Adds definitions to the game's balance tables for a mod. The balance is where the game keeps every item, buff,
+/// quest, vendor, craft and building. GameBalance.Me.GetData looks them up by id. Use this for a kind of definition
+/// that has no easier Core API. Definitions are removed when the mod unloads. Reach it through the Balance property.
 /// </summary>
 public sealed class TimbnPluginBalance
 {
@@ -31,8 +30,9 @@ public sealed class TimbnPluginBalance
     /// <summary>
     /// Adds a definition like <see cref="Add(BalanceBaseObject)"/>, and calls prepare with the loaded balance
     /// right before each insert. Use it when the definition needs something from the balance first, such as
-    /// values copied from one of the game's items. If another plugin already holds the same id, this one
-    /// replaces it in place, which is how a hot reloaded plugin takes over from its old copy.
+    /// values copied from one of the game's items. A definition with the same id that a mod added earlier is
+    /// replaced in place. That is how a hot reloaded mod takes over from its old copy. An id that the game ships is
+    /// refused.
     /// </summary>
     /// <param name="definition">The definition to add. Its id must not belong to a definition the game ships.</param>
     /// <param name="prepare">Called with the loaded balance just before the definition goes in, on every load. Can be null.</param>
@@ -72,9 +72,9 @@ public sealed class TimbnPluginBalance
     /// </example>
     /// <param name="templateItemId">The id of the game's item to copy.</param>
     /// <param name="id">The new item's id. It must not belong to an item the game ships.</param>
-    /// <param name="name">The item's name. Empty leaves the text to the plugin's lang files.</param>
+    /// <param name="name">The item's name. Empty leaves the text to the mod's lang files.</param>
     /// <param name="description">The item's tooltip description. Empty leaves it to the lang files.</param>
-    /// <param name="iconId">The item's icon, any sprite the game has or one added with Sprites.AddEmbeddedPng. Empty keeps the template's.</param>
+    /// <param name="iconId">The item's icon, any sprite the game has or one added with Sprites.AddEmbedded and the Item kind. Empty keeps the template's.</param>
     /// <param name="edit">
     /// Changes anything else on the copy, such as its price or onUseExpressions, each time the balance loads. Can be
     /// null. It runs after the icon is set, and the game reads the item's use effects again afterward.
@@ -85,7 +85,7 @@ public sealed class TimbnPluginBalance
 
     /// <summary>
     /// Changes one of the game's own definitions, such as a perk, an item, or a craft, and puts it back when the
-    /// plugin unloads or the returned handle is disposed. Apply runs straight away if the balance has loaded, and
+    /// mod unloads or the returned handle is disposed. Apply runs straight away if the balance has loaded, and
     /// again on the fresh copy each time the balance loads after that, so the change is never lost to a reload.
     /// Revert only runs on the copy apply changed, and only while that copy is still the loaded one. Keep what
     /// revert needs, such as the old value, from inside apply. Pair it with Settings.While to follow a toggle.

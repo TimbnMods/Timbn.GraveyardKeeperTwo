@@ -14,8 +14,8 @@ public static class TimbnGame
     public static bool IsInGame => _started && MainGame.Instance != null;
 
     /// <summary>
-    /// Writes the loaded save to its slot right now, the way the game does when the player sleeps. Every plugin's
-    /// Events.BeforeSave and AfterSave run around it, and Core keeps mod items out of the file as always.
+    /// Writes the loaded save to its slot right now, the way the game does when the player sleeps. Every mod's
+    /// Events.BeforeSave and AfterSave run around it. Core keeps mod items out of the file as always.
     /// </summary>
     /// <example>
     /// <code>

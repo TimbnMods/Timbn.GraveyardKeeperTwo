@@ -4,8 +4,8 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
 /// Reads where the player is in the loaded save and what they know, and makes the one shot changes that need no
-/// undo, such as giving money, changing a resource, unlocking a craft or moving them. See the plugin's Player
-/// property for changes that have to be undone, such as holding the player still.
+/// undo, such as giving money, changing a resource, unlocking a craft or moving them. See the mod's Player property
+/// for changes that have to be undone, like holding the player still.
 /// </summary>
 public static class TimbnPlayer
 {
@@ -13,8 +13,8 @@ public static class TimbnPlayer
 
     /// <summary>
     /// Whether the game itself has taken the player's control, such as for a cutscene, sleep, or a teleport.
-    /// Control taken by mods with the plugin's Player.TakeControl does not count, so a mod holding the player can
-    /// use it to notice the game stepping in.
+    /// Control taken by mods with Player.TakeControl does not count, so a mod holding the player can use it to
+    /// notice the game stepping in.
     /// </summary>
     /// <example>
     /// Stop meditating when the game takes control for anything but an open window.
@@ -76,30 +76,39 @@ public static class TimbnPlayer
     }
 
     /// <summary>
-    /// The item the player carries over their head, such as a log, or null when they carry nothing or at the main
-    /// menu. A player with extra carry slots can carry several, and this is the one on top, the one the
-    /// interaction key puts down first. See the plugin's Player.Carry to hand them one.
+    /// The item over the player's head, such as a log, or null when nothing is there or at the main menu. A player
+    /// with extra overhead slots can have several, and this is the one on top, the one the interaction key puts down
+    /// first. See the mod's Player.AddOverheadItem to add one.
     /// </summary>
     /// <example>
     /// <code>
-    /// if (TimbnPlayer.Carried?.id == "wood")
-    ///     Logger.LogInfo("The player carries a log.");
+    /// if (TimbnPlayer.OverheadItem?.id == "wood")
+    ///     Logger.LogInfo("A log is over the player's head.");
     /// </code>
     /// </example>
-    public static Item? Carried => TimbnCarry.Current;
+    public static Item? OverheadItem => TimbnOverhead.Current;
 
     /// <summary>
-    /// Whether the player's hands are free, with nothing over their head in any carry slot and nothing held out in
-    /// front of them the way they hold seeds. False at the main menu.
+    /// Whether the player has something over their head in any overhead slot, or a seed or fertilizer picked to plant.
+    /// The game treats the two as one slot, since picking something to plant puts down whatever was overhead. False
+    /// at the main menu.
     /// </summary>
     /// <example>
     /// <code>
-    /// if (TimbnPlayer.HandsFree)
-    ///     _mug = Player.Carry(new Item("my_mod_mug"));
+    /// if (!TimbnPlayer.HasOverheadItem)
+    ///     _mug = Player.AddOverheadItem(new Item("my_mod_mug"));
     /// </code>
     /// </example>
-    public static bool HandsFree =>
-        TimbnGame.IsInGame && MainGame.PlayerData.OverheadCount == 0 && !MainGame.PlayerData.HasInteractingItem;
+    public static bool HasOverheadItem =>
+        TimbnGame.IsInGame && (MainGame.PlayerData.HasOverheadItem || MainGame.PlayerData.HasInteractingItem);
+
+    /// <summary>Use <see cref="OverheadItem"/>.</summary>
+    [Obsolete("Use OverheadItem.")]
+    public static Item? Carried => OverheadItem;
+
+    /// <summary>Use !<see cref="HasOverheadItem"/>.</summary>
+    [Obsolete("Use !HasOverheadItem.")]
+    public static bool HandsFree => TimbnGame.IsInGame && !HasOverheadItem;
 
     private static void ChangeMoney(int amount)
     {
@@ -173,10 +182,11 @@ public static class TimbnPlayer
     public static float Energy => GetResource(LazyConsts.ENERGY_KEY);
 
     /// <summary>
-    /// Gives the player energy, or takes it with a negative amount, the way the game's own crafting and sleep do. The game's
-    /// rules apply, so energy stops at its maximum and taking it while tired adds insanity. It suits a little each frame,
-    /// such as resting by a fire, since it skips the resource changed event that <see cref="AddResource"/> fires (taking
-    /// energy while tired still fires it for the insanity) and does nothing while energy is full.
+    /// Gives the player energy or takes it with a negative amount. It works the way the game's crafting and sleep do.
+    /// The game's rules apply, so energy stops at its maximum and taking it while tired adds insanity. It suits a little
+    /// each frame, like resting by a fire, since it skips the resource changed event that <see cref="AddResource"/>
+    /// fires. Taking energy while tired still fires that event for the insanity. It also skips adding while energy is
+    /// full.
     /// </summary>
     /// <example>
     /// <code>
@@ -221,12 +231,12 @@ public static class TimbnPlayer
     }
 
     /// <summary>How many of an item the player carries in their inventory and bags. Storage in the world does not count.</summary>
-    /// <param name="id">The item id.</param>
+    /// <param name="id">The item's id, like one from TimbnGameIds.Items.</param>
     public static int CountItem(string id) =>
         TimbnGame.IsInGame ? MainGame.PlayerData.inventory.Data.GetTotalCountInInventory(id) : 0;
 
     /// <summary>Whether the player carries at least some of an item in their inventory and bags.</summary>
-    /// <param name="id">The item id.</param>
+    /// <param name="id">The item's id, like one from TimbnGameIds.Items.</param>
     /// <param name="count">How many they need. 1 by default.</param>
     public static bool HasItem(string id, int count = 1) => CountItem(id) >= count;
 
@@ -279,7 +289,7 @@ public static class TimbnPlayer
     /// Removes an item from the player's inventory and bags, up to the count asked for. The items are gone, so check
     /// <see cref="HasItem"/> first when the player has to have enough.
     /// </summary>
-    /// <param name="id">The item id.</param>
+    /// <param name="id">The item's id, like one from TimbnGameIds.Items.</param>
     /// <param name="count">How many to take.</param>
     /// <returns>How many were taken, which is less than <paramref name="count"/> when the player had fewer.</returns>
     public static int TakeItem(string id, int count) =>
@@ -542,7 +552,7 @@ public static class TimbnPlayer
     /// </summary>
     /// <example>
     /// <code>
-    /// TimbnPlayer.TeleportTo("player_spawn_point_home");
+    /// TimbnPlayer.TeleportTo("tp_point_tp_RT_home_exit");
     /// </code>
     /// </example>
     /// <param name="pointId">The point's id, as <see cref="TimbnWorld.Point"/> takes it.</param>
@@ -553,7 +563,7 @@ public static class TimbnPlayer
         && PlayerController.Teleport(new GDPointTeleportData(point, TimbnWorld.EnvironmentAt(point.Position)));
 
     /// <summary>
-    /// Turns the player to face a spot, such as the campfire they sit at. While a plugin holds the player's control the
+    /// Turns the player to face a spot, such as the campfire they sit at. While a mod holds the player's control the
     /// player keeps facing it, even as the mouse moves, until every hold has let go or a walk or slide starts. Without a
     /// hold the player turns and then moves freely again.
     /// </summary>

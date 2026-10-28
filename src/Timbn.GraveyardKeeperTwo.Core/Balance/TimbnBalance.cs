@@ -4,8 +4,9 @@ using System.Collections;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Helpers for the game's balance tables. A plugin adds and edits definitions through its Balance property, and
-/// this class holds the static pieces around that, like checking whether the balance has loaded and swapping item icons.
+/// Helpers for the game's balance tables. A mod adds and edits definitions through its Balance property. This class
+/// holds the static pieces around that, like checking whether the balance has loaded, swapping item icons and
+/// building game expressions.
 /// </summary>
 public static class TimbnBalance
 {
@@ -256,7 +257,7 @@ public static class TimbnBalance
 
     internal static HashSet<string> AllAddedIds() => [.. _entries.Select(entry => entry.Definition.id)];
 
-    /// <summary>Whether a plugin added the definition through Core, counting one held over an F6 reload.</summary>
+    /// <summary>Whether a mod added the definition through Core, counting one held over an F6 reload.</summary>
     internal static bool IsAdded(BalanceBaseObject definition) =>
         _entries.Any(entry => entry.Definition == definition) || _held.Any(entry => entry.Definition == definition);
 
@@ -279,7 +280,7 @@ public static class TimbnBalance
     }
 
     /// <summary>
-    /// Changes an item's icon to any sprite the game has, or one added with the plugin's Sprites.AddPng. It sets the
+    /// Changes an item's icon to any sprite the game has or one added with Sprites.AddEmbedded and the Item kind. It sets the
     /// item's iconId and also its custom icon, so the two always match.
     /// </summary>
     /// <example>
@@ -356,13 +357,13 @@ public static class TimbnBalance
     }
 
     /// <summary>
-    /// Keeps the definitions of plugins removed from now on in the game until <see cref="ReleaseHeldRemovals"/>. ScriptEngine
+    /// Keeps the definitions of mods removed from now on in the game until <see cref="ReleaseHeldRemovals"/>. ScriptEngine
     /// destroys the old plugins a frame before it adds the new ones, and the game would meet a queued craft or a placed
     /// station with no definition in that frame.
     /// </summary>
     internal static void HoldRemovals() => _holding = true;
 
-    /// <summary>Removes every held definition no reloaded plugin added again, the way an unload would have.</summary>
+    /// <summary>Removes every held definition no reloaded mod added again, like an unload would have.</summary>
     internal static void ReleaseHeldRemovals()
     {
         _holding = false;

@@ -1,14 +1,17 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Describes a craft for the plugin's Crafts.Add, with where it runs, what it takes in and what it makes. The craft is
-/// copied from one of the game's own, the woodworking bench's wooden plank unless <see cref="BasedOn"/> names another, so it
-/// starts with everything the game expects and the builder changes only what differs. What is not set stays the
-/// template's, so a craft that only calls <see cref="Needs(string, int)"/> and <see cref="Makes(string, int)"/> keeps the template's
-/// station, work time and energy. The exceptions are the unlock, since a craft is open from the start whatever the
-/// template did unless <see cref="NeedsUnlock"/> or <see cref="UnlockedBy"/> is called, and the template's rewards. A
-/// copy gives no tech points unless <see cref="TechPoints"/> sets them, and leaves out the template's linked perks and
-/// what it does when it finishes, such as berry_pie unlocking its next tech.
+/// Describes a craft for Crafts.Add. It says where the craft runs, what it takes in and what it makes. The craft is
+/// copied from one of the game's own. That is the woodworking bench's wooden plank unless <see cref="BasedOn"/> names
+/// another. So the craft starts with everything the game expects and the builder changes only what differs. Anything
+/// you don't set stays as the template has it. A craft that only calls <see cref="Needs(string, int)"/> and
+/// <see cref="Makes(string, int)"/> keeps the template's station, work time and energy.
+/// <para>
+/// There are two exceptions. A craft is open from the start whatever the template did, unless
+/// <see cref="NeedsUnlock"/> or <see cref="UnlockedBy"/> is called. The template's rewards are also dropped. So a copy
+/// gives no tech points unless <see cref="TechPoints"/> sets them. It also has none of the template's linked perks or
+/// finish effects (berry_pie unlocking its next tech, for example).
+/// </para>
 /// </summary>
 /// <example>
 /// Four sticks from a board at the Stick Box, and a plank from sticks that needs the pillar next to it.
@@ -113,7 +116,7 @@ public sealed class TimbnCraftBuilder
 
     /// <summary>
     /// An item the craft takes in, with its count as one of the game's expressions, for example "10-5*#perk_heat_saver"
-    /// for firewood that a perk saves on. A count that doesn't parse fails here, when the plugin loads.
+    /// for firewood that a perk saves on. A count that doesn't parse fails here, when the mod loads.
     /// </summary>
     /// <param name="itemId">The item's id.</param>
     /// <param name="count">The game expression for how many.</param>
@@ -163,7 +166,7 @@ public sealed class TimbnCraftBuilder
     /// Has a technology grant the craft, the way "cooking_pastries" grants the muffin and the croissant. The tech's
     /// tooltip lists the craft, researching the tech unlocks it, and a save that already has the tech gets it as soon
     /// as it loads. The craft stays hidden until then, so this includes <see cref="NeedsUnlock"/>. The tech is put
-    /// back when the plugin unloads, and a tech the game doesn't have is logged.
+    /// back when the mod unloads. A tech the game doesn't have is logged.
     /// </summary>
     /// <param name="techId">The technology's id.</param>
     public TimbnCraftBuilder UnlockedBy(string techId)
@@ -174,8 +177,9 @@ public sealed class TimbnCraftBuilder
     }
 
     /// <summary>
-    /// The mastery level the player or zombie needs in the station's talent to work the craft, which the player gets
-    /// from the tool on their belt. The template's otherwise, 2 for the wooden plank, so Mastery(1) lets any tool work it.
+    /// Sets the mastery level the player or a zombie needs in the station's talent to work the craft. The player's level
+    /// comes from the tool on their belt. Left alone it is the template's level, which is 2 for the wooden plank.
+    /// Mastery(1) lets any tool work it.
     /// </summary>
     /// <param name="level">The level, 1 or more.</param>
     public TimbnCraftBuilder Mastery(int level)
@@ -192,7 +196,7 @@ public sealed class TimbnCraftBuilder
         return this;
     }
 
-    /// <summary>The icon the craft window shows for the craft, instead of the icon of what it makes. Any sprite the game has, or one added with the plugin's Sprites.AddEmbeddedPng.</summary>
+    /// <summary>The icon the craft window shows for the craft, instead of the icon of what it makes. Use any sprite the game has or one added with Sprites.AddEmbedded and the Item kind.</summary>
     /// <param name="spriteId">The sprite name.</param>
     public TimbnCraftBuilder Icon(string spriteId)
     {
@@ -200,7 +204,11 @@ public sealed class TimbnCraftBuilder
         return this;
     }
 
-    /// <summary>How long the craft takes in work ticks, swings of the tool at a bench worked by hand or the station's own tick at one that runs itself (10 seconds each at the kitchen oven). The template's otherwise, 4 for the wooden plank.</summary>
+    /// <summary>
+    /// Sets how long the craft takes, counted in work ticks. At a bench worked by hand a tick is one swing of the tool.
+    /// At a station that runs itself a tick is the station's own tick, which is 10 seconds at the kitchen oven. Left
+    /// alone it is the template's, which is 4 for the wooden plank.
+    /// </summary>
     /// <param name="ticks">The number of ticks.</param>
     public TimbnCraftBuilder DurationTicks(int ticks)
     {
@@ -208,7 +216,7 @@ public sealed class TimbnCraftBuilder
         return this;
     }
 
-    /// <summary>How much energy each work tick costs the player. The template's otherwise, 2 for the wooden plank.</summary>
+    /// <summary>Sets how much energy each work tick costs the player. Left alone it is the template's, which is 2 for the wooden plank.</summary>
     /// <param name="energy">Energy per tick.</param>
     public TimbnCraftBuilder EnergyPerTick(int energy)
     {
@@ -248,9 +256,9 @@ public sealed class TimbnCraftBuilder
     }
 
     /// <summary>
-    /// Runs the handler each time the craft starts at a station, which is when its ingredients are taken, for a timed
-    /// craft as well as an instant one. A craft with a count above one starts once per unit. The handler is undone when
-    /// the plugin unloads, and one that throws is logged without stopping the craft.
+    /// Runs the handler each time the craft starts at a station. That is when its ingredients are taken. It works the
+    /// same for a timed craft and an instant one. A craft with a count above one starts once per unit. The handler is
+    /// undone when the mod unloads. One that throws is logged without stopping the craft.
     /// </summary>
     /// <param name="handler">Told the station and the craft's id.</param>
     public TimbnCraftBuilder OnStarted(Action<TimbnCraftEvent> handler)
@@ -261,8 +269,8 @@ public sealed class TimbnCraftBuilder
 
     /// <summary>
     /// Runs the handler each time the craft finishes at a station, as the game finishes it, once per unit of a craft with
-    /// a count above one. A craft that fails while finishing doesn't raise it. The handler is undone when the plugin
-    /// unloads, and one that throws is logged without stopping the craft.
+    /// a count above one. A craft that fails while finishing doesn't raise it. The handler is undone when the mod
+    /// unloads. One that throws is logged without stopping the craft.
     /// </summary>
     /// <example>
     /// Pay a tech point to every seated zombie when the teaching craft ends.
@@ -284,7 +292,7 @@ public sealed class TimbnCraftBuilder
     /// field for. Until it passes the craft window's Start button stays gray and a queued craft waits, the way they do
     /// for a missing ingredient, and a craft already running carries on. The game asks again whenever it looks at the
     /// craft, so keep the check quick. A second call adds another check that must pass too. A check that throws is
-    /// logged once and counts as passing. The check is undone when the plugin unloads.
+    /// logged once and counts as passing. The check is undone when the mod unloads.
     /// </summary>
     /// <example>
     /// A lesson that only starts while a stand in the machine's slots holds a zombie.

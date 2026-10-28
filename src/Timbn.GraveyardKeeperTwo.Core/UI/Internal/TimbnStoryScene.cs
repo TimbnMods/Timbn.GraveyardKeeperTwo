@@ -4,7 +4,7 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
 /// Reads whether a story scene has the screen or the player, telling the game's own scenes apart from the cinematic
-/// bars and the control holds of Core's own talks and plugins.
+/// bars and the control holds of Core's own talks and mods.
 /// </summary>
 internal static class TimbnStoryScene
 {

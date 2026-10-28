@@ -1,6 +1,8 @@
 using BepInEx.Bootstrap;
+using LazyBearTechnology;
 using System.Globalization;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
@@ -147,20 +149,85 @@ internal static class TimbnModsCatalog
         typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal),
     ];
 
-    internal static IReadOnlyList<TimbnModsMod> FromChainloader() =>
-        Build(Chainloader.PluginInfos.Values
-            .Where(info => info?.Instance != null)
-            .Select(info => new TimbnModsPlugin(
-                info.Metadata.Name,
-                info.Metadata.Version.ToString(),
-                info.Metadata.GUID,
-                info.Instance.Config,
-                info.Instance is TimbnFrameworkPlugin,
-                info.Instance is TimbnFrameworkPlugin timbn ? timbn.IsFeatureBroken : null)));
+    // Reading every setting's tags by reflection costs a few milliseconds a mod, so a mod is built once and kept for as long
+    // as its config is the same object (a reload makes a new one) with the same settings, broken features and game language.
+    private static readonly ConditionalWeakTable<ConfigFile, BuiltMod> _built = [];
 
-    internal static IReadOnlyList<TimbnModsMod> Build(IEnumerable<TimbnModsPlugin> plugins) =>
-        [.. plugins
-            .Select(BuildMod)
+    private static int _warmedPlugins = -1;
+    private static string _warmedLanguage = string.Empty;
+
+    private sealed class BuiltMod(string language, int count, int broken, TimbnModsMod mod)
+    {
+        internal string Language { get; } = language;
+
+        internal int Count { get; } = count;
+
+        internal int Broken { get; } = broken;
+
+        internal TimbnModsMod Mod { get; } = mod;
+    }
+
+    internal static IReadOnlyList<TimbnModsMod> FromChainloader() => Sort(Plugins().Select(BuildCached));
+
+    // A reload brings new plugins and config files under the same count, so the next Warm builds them.
+    internal static void Invalidate() => _warmedPlugins = -1;
+
+    internal static bool IsWarm => _warmedPlugins == Chainloader.PluginInfos.Count && _warmedLanguage == LLBase.CurrentLang;
+
+    // Builds one mod that is not kept yet each call, so the window's first open finds them ready. It goes quiet once every
+    // loaded plugin has been built, until a plugin loads or unloads.
+    internal static void Warm()
+    {
+        if (IsWarm)
+            return;
+
+        foreach (var plugin in Plugins())
+        {
+            if (IsKept(plugin))
+                continue;
+
+            BuildCached(plugin);
+            return;
+        }
+
+        _warmedPlugins = Chainloader.PluginInfos.Count;
+        _warmedLanguage = LLBase.CurrentLang;
+    }
+
+    private static IEnumerable<TimbnModsPlugin> Plugins() => Chainloader.PluginInfos.Values
+        .Where(info => info?.Instance != null)
+        .Select(info => new TimbnModsPlugin(
+            info.Metadata.Name,
+            info.Metadata.Version.ToString(),
+            info.Metadata.GUID,
+            info.Instance.Config,
+            info.Instance is TimbnFrameworkPlugin,
+            info.Instance is TimbnFrameworkPlugin timbn ? timbn.IsFeatureBroken : null));
+
+    private static int BrokenCount(TimbnModsPlugin plugin) =>
+        plugin.IsFeatureBroken == null ? 0 : plugin.Config.Count(pair => plugin.IsFeatureBroken(pair.Key.Key));
+
+    private static bool IsKept(TimbnModsPlugin plugin) =>
+        _built.TryGetValue(plugin.Config, out var kept) && kept.Language == LLBase.CurrentLang && kept.Count == plugin.Config.Count && kept.Broken == BrokenCount(plugin);
+
+    private static TimbnModsMod BuildCached(TimbnModsPlugin plugin)
+    {
+        if (IsKept(plugin))
+        {
+            _built.TryGetValue(plugin.Config, out var kept);
+            return kept!.Mod;
+        }
+
+        var mod = BuildMod(plugin);
+        _built.Remove(plugin.Config);
+        _built.Add(plugin.Config, new BuiltMod(LLBase.CurrentLang, plugin.Config.Count, BrokenCount(plugin), mod));
+        return mod;
+    }
+
+    internal static IReadOnlyList<TimbnModsMod> Build(IEnumerable<TimbnModsPlugin> plugins) => Sort(plugins.Select(BuildMod));
+
+    private static IReadOnlyList<TimbnModsMod> Sort(IEnumerable<TimbnModsMod> mods) =>
+        [.. mods
             .OrderByDescending(mod => mod.IsTimbn)
             .ThenBy(mod => mod.Name, StringComparer.OrdinalIgnoreCase)];
 

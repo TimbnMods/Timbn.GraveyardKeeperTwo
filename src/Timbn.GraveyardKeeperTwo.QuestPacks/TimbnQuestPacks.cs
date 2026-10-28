@@ -199,7 +199,7 @@ internal static class TimbnQuestPacks
             var name = Path.GetFileNameWithoutExtension(file);
             try
             {
-                parts.Add(TimbnSprites.AddPng($"{packId}_{name}", File.ReadAllBytes(file)));
+                parts.Add(TimbnSprites.Add($"{packId}_{name}", File.ReadAllBytes(file), TimbnSpriteKind.Image));
                 names.Add(name);
             }
             catch (Exception ex)

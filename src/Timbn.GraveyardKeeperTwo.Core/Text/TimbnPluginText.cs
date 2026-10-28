@@ -3,19 +3,24 @@ using LazyBearTechnology;
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Adds or overrides the game's text on behalf of a plugin. Quest names, dialog lines, item names, and any
-/// other text the game shows is looked up by localization key, and the keys added here are written into the
-/// loaded language and every language loaded later. They are removed when the plugin unloads, putting back
-/// any shipped text they overrode. Reach it through the plugin's Text property.
+/// Adds or overrides the game's text for a mod. The game looks up quest names, dialog lines, item names and any
+/// other text it shows by localization key. The keys added here are written into the loaded language and every
+/// language loaded later. They are removed when the mod unloads, which puts back any shipped text they overrode.
+/// Reach it through the Text property.
 /// </summary>
 /// <remarks>
-/// Core also loads the plugin's lang folder next to its DLL when the plugin starts, so players can translate a mod
-/// without rebuilding it. Each file is named after a game language id, such as lang/en.txt, lang/de.txt, or
-/// lang/pt-br.txt, and holds one "timbn_larry_boards_given = Here, take these." line per key. Lines starting with #
-/// are comments, and \n in a text is a line break. The game shows the line for its current language and falls back
-/// to en.txt for any key a translation lacks, so en.txt should hold every key. Switching language in the game's
-/// options picks up the new text. Text from lang files wins over text added in code for the same key. Ship the
-/// files by marking them CopyToOutputDirectory in the csproj.
+/// <para>
+/// Core also loads the mod's lang folder next to its DLL when the mod starts, so players can translate a mod without
+/// rebuilding it. Each file is named after a game language id, such as lang/en.txt, lang/de.txt or lang/pt-br.txt.
+/// It holds one "timbn_larry_boards_given = Here, take these." line per key. Lines starting with # are comments, and
+/// \n in a text is a line break.
+/// </para>
+/// <para>
+/// The game shows the line for its current language. It falls back to en.txt for any key a translation lacks, so
+/// en.txt should hold every key. Switching language in the game's options picks up the new text. Text from lang
+/// files wins over text added in code for the same key. Ship the files by marking them CopyToOutputDirectory in the
+/// csproj.
+/// </para>
 /// </remarks>
 public sealed class TimbnPluginText
 {
@@ -37,7 +42,7 @@ public sealed class TimbnPluginText
     /// <returns>A handle that removes the keys early when disposed. You don't need to keep it.</returns>
     public IDisposable Add(IReadOnlyDictionary<string, string> texts) => _owner.Subscriptions.Add(TimbnLocale.Add(texts));
 
-    /// <summary>Looks up a localization key in the player's language, the text a plugin passes to the game's windows and hints. A key nothing defines comes back as the key itself.</summary>
+    /// <summary>Looks up a localization key in the player's language. Use it for text a mod hands to the game's windows and hints. A key that nothing defines comes back as the key itself.</summary>
     /// <param name="key">The key the text was added or shipped under, such as "timbn_chest_labels_title".</param>
     public string Get(string key) => LLBase.L(key);
 
@@ -53,7 +58,7 @@ public sealed class TimbnPluginText
     /// <param name="key">The key the text was added or shipped under.</param>
     public TimbnBinding<string> Key(string key) => new(() => LLBase.L(key));
 
-    /// <summary>Whether a localization key has text in the player's language, so a plugin can fall back to its own text when it does not.</summary>
+    /// <summary>Whether a localization key has text in the player's language, so a mod can fall back to its own text when it does not.</summary>
     /// <param name="key">The key the text was added or shipped under.</param>
     public bool Has(string key) => LLBase.HasL(key);
 

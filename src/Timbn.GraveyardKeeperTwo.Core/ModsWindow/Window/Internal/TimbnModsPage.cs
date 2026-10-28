@@ -106,19 +106,31 @@ internal static class TimbnModsPage
                 var options = row.Options;
                 return new TimbnChoice(row.OptionNames ?? options, () => Math.Max(0, IndexOf(options, draft.GetText(entry))), index => draft.SetText(entry, options[index]));
 
+            // The slider holds floats, so a double or decimal range is typed to keep the setting's own precision.
+            case TimbnModsRowKind.Slider when entry.SettingType == typeof(double) || entry.SettingType == typeof(decimal):
+                return new TimbnTextBox(() => draft.GetText(entry), text => draft.SetText(entry, text), WholeNumbers(entry));
+
             case TimbnModsRowKind.Slider:
+                var min = Convert.ToSingle(row.Min, CultureInfo.InvariantCulture);
+                var max = Convert.ToSingle(row.Max, CultureInfo.InvariantCulture);
+                var whole = _wholeNumbers.Contains(entry.SettingType);
+                var decimals = TimbnSliderSteps.Decimals(whole, min, max, Convert.ToSingle(entry.DefaultValue, CultureInfo.InvariantCulture));
+
                 return new TimbnSlider(
-                    Convert.ToSingle(row.Min, CultureInfo.InvariantCulture),
-                    Convert.ToSingle(row.Max, CultureInfo.InvariantCulture),
+                    min,
+                    max,
                     () => Convert.ToSingle(draft.Get(entry), CultureInfo.InvariantCulture),
                     value => draft.Set(entry, Convert.ChangeType(value, entry.SettingType, CultureInfo.InvariantCulture)),
-                    _wholeNumbers.Contains(entry.SettingType));
+                    whole)
+                {
+                    Decimals = decimals,
+                };
 
             case TimbnModsRowKind.Text when row.FromText != null:
                 return new TimbnTextBox(() => draft.GetText(entry, row.ToText), text => draft.SetText(entry, text, row.FromText, TimbnModsWindowHost.Log));
 
             case TimbnModsRowKind.Text:
-                return new TimbnTextBox(() => draft.GetText(entry, row.ToText), text => draft.SetText(entry, text.Trim()), row.ToText == null ? WholeNumbers(entry) : null);
+                return new TimbnTextBox(() => draft.GetText(entry, row.ToText), text => draft.SetText(entry, text), row.ToText == null ? WholeNumbers(entry) : null);
 
             case TimbnModsRowKind.Key when entry is ConfigEntry<KeyboardShortcut> key:
                 return new TimbnKey(() => (KeyboardShortcut)draft.Get(key), value => draft.Set(key, value));

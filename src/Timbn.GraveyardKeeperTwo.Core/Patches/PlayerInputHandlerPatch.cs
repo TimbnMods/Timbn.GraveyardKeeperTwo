@@ -7,25 +7,25 @@ internal static class PlayerInputHandlerPatch
     [HarmonyPrefix]
     private static bool UpdateInputPreFix()
     {
-        TimbnCarry.IsReadingInput = true;
+        TimbnOverhead.IsReadingInput = true;
         return !TimbnInteractionHint.IsKeyClaimed();
     }
 
     [HarmonyPatch(nameof(PlayerInputHandler.UpdateInput))]
     [HarmonyFinalizer]
     private static void UpdateInputFinalizer() =>
-        TimbnCarry.IsReadingInput = false;
+        TimbnOverhead.IsReadingInput = false;
 
     [HarmonyPatch(nameof(PlayerInputHandler.UpdateInputInteractionOnly))]
     [HarmonyPrefix]
     private static bool UpdateInputInteractionOnlyPreFix()
     {
-        TimbnCarry.IsReadingInput = true;
+        TimbnOverhead.IsReadingInput = true;
         return !TimbnInteractionHint.IsKeyClaimed();
     }
 
     [HarmonyPatch(nameof(PlayerInputHandler.UpdateInputInteractionOnly))]
     [HarmonyFinalizer]
     private static void UpdateInputInteractionOnlyFinalizer() =>
-        TimbnCarry.IsReadingInput = false;
+        TimbnOverhead.IsReadingInput = false;
 }

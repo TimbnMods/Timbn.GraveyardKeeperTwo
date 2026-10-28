@@ -1,10 +1,9 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// Keeps a plugin's changes to the game in step with its config, so a setting changed in a config menu applies
-/// straight away instead of on the next start. A setting whose feature is broken, because a game update broke
-/// its patches (see <see cref="TimbnFeatureAttribute"/>), reads as off here whatever its value. Reach it through
-/// the plugin's Settings property.
+/// Keeps a mod's changes to the game in step with its config. A setting changed in a config menu applies straight
+/// away. A game update can break a feature's patches (see <see cref="TimbnFeatureAttribute"/>). The setting for a
+/// broken feature reads as off here whatever its value. Reach it through the Settings property.
 /// </summary>
 public sealed class TimbnPluginSettings
 {
@@ -17,7 +16,7 @@ public sealed class TimbnPluginSettings
 
     /// <summary>
     /// Ties a toggle to the change it makes. While the toggle is on, apply runs on every save load and as soon as
-    /// the toggle turns on during play. Revert runs as soon as the toggle turns off and when the plugin unloads.
+    /// the toggle turns on during play. Revert runs as soon as the toggle turns off and when the mod unloads.
     /// Both run straight away if a save is already loaded. At the main menu, revert only runs for a change that
     /// was applied.
     /// </summary>
@@ -94,7 +93,7 @@ public sealed class TimbnPluginSettings
 
     /// <summary>
     /// Runs your code whenever a setting's value changes, such as from the Mods window or a reloaded config file.
-    /// The handler is removed when the plugin unloads, and a throw is logged. Prefer Toggle or While when the
+    /// The handler is removed when the mod unloads. A throw is logged. Prefer Toggle or While when the
     /// setting switches a change on and off.
     /// </summary>
     /// <example>
@@ -111,8 +110,8 @@ public sealed class TimbnPluginSettings
     /// <summary>
     /// Whether a toggle is on and its feature is working, which is what <see cref="Toggle(ConfigEntry{bool}, Action, Action)"/>
     /// and <see cref="While(ConfigEntry{bool}, Func{IDisposable})"/> go by. Use it in place of the entry's Value in a
-    /// patch or a handler that reads the toggle directly. The plugin's static IsEnabled is the master switch instead, the
-    /// plugin's own Enabled toggle while Core runs.
+    /// patch or a handler that reads the toggle directly. Use this for the toggle of a single feature. The mod's static
+    /// IsEnabled is the master switch. It follows the mod's own Enabled setting and is off when Core isn't loaded.
     /// </summary>
     /// <param name="entry">The toggle.</param>
     /// <returns>True when the toggle is on and no game update has broken the feature's patches.</returns>

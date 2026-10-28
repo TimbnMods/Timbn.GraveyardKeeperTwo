@@ -1,7 +1,7 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 /// <summary>
-/// A buildable workstation added with the plugin's Stations.Add. Hand it to a craft's <see cref="TimbnCraftBuilder.In(TimbnStation)"/>
+/// A buildable workstation added with Stations.Add. Hand it to a craft's <see cref="TimbnCraftBuilder.In(TimbnStation)"/>
 /// so the craft runs there. The ids follow the game's own naming, so a station timbn_smoking_rack has the construction
 /// site timbn_smoking_rack_place and the build desk entry timbn_smoking_rack_place_p.
 /// </summary>
