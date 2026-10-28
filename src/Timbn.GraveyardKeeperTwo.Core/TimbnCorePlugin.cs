@@ -51,6 +51,9 @@ public sealed class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
         Subscriptions.Add(TimbnGameEvents.SaveWriteEnded(TimbnGlobalSaves.Flush));
         Subscriptions.Add(TimbnGameEvents.On(TimbnSaves.OnLoadingExistingSave, h => SaveSystem.OnSaveLoadingStarted += h, h => SaveSystem.OnSaveLoadingStarted -= h));
         Subscriptions.Add(TimbnGameEvents.On(TimbnGlobalSaves.Flush, h => Application.quitting += h, h => Application.quitting -= h));
+
+        // The window objects are destroyed before this plugin's OnDestroy runs, so a page left open is closed while they exist.
+        Subscriptions.Add(TimbnGameEvents.On(TimbnPageWindow.CloseAll, h => Application.quitting += h, h => Application.quitting -= h));
         Subscriptions.Add(TimbnGameEvents.On<GameBalance>(_ => TimbnModels.OnBalanceLoaded(), h => TimbnPatchedEvents.BalanceLoaded += h, h => TimbnPatchedEvents.BalanceLoaded -= h));
         Events.WindowOpened(TimbnMainMenu.OnWindowOpened);
         TimbnModsWindowHost.Start(this);

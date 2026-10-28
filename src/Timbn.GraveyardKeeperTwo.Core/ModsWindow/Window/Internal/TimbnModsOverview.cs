@@ -37,6 +37,9 @@ internal sealed class TimbnModsOverview
         if (TimbnSettingsPages.ReplacesDefault(mod.Guid))
             return;
 
+        if (mod.Enabled is { } enabled)
+            page.Card(card => card.Add(new TimbnField(TimbnModsText.Enabled, string.Empty, new TimbnToggle(() => (bool)draft.Get(enabled), value => draft.Set(enabled, value)))));
+
         page.Add(new TimbnSection(TimbnModsText.Settings));
         if (!mod.Sections.Any(section => section.Rows.Count > 0))
         {
@@ -141,7 +144,7 @@ internal sealed class TimbnModsOverview
             {
                 foreach (var (label, url) in links)
                     row.Add(new TimbnButton(label, () => TimbnAboutCard.OpenUrl(label, url)));
-            });
+            }, wrap: true);
         });
     }
 }

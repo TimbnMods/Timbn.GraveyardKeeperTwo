@@ -1,11 +1,40 @@
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
-/// <summary>One line of a <see cref="TimbnList"/>, a title with up to two smaller lines under it.</summary>
+/// <summary>
+/// One line of a <see cref="TimbnList"/>, a title with up to two smaller lines under it, or a card the mod fills itself.
+/// </summary>
+/// <example>
+/// <code>
+/// new TimbnListEntry(card =>
+/// {
+///     card.Row(row =>
+///     {
+///         row.Add(new TimbnImage("i_cup_beer") { Width = 48f, Height = 48f });
+///         row.Add(new TimbnText("Beer", TimbnTextKind.Name));
+///     });
+/// });
+/// </code>
+/// </example>
 /// <param name="title">The line's name, already in the player's language.</param>
 /// <param name="subtitle">A smaller line under the name, or empty for none.</param>
 /// <param name="detail">A smaller line under the subtitle, or empty for none.</param>
 public sealed class TimbnListEntry(string title, string subtitle = "", string detail = "")
 {
+    /// <summary>
+    /// Makes a line from content the mod builds itself, in place of the title and the lines under it. The whole card is
+    /// the line, so the content only shows things. It takes no clicks and no gamepad focus of its own, which means a
+    /// button or a control in it is not a stop and the card stays the one stop for the line.
+    /// </summary>
+    /// <param name="content">Adds what the card shows, like the lambda of a <see cref="TimbnColumn"/>.</param>
+    public TimbnListEntry(Action<TimbnPageBuilder> content)
+        : this("")
+    {
+        Content = content;
+    }
+
+    /// <summary>What the card shows in place of the title, or null for the title and the lines under it.</summary>
+    public Action<TimbnPageBuilder>? Content { get; }
+
     /// <summary>The line's name.</summary>
     public string Title { get; } = title;
 
@@ -59,6 +88,25 @@ public sealed class TimbnList(IReadOnlyList<TimbnListEntry> entries, Func<int> g
     /// Set it on one list of a page, before it is put on the page.
     /// </summary>
     public bool FocusWhenShown { get; set; }
+
+    /// <summary>
+    /// The width a list needs to show every title and line in full, for a column that is as wide as its list, such as the
+    /// left column of a <see cref="TimbnSplit"/>. A line made from its own content is not measured, so it counts for nothing.
+    /// </summary>
+    /// <param name="page">The page or box the list would go in.</param>
+    /// <param name="entries">The lines of the list.</param>
+    public static float WidthFor(TimbnPageBuilder page, IEnumerable<TimbnListEntry> entries)
+    {
+        var widest = 0f;
+        foreach (var entry in entries)
+        {
+            widest = Mathf.Max(widest, TimbnTextMeasure.Width(page.Root, TimbnTheme.Name, entry.Title));
+            widest = Mathf.Max(widest, TimbnTextMeasure.Width(page.Root, TimbnTheme.Detail, entry.Subtitle));
+            widest = Mathf.Max(widest, TimbnTextMeasure.Width(page.Root, TimbnTheme.Detail, entry.Detail));
+        }
+
+        return Mathf.Ceil(widest + (2f * TimbnUi.CardPaddingSide));
+    }
 
     /// <summary>
     /// With a gamepad in use, puts the focus on the chosen line, such as when the player backs out of what the line shows.

@@ -212,9 +212,10 @@ public sealed class TimbnPageBuilder
         button.BindKey(action.Key, gamepad, _watcher);
     }
 
-    // A builder for a box a component made on the same page, laying out top to bottom unless the box is a row.
+    // A builder for a box a component made on the same page, laying out top to bottom unless the box is a row, which a
+    // wrapping row is too.
     internal static TimbnPageBuilder Inside(RectTransform box, TimbnPageWatcher watcher) =>
-        new(box, box.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>() == null, watcher, watcher.Logger);
+        new(box, box.GetComponent<UnityEngine.UI.HorizontalLayoutGroup>() == null && box.GetComponent<TimbnFlowLayoutGroup>() == null, watcher, watcher.Logger);
 
     // A column keeps the page's gap unless it asks for another.
     internal static float ColumnGap(float? gap) => gap ?? PartGap;

@@ -39,6 +39,17 @@ public sealed class TimbnText(string text, TimbnTextKind kind = TimbnTextKind.La
     /// <summary>A fixed width, or null to size from the text. Set it before the text is put on a page.</summary>
     public float? Width { get; set; }
 
+    /// <summary>
+    /// The width one line of text needs in a style, for sizing a box to fit it, such as the left column of a
+    /// <see cref="TimbnSplit"/>. It measures the line as it would draw on one line, so a wrapped text needs the width of its
+    /// longest line instead.
+    /// </summary>
+    /// <param name="page">The page or box the text would go in.</param>
+    /// <param name="text">The text, already in the player's language.</param>
+    /// <param name="kind">How the text looks. It is a label by default.</param>
+    public static float WidthOf(TimbnPageBuilder page, string text, TimbnTextKind kind = TimbnTextKind.Label) =>
+        Mathf.Ceil(TimbnTextMeasure.Width(page.Root, Style(kind), text));
+
     internal override bool LeavesLineGap => true;
 
     protected internal override RectTransform Build(Transform parent)

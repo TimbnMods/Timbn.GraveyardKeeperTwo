@@ -26,8 +26,9 @@ public static class TimbnPageShorthands
     /// <param name="minHeight">The least height the row has.</param>
     /// <param name="stretch">Whether what is in the row is as tall as the row.</param>
     /// <param name="verticalAlign">Where what is shorter than the row sits.</param>
-    public static void Row(this TimbnPageBuilder page, Action<TimbnPageBuilder> build, float gap = TimbnPageBuilder.RowGap, float? fill = null, float? width = null, float? height = null, TimbnBinding<bool>? visible = null, float? minHeight = null, bool stretch = false, TimbnAlign verticalAlign = TimbnAlign.Center) =>
-        page.Row(TimbnAlign.Start, build, gap, fill, width, height, visible, minHeight, stretch, verticalAlign);
+    /// <param name="wrap">Whether what does not fit moves to a new line under it.</param>
+    public static void Row(this TimbnPageBuilder page, Action<TimbnPageBuilder> build, float gap = TimbnPageBuilder.RowGap, float? fill = null, float? width = null, float? height = null, TimbnBinding<bool>? visible = null, float? minHeight = null, bool stretch = false, TimbnAlign verticalAlign = TimbnAlign.Center, bool wrap = false) =>
+        page.Row(TimbnAlign.Start, build, gap, fill, width, height, visible, minHeight, stretch, verticalAlign, wrap);
 
     /// <summary>Puts a <see cref="TimbnRow"/> on the page, laid out where <paramref name="align"/> says. The parameters are its properties.</summary>
     /// <param name="page">The page or box to add to.</param>
@@ -41,8 +42,9 @@ public static class TimbnPageShorthands
     /// <param name="minHeight">The least height the row has.</param>
     /// <param name="stretch">Whether what is in the row is as tall as the row.</param>
     /// <param name="verticalAlign">Where what is shorter than the row sits.</param>
-    public static void Row(this TimbnPageBuilder page, TimbnAlign align, Action<TimbnPageBuilder> build, float gap = TimbnPageBuilder.RowGap, float? fill = null, float? width = null, float? height = null, TimbnBinding<bool>? visible = null, float? minHeight = null, bool stretch = false, TimbnAlign verticalAlign = TimbnAlign.Center) =>
-        page.Add(Shown(new TimbnRow(build) { Gap = gap, Align = align, VerticalAlign = verticalAlign, MinHeight = minHeight, Stretch = stretch, Fill = fill, Width = width, Height = height }, visible));
+    /// <param name="wrap">Whether what does not fit moves to a new line under it.</param>
+    public static void Row(this TimbnPageBuilder page, TimbnAlign align, Action<TimbnPageBuilder> build, float gap = TimbnPageBuilder.RowGap, float? fill = null, float? width = null, float? height = null, TimbnBinding<bool>? visible = null, float? minHeight = null, bool stretch = false, TimbnAlign verticalAlign = TimbnAlign.Center, bool wrap = false) =>
+        page.Add(Shown(new TimbnRow(build) { Gap = gap, Align = align, VerticalAlign = verticalAlign, MinHeight = minHeight, Stretch = stretch, Wrap = wrap, Fill = fill, Width = width, Height = height }, visible));
 
     /// <summary>Puts a <see cref="TimbnColumn"/> on the page. The parameters are its properties.</summary>
     /// <param name="page">The page or box to add to.</param>

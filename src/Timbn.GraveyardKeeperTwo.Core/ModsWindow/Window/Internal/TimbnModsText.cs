@@ -16,7 +16,7 @@ internal static class TimbnModsText
     internal const string ResetTooltip = "Put this setting back to its default";
     internal static string Settings => Translated(TimbnGameIds.Texts.UiSettingsHeader, "Settings");
     internal const string GameVersion = "Game Version:";
-    internal const string ModsLoaded = "{0} mods loaded";
+    internal const string ModsPlate = "Mods {0}";
     internal const string Advanced = "Advanced";
     internal const string ReadOnly = "Read Only";
 
@@ -35,7 +35,6 @@ internal static class TimbnModsText
     internal const string NoMatches = "No settings match \"{0}\".";
     internal const string SaveTitle = "Save changes";
     internal const string SaveMessage = "Save the changes to {0}?";
-    internal const string NothingToSave = "{0} has no changes to save.";
     internal const string DefaultsTitle = "Defaults";
     internal const string DefaultsMessage = "Put every setting of {0} back to its default? The changes still wait for Save.";
     internal const string RestartTitle = "Restart needed";

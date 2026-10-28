@@ -13,7 +13,7 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 internal static class TimbnUi
 {
     // The save slot's own margins, the text there starts 8 in from the left and the new game label 5 in from the top.
-    private const int _cardPaddingSide = 8;
+    internal const int CardPaddingSide = 8;
     private const int _cardPaddingVertical = 5;
 
     internal static RectTransform Box(Transform parent, string name)
@@ -29,6 +29,16 @@ internal static class TimbnUi
         var row = Group<HorizontalLayoutGroup>(parent, name, gap, padding, align);
         row.GetComponent<HorizontalLayoutGroup>().childForceExpandHeight = stretch;
         return row;
+    }
+
+    /// <summary>Children side by side at their own heights that move to a new line when the next one does not fit.</summary>
+    internal static RectTransform Flow(Transform parent, string name, float gap = 0f, TextAnchor align = TextAnchor.MiddleLeft)
+    {
+        var box = Box(parent, name);
+        var group = box.gameObject.AddComponent<TimbnFlowLayoutGroup>();
+        group.Spacing = gap;
+        group.childAlignment = align;
+        return box;
     }
 
     /// <summary>Children top to bottom, each as wide as the column.</summary>
@@ -241,7 +251,7 @@ internal static class TimbnUi
     /// <summary>A save slot card, a column on the slot's own background with its padding.</summary>
     internal static RectTransform Card(Transform parent, string name)
     {
-        var card = Column(parent, name, padding: new RectOffset(_cardPaddingSide, _cardPaddingSide, _cardPaddingVertical, _cardPaddingVertical));
+        var card = Column(parent, name, padding: new RectOffset(CardPaddingSide, CardPaddingSide, _cardPaddingVertical, _cardPaddingVertical));
         Skin(card, TimbnTheme.Card).name = "Back";
         return card;
     }
