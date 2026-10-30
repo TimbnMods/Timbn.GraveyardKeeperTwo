@@ -18,7 +18,7 @@ sections:
   - title: Installation
     only: [steam]
     olist:
-      - Install BepInEx for Graveyard Keeper 2 and Timbn Workshop Sync
+      - Install BepInEx for Graveyard Keeper 2
       - Subscribe to this item
       - Start the game. Timbn Core shows at the bottom right of the main menu once it's installed.
 

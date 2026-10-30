@@ -23,9 +23,6 @@ sections:
       note: Still needed for saves where one was already built early
     text: Building the church choir or organ before you're asked no longer locks the quest line.
 
-  - title: Removing Buildings
-    text: A building inside your build area can be removed even when the game counts it as part of a different area.
-
   - title: Stations Against a Wall
     text: Workstations up against a fence or wall can be dismantled again.
 
@@ -71,7 +68,7 @@ sections:
   - title: Installation
     only: [steam]
     olist:
-      - Install BepInEx for Graveyard Keeper 2 and Timbn Workshop Sync
+      - Install BepInEx for Graveyard Keeper 2
       - Subscribe to Timbn Core and to this item
       - Start the game and open Mod Settings on the main menu. The mod is listed there under Timbn Mods.
 

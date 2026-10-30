@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.14.0
+
+- Works on game version 1.011.
+- Removed the fix for removing buildings across a whole area.
+
 ## 1.13.0
 
 - Now runs on Timbn Core 2.2.0.

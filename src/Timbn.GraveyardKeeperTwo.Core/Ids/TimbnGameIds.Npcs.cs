@@ -65,6 +65,7 @@ public static partial class TimbnGameIds
         public const string ForestGuard01 = "npc_forest_guard_01";
         public const string ForestGuard02 = "npc_forest_guard_02";
         public const string Gerry = "npc_gerry";
+        public const string Ghost = "npc_ghost";
         public const string GoddessStatue = "npc_goddess_statue";
         /// <summary>Herbert</summary>
         public const string HeadOfTheGuards = "npc_head_of_the_guards";
@@ -298,6 +299,7 @@ public static partial class TimbnGameIds
             ForestGuard01,
             ForestGuard02,
             Gerry,
+            Ghost,
             GoddessStatue,
             HeadOfTheGuards,
             HeadOfTheVillage,

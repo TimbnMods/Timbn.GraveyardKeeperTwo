@@ -14,8 +14,6 @@ internal static class PluginConfig
 
     public static ConfigEntry<bool> StuckResourceWorkers { get; private set; } = null!;
 
-    public static ConfigEntry<bool> RemoveInWholeArea { get; private set; } = null!;
-
     public static ConfigEntry<bool> ConveyorLoopCrash { get; private set; } = null!;
 
     public static ConfigEntry<bool> HighlightConveyorLoops { get; private set; } = null!;
@@ -74,13 +72,6 @@ internal static class PluginConfig
             + "Once every spot was taken, a zombie stood in place swinging its tool forever. Spots "
             + "are now freed when a zombie leaves its stand, spots already lost in a save are freed when it loads, "
             + "and a stranded zombie goes back to work as soon as a spot is free.");
-
-        RemoveInWholeArea = config.Bind(
-            _bugFixes,
-            nameof(RemoveInWholeArea),
-            true,
-            "Lets you remove a building that stands inside your build area when the game refuses because it counts "
-            + "the building as part of a different area than the one you are building in.");
 
         ConveyorLoopCrash = config.Bind(
             _bugFixes,
@@ -178,7 +169,6 @@ internal static class PluginConfig
             (CollectStrayTechPoints, "TechPoints", "CollectStray"),
             (SermonFaithRounding, "Sermons", "FaithRounding"),
             (StuckCarriers, "Carriers", "ShowWhenStuck"),
-            (RemoveInWholeArea, "Building", "RemoveInWholeArea"),
             (BuiltEarlyQuests, "Quests", "BuiltEarly"),
             (DismantleUnreachable, "Building", "DismantleUnreachable"),
             (SoftLockedBoards, "Boards", "SoftLockedBoards"),

@@ -489,6 +489,7 @@ public static partial class TimbnGameIds
         public const string ExpRedPotion = "exp_red_potion";
         /// <summary>Toxic Potion II</summary>
         public const string ExpRedPotion2 = "exp_red_potion_2";
+        public const string ExpRespecPotionZ = "exp_respec_potion_z";
         /// <summary>Toxic Potion</summary>
         public const string ExpYellowPotion = "exp_yellow_potion";
         /// <summary>Toxic Potion II</summary>
@@ -708,6 +709,8 @@ public static partial class TimbnGameIds
         public const string InqNote1 = "inq_note_1";
         /// <summary>Inquisitor's Note II</summary>
         public const string InqNote2 = "inq_note_2";
+        /// <summary>Inquisitor's Factory Key</summary>
+        public const string InquisitorsFactoryKey = "inquisitors_factory_key";
         /// <summary>Insect Bait. Attracts: Pike, Silverfin, Gudgeon, Salmon, Trout, Roach, Herring, Frog, Eel, Catfish</summary>
         public const string InsectBite = "insect_bite";
         /// <summary>Key from the Inquisition dungeon</summary>
@@ -863,6 +866,7 @@ public static partial class TimbnGameIds
         public const string Pike2 = "pike_2";
         /// <summary>Knight's Spear</summary>
         public const string Pike3 = "pike_3";
+        public const string PlayerRespecPotion = "player_respec_potion";
         /// <summary>Polished Bronze</summary>
         public const string PolishedBronze = "polished_bronze";
         /// <summary>Polishing Paste</summary>

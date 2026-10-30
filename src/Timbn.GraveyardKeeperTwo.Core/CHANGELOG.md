@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.1
+
+- Works on game version 1.011.
+
 ## 2.2.0
 
 - A new Mods window lists every installed mod with its settings. It opens from a Mod Settings button under the game's own Settings button, on the main menu and in the pause menu, and works with a mouse or a controller.

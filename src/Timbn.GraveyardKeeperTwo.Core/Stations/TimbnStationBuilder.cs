@@ -378,7 +378,7 @@ public sealed class TimbnStationBuilder
 
     /// <summary>
     /// Sets the game station the new one behaves like, copied field by field. "kitchen_oven" gives a timed station that
-    /// cooks on its own and takes a zombie. "sawhorse" gives a bench worked by hand. The default is the woodworking
+    /// cooks on its own and is tended by carrier zombies. "sawhorse" gives a bench worked by hand. The default is the woodworking
     /// bench ("woodworking_workbench_1"). The construction site, build desk entry and removals come from the same
     /// station when the game builds that one from a build desk. Otherwise they come from the woodworking bench.
     /// </summary>

@@ -4,7 +4,7 @@ namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 public static partial class TimbnGameIds
 {
-    /// <summary>The game's own text keys for common words, menus, hints, NPC names and zone names, such as <c>BtnOk</c> for btn_ok, for <c>Text.Get</c> or <c>Text.Key</c>. One also works in place of a line's text in a talk or quest, such as <c>.Decline(TimbnGameIds.Texts.DefaultNope)</c>. The game translates them into every language, so a mod needs no lang line of its own for them.</summary>
+    /// <summary>The game's own text keys for common words, menus, hints, NPC names and zone names, such as <c>BtnOk</c> for btn_ok, for <c>Text.Get</c> or as an interaction label. One also works in place of a line's text in a talk or quest, such as <c>.Decline(TimbnGameIds.Texts.DefaultNope)</c>. The game translates them into every language, so a mod needs no lang line of its own for them.</summary>
     public static class Texts
     {
         /// <summary>Get</summary>
@@ -525,6 +525,8 @@ public static partial class TimbnGameIds
         public const string UiFuelHelper = "ui_fuel_helper";
         /// <summary>Fullscreen</summary>
         public const string UiFullscreen = "ui_fullscreen";
+        /// <summary>Borderless fullscreen</summary>
+        public const string UiFullscreenBorderless = "ui_fullscreen_borderless";
         /// <summary>Play</summary>
         public const string UiGameBtn = "ui_game_btn";
         /// <summary>High</summary>
@@ -587,6 +589,70 @@ public static partial class TimbnGameIds
         public const string UiMenuOptions = "ui_menu_options";
         /// <summary>Play</summary>
         public const string UiMenuPlay = "ui_menu_play";
+        /// <summary>Mods</summary>
+        public const string UiMods = "ui_mods";
+        /// <summary>{0}' needs BepInEx. See {1} in the game folder.</summary>
+        public const string UiModsBepinexBody = "ui_mods_bepinex_body";
+        /// <summary>BepInEx {0} found</summary>
+        public const string UiModsBepinexFound = "ui_mods_bepinex_found";
+        /// <summary>BepInEx required</summary>
+        public const string UiModsBepinexHeader = "ui_mods_bepinex_header";
+        /// <summary>BepInEx was moved next to GraveyardKeeper2.exe. Restart the game to start it.</summary>
+        public const string UiModsBepinexMovedBody = "ui_mods_bepinex_moved_body";
+        /// <summary>BepInEx not found. See {0} in the game folder.</summary>
+        public const string UiModsBepinexNotFound = "ui_mods_bepinex_not_found";
+        /// <summary>BepInEx {0} found but not running. Restart the game or see {1}.</summary>
+        public const string UiModsBepinexNotRunning = "ui_mods_bepinex_not_running";
+        /// <summary>Disable</summary>
+        public const string UiModsDisable = "ui_mods_disable";
+        /// <summary>No code mods found.</summary>
+        public const string UiModsEmpty = "ui_mods_empty";
+        /// <summary>Enable</summary>
+        public const string UiModsEnable = "ui_mods_enable";
+        /// <summary>Native (legacy)</summary>
+        public const string UiModsKindLegacy = "ui_mods_kind_legacy";
+        /// <summary>Native</summary>
+        public const string UiModsKindNative = "ui_mods_kind_native";
+        /// <summary>Workshop</summary>
+        public const string UiModsOpenWorkshop = "ui_mods_open_workshop";
+        /// <summary>Restart the game to finish installing '{0}'.</summary>
+        public const string UiModsRestartBody = "ui_mods_restart_body";
+        /// <summary>Restart required</summary>
+        public const string UiModsRestartHeader = "ui_mods_restart_header";
+        /// <summary>Changes apply after you restart the game.</summary>
+        public const string UiModsRestartHint = "ui_mods_restart_hint";
+        /// <summary>Code mods</summary>
+        public const string UiModsSectionCode = "ui_mods_section_code";
+        /// <summary>Languages</summary>
+        public const string UiModsSectionLanguages = "ui_mods_section_languages";
+        /// <summary>Voice-overs</summary>
+        public const string UiModsSectionVoiceovers = "ui_mods_section_voiceovers";
+        /// <summary>Game folder</summary>
+        public const string UiModsSourceGameFolder = "ui_mods_source_game_folder";
+        /// <summary>Local</summary>
+        public const string UiModsSourceLocal = "ui_mods_source_local";
+        /// <summary>Workshop</summary>
+        public const string UiModsSourceWorkshop = "ui_mods_source_workshop";
+        /// <summary>Active</summary>
+        public const string UiModsStatusActive = "ui_mods_status_active";
+        /// <summary>Disabled</summary>
+        public const string UiModsStatusDisabled = "ui_mods_status_disabled";
+        /// <summary>Enabled</summary>
+        public const string UiModsStatusEnabled = "ui_mods_status_enabled";
+        /// <summary>Load error</summary>
+        public const string UiModsStatusError = "ui_mods_status_error";
+        /// <summary>Missing dependency</summary>
+        public const string UiModsStatusMissingDep = "ui_mods_status_missing_dep";
+        /// <summary>BepInEx not found</summary>
+        public const string UiModsStatusNoBepinex = "ui_mods_status_no_bepinex";
+        /// <summary>Restart required</summary>
+        public const string UiModsStatusRestart = "ui_mods_status_restart";
+        /// <summary>Managed by another loader</summary>
+        public const string UiModsStatusThirdParty = "ui_mods_status_third_party";
+        /// <summary>Another Workshop loader is already installed ({0}). The game will not copy BepInEx mods.</summary>
+        public const string UiModsThirdPartyBody = "ui_mods_third_party_body";
+        /// <summary>Another mod loader</summary>
+        public const string UiModsThirdPartyHeader = "ui_mods_third_party_header";
         /// <summary>Gives additional to the nearby tombs</summary>
         public const string UiMonumentD = "ui_monument_d";
         /// <summary>Gives additional, depending on the nearby tombs</summary>

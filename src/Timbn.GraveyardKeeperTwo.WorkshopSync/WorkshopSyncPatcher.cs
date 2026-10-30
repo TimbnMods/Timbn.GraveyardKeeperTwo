@@ -12,18 +12,11 @@ public static class WorkshopSyncPatcher
     {
         try
         {
-            PatcherConfig.Bind(new ConfigFile(Path.Combine(Paths.ConfigPath, MyPluginInfo.PLUGIN_GUID + ".cfg"), true));
-            if (!PatcherConfig.Enabled.Value)
-            {
-                _logger.LogInfo("Turned off in the config, so Workshop mods are left as they are.");
-                return;
-            }
-
-            new WorkshopMirror(_logger, PatcherConfig.SkippedItemIds(), PatcherConfig.SteamFolderPath()).Run();
+            new WorkshopHandoff(_logger).Run();
         }
         catch (Exception exception)
         {
-            _logger.LogError($"Workshop sync failed: {exception}");
+            _logger.LogError($"Could not hand Workshop mods to the game: {exception}");
         }
     }
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1
+
+- Works on game version 1.011. The infusion machine still runs on its own, with no carrier zombie needed.
+
 ## 1.1.0
 
 - Now runs on Timbn Core 2.2.0.

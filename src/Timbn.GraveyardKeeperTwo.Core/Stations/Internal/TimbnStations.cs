@@ -60,6 +60,9 @@ internal static class TimbnStations
             if (station.TalentId is { } talent)
                 def.talent = talent;
 
+            if (station.AllowsZombie == false)
+                def.zombieOperatorType = WGODef.ZombieOperatorType.None;
+
             if (station.AllowsZombie is { } takesZombie)
                 def.canInsertZombie = takesZombie;
 
