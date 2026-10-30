@@ -60,7 +60,6 @@ public sealed class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
         Subscriptions.Add(TimbnMainMenu.AddLine($"{Metadata.Name}: ", Metadata.Version.ToString()));
         Events.EveryRealSeconds(1f, TimbnDialog.Refresh);
         Events.EveryRealSeconds(0.25f, TimbnModsCatalog.Warm);
-        Events.SaveReady(TimbnMoveBuildingsLink.Check);
         Events.EveryRealSeconds(1f, TimbnQuests.StartContinuedQuests);
         Events.EveryRealSeconds(1f, TimbnQuests.CheckReadyWhen);
         Events.EveryRealSeconds(0.5f, TimbnQuestMarker.Tick);
@@ -133,7 +132,6 @@ public sealed class TimbnCorePlugin : TimbnFrameworkPlugin<TimbnCorePlugin>
         TimbnSettingsPages.Clear();
         TimbnModInfos.Clear();
         TimbnGroupPages.Clear();
-        TimbnMoveBuildingsLink.Detach();
         TimbnPageWindow.DestroyInstance();
     }
 }

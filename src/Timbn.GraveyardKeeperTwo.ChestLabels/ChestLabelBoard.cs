@@ -9,12 +9,10 @@ namespace Timbn.GraveyardKeeperTwo.ChestLabels;
 /// </summary>
 internal sealed class ChestLabelBoard
 {
-    private const float _moveGraceSeconds = 1f;
     private const int _maxLength = 200;
 
     private readonly TimbnSaveData<ChestLabelData> _data;
     private readonly Dictionary<Guid, string> _texts = [];
-    private readonly Dictionary<string, (ChestLabelEntry Entry, float Until)> _removed = [];
 
     public ChestLabelBoard(TimbnSaveData<ChestLabelData> data)
     {
@@ -51,33 +49,10 @@ internal sealed class ChestLabelBoard
         chest.DrawWidgets();
     }
 
-    // A mod that moves a chest removes the old one and places a new one in the same call, then publishes the move, so the label waits a moment for that before it is dropped.
     public void ChestRemoved(SGuid id)
     {
-        var key = Key(id);
-        if (!_data.Current.Labels.Remove(key, out var entry))
-            return;
-
-        ForgetExpired();
-        _removed[key] = (entry, Time.unscaledTime + _moveGraceSeconds);
-        Rebuild();
-    }
-
-    public void Moved(string? oldId, string? newId)
-    {
-        if (!Guid.TryParse(oldId, out var oldGuid) || !Guid.TryParse(newId, out var guid) || !_removed.Remove(Key(new SGuid(oldGuid)), out var parked) || parked.Until < Time.unscaledTime)
-            return;
-
-        _data.Current.Labels[Key(new SGuid(guid))] = parked.Entry;
-        Rebuild();
-        if (TimbnWorld.Find(new SGuid(guid)) is { } data)
-            TimbnWorld.ViewOf(data)?.DrawWidgets();
-    }
-
-    private void ForgetExpired()
-    {
-        foreach (var key in _removed.Where(pair => pair.Value.Until < Time.unscaledTime).Select(pair => pair.Key).ToArray())
-            _removed.Remove(key);
+        if (_data.Current.Labels.Remove(Key(id)))
+            Rebuild();
     }
 
     // Runs for every object the game draws a bubble for, so it only looks up a Guid and never builds a string.

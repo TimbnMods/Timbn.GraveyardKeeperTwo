@@ -28,7 +28,6 @@ public class Plugin : TimbnFrameworkPlugin<Plugin>
         Settings.Changed(PluginConfig.DefaultSize, _ => Board.Rebuild());
         Events.SaveReady(WarmLabelPage);
         Interactions.Register(ChestLabelBoard.CanLabel).AddSecondary(Text.Key("timbn_chest_labels_label"), NameChest);
-        ModEvents.Listen<MovedBuilding>("moved", moved => Board.Moved(moved.OldId, moved.NewId));
         Events.WorldObjectRemoved(data => Board.ChestRemoved(data.UniqueId));
     }
 
