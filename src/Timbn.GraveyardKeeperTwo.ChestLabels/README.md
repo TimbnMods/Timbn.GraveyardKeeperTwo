@@ -9,7 +9,7 @@ Timbn Chest Labels lets players name their chests, and the name shows at the che
 - `WgoPatch` puts the name in the chest's bubble as a `UIQualityTooltipWidgetData`, the widget a grave's quality uses, so the game stacks it with the hints. It goes under them, or above them when `LabelBelow` is off. `UIQualityTooltipWidgetPatch` hides that widget's empty icon slot.
 - The color is saved apart from the text and put around the name as a `<color>` tag when it is drawn.
 - Core's `Events.WorldObjectRemoved` clears a name when its chest leaves the save for good. Core already skips an id change, a move to another scene and a removal that keeps the craft, so none of those clears it.
-- A cleared name waits one second. If a mod moves the chest and sends Core's `moved` mod event in that time, the name goes to the new chest.
+- The game's Move keeps the chest's `UniqueId`, so a name follows it with no code here.
 
 ## Settings
 

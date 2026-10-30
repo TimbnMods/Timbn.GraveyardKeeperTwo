@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.1
+
+- Works on game version 1.011. A chest keeps its name when you move it with the game's own Move button.
+
 ## 1.1.0
 
 - A chest's name now shows under the Open and Label hints. The new LabelBelow setting turns that off to show it above them.

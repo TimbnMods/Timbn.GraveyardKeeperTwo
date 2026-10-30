@@ -28,6 +28,24 @@ public static partial class TimbnGameIds
             public const string TpToTowerAndSetInteractive = "tp_to_tower_and_set_interactive";
         }
 
+        /// <summary>Script npc_bathhouse_monk, run by npc_bathhouse_monk_01, npc_bathhouse_monk_02.</summary>
+        public static class BathhouseMonk
+        {
+            public const string Despawn = "Despawn";
+            public const string TurnUp = "TurnUp";
+            public const string BathhouseMonk01Circle = "bathhouse_monk_01_circle";
+            public const string BathhouseMonk02Circle = "bathhouse_monk_02_circle";
+            public const string SetDirectionUp = "set_direction_up";
+            public const string SetInteractive = "set_interactive";
+            public const string TpToSpot = "tp_to_spot";
+        }
+
+        /// <summary>Script npc_bishop, run by npc_bishop.</summary>
+        public static class Bishop
+        {
+            public const string SetInteractable = "set_interactable";
+        }
+
         /// <summary>Script npc_bonfire_guard_01, run by npc_bonfire_guard_01.</summary>
         public static class BonfireGuard01
         {
@@ -39,6 +57,21 @@ public static partial class TimbnGameIds
         public static class BonfireGuard02
         {
             public const string TpToSpawn = "tp_to_spawn";
+            public const string TpToSpot = "tp_to_spot";
+        }
+
+        /// <summary>Script npc_captain, run by npc_captain.</summary>
+        public static class Captain
+        {
+            public const string SetInteractable = "set_interactable";
+            public const string TpToSpot = "tp_to_spot";
+        }
+
+        /// <summary>Script npc_carpenter, run by npc_carpenter_01, npc_carpenter_02.</summary>
+        public static class Carpenter
+        {
+            public const string SetDirectionDown = "set_direction_down";
+            public const string SetInteractive = "set_interactive";
             public const string TpToSpot = "tp_to_spot";
         }
 
@@ -54,6 +87,12 @@ public static partial class TimbnGameIds
             public const string SetDirectionUp = "set_direction_up";
             public const string TpToBarracksLeft = "tp_to_barracks_left";
             public const string TpToBarracksRight = "tp_to_barracks_right";
+        }
+
+        /// <summary>Script npc_dig, run by npc_dig.</summary>
+        public static class Dig
+        {
+            public const string TpToSpot = "tp_to_spot";
         }
 
         /// <summary>Script npc_donkey, run by npc_donkey.</summary>
@@ -90,6 +129,23 @@ public static partial class TimbnGameIds
         public static class ForestGuard02
         {
             public const string SetDirectionRight = "set_direction_right";
+        }
+
+        /// <summary>Script npc_gerry, run by npc_gerry.</summary>
+        public static class Gerry
+        {
+            public const string SetDirectionDown = "set_direction_down";
+            public const string SetDirectionRight = "set_direction_right";
+            public const string TpToSpot = "tp_to_spot";
+            public const string TpToSpotWithoutPuff = "tp_to_spot_without_puff";
+        }
+
+        /// <summary>Script npc_ghost, run by npc_ghost.</summary>
+        public static class Ghost
+        {
+            public const string GoHome = "go_home";
+            public const string RollAction = "roll_action";
+            public const string StartAction = "start_action";
         }
 
         /// <summary>Script npc_head_of_the_guards, run by npc_head_of_the_guards.</summary>
@@ -142,11 +198,45 @@ public static partial class TimbnGameIds
             public const string TpToSpot = "tp_to_spot";
         }
 
+        /// <summary>Script npc_irishperson, run by npc_irishperson_01, npc_irishperson_02.</summary>
+        public static class Irishperson
+        {
+            public const string Destroy = "destroy";
+            public const string TpSpawnRefugee01 = "tp_spawn_refugee_01";
+            public const string TpSpawnRefugee02 = "tp_spawn_refugee_02";
+            public const string TpSpawnRefugee03 = "tp_spawn_refugee_03";
+            public const string TpSpawnRefugee04 = "tp_spawn_refugee_04";
+            public const string TpSpawnRefugeeWoman01 = "tp_spawn_refugee_woman_01";
+            public const string TpSpawnRefugeeWoman02 = "tp_spawn_refugee_woman_02";
+            public const string TpSpawnRefugeeWoman03 = "tp_spawn_refugee_woman_03";
+        }
+
+        /// <summary>Script npc_irishperson_noninteractive, run by npc_irishperson_03, npc_irishperson_04, npc_irishperson_woman_01, npc_irishperson_woman_02, npc_irishperson_woman_03.</summary>
+        public static class IrishpersonNoninteractive
+        {
+            public const string Destroy = "destroy";
+            public const string TpSpawnRefugee01 = "tp_spawn_refugee_01";
+            public const string TpSpawnRefugee02 = "tp_spawn_refugee_02";
+            public const string TpSpawnRefugee03 = "tp_spawn_refugee_03";
+            public const string TpSpawnRefugee04 = "tp_spawn_refugee_04";
+            public const string TpSpawnRefugeeWoman01 = "tp_spawn_refugee_woman_01";
+            public const string TpSpawnRefugeeWoman02 = "tp_spawn_refugee_woman_02";
+            public const string TpSpawnRefugeeWoman03 = "tp_spawn_refugee_woman_03";
+        }
+
         /// <summary>Script npc_jeffry, run by npc_jeffry.</summary>
         public static class Jeffry
         {
             public const string SetDirectionDown = "set_direction_down";
             public const string TpToSpawn = "tp_to_spawn";
+            public const string TpToSpot = "tp_to_spot";
+        }
+
+        /// <summary>Script npc_keepers_wife, run by npc_keepers_wife.</summary>
+        public static class KeepersWife
+        {
+            public const string SetDirectionDown = "set_direction_down";
+            public const string SetDirectionRight = "set_direction_right";
             public const string TpToSpot = "tp_to_spot";
         }
 
@@ -162,7 +252,7 @@ public static partial class TimbnGameIds
             public const string TpToSpotWithoutPuff = "tp_to_spot_without_puff";
         }
 
-        /// <summary>Script npc_looter, run by npc_looter_03, npc_looter_05.</summary>
+        /// <summary>Script npc_looter, run by npc_looter_01, npc_looter_02, npc_looter_03, npc_looter_05.</summary>
         public static class Looter
         {
             public const string TpToSpot = "tp_to_spot";
@@ -213,6 +303,14 @@ public static partial class TimbnGameIds
         {
             public const string SetDirectionDown = "set_direction_down";
             public const string TpToHome = "tp_to_home";
+            public const string TpToSpot = "tp_to_spot";
+        }
+
+        /// <summary>Script npc_second_keeper, run by npc_second_keeper.</summary>
+        public static class SecondKeeper
+        {
+            public const string SetDirectionDown = "set_direction_down";
+            public const string SetDirectionRight = "set_direction_right";
             public const string TpToSpot = "tp_to_spot";
         }
 
@@ -272,6 +370,12 @@ public static partial class TimbnGameIds
             public const string TpToSpot = "tp_to_spot";
         }
 
+        /// <summary>Script npc_woodcarver, run by npc_woodcarver.</summary>
+        public static class Woodcarver
+        {
+            public const string SetInteractable = "set_interactable";
+        }
+
         /// <summary>Script npc_workshop_foreman, run by npc_workshop_foreman.</summary>
         public static class WorkshopForeman
         {
@@ -293,7 +397,7 @@ public static partial class TimbnGameIds
             public const string TpToTavern = "tp_to_tavern";
         }
 
-        /// <summary>Script t_b_character, run by t_b_apothecary, t_b_tailor, t_b_vegetabler.</summary>
+        /// <summary>Script t_b_character, run by t_b_alchemist, t_b_apothecary, t_b_baker, t_b_blacksmith, t_b_brewer, t_b_builder, t_b_furniturer, t_b_jeweler, t_b_shalman, t_b_tailor, t_b_vegetabler.</summary>
         public static class TinyBuildCharacter
         {
             public const string OnCreate = "OnCreate";

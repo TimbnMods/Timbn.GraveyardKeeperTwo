@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Timbn.GraveyardKeeperTwo.Core</AssemblyName>
     <Product>Timbn Core</Product>
-    <Version>2.2.0</Version>
+    <Version>2.2.1</Version>
     <Thunderstore>true</Thunderstore>
     <ThunderstoreCategories>mods;libraries</ThunderstoreCategories>
     <SteamWorkshop>true</SteamWorkshop>

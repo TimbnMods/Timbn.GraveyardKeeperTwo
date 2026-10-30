@@ -127,6 +127,13 @@ public static partial class TimbnGameIds
             public const string TurningHeadAwayFromCamera = "custom_loop_04_exit";
         }
 
+        /// <summary>Body set npc_fisherman, worn by <c>npc_fisherman</c>.</summary>
+        public static class Fisherman
+        {
+            /// <summary>Any facing, plays 0636_fishing_exit and goes back to standing.</summary>
+            public const string FishingExit = "custom_loop_04_exit";
+        }
+
         /// <summary>Body set npc_fisherman_citizen, worn by <c>npc_fisherman_01</c>, <c>npc_fisherman_02</c>, <c>npc_fisherman_03</c>.</summary>
         public static class FishermanCitizen
         {
@@ -376,7 +383,7 @@ public static partial class TimbnGameIds
         /// <summary>Body set npc_villager, worn by <c>npc_fisherwoman_01</c>, <c>npc_fisherwoman_02</c>, <c>npc_fisherwoman_03</c>, <c>npc_irishperson_01</c>, <c>npc_irishperson_02</c>, <c>npc_irishperson_03</c>, <c>npc_irishperson_04</c>, <c>npc_irishperson_woman_01</c>, <c>npc_irishperson_woman_02</c>, <c>npc_irishperson_woman_03</c>, <c>npc_villager</c>, <c>npc_villager_01</c> and 11 more.</summary>
         public static class Villager
         {
-            /// <summary>Facing down or up, plays sitting_down or sitting_up and keeps at it until their next walk. Only <c>npc_villager_01</c>, <c>npc_villager_02</c>, <c>npc_villager_03</c>, <c>npc_villager_04</c>, <c>npc_villager_05</c>, <c>npc_villager_06</c>, <c>npc_villager_woman_01</c>, <c>npc_villager_woman_02</c>, <c>npc_villager_woman_03</c>, <c>npc_villager_woman_04</c>, <c>npc_villager_woman_05</c>, <c>npc_villager_woman_06</c> (12 of 23) have its frames.</summary>
+            /// <summary>Facing down or up, plays sitting_down or sitting_up and keeps at it until their next walk. Only <c>npc_irishperson_01</c>, <c>npc_irishperson_02</c>, <c>npc_irishperson_03</c>, <c>npc_irishperson_04</c>, <c>npc_irishperson_woman_01</c>, <c>npc_irishperson_woman_02</c>, <c>npc_irishperson_woman_03</c>, <c>npc_villager_01</c>, <c>npc_villager_02</c>, <c>npc_villager_03</c>, <c>npc_villager_04</c>, <c>npc_villager_05</c> and 7 more (19 of 23) have its frames.</summary>
             public const string Sitting = "custom_loop_01_enter";
 
             /// <summary>Facing left or right, plays work_hands_left or work_hands_right and keeps at it until their next walk. Only <c>npc_fisherwoman_01</c>, <c>npc_fisherwoman_02</c>, <c>npc_fisherwoman_03</c>, <c>npc_irishperson_01</c>, <c>npc_irishperson_02</c>, <c>npc_irishperson_03</c>, <c>npc_irishperson_04</c>, <c>npc_irishperson_woman_01</c>, <c>npc_irishperson_woman_02</c>, <c>npc_irishperson_woman_03</c>, <c>npc_villager_01</c>, <c>npc_villager_02</c> and 10 more (22 of 23) have its frames.</summary>

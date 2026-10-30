@@ -184,6 +184,7 @@ public static partial class TimbnGameIds
         public const string MillstoneWork = "millstone_work";
         public const string Mirror = "mirror";
         public const string NewDayBell = "new_day_bell";
+        public const string NightSnoring = "night_snoring";
         public const string NobelKnight = "nobel_knight";
         public const string OhCorpseDrop = "oh_corpse_drop";
         public const string OhCorpseGrab = "oh_corpse_grab";

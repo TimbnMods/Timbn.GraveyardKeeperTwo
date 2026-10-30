@@ -10,7 +10,6 @@ The mod is many small tweaks that don't depend on each other. Each one has its o
 - `SermonResultDataPatch` (`SermonFaithRounding`) swaps the game's `Math.Round` on ceremony faith for one that snaps the float error first, so Priest's 3.5 doesn't round down.
 - `StuckCarriers` and `ZombieWgoDataStuckCarriersPatch` (`StuckCarriers`) send a supplier zombie with nowhere to put its item back to its station with the no storage icon.
 - `StuckResourceWorkers` and `ZombieWgoDataStuckResourceWorkersPatch` (`StuckResourceWorkers`) free the work spots a dismantled stand left taken, including ones already lost in a save.
-- `NestedZoneRemoval` and `RemovePointerPatch` (`RemoveInWholeArea`) allow removing a building inside the build area when the game counts it as part of another zone.
 - `ConveyorLoopCrash` and `ConveyorComponentPatch` (`ConveyorLoopCrash`) stop the crash from a conveyor loop feeding another loop. `HighlightConveyorLoops` draws arrows and a red square on the belt to remove.
 - `BuiltEarlyQuests` (`BuiltEarlyQuests`) finishes the choir and organ quest steps when the building already exists, checked on load and when the step starts.
 - `UnreachableDismantle` with `PlayerWorkComponentPatch` and `WgoDataPatch` (`DismantleUnreachable`) lets the player work on a station blocked by a fence or wall.

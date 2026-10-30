@@ -1,7 +1,7 @@
 namespace Timbn.GraveyardKeeperTwo.InfusionRack;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
-[BepInDependency(TimbnCorePlugin.Guid, "2.2.0")]
+[BepInDependency(TimbnCorePlugin.Guid, "2.2.1")]
 public class Plugin : TimbnFrameworkPlugin<Plugin>
 {
     protected override void BindConfig(ConfigFile config) => PluginConfig.Bind(config);

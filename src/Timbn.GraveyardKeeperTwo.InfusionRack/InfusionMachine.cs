@@ -29,6 +29,7 @@ internal static class InfusionMachine
             .Talent(_skullTalent)
             .NoFuel()
             .TakesZombie(false)
+            .CraftSlots(50)
             .BuiltAt(TimbnGameIds.BuildDesks.Morgue)
             .BuildTab(TimbnGameIds.BuildTabs.First)
             .UnlockedBy(InfusionTech.Id)

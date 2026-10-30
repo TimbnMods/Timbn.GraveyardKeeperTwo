@@ -233,7 +233,6 @@ class ModInfo
     public required string GameVersion { get; init; }
     public required string GameBuild { get; init; }
     public required ModInfo? Core { get; init; }
-    public required ModInfo? WorkshopSync { get; init; }
 
     public bool IsCore => ModName == "Core";
     public bool IsPatcher => Flag("BepInExPatcher");
@@ -261,17 +260,16 @@ class ModInfo
             .FirstOrDefault(name => string.Equals(name![Repo.ProjectPrefix.Length..], wanted, StringComparison.OrdinalIgnoreCase))
             ?? throw new ReleaseException($"no project in src matches {name}");
         var shared = ReadProperties(Path.Combine(src, "Directory.Build.props"));
-        var core = LoadProject(repo, shared, Repo.ProjectPrefix + "Core", null, null);
-        var workshopSync = LoadProject(repo, shared, Repo.ProjectPrefix + "WorkshopSync", null, null);
+        var core = LoadProject(repo, shared, Repo.ProjectPrefix + "Core", null);
         if (match == core.ProjectName)
         {
-            return LoadProject(repo, shared, match, null, workshopSync);
+            return LoadProject(repo, shared, match, null);
         }
 
-        return LoadProject(repo, shared, match, core, workshopSync);
+        return LoadProject(repo, shared, match, core);
     }
 
-    static ModInfo LoadProject(string repo, Dictionary<string, string> shared, string projectName, ModInfo? core, ModInfo? workshopSync)
+    static ModInfo LoadProject(string repo, Dictionary<string, string> shared, string projectName, ModInfo? core)
     {
         var projectDir = Path.Combine(repo, "src", projectName);
         var properties = ReadProperties(Path.Combine(projectDir, projectName + ".csproj"));
@@ -292,7 +290,6 @@ class ModInfo
             GameVersion = Constant(corePlugin, "TestedGameVersion"),
             GameBuild = Constant(corePlugin, "TestedGameBuild"),
             Core = core,
-            WorkshopSync = workshopSync,
         };
     }
 
@@ -953,11 +950,7 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
 
     List<Requirement> SteamRequirements()
     {
-        var requirements = new List<Requirement>
-        {
-            new("BepInEx for Graveyard Keeper 2", $"https://www.nexusmods.com/{Repo.NexusGame}/mods/{Repo.NexusBepInExId}", null),
-            new(mod.WorkshopSync!.Product, mod.WorkshopSync.NexusUrl, ", which installs the Workshop mods you subscribe to"),
-        };
+        var requirements = new List<Requirement> { new("BepInEx for Graveyard Keeper 2", $"https://www.nexusmods.com/{Repo.NexusGame}/mods/{Repo.NexusBepInExId}", null) };
         if (mod.CoreFloor != null)
         {
             requirements.Add(new(mod.Core!.Product, mod.Core.WorkshopUrl, $"{mod.CoreFloor} or newer"));
