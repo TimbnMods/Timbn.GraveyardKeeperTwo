@@ -235,7 +235,6 @@ class ModInfo
     public required ModInfo? Core { get; init; }
 
     public bool IsCore => ModName == "Core";
-    public bool IsPatcher => Flag("BepInExPatcher");
     public bool Thunderstore => Flag("Thunderstore");
     public bool Workshop => Flag("SteamWorkshop") || Get("WorkshopItemId") != null;
     public string Tag => $"{ModName.ToLowerInvariant()}/v{Version}";
@@ -1022,9 +1021,8 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
 
     string WriteNexusZip(string plugin)
     {
-        var root = mod.IsPatcher ? $"BepInEx/patchers/{mod.ProjectName}" : mod.ProjectName;
         var zip = Path.Combine(_outDir, "nexus", $"{mod.ProjectName}-{mod.Version}.zip");
-        Zip(zip, [.. Files(plugin, root)]);
+        Zip(zip, [.. Files(plugin, mod.ProjectName)]);
         return zip;
     }
 
@@ -1057,8 +1055,7 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
             ("CHANGELOG.md", File.ReadAllBytes(Path.Combine(mod.ProjectDir, "CHANGELOG.md"))),
             ("icon.png", File.ReadAllBytes(icon)),
         };
-        // Thunderstore mod managers install a root patchers folder into BepInEx/patchers, and any other root folder into plugins.
-        entries.AddRange(Files(plugin, mod.IsPatcher ? $"patchers/{mod.ProjectName}" : mod.ProjectName));
+        entries.AddRange(Files(plugin, mod.ProjectName));
         var zip = Path.Combine(dir, $"{mod.Shared["ThunderstoreNamespace"]}-{name}-{mod.Version}.zip");
         Zip(zip, entries);
         Write(Path.Combine(dir, "thunderstore.toml"), ThunderstoreToml(name, dependencies));
@@ -1148,9 +1145,20 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
             return dir;
         }
 
-        var folder = mod.IsPatcher ? "patchers" : "plugins";
-        var content = Path.Combine(dir, "content", "BepInEx", folder, mod.ProjectName);
-        CopyDirectory(plugin, content);
+        var content = Path.Combine(dir, "content");
+        CopyDirectory(plugin, Path.Combine(content, "BepInEx", "plugins", mod.ProjectName));
+        // The game's Mods window shows this name and version, and its id must stay the same across releases.
+        var modInfo = JsonSerializer.Serialize(
+            new Dictionary<string, object>
+            {
+                ["schemaVersion"] = 1,
+                ["id"] = mod.AssemblyName.ToLowerInvariant(),
+                ["name"] = mod.Product,
+                ["version"] = mod.Version,
+            },
+            new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
+
+        Write(Path.Combine(content, "modinfo.json"), modInfo + "\n");
         // The preview sits inside the Workshop folder so the upload job has everything in one artifact.
         var icon = Path.Combine(dir, "preview.png");
         File.Copy(RequireIcon("Steam"), icon);

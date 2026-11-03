@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.2
+
+- Works on game version 1.011.1.
+
 ## 2.2.1
 
 - Works on game version 1.011.

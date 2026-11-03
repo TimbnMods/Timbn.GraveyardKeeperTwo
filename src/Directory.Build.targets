@@ -1,27 +1,28 @@
 <Project>
 
   <!--
-    Where a build lands. DeployTo is plugins (loaded once by the chainloader) or scripts (hot reloaded by
-    ScriptEngine on F6), passed as -p:DeployTo=scripts. A project that must never be reloaded, such as Core,
-    sets ScriptReloadable false and always goes to plugins. A preloader patcher sets BepInExPatcher true and
-    always goes to patchers. A mod is removed from the other folder so it can never be loaded twice. PluginDir
-    is kept as the name the Exists gate and the docs use, so -p:PluginDir=Z:/nope still compiles without
-    deploying while the game runs.
+    Where a build lands. DeployTo is scripts (hot reloaded by ScriptEngine on F6) or mods (a local item in the
+    game's Mods/Code folder, which the game copies into BepInEx/plugins on launch like a Workshop item). Debug
+    builds go to scripts and Release builds to mods, and -p:DeployTo overrides either. A project that must never
+    be reloaded, such as Core, sets ScriptReloadable false and always goes to mods. A mod is removed from the
+    other place so it can never be loaded twice. -p:PluginDir=Z:/nope compiles without deploying.
   -->
   <PropertyGroup>
+    <DeployTo Condition="'$(DeployTo)' == '' And '$(Configuration)' == 'Debug'">scripts</DeployTo>
+    <DeployTo Condition="'$(DeployTo)' == ''">mods</DeployTo>
     <_DeployFolder>$(DeployTo)</_DeployFolder>
-    <_DeployFolder Condition="'$(ScriptReloadable)' != 'true'">plugins</_DeployFolder>
-    <_DeployFolder Condition="'$(BepInExPatcher)' == 'true'">patchers</_DeployFolder>
-    <_OtherFolder Condition="'$(_DeployFolder)' == 'plugins'">scripts</_OtherFolder>
-    <_OtherFolder Condition="'$(_DeployFolder)' == 'scripts'">plugins</_OtherFolder>
-    <_DefaultPluginDir>$(BepInExDir)\$(_DeployFolder)</_DefaultPluginDir>
+    <_DeployFolder Condition="'$(ScriptReloadable)' != 'true'">mods</_DeployFolder>
+    <_ModItemDir>$(ModsCodeDir)\$(MSBuildProjectName)</_ModItemDir>
+    <_DefaultPluginDir Condition="'$(_DeployFolder)' == 'scripts'">$(BepInExDir)\scripts</_DefaultPluginDir>
+    <_DefaultPluginDir Condition="'$(_DeployFolder)' == 'mods'">$(_ModItemDir)\BepInEx\plugins</_DefaultPluginDir>
     <PluginDir Condition="'$(PluginDir)' == ''">$(_DefaultPluginDir)</PluginDir>
   </PropertyGroup>
 
   <!--
-    Copies each plugin into BepInEx/<folder>/<ProjectName>: the DLL plus every content file the csproj
-    marks CopyToOutputDirectory, keeping each file's folder. The default folder is created when BepInEx is
-    installed. A PluginDir passed on the command line must already exist, else the deploy is skipped.
+    Copies each plugin into <PluginDir>/<ProjectName>: the DLL plus every content file the csproj marks
+    CopyToOutputDirectory, keeping each file's folder. A mods deploy also writes the item's modinfo.json, which
+    the game's Mods window reads for the name and version. The default folder is used when the game is installed.
+    A PluginDir passed on the command line must already exist, else the deploy is skipped.
   -->
   <Target
     Name="DeployToGame"
@@ -30,14 +31,33 @@
     <ItemGroup>
       <_DeployContent Include="@(None->WithMetadataValue('CopyToOutputDirectory', 'PreserveNewest'))" />
     </ItemGroup>
-    <MakeDir Directories="$(PluginDir)" />
-    <RemoveDir Directories="$(BepInExDir)\$(_OtherFolder)\$(MSBuildProjectName)" Condition="'$(_OtherFolder)' != ''" />
+    <PropertyGroup>
+      <_ModInfoJson>{
+  "schemaVersion": 1,
+  "id": "$(AssemblyName.ToLowerInvariant())",
+  "name": "$(Product)",
+  "version": "$(Version)"
+}</_ModInfoJson>
+    </PropertyGroup>
+    <RemoveDir Directories="$(_ModItemDir)" Condition="'$(_DeployFolder)' == 'scripts'" />
+    <!-- The game removes an uninstalled item's files but never its folders. A DLL the running game holds stays until the game's next launch. -->
+    <RemoveDir
+      Directories="$(BepInExDir)\plugins\$(MSBuildProjectName)"
+      Condition="'$(_DeployFolder)' == 'scripts'"
+      ContinueOnError="WarnAndContinue" />
+    <RemoveDir Directories="$(BepInExDir)\scripts\$(MSBuildProjectName)" Condition="'$(_DeployFolder)' == 'mods'" />
     <RemoveDir Directories="$(PluginDir)\$(MSBuildProjectName)" />
+    <MakeDir Directories="$(PluginDir)" />
     <Copy SourceFiles="$(TargetPath)" DestinationFolder="$(PluginDir)\$(MSBuildProjectName)" />
     <Copy
       SourceFiles="@(_DeployContent)"
       DestinationFiles="@(_DeployContent->'$(PluginDir)\$(MSBuildProjectName)\%(RelativeDir)%(Filename)%(Extension)')"
       Condition="'@(_DeployContent)' != ''" />
+    <WriteLinesToFile
+      File="$(_ModItemDir)\modinfo.json"
+      Lines="$(_ModInfoJson)"
+      Overwrite="true"
+      Condition="'$(_DeployFolder)' == 'mods' And '$(PluginDir)' == '$(_DefaultPluginDir)'" />
     <Message Importance="high" Text="Deployed $(MSBuildProjectName) to $(PluginDir)" />
   </Target>
 
