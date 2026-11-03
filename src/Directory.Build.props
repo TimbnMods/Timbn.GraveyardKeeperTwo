@@ -18,7 +18,8 @@
     <GameDir>C:\Program Files (x86)\Steam\steamapps\common\Graveyard Keeper 2</GameDir>
     <GameManagedDir>$(GameDir)\GraveyardKeeper2_Data\Managed</GameManagedDir>
     <BepInExDir>$(GameDir)\BepInEx</BepInExDir>
-    <DeployTo Condition="'$(DeployTo)' == ''">plugins</DeployTo>
+    <ModsCodeDir>$(USERPROFILE)\AppData\LocalLow\Lazy Bear Games\Graveyard Keeper 2\Mods\Code</ModsCodeDir>
+    <GameLibDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\lib'))</GameLibDir>
     <ScriptReloadable Condition="'$(ScriptReloadable)' == ''">true</ScriptReloadable>
     <RestoreAdditionalProjectSources>
       https://api.nuget.org/v3/index.json;
@@ -45,6 +46,23 @@
     <PackageReference Include="BepInEx.Core" Version="5.*" />
     <PackageReference Include="BepInEx.PluginInfoProps" Version="2.*" PrivateAssets="all" />
     <PackageReference Include="UnityEngine.Modules" Version="6000.3.9" IncludeAssets="compile" />
+  </ItemGroup>
+
+  <!--
+    The game's DLLs every plugin compiles against. They are never copied, since the game loads its own.
+    Assembly-CSharp comes from lib (copied from the game at the version the repo is tested on) and the rest from
+    the install. Any lang/*.txt file ships next to the DLL.
+  -->
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>$(GameLibDir)\Assembly-CSharp.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="LazyBearTechnology">
+      <HintPath>$(GameManagedDir)\LazyBearTechnology.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <None Include="lang\*.txt" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 
 </Project>
