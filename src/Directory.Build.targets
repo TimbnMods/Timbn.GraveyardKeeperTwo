@@ -40,6 +40,11 @@
 }</_ModInfoJson>
     </PropertyGroup>
     <RemoveDir Directories="$(_ModItemDir)" Condition="'$(_DeployFolder)' == 'scripts'" />
+    <!-- The game removes an uninstalled item's files but never its folders. A DLL the running game holds stays until the game's next launch. -->
+    <RemoveDir
+      Directories="$(BepInExDir)\plugins\$(MSBuildProjectName)"
+      Condition="'$(_DeployFolder)' == 'scripts'"
+      ContinueOnError="WarnAndContinue" />
     <RemoveDir Directories="$(BepInExDir)\scripts\$(MSBuildProjectName)" Condition="'$(_DeployFolder)' == 'mods'" />
     <RemoveDir Directories="$(PluginDir)\$(MSBuildProjectName)" />
     <MakeDir Directories="$(PluginDir)" />
