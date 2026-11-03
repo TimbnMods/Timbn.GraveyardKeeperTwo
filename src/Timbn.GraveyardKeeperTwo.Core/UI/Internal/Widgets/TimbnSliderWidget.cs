@@ -92,6 +92,8 @@ internal sealed class TimbnSliderWidget : TimbnWidget
         slider.wholeNumbers = true;
         slider.minValue = 0f;
         slider.maxValue = steps;
+        // The copy keeps the music volume slider's value, and UISlider.Initialize reports its drop to 0 as a change.
+        slider.SetValueWithoutNotify(0f);
         return slider;
     }
 

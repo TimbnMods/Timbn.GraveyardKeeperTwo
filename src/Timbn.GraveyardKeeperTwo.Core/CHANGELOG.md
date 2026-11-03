@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.2.3
+
+- Mod settings sliders show their saved value again, instead of their lowest value and an unsaved change.
+
 ## 2.2.2
 
 - Works on game version 1.011.1.
