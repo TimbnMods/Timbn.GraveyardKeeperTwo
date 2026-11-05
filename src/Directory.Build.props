@@ -1,8 +1,10 @@
 <Project>
 
   <!--
-    Shared by every plugin project. A csproj keeps only its identity, its version, its references, and its
-    content. Version here is the fallback for a project that does not set its own; each csproj overrides it,
+    Shared by every plugin project. A csproj keeps only its identity, its version, its references, and
+  its
+    content. Version here is the fallback for a project that does not set its own; each csproj
+  overrides it,
     and BepInEx.PluginInfoProps turns whichever wins into MyPluginInfo.PLUGIN_VERSION.
   -->
   <PropertyGroup>
@@ -28,15 +30,14 @@
   </PropertyGroup>
 
   <!--
-    Thunderstore package settings the release tool (tools/release) reads. A project opts in by setting Thunderstore true.
-    ThunderstoreCoreFirstVersion is the first Core uploaded there, since a dependency must name a version Thunderstore
-    has. No package depends on the BepInExPack, since the game ships BepInEx.
+    Thunderstore package settings the release tool (tools/release) reads. Every released mod goes to
+    Thunderstore unless its csproj sets SkipThunderstore true.
+    No package depends on the BepInExPack, since the game ships BepInEx.
   -->
   <PropertyGroup>
     <ThunderstoreNamespace>Timbn</ThunderstoreNamespace>
     <ThunderstoreWebsiteUrl>https://github.com/TimbnMods/Timbn.GraveyardKeeperTwo</ThunderstoreWebsiteUrl>
     <ThunderstoreCorePackage>Timbn-TimbnCore</ThunderstoreCorePackage>
-    <ThunderstoreCoreFirstVersion>1.3.0</ThunderstoreCoreFirstVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -48,7 +49,8 @@
 
   <!--
     The game's DLLs every plugin compiles against. They are never copied, since the game loads its own.
-    Assembly-CSharp comes from lib (copied from the game at the version the repo is tested on) and the rest from
+    Assembly-CSharp comes from lib (copied from the game at the version the repo is tested on) and the
+  rest from
     the install. Any lang/*.txt file ships next to the DLL.
   -->
   <ItemGroup>

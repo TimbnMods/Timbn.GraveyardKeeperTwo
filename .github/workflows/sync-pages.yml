@@ -32,7 +32,7 @@ jobs:
         run: |
           set -euo pipefail
           for mod in $MODS; do
-            dotnet run tools/release/Release.cs -- pages "$mod"
+            dotnet run --project tools/release -- pages "$mod"
           done
 
       - name: Show the pages in the summary
@@ -90,7 +90,7 @@ jobs:
           set -euo pipefail
           for folder in artifacts/release/*/; do
             if jq -e .nexusModId "$folder/release.json" > /dev/null; then
-              dotnet run tools/release/Release.cs -- nexus "$folder"
+              dotnet run --project tools/release -- nexus "$folder"
             fi
           done
 

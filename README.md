@@ -64,10 +64,10 @@ A GitHub Action does the packaging and uploads, and only the DLL is built locall
 3. Run the Release drafts workflow. It packages every draft that has its DLL, shows the zips and page text in the run summary, then waits for approval.
 4. Approving uploads to Nexus, Thunderstore, the Steam Workshop and (for Core) NuGet, then publishes the GitHub release.
 
-The packaging and page rendering live in `tools/release/Release.cs`. To check a mod's zips and page text locally:
+The packaging and page rendering live in the `tools/release` project. To check a mod's zips and page text locally:
 
 ```cmd
-dotnet run tools/release/Release.cs -- VanillaTweaks --dry-run
+dotnet run --project tools/release -- VanillaTweaks --dry-run
 ```
 
 The Sync pages workflow updates the Nexus and Steam page text from `page.yml` without a release.
