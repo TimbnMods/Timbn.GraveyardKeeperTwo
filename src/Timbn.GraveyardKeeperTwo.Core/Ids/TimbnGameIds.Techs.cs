@@ -419,6 +419,8 @@ public static partial class TimbnGameIds
         public const string TechWoodenKit2 = "tech_wooden_kit_2";
         /// <summary>Zombie Gears</summary>
         public const string TechZombieCarousel = "tech_zombie_carousel";
+        /// <summary>Zombie Motors</summary>
+        public const string TechZombieCarouselMotors = "tech_zombie_carousel_motors";
         /// <summary>Zombie Delivery</summary>
         public const string TechZombieDelivery = "tech_zombie_delivery";
         /// <summary>Zombie Digging</summary>

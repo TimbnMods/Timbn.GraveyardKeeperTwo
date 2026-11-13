@@ -561,6 +561,8 @@ public static partial class TimbnGameIds
         public const string UiHintExtentionFor = "ui_hint_extention_for";
         /// <summary>Grave</summary>
         public const string UiHintGrave = "ui_hint_grave";
+        /// <summary>Hold %1 to switch to your alternate quick slots.</summary>
+        public const string UiHoldRbChangeQuickuseSlots = "ui_hold_rb_change_quickuse_slots";
         /// <summary>Select a slot to equip this item:</summary>
         public const string UiHotbarSelectionTip = "ui_hotbar_selection_tip";
         /// <summary>Ingredients</summary>
@@ -575,6 +577,8 @@ public static partial class TimbnGameIds
         public const string UiLoadSaveBtn = "ui_load_save_btn";
         /// <summary>Loading</summary>
         public const string UiLoading = "ui_loading";
+        /// <summary>Days: %1</summary>
+        public const string UiMapCraftDaysLeft = "ui_map_craft_days_left";
         /// <summary>Mastery</summary>
         public const string UiMastery = "ui_mastery";
         /// <summary>Back</summary>

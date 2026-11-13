@@ -203,6 +203,7 @@ public static partial class TimbnGameIds
             public const string ChoppingSpot = "chopping_spot";
             /// <summary>Circular Saw</summary>
             public const string CircularSaw = "circular_saw";
+            public const string CoalShed1 = "coal_shed_1";
             /// <summary>Firewood shed I</summary>
             public const string FirewoodShed1 = "firewood_shed_1";
             /// <summary>Firewood shed II</summary>
@@ -266,16 +267,6 @@ public static partial class TimbnGameIds
             public const string MarbleZombieSource1 = "marble_zombie_source_1";
             /// <summary>Zombie Marble Quarry</summary>
             public const string MarbleZombieSource2 = "marble_zombie_source_2";
-            /// <summary>PR Machine I</summary>
-            public const string PanicReductionMachine1 = "panic_reduction_machine_1";
-            /// <summary>PR Machine II</summary>
-            public const string PanicReductionMachine2 = "panic_reduction_machine_2";
-            /// <summary>PR Machine III</summary>
-            public const string PanicReductionMachine3 = "panic_reduction_machine_3";
-            /// <summary>PR Machine IV</summary>
-            public const string PanicReductionMachine4 = "panic_reduction_machine_4";
-            /// <summary>PR Machine V</summary>
-            public const string PanicReductionMachine5 = "panic_reduction_machine_5";
             /// <summary>Zombie Stone Quarry</summary>
             public const string StoneZombieSource1 = "stone_zombie_source_1";
             /// <summary>Zombie Stone Quarry</summary>

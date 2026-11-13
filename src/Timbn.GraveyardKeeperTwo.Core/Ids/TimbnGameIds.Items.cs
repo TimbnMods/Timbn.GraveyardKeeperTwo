@@ -346,8 +346,16 @@ public static partial class TimbnGameIds
         public const string CookCarrotCutlet = "cook_carrot_cutlet";
         /// <summary>Carrot soup</summary>
         public const string CookCarrotSoup = "cook_carrot_soup";
+        /// <summary>Christmas Cookie</summary>
+        public const string CookChristmasCookie = "cook_christmas_cookie";
+        /// <summary>Christmas Pie</summary>
+        public const string CookChristmasPie = "cook_christmas_pie";
         /// <summary>Croissant</summary>
         public const string CookCroissant = "cook_croissant";
+        /// <summary>Easter Egg</summary>
+        public const string CookEasterEgg = "cook_easter_egg";
+        /// <summary>Easter Bunny</summary>
+        public const string CookEasterRabbit = "cook_easter_rabbit";
         /// <summary>Elder's meal</summary>
         public const string CookElderCatfish = "cook_elder_catfish";
         /// <summary>Fish nuggets</summary>
@@ -362,6 +370,10 @@ public static partial class TimbnGameIds
         public const string CookGrapePie = "cook_grape_pie";
         /// <summary>Green jelly</summary>
         public const string CookGreenJelly = "cook_green_jelly";
+        /// <summary>Halloween Cookie</summary>
+        public const string CookHalloweenCookie = "cook_halloween_cookie";
+        /// <summary>Halloween Pie</summary>
+        public const string CookHalloweenPie = "cook_halloween_pie";
         /// <summary>Heavenly salmon</summary>
         public const string CookHeavenlySalmon = "cook_heavenly_salmon";
         /// <summary>Kebab with fish and mushrooms</summary>
