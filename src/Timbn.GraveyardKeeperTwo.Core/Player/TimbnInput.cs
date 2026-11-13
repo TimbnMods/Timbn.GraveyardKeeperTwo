@@ -12,7 +12,7 @@ public static class TimbnInput
     /// <summary>
     /// True when a save is loaded, no game window (inventory, crafting, pause menu, a text field) is open, and the
     /// game is reading input. It does not look at whether the player can move, so it suits a key that must still
-    /// work while a mod holds the player still, such as the key that ends campfire meditation.
+    /// work while a mod holds the player still, such as the key that closes a mod's own window.
     /// </summary>
     public static bool HotkeysEnabled =>
         IsReadingInput
