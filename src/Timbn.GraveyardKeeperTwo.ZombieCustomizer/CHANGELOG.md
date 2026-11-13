@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1
+
+- Works on game version 1.012.7.
+
 ## 1.2.0
 
 - Now runs on Timbn Core 2.2.0.
