@@ -130,6 +130,18 @@ public static partial class TimbnGameIds
         /// <summary>Body set npc_fisherman, worn by <c>npc_fisherman</c>.</summary>
         public static class Fisherman
         {
+            /// <summary>Facing down or up, plays sitting_down or sitting_up and keeps at it until their next walk.</summary>
+            public const string Sitting = "custom_loop_01_enter";
+
+            /// <summary>Facing left or right, plays work_hands_left or work_hands_right and keeps at it until their next walk.</summary>
+            public const string WorkHands = "custom_loop_01_enter";
+
+            /// <summary>Facing left or right, plays drink_left or drink_right and keeps at it until their next walk.</summary>
+            public const string Drink = "custom_loop_02_enter";
+
+            /// <summary>Any facing, plays 0636_fishing_enter and keeps at it until FishingExit or their next walk.</summary>
+            public const string FishingEnter = "custom_loop_04_enter";
+
             /// <summary>Any facing, plays 0636_fishing_exit and goes back to standing.</summary>
             public const string FishingExit = "custom_loop_04_exit";
         }

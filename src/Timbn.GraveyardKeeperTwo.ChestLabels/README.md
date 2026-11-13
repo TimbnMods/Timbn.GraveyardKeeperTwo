@@ -6,7 +6,7 @@ Timbn Chest Labels lets players name their chests, and the name shows at the che
 
 - `Plugin` adds the Label key to chests with Core's `Interactions.Register(...).AddSecondary`, which also draws the Label hint next to Open. Only objects whose id contains `chest` count, since `ChestInteractionHandler` also runs shelves, containers and storages.
 - The key opens a Core page (`UI.ShowPage`) with a text box, a color picker, a size choice and a Save button.
-- `WgoPatch` puts the name in the chest's bubble as a `UIQualityTooltipWidgetData`, the widget a grave's quality uses, so the game stacks it with the hints. It goes under them, or above them when `LabelBelow` is off. `UIQualityTooltipWidgetPatch` hides that widget's empty icon slot.
+- `WgoPatch` puts the name in the chest's bubble as a `UIQualityTooltipWidgetData`, the widget a grave's quality uses, so the game stacks it with the hints. It goes under them, or above them when `LabelBelow` is off. The label has no icon, and since 1.012.7 the game hides an empty icon slot itself.
 - The color is saved apart from the text and put around the name as a `<color>` tag when it is drawn.
 - Core's `Events.WorldObjectRemoved` clears a name when its chest leaves the save for good. Core already skips an id change, a move to another scene and a removal that keeps the craft, so none of those clears it.
 - The game's Move keeps the chest's `UniqueId`, so a name follows it with no code here.

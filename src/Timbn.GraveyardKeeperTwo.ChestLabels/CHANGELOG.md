@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.1.2
+
+- Works on game version 1.012.7, which hides the label's empty icon on its own.
+
 ## 1.1.1
 
 - Works on game version 1.011. A chest keeps its name when you move it with the game's own Move button.

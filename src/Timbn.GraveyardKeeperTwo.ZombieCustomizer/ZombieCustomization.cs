@@ -116,7 +116,7 @@ internal sealed class ZombieCustomization
             if (_session != null)
                 ShowPreview(_session);
         }, labels, index, loopNavigation: false);
-        switcher.SetColorImage(null);
+        switcher.SetColorImage(texture2D: null);
     }
 
     private void BindTint(UICharacterOptionSwitcher switcher, Session session)

@@ -18,5 +18,13 @@ internal static class MovementComponentRoutePatch
 
     [HarmonyPatch("FindPathRecastGraph")]
     [HarmonyPrefix]
-    private static bool FindPathRecastGraphPreFix(MovementComponent __instance) => !TimbnPlannedRoute.TryUseCorners(__instance);
+    private static bool FindPathRecastGraphPreFix(MovementComponent __instance, ref bool __result)
+    {
+        if (!TimbnPlannedRoute.TryUseCorners(__instance))
+            return true;
+
+        // Since 1.012.7 a false result here makes the game fail the walk it just started.
+        __result = true;
+        return false;
+    }
 }

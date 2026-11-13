@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.4
+
+- Works on game version 1.012.7.
+- Townsfolk that mods walk straight around corners start walking again instead of stopping on the spot.
+
 ## 2.2.3
 
 - Mod settings sliders show their saved value again, instead of their lowest value and an unsaved change.

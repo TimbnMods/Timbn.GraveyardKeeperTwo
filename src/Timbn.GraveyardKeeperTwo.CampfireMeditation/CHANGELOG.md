@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.5.0
+
+- Retired. Graveyard Keeper 2 1.012 added a campfire bench rest at the Keeper's house, so this version does nothing and the mod can be removed.
+
 ## 1.4.0
 
 - Now runs on Timbn Core 2.2.0.
