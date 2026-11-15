@@ -96,7 +96,7 @@ public static class TimbnPlayer
     /// <example>
     /// <code>
     /// if (!TimbnPlayer.HasOverheadItem)
-    ///     _mug = Player.AddOverheadItem(new Item("my_mod_mug"));
+    ///     _crate = Player.AddOverheadItem(new Item("my_mod_crate"));
     /// </code>
     /// </example>
     public static bool HasOverheadItem =>
