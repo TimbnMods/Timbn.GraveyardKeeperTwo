@@ -47,12 +47,10 @@ sections:
     blocks:
       - subtitle: With Vortex
       - olist:
-          - Install BepInEx for Graveyard Keeper 2
           - Install Timbn Core
           - Download with "Mod Manager Download" from the Files tab
       - subtitle: Without Vortex
       - olist:
-          - Install BepInEx for Graveyard Keeper 2, start the game once, and quit at the main menu
           - Install Timbn Core
           - Extract the Timbn.GraveyardKeeperTwo.LivingTown zip into BepInEx/plugins
       - text: Start the game and open Mod Settings on the main menu. The mod is listed there under Timbn Mods.
@@ -60,7 +58,6 @@ sections:
   - title: Installation
     only: [steam]
     olist:
-      - Install BepInEx for Graveyard Keeper 2
       - Subscribe to Timbn Core and to this item
       - Start the game and open Mod Settings on the main menu. The mod is listed there under Timbn Mods.
 

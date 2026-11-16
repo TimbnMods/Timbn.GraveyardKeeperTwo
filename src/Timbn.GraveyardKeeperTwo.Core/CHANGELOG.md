@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.5
+
+- No more errors in the log when a body is carried.
+- Mods can no longer put a small item overhead. The game only draws big items there.
+
 ## 2.2.4
 
 - Works on game version 1.012.7.

@@ -1,23 +1,9 @@
-using LazyBearTechnology;
-
 namespace Timbn.GraveyardKeeperTwo.Core.Framework;
 
 internal static class TimbnOverhead
 {
-    private const string _iconName = "TimbnOverheadIcon";
-    private const float _iconHeight = 0.3f;
-
     private static readonly AccessTools.FieldRef<PlayerData, List<Item>>? _overheadItems =
         TimbnReflection.TryField<PlayerData, List<Item>>("overheadItems");
-
-    private static readonly AccessTools.FieldRef<DropViewAtomMesh, List<DropViewAtomMeshElement>>? _elements =
-        TimbnReflection.TryField<DropViewAtomMesh, List<DropViewAtomMeshElement>>("elements");
-
-    private static readonly AccessTools.FieldRef<DropViewAtomMesh, DropViewAtomMeshElement>? _defaultElement =
-        TimbnReflection.TryField<DropViewAtomMesh, DropViewAtomMeshElement>("defaultElement");
-
-    private static readonly AccessTools.FieldRef<DropViewAtomSprite, SpriteRenderer>? _itemSprite =
-        TimbnReflection.TryField<DropViewAtomSprite, SpriteRenderer>("itemSprite");
 
     private static readonly List<OverheadHandle> _handles = [];
 
@@ -37,6 +23,13 @@ internal static class TimbnOverhead
         var handle = new OverheadHandle(item, putDown, rule, logger);
         if (!TimbnGame.IsInGame || item == null || item.IsEmpty)
         {
+            handle.End();
+            return handle;
+        }
+
+        if (item.Definition?.itemSize != ItemSize.Big)
+        {
+            logger.LogWarning($"{nameof(TimbnPluginPlayer)}.{nameof(TimbnPluginPlayer.AddOverheadItem)}|{item.id} is not a big item, so it is not added overhead.");
             handle.End();
             return handle;
         }
@@ -94,57 +87,6 @@ internal static class TimbnOverhead
 
     private static bool IsHeld(Item item) =>
         TimbnGame.IsInGame && MainGame.PlayerData.OverheadItems.Contains(item);
-
-    internal static void GiveLook(DropViewAtomMesh view, string iconId)
-    {
-        if (!view.isOverhead || string.IsNullOrEmpty(iconId) || _elements is null || _defaultElement is null)
-            return;
-
-        var elements = _elements(view);
-        if (elements.Exists(element => element != null && element.name == iconId))
-            return;
-
-        var sprites = LazySingletonSO<EasySpritesCollection>.Instance;
-        if (sprites == null || !sprites.HasSprite(iconId))
-            return;
-
-        var placeholder = _defaultElement(view);
-        var element = UnityEngine.Object.Instantiate(placeholder, placeholder.transform.parent);
-        element.name = iconId;
-        element.gameObject.SetActive(false);
-        foreach (Transform child in element.transform)
-        {
-            if (child.GetComponentInChildren<Object3D>(true) != null)
-                child.gameObject.SetActive(false);
-        }
-
-        var icon = new GameObject(_iconName);
-        icon.transform.SetParent(element.transform, false);
-        icon.transform.localPosition = Vector3.up * _iconHeight;
-        var renderer = icon.AddComponent<SpriteRenderer>();
-        renderer.sprite = sprites.GetSprite(iconId);
-        if (SmallDropSprite() is { } source)
-        {
-            renderer.sharedMaterial = source.sharedMaterial;
-            icon.transform.localScale = source.transform.localScale;
-        }
-
-        elements.Add(element);
-    }
-
-    private static SpriteRenderer? SmallDropSprite()
-    {
-        if (_itemSprite is null)
-            return null;
-
-        foreach (var view in Resources.FindObjectsOfTypeAll<DropViewAtomSprite>())
-        {
-            if (_itemSprite(view) is { } sprite && sprite.sharedMaterial != null)
-                return sprite;
-        }
-
-        return null;
-    }
 
     internal sealed class OverheadHandle : IDisposable
     {

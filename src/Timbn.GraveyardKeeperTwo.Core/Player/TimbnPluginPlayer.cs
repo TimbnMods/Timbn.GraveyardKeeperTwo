@@ -119,22 +119,24 @@ public sealed class TimbnPluginPlayer
     public IDisposable WalkTo(Vector3 position, Action<bool> ended) => OwnWalk(TimbnPlayerWalk.Start(position, null, _owner.PluginLogger), ended);
 
     /// <summary>
-    /// Puts an item over the player's head the way a log sits there. A small item like a mug shows its icon there. If
-    /// the player has a free overhead slot, what is overhead stays and the new item goes on top. Otherwise what was on
-    /// top is dropped. Check TimbnPlayer.HasOverheadItem first when the item should be the only one overhead. Pressing
-    /// the interaction key with nothing in reach puts the item down the way the game drops anything overhead. The game
-    /// does the same when the player starts work or a fight. The item is kept out of every save. An item that is
-    /// already overhead is not added again. The handle then comes back already ended. The rule decides how it sits
-    /// overhead and leaves, as described on <see cref="TimbnOverheadRule"/>.
+    /// Puts a big item over the player's head the way a log sits there. The game draws only logs, stone, iron ore,
+    /// bodies and crates overhead, so the item's icon id should be one of theirs, or the game shows a white placeholder
+    /// box. A small item is refused with a warning, and the handle comes back already ended. If the player has a free
+    /// overhead slot, what is overhead stays and the new item goes on top.
+    /// Otherwise what was on top is dropped. Check TimbnPlayer.HasOverheadItem first when the item should be the only
+    /// one overhead. Pressing the interaction key with nothing in reach puts the item down the way the game drops
+    /// anything overhead. The game does the same when the player starts work or a fight. The item is kept out of every
+    /// save. An item that is already overhead is not added again. The handle then comes back already ended. The rule
+    /// decides how it sits overhead and leaves, as described on <see cref="TimbnOverheadRule"/>.
     /// </summary>
     /// <example>
     /// <code>
-    /// _mug = Player.AddOverheadItem(new Item("my_mod_mug"), () => TimbnItems.RemoveDrops(TimbnItems.FindDrops(drop => drop.Id == "my_mod_mug")));
+    /// _crate = Player.AddOverheadItem(new Item("my_mod_crate"), () => TimbnItems.RemoveDrops(TimbnItems.FindDrops(drop => drop.Id == "my_mod_crate")));
     /// // once it is taken off
-    /// _mug.Dispose();
+    /// _crate.Dispose();
     /// </code>
     /// </example>
-    /// <param name="item">The item to put overhead, such as one the mod added with Balance.Add.</param>
+    /// <param name="item">The big item to put overhead, such as one the mod added with Balance.Add with its itemSize set to Big.</param>
     /// <param name="putDown">
     /// Runs once the player has put it down or the game took it, a frame later, so a dropped item is already on the
     /// ground. It does not run when the handle is disposed.
