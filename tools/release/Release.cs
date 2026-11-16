@@ -171,7 +171,6 @@ static class Repo
     public const string GitHubRepo = "TimbnMods/Timbn.GraveyardKeeperTwo";
     public const string SteamAppId = "4358690";
     public const string NexusGame = "graveyardkeeper2";
-    public const string NexusBepInExId = "48";
     public const string ThunderstoreCommunity = "graveyard-keeper-2";
 
     public static string Find()
@@ -938,7 +937,7 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
 
     List<Requirement> NexusRequirements()
     {
-        var requirements = new List<Requirement> { new("BepInEx for Graveyard Keeper 2", $"https://www.nexusmods.com/{Repo.NexusGame}/mods/{Repo.NexusBepInExId}", null) };
+        var requirements = new List<Requirement>();
         if (mod.CoreFloor != null)
         {
             requirements.Add(new(mod.Core!.Product, mod.Core.NexusUrl, $"{mod.CoreFloor} or newer"));
@@ -949,7 +948,7 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
 
     List<Requirement> SteamRequirements()
     {
-        var requirements = new List<Requirement> { new("BepInEx for Graveyard Keeper 2", $"https://www.nexusmods.com/{Repo.NexusGame}/mods/{Repo.NexusBepInExId}", null) };
+        var requirements = new List<Requirement>();
         if (mod.CoreFloor != null)
         {
             requirements.Add(new(mod.Core!.Product, mod.Core.WorkshopUrl, $"{mod.CoreFloor} or newer"));
@@ -960,8 +959,7 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
 
     List<Requirement> ThunderstoreRequirements()
     {
-        var bepInEx = mod.Shared["ThunderstoreBepInExPack"].Split('-');
-        var requirements = new List<Requirement> { new("BepInExPack", ThunderstoreUrl(bepInEx[0], bepInEx[1]), null) };
+        var requirements = new List<Requirement>();
         if (mod.CoreFloor != null)
         {
             var core = mod.Shared["ThunderstoreCorePackage"].Split('-');
@@ -1064,9 +1062,7 @@ class ReleaseBuilder(string repo, ModInfo mod, Page page, Options options)
 
     Dictionary<string, string> ThunderstoreDependencies()
     {
-        var bepInEx = mod.Shared["ThunderstoreBepInExPack"];
-        var split = bepInEx.LastIndexOf('-');
-        var dependencies = new Dictionary<string, string> { [bepInEx[..split]] = bepInEx[(split + 1)..] };
+        var dependencies = new Dictionary<string, string>();
         if (mod.CoreFloor != null)
         {
             var first = mod.Shared["ThunderstoreCoreFirstVersion"];
@@ -1518,18 +1514,13 @@ class NexusUploader(string folder)
         }
     }
 
-    // Requirements are BepInEx and, for a mod, Core at its floor. A failure here only warns, since the file is already up.
+    // The only requirement is Core at the mod's floor, since the game ships BepInEx. A failure here only warns, since the
+    // file is already up.
     async Task SetRequirements(string versionId)
     {
         try
         {
             var definitions = new JsonArray();
-            var bepInEx = await MainFile(await GlobalModId(Repo.NexusBepInExId));
-            if (bepInEx != null)
-            {
-                definitions.Add(Range(bepInEx.Versions.MinBy(entry => entry["uploaded_at"]?.GetValue<string>())!));
-            }
-
             var floor = _release["coreFloor"]?.GetValue<string>();
             if (floor != null)
             {
