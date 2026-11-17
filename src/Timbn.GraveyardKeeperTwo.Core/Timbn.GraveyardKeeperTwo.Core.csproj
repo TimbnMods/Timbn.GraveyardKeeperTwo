@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyName>Timbn.GraveyardKeeperTwo.Core</AssemblyName>
@@ -39,7 +39,7 @@
 
   <ItemGroup>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>$(GameLibDir)\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>$(GameManagedDir)\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="AstarPathfindingProject">

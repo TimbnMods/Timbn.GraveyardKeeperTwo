@@ -2,23 +2,23 @@ record ContentFile(string Source, string RelativePath);
 
 class ModInfo
 {
-    public required string ProjectName { get; init; }
-    public required string ModName { get; init; }
-    public required string ProjectDir { get; init; }
-    public required string DocsDir { get; init; }
-    public required string AssemblyName { get; init; }
-    public required string Product { get; init; }
-    public required string Version { get; init; }
-    public required string NexusModId { get; init; }
-    public required string WorkshopItemId { get; init; }
-    public required bool SkipThunderstore { get; init; }
-    public required bool GenerateDocumentationFile { get; init; }
-    public required bool IsPackable { get; init; }
-    public required Dictionary<string, string> Shared { get; init; }
-    public required string CoreFloor { get; init; }
-    public required string GameVersion { get; init; }
-    public required string GameBuild { get; init; }
-    public required ModInfo? Core { get; init; }
+    public string ProjectName { get; init; } = string.Empty;
+    public string ModName { get; init; } = string.Empty;
+    public string ProjectDir { get; init; } = string.Empty;
+    public string DocsDir { get; init; } = string.Empty;
+    public string AssemblyName { get; init; } = string.Empty;
+    public string Product { get; init; } = string.Empty;
+    public string Version { get; init; } = string.Empty;
+    public string NexusModId { get; init; } = string.Empty;
+    public string WorkshopItemId { get; init; } = string.Empty;
+    public bool SkipThunderstore { get; init; } = false;
+    public bool GenerateDocumentationFile { get; init; } = false;
+    public bool IsPackable { get; init; } = false;
+    public Dictionary<string, string> Shared { get; init; } = new Dictionary<string, string>();
+    public string CoreFloor { get; init; } = string.Empty;
+    public string GameVersion { get; init; } = string.Empty;
+    public string GameBuild { get; init; } = string.Empty;
+    public ModInfo? Core { get; init; } = null;
 
     public bool IsCore => ModName == "Core";
     public bool IsReleasable => System.Version.Parse(Version) >= new System.Version(1, 0, 0);
@@ -66,7 +66,7 @@ class ModInfo
             Product = Read(properties, "Product") is { Length: > 0 } product ? product : throw new ReleaseException($"{projectName} has no Product"),
             Version = Read(properties, "Version", shared["Version"]),
             NexusModId = Read(properties, "NexusModId"),
-            WorkshopItemId = Read(properties, "WorkshopItemId"),
+            WorkshopItemId = Read(properties, "WorkshopItemId") is "0" ? string.Empty : Read(properties, "WorkshopItemId"),
             SkipThunderstore = IsTrue(properties, "SkipThunderstore"),
             GenerateDocumentationFile = IsTrue(properties, "GenerateDocumentationFile"),
             IsPackable = IsTrue(properties, "IsPackable"),

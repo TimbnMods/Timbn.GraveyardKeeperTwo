@@ -1,5 +1,10 @@
-class MarkdownRenderer(Func<string, string> imageUrl) : Renderer(Site.Thunderstore, imageUrl)
+class MarkdownRenderer : Renderer
 {
+    public MarkdownRenderer(Func<string, string> imageUrl)
+        : base(Site.Thunderstore, imageUrl)
+    {
+    }
+
     protected override void Start(string title, string? banner, string summary)
     {
         Output.Append($"# {title}\n\n");
@@ -21,7 +26,7 @@ class MarkdownRenderer(Func<string, string> imageUrl) : Renderer(Site.Thundersto
 
     protected override void Paragraph(string text) => Output.Append(text).Append("\n\n");
 
-    protected override void List(bool ordered, List<(string Text, string? Image)> items)
+    protected override void List(bool ordered, List<ListItem> items)
     {
         for (var i = 0; i < items.Count; i++)
         {

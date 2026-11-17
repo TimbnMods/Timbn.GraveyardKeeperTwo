@@ -28,22 +28,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Reference Include="BepInEx">
-      <HintPath>$(BepInExDir)\core\BepInEx.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="0Harmony">
-      <HintPath>$(BepInExDir)\core\0Harmony.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="LazyBearTechnology">
-      <HintPath>$(GameManagedDir)\LazyBearTechnology.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
-    <Reference Include="Assembly-CSharp">
-      <HintPath>..\..\lib\Assembly-CSharp.dll</HintPath>
-      <Private>true</Private>
-    </Reference>
+    <Reference Update="LazyBearTechnology" Private="true" />
+    <Reference Update="Assembly-CSharp" Private="true" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>$(GameManagedDir)\Newtonsoft.Json.dll</HintPath>
       <Private>true</Private>

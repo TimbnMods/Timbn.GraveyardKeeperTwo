@@ -1,0 +1,28 @@
+#!/bin/sh
+# Blocks a commit that adds a BOM to, or drops the final newline of, a C# or project file.
+# A file that already had a BOM or no final newline on HEAD is let through, so old files don't block a commit.
+
+bad=0
+for file in $(git diff --cached --name-only --diff-filter=ACM -- '*.cs' '*.csproj' '*.props' '*.targets'); do
+  staged_bom=$(git show ":$file" | head -c3 | od -An -tx1 | tr -d ' \n')
+  staged_last=$(git show ":$file" | tail -c1 | od -An -tx1 | tr -d ' \n')
+  if git cat-file -e "HEAD:$file" 2>/dev/null; then
+    head_bom=$(git show "HEAD:$file" | head -c3 | od -An -tx1 | tr -d ' \n')
+    head_last=$(git show "HEAD:$file" | tail -c1 | od -An -tx1 | tr -d ' \n')
+  else
+    head_bom=""
+    head_last="0a"
+  fi
+
+  if [ "$staged_bom" = "efbbbf" ] && [ "$head_bom" != "efbbbf" ]; then
+    echo "BOM added: $file (save it as UTF-8 without signature)"
+    bad=1
+  fi
+
+  if [ -n "$staged_last" ] && [ "$staged_last" != "0a" ] && [ "$head_last" = "0a" ]; then
+    echo "No final newline: $file"
+    bad=1
+  fi
+done
+
+exit $bad

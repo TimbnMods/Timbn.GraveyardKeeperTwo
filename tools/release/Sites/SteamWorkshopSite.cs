@@ -12,7 +12,7 @@ class SteamWorkshopSite : IReleaseSite
         var requirements = new List<Requirement>();
         if (mod.HasCoreFloor)
         {
-            requirements.Add(new(mod.Core!.Product, mod.Core.WorkshopUrl, $"{mod.CoreFloor} or newer"));
+            requirements.Add(new Requirement(mod.Core!.Product, mod.Core.WorkshopUrl, $"{mod.CoreFloor} or newer"));
         }
 
         return requirements;
@@ -26,19 +26,20 @@ class SteamWorkshopSite : IReleaseSite
         // Id 0 makes steamcmd create the item, and visibility 2 keeps it private until the first release makes it public.
         var itemId = context.Options.CreateWorkshop ? "0" : mod.WorkshopItemId;
         var visibility = context.Options.CreateWorkshop ? "2" : "0";
-        // Valve's KeyValues reader caps a value at 4096 bytes and may not read \" escapes. Check both on the first upload.
-        var descriptionBytes = Encoding.UTF8.GetByteCount(pageText);
-        if (descriptionBytes > 4096)
-        {
-            context.Warnings.Add($"the Steam description is {descriptionBytes} bytes, and steamcmd may cut item.vdf values at 4096");
-        }
-
         if (string.IsNullOrEmpty(pluginDir))
         {
             var text = new StringBuilder("\"workshopitem\"\n{\n")
                 .Append($"\t\"appid\"\t\t\"{Repo.SteamAppId}\"\n")
-                .Append($"\t\"publishedfileid\"\t\t{VdfString(itemId)}\n")
-                .Append($"\t\"title\"\t\t{VdfString(mod.Product)}\n")
+                .Append($"\t\"publishedfileid\"\t\t{VdfString(itemId)}\n");
+
+            // A page text update leaves the item's visibility alone, and only the first upload sets it.
+            if (context.Options.CreateWorkshop)
+            {
+                context.RequireIcon("Steam");
+                text.Append($"\t\"visibility\"\t\t\"{visibility}\"\n");
+            }
+
+            text.Append($"\t\"title\"\t\t{VdfString(mod.Product)}\n")
                 .Append($"\t\"description\"\t\t{VdfString(pageText.TrimEnd())}\n")
                 .Append("}\n");
 

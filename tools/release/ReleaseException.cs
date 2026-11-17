@@ -1,1 +1,7 @@
-class ReleaseException(string message) : Exception(message);
+class ReleaseException : Exception
+{
+    public ReleaseException(string message)
+        : base(message)
+    {
+    }
+}

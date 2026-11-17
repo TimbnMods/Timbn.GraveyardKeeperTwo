@@ -45,4 +45,9 @@ dotnet_naming_symbols.non_private_fields.applicable_accessibilities = public, in
 
 dotnet_naming_style.pascal_case.capitalization = pascal_case
 
+# A project file is UTF-8 with no BOM and ends with a newline, so a tool that rewrites it can't slip either in.
+[*.{csproj,props,targets}]
+charset = utf-8
+insert_final_newline = true
+
 

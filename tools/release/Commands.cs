@@ -31,7 +31,7 @@ static class Commands
                 assets.Add(mod.AssemblyName + ".xml");
             }
 
-            releases.Add(new()
+            releases.Add(new Dictionary<string, object>
             {
                 ["project"] = mod.ProjectName,
                 ["mod"] = mod.ModName,

@@ -33,12 +33,12 @@ dotnet new gk2mod -n MyMod
 
 ## Building from source
 
-Requires the .NET SDK. Game DLLs are referenced from lib and from your Graveyard Keeper 2 Managed folder (through the GameDir property in src/Directory.Build.props, so change it if the game is installed somewhere else).
+Requires the .NET SDK. Game DLLs are referenced from your Graveyard Keeper 2 Managed folder (through the GameDir property in src/Directory.Build.props, so change it if the game is installed somewhere else).
 
-To deploy a mod to the plugins folder:
+A Debug build deploys a mod to the game's BepInEx scripts folder, and a Release build deploys it to the Mods/Code folder. Add `-p:DeployTo=none` to build without deploying.
 
 ```cmd
-dotnet build src/Timbn.GraveyardKeeperTwo.VanillaTweaks/Timbn.GraveyardKeeperTwo.VanillaTweaks.csproj -c Debug -p:DeployTo=plugins
+dotnet build src/Timbn.GraveyardKeeperTwo.VanillaTweaks/Timbn.GraveyardKeeperTwo.VanillaTweaks.csproj -c Debug
 ```
 
 The framework supports [ScriptEngine](https://github.com/BepInEx/BepInEx.Debug) with no setup needed from mod authors.

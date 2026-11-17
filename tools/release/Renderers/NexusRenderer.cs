@@ -1,7 +1,12 @@
-class NexusRenderer(Func<string, string> imageUrl) : Renderer(Site.Nexus, imageUrl)
+class NexusRenderer : Renderer
 {
     const string _headingColor = "#ffd65a";
     const string _keyColor = "#f0e2c4";
+
+    public NexusRenderer(Func<string, string> imageUrl)
+        : base(Site.Nexus, imageUrl)
+    {
+    }
 
     protected override void Start(string title, string? banner, string summary)
     {
@@ -23,15 +28,15 @@ class NexusRenderer(Func<string, string> imageUrl) : Renderer(Site.Nexus, imageU
 
     protected override void Paragraph(string text) => Output.Append(text).Append('\n');
 
-    protected override void List(bool ordered, List<(string Text, string? Image)> items)
+    protected override void List(bool ordered, List<ListItem> items)
     {
         Output.Append(ordered ? "[list=1]\n" : "[list]\n");
-        foreach (var (text, image) in items)
+        foreach (var item in items)
         {
-            Output.Append("[*]").Append(text);
-            if (image != null)
+            Output.Append("[*]").Append(item.Text);
+            if (item.Image != null)
             {
-                Output.Append($"\n[img]{image}[/img]");
+                Output.Append($"\n[img]{item.Image}[/img]");
             }
 
             Output.Append("[/*]\n");

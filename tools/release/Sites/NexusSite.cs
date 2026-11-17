@@ -12,7 +12,7 @@ class NexusSite : IReleaseSite
         var requirements = new List<Requirement>();
         if (mod.HasCoreFloor)
         {
-            requirements.Add(new(mod.Core!.Product, mod.Core.NexusUrl, $"{mod.CoreFloor} or newer"));
+            requirements.Add(new Requirement(mod.Core!.Product, mod.Core.NexusUrl, $"{mod.CoreFloor} or newer"));
         }
 
         return requirements;

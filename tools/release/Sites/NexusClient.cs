@@ -1,10 +1,17 @@
 // Most of these v3 calls are marked Experimental by Nexus, so expect to adjust them as the API changes.
-class NexusClient(string folder)
+class NexusClient
 {
     const string _api = "https://api.nexusmods.com/v3";
 
+    readonly string _folder;
     readonly HttpClient _http = new();
-    readonly JsonObject _release = JsonNode.Parse(File.ReadAllText(Path.Combine(folder, "release.json")))!.AsObject();
+    readonly JsonObject _release;
+
+    public NexusClient(string folder)
+    {
+        _folder = folder;
+        _release = JsonNode.Parse(File.ReadAllText(Path.Combine(folder, "release.json")))!.AsObject();
+    }
 
     string Text(string key) => _release[key]?.GetValue<string>() ?? throw new ReleaseException($"release.json has no {key}");
 
@@ -39,7 +46,7 @@ class NexusClient(string folder)
             await AddChangelog(modId, version);
         }
 
-        var description = File.ReadAllText(Path.Combine(folder, "pages", "nexus.bbcode"));
+        var description = File.ReadAllText(Path.Combine(_folder, "pages", "nexus.bbcode"));
         await Send(HttpMethod.Patch, $"/mods/{modId}", new JsonObject { ["summary"] = Text("summary"), ["description"] = description });
         Console.WriteLine("Updated the Nexus page text");
 
@@ -88,7 +95,7 @@ class NexusClient(string folder)
 
     async Task<string> UploadFile(string modId, string? mainFileId, string version)
     {
-        var zip = Path.Combine(folder, Text("nexusZip"));
+        var zip = Path.Combine(_folder, Text("nexusZip"));
         var bytes = await File.ReadAllBytesAsync(zip);
         var name = Path.GetFileName(zip);
 

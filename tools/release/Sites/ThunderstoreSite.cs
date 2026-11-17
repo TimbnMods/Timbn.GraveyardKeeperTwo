@@ -13,7 +13,7 @@ class ThunderstoreSite : IReleaseSite
         if (mod.HasCoreFloor)
         {
             var core = mod.Shared["ThunderstoreCorePackage"].Split('-');
-            requirements.Add(new(mod.Core!.Product, PackageUrl(core[0], core[1]), $"{mod.CoreFloor} or newer"));
+            requirements.Add(new Requirement(mod.Core!.Product, PackageUrl(core[0], core[1]), $"{mod.CoreFloor} or newer"));
         }
 
         return requirements;
@@ -48,12 +48,12 @@ class ThunderstoreSite : IReleaseSite
             },
             new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
 
-        var entries = new List<(string, byte[])>
+        var entries = new List<ZipEntry>
         {
-            ("manifest.json", Encoding.UTF8.GetBytes(manifest + "\n")),
-            ("README.md", Encoding.UTF8.GetBytes(pageText)),
-            ("CHANGELOG.md", File.ReadAllBytes(Path.Combine(mod.ProjectDir, "CHANGELOG.md"))),
-            ("icon.png", File.ReadAllBytes(icon)),
+            new ZipEntry("manifest.json", Encoding.UTF8.GetBytes(manifest + "\n")),
+            new ZipEntry("README.md", Encoding.UTF8.GetBytes(pageText)),
+            new ZipEntry("CHANGELOG.md", File.ReadAllBytes(Path.Combine(mod.ProjectDir, "CHANGELOG.md"))),
+            new ZipEntry("icon.png", File.ReadAllBytes(icon)),
         };
 
         entries.AddRange(ReleaseContext.Files(pluginDir, mod.ProjectName));
@@ -91,9 +91,9 @@ class ThunderstoreSite : IReleaseSite
             .Append("containsNsfwContent = false\n\n")
             .Append("[package.dependencies]\n");
 
-        foreach (var (package, version) in dependencies)
+        foreach (var dependency in dependencies)
         {
-            toml.Append($"{package} = {TomlString(version)}\n");
+            toml.Append($"{dependency.Key} = {TomlString(dependency.Value)}\n");
         }
 
         toml.Append("\n[build]\nicon = \"./icon.png\"\nreadme = \"./README.md\"\noutdir = \"./build\"\n\n")

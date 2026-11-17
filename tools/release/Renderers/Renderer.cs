@@ -1,19 +1,28 @@
 record Requirement(string Name, string Url, string? Note);
 
-abstract class Renderer(Site site, Func<string, string> imageUrl)
+abstract class Renderer
 {
     static readonly Regex _inline = new(@"\*\*(?<bold>.+?)\*\*|`(?<key>[^`]+)`|\[(?<text>[^\]]+)\]\((?<url>[^)\s]+)\)");
 
     protected readonly StringBuilder Output = new();
 
-    public Site Site => site;
+    readonly Site _site;
+    readonly Func<string, string> _imageUrl;
 
-    protected string ImageUrl(string path) => imageUrl(path);
+    protected Renderer(Site site, Func<string, string> imageUrl)
+    {
+        _site = site;
+        _imageUrl = imageUrl;
+    }
+
+    public Site Site => _site;
+
+    protected string ImageUrl(string path) => _imageUrl(path);
 
     public string Render(string title, Page page, List<Requirement> requirements)
     {
         Start(title, page.Banner == null ? null : ImageUrl(page.Banner), Inline(page.Summary));
-        var sections = page.Sections.Where(section => section.Filter.Shows(site)).ToList();
+        var sections = page.Sections.Where(section => section.Filter.Shows(_site)).ToList();
         var requirementsShown = false;
         foreach (var section in sections)
         {
@@ -31,7 +40,7 @@ abstract class Renderer(Site site, Func<string, string> imageUrl)
                 Paragraph(Bold(FixedLine(section.Fixed)));
             }
 
-            foreach (var block in section.Blocks.Where(block => block.Filter.Shows(site)))
+            foreach (var block in section.Blocks.Where(block => block.Filter.Shows(_site)))
             {
                 switch (block)
                 {
@@ -43,7 +52,7 @@ abstract class Renderer(Site site, Func<string, string> imageUrl)
 
                         break;
                     case ListBlock list:
-                        List(list.Ordered, [.. list.Items.Select(item => (Inline(item.Text), item.Image == null ? null : ImageUrl(item.Image)))]);
+                        List(list.Ordered, [.. list.Items.Select(item => new ListItem(Inline(item.Text), item.Image == null ? null : ImageUrl(item.Image)))]);
                         break;
                     case ImageBlock image:
                         Image(ImageUrl(image.Path));
@@ -77,8 +86,8 @@ abstract class Renderer(Site site, Func<string, string> imageUrl)
         List(false, [.. requirements.Select(RequirementText)]);
     }
 
-    (string, string?) RequirementText(Requirement requirement) =>
-        (Link(requirement.Name, requirement.Url) + (requirement.Note == null ? "" : requirement.Note.StartsWith(',') ? requirement.Note : " " + requirement.Note), null);
+    ListItem RequirementText(Requirement requirement) =>
+        new ListItem(Link(requirement.Name, requirement.Url) + (requirement.Note == null ? "" : requirement.Note.StartsWith(',') ? requirement.Note : " " + requirement.Note), null);
 
     static string FixedLine(FixedStatus status) => status.Level switch
     {
@@ -118,7 +127,7 @@ abstract class Renderer(Site site, Func<string, string> imageUrl)
     protected abstract void Heading(string title, FixedStatus? status);
     protected abstract void Subtitle(string text);
     protected abstract void Paragraph(string text);
-    protected abstract void List(bool ordered, List<(string Text, string? Image)> items);
+    protected abstract void List(bool ordered, List<ListItem> items);
     protected abstract void Image(string url);
     protected abstract void Spoiler(string title, string text);
     protected abstract string Bold(string text);

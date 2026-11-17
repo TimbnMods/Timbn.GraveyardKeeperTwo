@@ -1,5 +1,10 @@
-class SteamRenderer(Func<string, string> imageUrl) : Renderer(Site.Steam, imageUrl)
+class SteamRenderer : Renderer
 {
+    public SteamRenderer(Func<string, string> imageUrl)
+        : base(Site.Steam, imageUrl)
+    {
+    }
+
     protected override void Start(string title, string? banner, string summary)
     {
         if (banner != null)
@@ -20,15 +25,15 @@ class SteamRenderer(Func<string, string> imageUrl) : Renderer(Site.Steam, imageU
 
     protected override void Paragraph(string text) => Output.Append(text).Append('\n');
 
-    protected override void List(bool ordered, List<(string Text, string? Image)> items)
+    protected override void List(bool ordered, List<ListItem> items)
     {
         Output.Append(ordered ? "[olist]\n" : "[list]\n");
-        foreach (var (text, image) in items)
+        foreach (var item in items)
         {
-            Output.Append("[*]").Append(text).Append('\n');
-            if (image != null)
+            Output.Append("[*]").Append(item.Text).Append('\n');
+            if (item.Image != null)
             {
-                Output.Append($"[img]{image}[/img]\n");
+                Output.Append($"[img]{item.Image}[/img]\n");
             }
         }
 

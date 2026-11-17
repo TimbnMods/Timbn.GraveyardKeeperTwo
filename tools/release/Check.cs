@@ -1,12 +1,20 @@
 // Read only readiness check for one mod. It collects every failure before it reports, so one run shows everything to fix.
-class Check(string repo, ModInfo mod)
+class Check
 {
     static readonly System.Version _firstRelease = new(1, 0, 0);
     static readonly HttpClient _http = CreateClient();
 
+    readonly string _repo;
+    readonly ModInfo _mod;
     readonly List<string> _failures = [];
     readonly List<string> _warnings = [];
     readonly List<string> _notes = [];
+
+    Check(string repo, ModInfo mod)
+    {
+        _repo = repo;
+        _mod = mod;
+    }
 
     public static async Task<int> Run(string repo, string name)
     {
@@ -16,17 +24,21 @@ class Check(string repo, ModInfo mod)
 
     static HttpClient CreateClient()
     {
-        var client = new HttpClient { Timeout = TimeSpan.FromSeconds(15) };
+        var client = new HttpClient
+        {
+            Timeout = TimeSpan.FromSeconds(15),
+        };
+
         client.DefaultRequestHeaders.UserAgent.ParseAdd("TimbnRelease/1.0");
         return client;
     }
 
     async Task<int> Run()
     {
-        var tags = ModTags.Read(repo, mod);
+        var tags = ModTags.Read(_repo, _mod);
         var isNew = tags.Count == 0;
-        var version = System.Version.Parse(mod.Version);
-        _notes.Add($"{mod.Product} {mod.Version} is {(isNew ? "new, with no release tag" : $"existing, newest tag {tags.Max()}")}");
+        var version = System.Version.Parse(_mod.Version);
+        _notes.Add($"{_mod.Product} {_mod.Version} is {(isNew ? "new, with no release tag" : $"existing, newest tag {tags.Max()}")}");
 
         CheckVersion(isNew, version, tags);
         CheckChangelog(isNew);
@@ -51,7 +63,7 @@ class Check(string repo, ModInfo mod)
             Console.WriteLine($"FAIL: {failure}");
         }
 
-        Console.WriteLine(_failures.Count == 0 ? $"{mod.ProjectName} passed" : $"{mod.ProjectName} has {_failures.Count} failure(s)");
+        Console.WriteLine(_failures.Count == 0 ? $"{_mod.ProjectName} passed" : $"{_mod.ProjectName} has {_failures.Count} failure(s)");
         return _failures.Count == 0 ? 0 : 1;
     }
 
@@ -61,7 +73,7 @@ class Check(string repo, ModInfo mod)
         {
             if (version > _firstRelease)
             {
-                _failures.Add($"a new mod must be below 1.0.0 or exactly 1.0.0, but the csproj says {mod.Version}");
+                _failures.Add($"a new mod must be below 1.0.0 or exactly 1.0.0, but the csproj says {_mod.Version}");
             }
 
             return;
@@ -69,18 +81,18 @@ class Check(string repo, ModInfo mod)
 
         if (version < _firstRelease)
         {
-            _failures.Add($"an existing mod must be 1.0.0 or above, but the csproj says {mod.Version}");
+            _failures.Add($"an existing mod must be 1.0.0 or above, but the csproj says {_mod.Version}");
         }
 
         if (version <= tags.Max())
         {
-            _failures.Add($"{mod.Version} is not greater than the newest tag {tags.Max()}");
+            _failures.Add($"{_mod.Version} is not greater than the newest tag {tags.Max()}");
         }
     }
 
     void CheckChangelog(bool isNew)
     {
-        var path = Path.Combine(mod.ProjectDir, "CHANGELOG.md");
+        var path = Path.Combine(_mod.ProjectDir, "CHANGELOG.md");
         if (!File.Exists(path))
         {
             _failures.Add($"no CHANGELOG.md at {path}");
@@ -88,7 +100,7 @@ class Check(string repo, ModInfo mod)
         }
 
         // A new mod's heading is renamed to 1.0.0 when it is prepared, so either heading counts.
-        var versions = isNew ? new[] { mod.Version, "1.0.0" } : [mod.Version];
+        var versions = isNew ? new[] { _mod.Version, "1.0.0" } : [_mod.Version];
         if (versions.All(version => Changelog.TryRead(path, version) == null))
         {
             _failures.Add($"CHANGELOG.md has no bullets under ## {string.Join(" or ## ", versions)}");
@@ -103,10 +115,14 @@ class Check(string repo, ModInfo mod)
         var console = Console.Out;
         try
         {
-            var page = PageParser.Load(Path.Combine(mod.DocsDir, "page.yml"));
-            var options = new Options(mod.ModName, null, output, new string('0', 40), true) { PagesOnly = true };
+            var page = PageParser.Load(Path.Combine(_mod.DocsDir, "page.yml"));
+            var options = new Options(_mod.ModName, null, output, new string('0', 40), true)
+            {
+                PagesOnly = true,
+            };
+
             Console.SetOut(captured);
-            new ReleaseBuilder(repo, mod, page, options).Run();
+            new ReleaseBuilder(_repo, _mod, page, options).Run();
         }
         catch (ReleaseException e)
         {
@@ -125,20 +141,24 @@ class Check(string repo, ModInfo mod)
             }
         }
 
-        foreach (var line in captured.ToString().Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).Where(line => line.StartsWith("warning: ")))
+        var lines = captured.ToString()
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(line => line.StartsWith("warning: "));
+
+        foreach (var line in lines)
         {
             _warnings.Add(line["warning: ".Length..]);
         }
 
-        if (!Regex.IsMatch(mod.ThunderstoreName, "^[A-Za-z0-9_]+$"))
+        if (!Regex.IsMatch(_mod.ThunderstoreName, "^[A-Za-z0-9_]+$"))
         {
-            _failures.Add($"Thunderstore name {mod.ThunderstoreName} may only hold letters, digits and underscores");
+            _failures.Add($"Thunderstore name {_mod.ThunderstoreName} may only hold letters, digits and underscores");
         }
     }
 
     void CheckArt()
     {
-        var icon = Path.Combine(mod.DocsDir, "icon.png");
+        var icon = Path.Combine(_mod.DocsDir, "icon.png");
         if (!File.Exists(icon))
         {
             _failures.Add($"no icon at {icon}");
@@ -156,7 +176,7 @@ class Check(string repo, ModInfo mod)
             }
         }
 
-        var header = Path.Combine(mod.DocsDir, "images", "header.jpg");
+        var header = Path.Combine(_mod.DocsDir, "images", "header.jpg");
         if (!File.Exists(header))
         {
             _failures.Add($"no page banner at {header}");
@@ -166,7 +186,7 @@ class Check(string repo, ModInfo mod)
     // A missing translation shows English, so only a missing en.txt fails and gaps are warnings.
     void CheckLang()
     {
-        var folder = Path.Combine(mod.ProjectDir, "lang");
+        var folder = Path.Combine(_mod.ProjectDir, "lang");
         if (!Directory.Exists(folder))
         {
             return;
@@ -180,7 +200,11 @@ class Check(string repo, ModInfo mod)
         }
 
         var keys = LangKeys(english);
-        foreach (var file in Directory.EnumerateFiles(folder, "*.txt").Where(file => file != english).Order(StringComparer.Ordinal))
+        var translations = Directory.EnumerateFiles(folder, "*.txt")
+            .Where(file => file != english)
+            .Order(StringComparer.Ordinal);
+
+        foreach (var file in translations)
         {
             var missing = keys.Except(LangKeys(file)).Count();
             if (missing > 0)
@@ -198,78 +222,73 @@ class Check(string repo, ModInfo mod)
 
     void CheckCore()
     {
-        if (!mod.HasCoreFloor)
+        if (!_mod.HasCoreFloor)
         {
             return;
         }
 
-        if (System.Version.TryParse(mod.CoreFloor, out var floor) && floor > System.Version.Parse(mod.Core!.Version))
+        if (System.Version.TryParse(_mod.CoreFloor, out var floor) && floor > System.Version.Parse(_mod.Core!.Version))
         {
-            _failures.Add($"the Core floor {mod.CoreFloor} is above Core's current version {mod.Core.Version}");
+            _failures.Add($"the Core floor {_mod.CoreFloor} is above Core's current version {_mod.Core.Version}");
         }
     }
 
     async Task CheckSites(bool isNew)
     {
-        if (!mod.ToNexus)
+        if (!_mod.ToNexus)
         {
             _notes.Add("Nexus is off, since NexusModId is blank");
         }
 
-        if (!mod.ToWorkshop)
+        if (!_mod.ToWorkshop)
         {
             _notes.Add(isNew ? "Workshop is off until prepare-new creates the item and writes WorkshopItemId" : "Workshop is off, since WorkshopItemId is blank");
         }
 
-        if (!mod.ToThunderstore)
+        if (!_mod.ToThunderstore)
         {
             _notes.Add("Thunderstore is off, since SkipThunderstore is true");
         }
 
-        if (mod.ToThunderstore && mod.HasCoreFloor)
+        if (_mod.ToThunderstore && _mod.HasCoreFloor)
         {
-            var core = mod.Shared["ThunderstoreCorePackage"].Split('-');
-            var status = await Status($"https://thunderstore.io/api/experimental/package/{core[0]}/{core[1]}/{mod.CoreFloor}/");
+            var core = _mod.Shared["ThunderstoreCorePackage"].Split('-');
+            var status = await Status($"https://thunderstore.io/api/experimental/package/{core[0]}/{core[1]}/{_mod.CoreFloor}/");
             if (status == HttpStatusCode.NotFound)
             {
-                _failures.Add($"Core {mod.CoreFloor} is not on Thunderstore, so this mod's dependency would not resolve");
+                _failures.Add($"Core {_mod.CoreFloor} is not on Thunderstore, so this mod's dependency would not resolve");
             }
             else if (status != HttpStatusCode.OK)
             {
-                _warnings.Add($"could not confirm Core {mod.CoreFloor} on Thunderstore ({status})");
+                _warnings.Add($"could not confirm Core {_mod.CoreFloor} on Thunderstore ({status})");
             }
         }
 
-        if (isNew)
+        if (_mod.ToNexus)
         {
-            return;
-        }
-
-        if (mod.ToNexus)
-        {
-            var status = await Status($"https://www.nexusmods.com/{Repo.NexusGame}/mods/{mod.NexusModId}");
+            var status = await Status($"https://www.nexusmods.com/{Repo.NexusGame}/mods/{_mod.NexusModId}");
             if (status == HttpStatusCode.Forbidden)
             {
-                _notes.Add($"Nexus blocks automated page checks, so confirm {mod.NexusUrl} by hand");
+                _notes.Add($"Nexus blocks automated page checks, so confirm {_mod.NexusUrl} by hand");
             }
             else
             {
-                Report(status, "the Nexus page", mod.NexusUrl);
+                Report(status, "the Nexus page", _mod.NexusUrl);
             }
         }
 
-        if (mod.ToWorkshop)
+        if (_mod.ToWorkshop)
         {
-            var status = await Status(mod.WorkshopUrl);
-            Report(status, "the Workshop page", mod.WorkshopUrl);
+            var status = await Status(_mod.WorkshopUrl);
+            Report(status, "the Workshop page", _mod.WorkshopUrl);
         }
 
-        if (mod.ToThunderstore)
+        if (_mod.ToThunderstore)
         {
-            var status = await Status($"https://thunderstore.io/api/experimental/package/{mod.Shared["ThunderstoreNamespace"]}/{mod.ThunderstoreName}/");
+            var status = await Status($"https://thunderstore.io/api/experimental/package/{_mod.Shared["ThunderstoreNamespace"]}/{_mod.ThunderstoreName}/");
             if (status == HttpStatusCode.NotFound)
             {
-                _warnings.Add($"{mod.Shared["ThunderstoreNamespace"]}/{mod.ThunderstoreName} is not on Thunderstore, so the release creates that package and its name is permanent");
+                _warnings.Add($"{_mod.Shared["ThunderstoreNamespace"]}/{_mod.ThunderstoreName} is not on Thunderstore, so the release creates that package and its name is permanent");
             }
             else if (status != HttpStatusCode.OK)
             {

@@ -1,14 +1,8 @@
 <Project>
 
-  <!--
-    Shared by every plugin project. A csproj keeps only its identity, its version, its references, and
-  its
-    content. Version here is the fallback for a project that does not set its own; each csproj
-  overrides it,
-    and BepInEx.PluginInfoProps turns whichever wins into MyPluginInfo.PLUGIN_VERSION.
-  -->
+  <!--Default csproj settings and packages shared by every project.-->
   <PropertyGroup>
-    <Version>1.0.0</Version>
+    <Version>0.1.0</Version>
     <TargetFramework>netstandard2.1</TargetFramework>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <ImplicitUsings>enable</ImplicitUsings>
@@ -16,28 +10,11 @@
     <LangVersion>latest</LangVersion>
     <IsPackable>false</IsPackable>
     <DebugType>embedded</DebugType>
-    <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=./</PathMap>
-    <GameDir>C:\Program Files (x86)\Steam\steamapps\common\Graveyard Keeper 2</GameDir>
-    <GameManagedDir>$(GameDir)\GraveyardKeeper2_Data\Managed</GameManagedDir>
-    <BepInExDir>$(GameDir)\BepInEx</BepInExDir>
-    <ModsCodeDir>$(USERPROFILE)\AppData\LocalLow\Lazy Bear Games\Graveyard Keeper 2\Mods\Code</ModsCodeDir>
-    <GameLibDir>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..\lib'))</GameLibDir>
-    <ScriptReloadable Condition="'$(ScriptReloadable)' == ''">true</ScriptReloadable>
+    <PathMap>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)'))=/_/</PathMap>
     <RestoreAdditionalProjectSources>
       https://api.nuget.org/v3/index.json;
       https://nuget.bepinex.dev/v3/index.json
     </RestoreAdditionalProjectSources>
-  </PropertyGroup>
-
-  <!--
-    Thunderstore package settings the release tool (tools/release) reads. Every released mod goes to
-    Thunderstore unless its csproj sets SkipThunderstore true.
-    No package depends on the BepInExPack, since the game ships BepInEx.
-  -->
-  <PropertyGroup>
-    <ThunderstoreNamespace>Timbn</ThunderstoreNamespace>
-    <ThunderstoreWebsiteUrl>https://github.com/TimbnMods/Timbn.GraveyardKeeperTwo</ThunderstoreWebsiteUrl>
-    <ThunderstoreCorePackage>Timbn-TimbnCore</ThunderstoreCorePackage>
   </PropertyGroup>
 
   <ItemGroup>
@@ -48,14 +25,31 @@
   </ItemGroup>
 
   <!--
-    The game's DLLs every plugin compiles against. They are never copied, since the game loads its own.
-    Assembly-CSharp comes from lib (copied from the game at the version the repo is tested on) and the
-  rest from
-    the install. Any lang/*.txt file ships next to the DLL.
+    Variables for the modding environment. Change these if you have different paths.
+    Things projects can override or set:
+    WorkshopItemId (int, the mod's ID on Steam Workshop)
+    NexusModId (int, the mod's ID on Nexus Mods)
+    PropertyGroup.ScriptReloadable (bool, if the mod can be deployed to script folder)
+    SkipThunderstore (bool, if the mod should not be released to Thunderstore)
   -->
+  <PropertyGroup>
+    <GameDir>$(MSBuildProgramFiles32)\Steam\steamapps\common\Graveyard Keeper 2</GameDir>
+    <GameManagedDir>$(GameDir)\GraveyardKeeper2_Data\Managed</GameManagedDir>
+    <ModsCodeDir>$(USERPROFILE)\AppData\LocalLow\Lazy Bear Games\Graveyard Keeper 2\Mods\Code</ModsCodeDir>
+    <ScriptReloadable Condition="'$(ScriptReloadable)' == ''">true</ScriptReloadable>
+  </PropertyGroup>
+
+  <!--Always publish to Thunderstore unless SkipThunderstore is set to true or version is less than 1.0.0.-->
+  <PropertyGroup>
+    <ThunderstoreNamespace>Timbn</ThunderstoreNamespace>
+    <ThunderstoreWebsiteUrl>https://github.com/TimbnMods/Timbn.GraveyardKeeperTwo</ThunderstoreWebsiteUrl>
+    <ThunderstoreCorePackage>Timbn-TimbnCore</ThunderstoreCorePackage>
+  </PropertyGroup>
+
+  <!--The game's DLLs and lang folder-->
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>$(GameLibDir)\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(GameManagedDir)\Assembly-CSharp.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="LazyBearTechnology">
