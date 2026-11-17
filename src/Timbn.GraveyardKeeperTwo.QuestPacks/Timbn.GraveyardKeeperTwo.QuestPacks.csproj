@@ -3,9 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Timbn.GraveyardKeeperTwo.QuestPacks</AssemblyName>
     <Product>Timbn Quest Packs</Product>
-    <Version>1.0.0</Version>
-    <SteamWorkshop>true</SteamWorkshop>
-    <WorkshopItemId>0</WorkshopItemId>
+    <Version>0.1.0</Version>
   </PropertyGroup>
 
   <!-- It reaches Core's internals, which only an assembly with this exact name may do, and ScriptEngine renames what it loads. -->

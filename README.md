@@ -33,12 +33,12 @@ dotnet new gk2mod -n MyMod
 
 ## Building from source
 
-Requires the .NET SDK. Game DLLs are referenced from lib and from your Graveyard Keeper 2 Managed folder (through the GameDir property in src/Directory.Build.props, so change it if the game is installed somewhere else).
+Requires the .NET SDK. Game DLLs are referenced from your Graveyard Keeper 2 Managed folder (through the GameDir property in src/Directory.Build.props, so change it if the game is installed somewhere else).
 
-To deploy a mod to the plugins folder:
+A Debug build deploys a mod to the game's BepInEx scripts folder, and a Release build deploys it to the Mods/Code folder. Add `-p:DeployTo=none` to build without deploying.
 
 ```cmd
-dotnet build src/Timbn.GraveyardKeeperTwo.VanillaTweaks/Timbn.GraveyardKeeperTwo.VanillaTweaks.csproj -c Debug -p:DeployTo=plugins
+dotnet build src/Timbn.GraveyardKeeperTwo.VanillaTweaks/Timbn.GraveyardKeeperTwo.VanillaTweaks.csproj -c Debug
 ```
 
 The framework supports [ScriptEngine](https://github.com/BepInEx/BepInEx.Debug) with no setup needed from mod authors.
@@ -64,10 +64,10 @@ A GitHub Action does the packaging and uploads, and only the DLL is built locall
 3. Run the Release drafts workflow. It packages every draft that has its DLL, shows the zips and page text in the run summary, then waits for approval.
 4. Approving uploads to Nexus, Thunderstore, the Steam Workshop and (for Core) NuGet, then publishes the GitHub release.
 
-The packaging and page rendering live in `tools/release/Release.cs`. To check a mod's zips and page text locally:
+The packaging and page rendering live in the `tools/release` project. To check a mod's zips and page text locally:
 
 ```cmd
-dotnet run tools/release/Release.cs -- VanillaTweaks --dry-run
+dotnet run --project tools/release -- VanillaTweaks --dry-run
 ```
 
 The Sync pages workflow updates the Nexus and Steam page text from `page.yml` without a release.

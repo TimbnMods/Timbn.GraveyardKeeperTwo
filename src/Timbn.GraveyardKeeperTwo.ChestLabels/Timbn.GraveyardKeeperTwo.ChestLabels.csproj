@@ -4,8 +4,6 @@
     <AssemblyName>Timbn.GraveyardKeeperTwo.ChestLabels</AssemblyName>
     <Product>Timbn Chest Labels</Product>
     <Version>1.1.2</Version>
-    <Thunderstore>true</Thunderstore>
-    <Description>Name your chests. Press the Work key at a chest and type a label, and it shows over the chest in the same style as grave quality.</Description>
     <WorkshopItemId>3821251395</WorkshopItemId>
     <NexusModId>398</NexusModId>
   </PropertyGroup>

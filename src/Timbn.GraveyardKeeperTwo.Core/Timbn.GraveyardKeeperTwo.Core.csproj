@@ -4,9 +4,6 @@
     <AssemblyName>Timbn.GraveyardKeeperTwo.Core</AssemblyName>
     <Product>Timbn Core</Product>
     <Version>2.2.5</Version>
-    <Thunderstore>true</Thunderstore>
-    <ThunderstoreCategories>mods;libraries</ThunderstoreCategories>
-    <SteamWorkshop>true</SteamWorkshop>
     <WorkshopItemId>3810064587</WorkshopItemId>
     <NexusModId>84</NexusModId>
   </PropertyGroup>
@@ -42,7 +39,7 @@
 
   <ItemGroup>
     <Reference Include="Assembly-CSharp-firstpass">
-      <HintPath>$(GameLibDir)\Assembly-CSharp-firstpass.dll</HintPath>
+      <HintPath>$(GameManagedDir)\Assembly-CSharp-firstpass.dll</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="AstarPathfindingProject">

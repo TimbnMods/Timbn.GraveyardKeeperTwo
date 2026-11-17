@@ -6,8 +6,6 @@
     <Version>1.1.0</Version>
     <WorkshopItemId>3821083573</WorkshopItemId>
     <NexusModId>394</NexusModId>
-    <Thunderstore>true</Thunderstore>
-    <SteamWorkshop>true</SteamWorkshop>
   </PropertyGroup>
 
   <ItemGroup>
