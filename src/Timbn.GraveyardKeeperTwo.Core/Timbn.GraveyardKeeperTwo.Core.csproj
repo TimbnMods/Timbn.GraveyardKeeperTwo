@@ -90,6 +90,10 @@
       <HintPath>$(GameManagedDir)\Unity.ResourceManager.dll</HintPath>
       <Private>false</Private>
     </Reference>
+    <Reference Include="Rewired_Core">
+      <HintPath>$(GameManagedDir)\Rewired_Core.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
     <Reference Include="UniTask">
       <HintPath>$(GameManagedDir)\UniTask.dll</HintPath>
       <Private>false</Private>
