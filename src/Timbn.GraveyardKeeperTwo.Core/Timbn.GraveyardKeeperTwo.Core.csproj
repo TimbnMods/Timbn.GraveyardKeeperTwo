@@ -3,7 +3,7 @@
   <PropertyGroup>
     <AssemblyName>Timbn.GraveyardKeeperTwo.Core</AssemblyName>
     <Product>Timbn Core</Product>
-    <Version>2.2.5</Version>
+    <Version>2.2.6</Version>
     <WorkshopItemId>3810064587</WorkshopItemId>
     <NexusModId>84</NexusModId>
   </PropertyGroup>

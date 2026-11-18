@@ -1,6 +1,6 @@
 # Changelog
 
-## next-patch-release
+## 2.2.6
 
 - Works on game version 1.012.9.
 - Townsfolk that mods walk through a door they start beside no longer go through it twice.
