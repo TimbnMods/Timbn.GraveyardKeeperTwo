@@ -1,5 +1,10 @@
 # Changelog
 
+## 2.2.6
+
+- Works on game version 1.012.9.
+- Townsfolk that mods walk through a door they start beside no longer go through it twice.
+
 ## 2.2.5
 
 - No more errors in the log when a body is carried.

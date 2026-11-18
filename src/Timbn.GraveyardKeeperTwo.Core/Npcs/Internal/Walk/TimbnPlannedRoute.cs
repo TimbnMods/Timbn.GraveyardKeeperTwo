@@ -109,17 +109,16 @@ internal static class TimbnPlannedRoute
         if (route.Any(point => point.Node == null))
             return false;
 
-        List<GDPointData> nodes = [.. route];
-        if (StartsThroughItsTransit(route))
-            nodes.Insert(0, route[0]);
-
+        // The game teleports at a door on any node of the path, the first one included, so a walk that starts on a
+        // door and heads away from it starts from the next point instead.
+        var points = StartsAwayFromItsTransit(route) ? route.Skip(1).ToList() : route;
         TimbnWalkState.Status!(movement) = MovementComponent.Status.PathBuilding;
         _useVectorPath!(movement) = false;
         _wholePath!(movement) = new ABPath { path = [], vectorPath = [] };
         var path = new ABPath
         {
-            path = [.. nodes.Select(point => (GraphNode)point.Node)],
-            vectorPath = [.. nodes.Select(point => (Vector3)point.Node.position)],
+            path = [.. points.Select(point => (GraphNode)point.Node)],
+            vectorPath = [.. points.Select(point => (Vector3)point.Node.position)],
         };
         _setCompleteState!(path, PathCompleteState.Complete);
         _used = true;
@@ -127,8 +126,8 @@ internal static class TimbnPlannedRoute
         return true;
     }
 
-    private static bool StartsThroughItsTransit(List<GDPointData> route) =>
+    private static bool StartsAwayFromItsTransit(List<GDPointData> route) =>
         route.Count > 1
         && (route[0].IsTransitPoint || !string.IsNullOrEmpty(route[0].GameSceneDataIdToTransit))
-        && route[0].TransitToGdPointId == route[1].Id;
+        && route[0].TransitToGdPointId != route[1].Id;
 }
